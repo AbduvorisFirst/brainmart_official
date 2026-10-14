@@ -1,0 +1,1656 @@
+# Language: uz
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "(Черный, Золотой, Стандарт...)"
+msgstr "(Qora, Oltin, Standart...)"
+
+msgid "+ Добавить размер"
+msgstr "+ O'lcham qo'shish"
+
+msgid "0% комиссии"
+msgstr "0% komissiya"
+
+msgid "0% комиссии со всех продаж"
+msgstr "Barcha savdolardan 0% komissiya"
+
+msgid "0%% комиссии"
+msgstr "0%% komissiya"
+
+msgid "1 магазин (База)"
+msgstr "1 ta do'kon (Baza)"
+
+msgid "450 000 сум/мес"
+msgstr "450 000 so'm/oy"
+
+msgid "BrainMart работает по фиксированной подписке. 0% комиссии с продаж. Никаких скрытых платежей."
+msgstr "BrainMart qat'iy obuna asosida ishlaydi. Savdolardan 0% komissiya. Hech qanday yashirin to'lovlarsiz."
+
+msgid "BrainMart работает по фиксированной подписке. 0%% комиссии с продаж. Никаких скрытых платежей."
+msgstr "BrainMart qat'iy obuna asosida ishlaydi. Savdolardan 0%% komissiya. Hech qanday yashirin to'lovlarsiz."
+
+msgid "CRM База Клиентов"
+msgstr "Mijozlar CRM Bazasi"
+
+msgid "CRM по себестоимости / месяц"
+msgstr "Tannarxi bo'yicha CRM / oyiga"
+
+msgid "Gemini AI моментально отвечает на комментарии в Instagram, переводит клиентов в Direct и Telegram, подбирает одежду и товары по фото и доводит до оплаты."
+msgstr "Gemini AI Instagramdagi izohlarga darhol javob beradi, mijozlarni Direct va Telegramga yo'naltiradi, rasm bo'yicha kiyim va tovarlarni tanlaydi va to'lovgacha olib boradi."
+
+msgid "Gemini автоматически подбирает товары по описанию и фото ваших клиентов."
+msgstr "Gemini mijozlaringiz tavsifi va rasmlariga qarab tovarlarni avtomatik tanlaydi."
+
+msgid "ID выплаты"
+msgstr "To'lov ID"
+
+msgid "Instagram аккаунт (без @)"
+msgstr "Instagram akkaunt (@ siz)"
+
+msgid "Old Money"
+msgstr "Old Money"
+
+msgid "SaaS Подписка CRM & ИИ"
+msgstr "SaaS CRM & AI obunasi"
+
+msgid "SaaS-подписка"
+msgstr "SaaS-obuna"
+
+msgid "Telegram SMS & Push Рассылки"
+msgstr "Telegram SMS & Push Xabarnomalar"
+
+msgid "Telegram-Рассылка"
+msgstr "Telegram Xabarnoma"
+
+msgid "Uzcard / Humo с прикреплением фото чека"
+msgstr "Chek rasmini yuklagan holda Uzcard / Humo"
+
+msgid "VIP"
+msgstr "VIP"
+
+msgid "»"
+msgstr "» do'koni sotuvchisiga topshirildi"
+
+msgid "». Скоро вам привезут товар!"
+msgstr "» do'koni xodimlariga topshirdik. Tez orada mahsulot yetkaziladi!"
+
+msgid "Абонплата покрывает работу серверов и генерации ИИ. При неуплате действует льготный период 5 дней. На 5-й день ИИ-продавец и витрина автоматически приостанавливаются."
+msgstr "Oylik to'lov serverlar va AI generatsiyasini qoplaydi. To'lov qilinmasa, 5 kunlik imtiyozli davr amal qiladi. 5-kuni AI-sotuvchi va vitrina avtomatik to'xtatiladi."
+
+msgid "Адрес доставки"
+msgstr "Yetkazib berish manzili"
+
+msgid "Адрес доставки (улица, дом / квартира)"
+msgstr "Yetkazib berish manzili (ko'cha, uy / xonadon)"
+
+msgid "Адрес доставки / Ориентир"
+msgstr "Yetkazib berish manzili / Mo'ljal"
+
+msgid "Адрес доставки:"
+msgstr "Yetkazib berish manzili:"
+
+msgid "Адрес магазина"
+msgstr "Do'kon manzili"
+
+msgid "Адрес точки"
+msgstr "Nuqta manzili"
+
+msgid "Адрес уточняется"
+msgstr "Manzil aniqlanmoqda"
+
+msgid "Айтишник"
+msgstr "Dasturchi / IT"
+
+msgid "Активен"
+msgstr "Faol"
+
+msgid "Акцентный цвет (Accent)"
+msgstr "Qo'shimcha rang (Accent)"
+
+msgid "Аналитика ИИ-Продавца"
+msgstr "AI-Sotuvchi tahlili"
+
+msgid "Артикул:"
+msgstr "Artikul:"
+
+msgid "Базовая подписка включает 1-ю точку (450 000 сум). Каждый дополнительный филиал: +150 000 сум/мес."
+msgstr "Asosiy obuna 1-nuqtani o'z ichiga oladi (450 000 so'm). Har bir qo'shimcha filial: +150 000 so'm/oy."
+
+msgid "Базовый тариф (1 точка): 450 000 сум + филиалы:"
+msgstr "Asosiy tarif (1 nuqta): 450 000 so'm + filiallar:"
+
+msgid "Без фото чека заказ не может быть отправлен"
+msgstr "Chek rasmi bo'lmasa buyurtma yuborilmaydi"
+
+msgid "Более 100+ заказов"
+msgstr "100 dan ortiq buyurtmalar"
+
+msgid "Будьте первым, кто оставит отзыв об этом товаре!"
+msgstr "Ushbu mahsulot haqida birinchi bo'lib fikr bildiring!"
+
+msgid "Быстрые действия"
+msgstr "Tezkor amallar"
+
+msgid "В каталоге"
+msgstr "Katalogda"
+
+msgid "В корзине"
+msgstr "Savatda"
+
+msgid "В корзину"
+msgstr "Savatga"
+
+msgid "В наличии"
+msgstr "Mavjud"
+
+msgid "В обработке"
+msgstr "Jarayonda"
+
+msgid "В обработке (Холд)"
+msgstr "Kutilmoqda (Xold)"
+
+msgid "В ожидании"
+msgstr "Kutilmoqda"
+
+msgid "В разработке"
+msgstr "Ishlab chiqilmoqda"
+
+msgid "В холде"
+msgstr "Xoldda"
+
+msgid "В этом разделе пока нет товаров. Попробуйте изменить поиск."
+msgstr "Bu bo'limda hali mahsulotlar yo'q. Qidiruvni o'zgartirib ko'ring."
+
+msgid "В этом сегменте пока нет клиентов"
+msgstr "Ushbu segmentda hali mijozlar yo'q"
+
+msgid "ВАЖНО: Продавец в этой локации закажет такси, поэтому вы должны указать её максимально точно!"
+msgstr "MUHIM: Sotuvchi ushbu manzilga taksi chaqiradi, shuning uchun uni iloji boricha aniq ko'rsating!"
+
+msgid "Ваш магазин на модерации. Товары появятся на витрине после проверки."
+msgstr "Do'koningiz tekshiruvda. Tovarlar tekshiruvdan keyin vitrinada paydo bo'ladi."
+
+msgid "Ваш отзыв о товаре"
+msgstr "Mahsulot haqida fikringiz"
+
+msgid "Ваша карта для приёма оплат"
+msgstr "To'lovlarni qabul qilish uchun kartangiz"
+
+msgid "Ваша корзина"
+msgstr "Savatingiz"
+
+msgid "Ваша корзина пуста!"
+msgstr "Savatingiz bo'sh!"
+
+msgid "Ваше имя и фамилия"
+msgstr "Ism va familiyangiz"
+
+msgid "Ваши товары, категории и настройки магазина останутся нетронутыми."
+msgstr "Tovarlaringiz, toifalar va do'kon sozlamalari saqlanib qoladi."
+
+msgid "Вернуться в каталог"
+msgstr "Katalogga qaytish"
+
+msgid "Витрина + MiniApp"
+msgstr "Vitrina + MiniApp"
+
+msgid "Включить автоматический вывод денег при подтверждении доставки заказа"
+msgstr "Buyurtma yetkazilganda avtomatik pul o'tkazishni yoqish"
+
+msgid "Владелец карты (ФИО)"
+msgstr "Karta egasi (F.I.SH)"
+
+msgid "Владелец магазина"
+msgstr "Do'kon egasi"
+
+msgid "Владелец магазина:"
+msgstr "Do'kon egasi:"
+
+msgid "Внимание! Действует льготный период:"
+msgstr "Diqqat! Imtiyozli davr amal qilmoqda:"
+
+msgid "Возврат спящих клиентов"
+msgstr "Nofaol mijozlarni qaytarish"
+
+msgid "Временно на доработке (Скоро)"
+msgstr "Vaqtinchalik yangilanmoqda (Tez orada)"
+
+msgid "Все клиенты"
+msgstr "Barcha mijozlar"
+
+msgid "Всего заработано (Чистыми)"
+msgstr "Jami sof daromad"
+
+msgid "Всего клиентов"
+msgstr "Jami mijozlar"
+
+msgid "Всем покупателям магазина"
+msgstr "Do'konning barcha xaridorlariga"
+
+msgid "Вход для продавцов"
+msgstr "Sotuvchilar uchun kirish"
+
+msgid "Вы действительно хотите очистить историю магазина?"
+msgstr "Haqiqatan ham do'kon tarixini tozalamoqchimisiz?"
+
+msgid "Вы действительно хотите удалить эту точку?"
+msgstr "Haqiqatan ham ushbu nuqtani o'chirmoqchimisiz?"
+
+msgid "Вы еще не добавили ни одного товара."
+msgstr "Siz hali birorta ham tovar qo'shmadingiz."
+
+msgid "Вы можете выбрать сразу несколько (удерживайте Ctrl/Cmd)"
+msgstr "Bir vaqtning o'zida bir nechta rasm tanlashingiz mumkin (Ctrl/Cmd ushlab turing)"
+
+msgid "Вы получаете 100%"
+msgstr "Siz 100% olasiz"
+
+msgid "Вы получаете 100%%"
+msgstr "Siz 100%% olasiz"
+
+msgid "Вы уверены, что хотите удалить этот товар навсегда?"
+msgstr "Ushbu tovarni butunlay o'chirib tashlamoqchimisiz?"
+
+msgid "Выберите готовую цветовую палитру под ваш логотип или укажите свой уникальный цвет:"
+msgstr "Logotipingizga mos tayyor ranglar palitrasini tanlang yoki o'zingizning unikal rangingizni kiriting:"
+
+msgid "Выберите категорию..."
+msgstr "Kategoriyani tanlang..."
+
+msgid "Выберите одну из готовых премиальных тем или настройте свои фирменные цвета."
+msgstr "Tayyor mavzulardan birini tanlang yoki o'z brend ranglaringizni sozlang."
+
+msgid "Выберите способ оплаты"
+msgstr "To'lov usulini tanlang"
+
+msgid "Выберите срок продления"
+msgstr "Muddatni tanlang"
+
+msgid "Выберите, на каком языке вам будут приходить карточки заказов, кнопки и уведомления в Telegram-боте:"
+msgstr "Telegram-botda buyurtma kartochkalari, tugmalar va bildirishnomalar qaysi tilda kelishini tanlang:"
+
+msgid "Выбрано только 1 фото. Рекомендуется от 2 до 10 фото!"
+msgstr "Faqat 1 ta rasm tanlandi. 2 tadan 10 tagacha tavsiya etiladi!"
+
+msgid "Выбрано фото:"
+msgstr "Tanlangan rasmlar:"
+
+msgid "Вывести баланс сейчас"
+msgstr "Balansni hozir yechib olish"
+
+msgid "Выйти"
+msgstr "Chiqish"
+
+msgid "Выйти из аккаунта"
+msgstr "Hisobdan chiqish"
+
+msgid "Выйти на глобальный рынок"
+msgstr "Global bozorga chiqish"
+
+msgid "Выплачен"
+msgstr "To'landi"
+
+msgid "Выручка"
+msgstr "Tushum"
+
+msgid "Выход"
+msgstr "Chiqish"
+
+msgid "Геолокация не поддерживается вашим браузером. Напишите адрес текстом."
+msgstr "Brauzeringiz geolokatsiyani qo'llab-quvvatlamaydi. Manzilni matn shaklida yozing."
+
+msgid "Геолокация не поддерживается вашим браузером. Пожалуйста, напишите адрес вручную."
+msgstr "Brauzeringiz geolokatsiyani qo'llab-quvvatlamaydi. Iltimos, manzilni qo'lda yozing."
+
+msgid "Геолокация успешно зафиксирована"
+msgstr "Geolokatsiya muvaffaqiyatli aniqlandi"
+
+msgid "Главная"
+msgstr "Bosh sahifa"
+
+msgid "Главная точка"
+msgstr "Asosiy nuqta"
+
+msgid "Главное фото"
+msgstr "Asosiy rasm"
+
+msgid "Глобальный рынок"
+msgstr "Global bozor"
+
+msgid "Город, район, улица, дом, квартира, ориентир..."
+msgstr "Shahar, tuman, ko'cha, uy, xonadon, mo'ljal..."
+
+msgid "Готовая онлайн-витрина, умный ИИ-продавец Gemini, CRM для управления складом и мгновенные выплаты на карты Uzcard / Humo."
+msgstr "Tayyor onlayn-vitrina, aqlli Gemini AI-sotuvchisi, omborni boshqarish CRM va Uzcard / Humo kartalariga tezkor to'lovlar."
+
+msgid "Готовые палитры от дизайнеров:"
+msgstr "Dizaynerlar tayyorlagan palitralar:"
+
+msgid "ДОБАВИТЬ ТОЧКУ"
+msgstr "NUQTA QO'SHISH"
+
+msgid "Далее: Выбор адреса и локации"
+msgstr "Keyingisi: Manzil va lokatsiyani tanlash"
+
+msgid "Далее: Способ оплаты"
+msgstr "Keyingisi: To'lov usuli"
+
+msgid "Данные для доставки такси"
+msgstr "Taksi yetkazib berish ma'lumotlari"
+
+msgid "Данные магазина и Брендинг"
+msgstr "Do'kon ma'lumotlari va Brending"
+
+msgid "Дата"
+msgstr "Sana"
+
+msgid "Дата регистрации"
+msgstr "Ro'yxatdan o'tgan sana"
+
+msgid "Деньги за оплаченные заказы, которые сейчас доставляются курьером"
+msgstr "Kuryer tomonidan yetkazilayotgan to'langan buyurtmalar puli"
+
+msgid "Деньги поступили на карту. Заказ собирается и будет отправлен курьером на указанный адрес."
+msgstr "Pul kartaga tushdi. Buyurtma yig'ilmoqda va ko'rsatilgan manzilga kuryer orqali yuboriladi."
+
+msgid "Деньги сразу на вашей карте. Никаких удержаний платформой"
+msgstr "Pul darhol kartangizda. Platforma tomonidan hech qanday ushlab qolishlar yo'q"
+
+msgid "Детализация заказов и сплитование комиссии"
+msgstr "Buyurtmalar tafsiloti va komissiya taqsimoti"
+
+msgid "Детализация оплаченных заказов"
+msgstr "To'langan buyurtmalar tafsilotlari"
+
+msgid "Диалогов с клиентами:"
+msgstr "Mijozlar bilan muloqot:"
+
+msgid "Для завершения оформления откройте бота в Telegram или отправьте локацию и контакт боту!"
+msgstr "Rasmiylashtirishni yakunlash uchun Telegram botini oching yoki botga lokatsiya va kontakt yuboring!"
+
+msgid "Для каждого цвета загрузите от 2 до 10 фотографий. Добавьте размеры и количество на складе."
+msgstr "Har bir rang uchun 2 tadan 10 tagacha rasm yuklang. O'lchamlar va ombordagi sonini kiriting."
+
+msgid "Для каждого цвета загрузите от 2 до 10 фотографий. Укажите общее количество товара на складе."
+msgstr "Har bir rang uchun 2 tadan 10 tagacha rasm yuklang. Ombordagi umumiy tovar miqdorini ko'rsating."
+
+msgid "Добавить в корзину"
+msgstr "Savatga qo'shish"
+
+msgid "Добавить ещё один цвет"
+msgstr "Yana bitta rang qo'shish"
+
+msgid "Добавить новый товар"
+msgstr "Yangi tovar qo'shish"
+
+msgid "Добавить новый филиал на карту"
+msgstr "Xaritaga yangi filial qo'shish"
+
+msgid "Добавить товар"
+msgstr "Tovar qo'shish"
+
+msgid "Добавить филиал"
+msgstr "Filial qo'shish"
+
+msgid "Добавьте номер карты ниже, чтобы клиенты знали, куда переводить деньги за заказы."
+msgstr "Mijozlar buyurtmalar uchun pul o'tkaza olishi uchun pastda karta raqamini kiriting."
+
+msgid "Добавьте товары"
+msgstr "Mahsulotlarni qo'shing"
+
+msgid "Добавьте товары и филиалы"
+msgstr "Mahsulotlar va filiallarni qo'shing"
+
+msgid "Долгота"
+msgstr "Uzunlik"
+
+msgid "Долгота (Lon)"
+msgstr "Uzunlik (Lon)"
+
+msgid "Доля продавца (90%)"
+msgstr "Sotuvchi ulushi (90%)"
+
+msgid "Доставка:"
+msgstr "Yetkazib berish:"
+
+msgid "Доставлен"
+msgstr "Yetkazildi"
+
+msgid "Доступно к выводу"
+msgstr "Yechib olish mumkin"
+
+msgid "Драйв / Скидки"
+msgstr "Drayv / Chegirmalar"
+
+msgid "Ежемесячная подписка BrainMart"
+msgstr "Oylik BrainMart obunasi"
+
+msgid "Ежемесячная подписка CRM & ИИ"
+msgstr "CRM & AI oylik obunasi"
+
+msgid "Если вы закончили тестирование кассы и витрины и хотите начать продажи с чистого листа, вы можете удалить все тестовые заказы, чеки кассы, смены и движения склада."
+msgstr "Kassa va vitrinani sinab ko'rishni tugatgan bo'lsangiz va savdoni toza varaqdan boshlamoqchi bo'lsangiz, barcha sinov buyurtmalari, kassa cheklari va ombor harakatlarini o'chirishingiz mumkin."
+
+msgid "Забота / Новинки"
+msgstr "G'amxo'rlik / Yangiliklar"
+
+msgid "Завершить заказ через Telegram"
+msgstr "Buyurtmani Telegram orqali yakunlash"
+
+msgid "Загружаем фото, создаем товар..."
+msgstr "Rasmlar yuklanmoqda, tovar yaratilmoqda..."
+
+msgid "Загрузите фото, укажите доступные цвета, размеры и цены за пару минут."
+msgstr "Rasmlarni yuklang, mavjud ranglar, o'lchamlar va narxlarni bir necha daqiqada ko'rsating."
+
+msgid "Заказ"
+msgstr "Buyurtma"
+
+msgid "Заказ мгновенно поступит продавцу для отправки такси"
+msgstr "Buyurtma darhol taksi chaqirish uchun sotuvchiga yetib boradi"
+
+msgid "Заказ передан продавцу магазина «"
+msgstr "Buyurtma «"
+
+msgid "Заказ успешно оформлен!"
+msgstr "Buyurtma muvaffaqiyatli qabul qilindi!"
+
+msgid "Заказ успешно создан!"
+msgstr "Buyurtma muvaffaqiyatli yaratildi!"
+
+msgid "Заказов пока нет"
+msgstr "Hozircha buyurtmalar yo'q"
+
+msgid "Заказы"
+msgstr "Buyurtmalar"
+
+msgid "Заканчиваются на складе"
+msgstr "Omborda tugamoqda"
+
+msgid "Запустите продажи в Instagram и Telegram с ИИ за 5 минут"
+msgstr "Instagram va Telegramda AI bilan 5 daqiqada savdoni boshlang"
+
+msgid "Зарегистрировать магазин"
+msgstr "Do'konni ro'yxatdan o'tkazish"
+
+msgid "Зарегистрировать магазин бесплатно"
+msgstr "Do'konni bepul ro'yxatdan o'tkazish"
+
+msgid "Зарегистрировать магазин сейчас"
+msgstr "Do'konni hoziroq ro'yxatdan o'tkazish"
+
+msgid "Зарегистрируйте магазин"
+msgstr "Do'konni ro'yxatdan o'tkazing"
+
+msgid "ИИ думает..."
+msgstr "AI o'ylamoqda..."
+
+msgid "ИИ пишет..."
+msgstr "AI yozmoqda..."
+
+msgid "ИИ-Копирайтер рассылок (Gemini AI)"
+msgstr "Xabarnomalar AI-Kopirayteri (Gemini AI)"
+
+msgid "ИИ-Продавец 24/7"
+msgstr "AI-Sotuvchi 24/7"
+
+msgid "ИИ-Советник по росту продаж (Gemini AI)"
+msgstr "Savdoni oshirish bo'yicha AI-Maslahatchi (Gemini AI)"
+
+msgid "Изменить"
+msgstr "O'zgartirish"
+
+msgid "Изменить точку на карте"
+msgstr "Xaritadagi nuqtani o'zgartirish"
+
+msgid "Инструкция"
+msgstr "Qo'llanma"
+
+msgid "Использовать свои цвета"
+msgstr "O'z ranglarimdan foydalanish"
+
+msgid "История выплат на карты Uzcard / Humo"
+msgstr "Uzcard / Humo kartalariga to'lovlar tarixi"
+
+msgid "История выплат пуста. Выплаты будут отображаться здесь после вывода средств."
+msgstr "To'lovlar tarixi bo'sh. Mablag'lar yechilgandan so'ng bu yerda ko'rinadi."
+
+msgid "История оплат подписки"
+msgstr "Obuna to'lovlari tarixi"
+
+msgid "История рассылок"
+msgstr "Xabarnomalar tarixi"
+
+msgid "Итого в месяц"
+msgstr "Jami oylik to'lov"
+
+msgid "Итого к оплате:"
+msgstr "Jami to'lov:"
+
+msgid "Итого:"
+msgstr "Jami:"
+
+msgid "К списанию:"
+msgstr "Yechib olinadi:"
+
+msgid "КАРТА ПРОДАВЦА ДЛЯ ОПЛАТЫ"
+msgstr "TO'LOV UCHUN SOTUVCHI KARTASI"
+
+msgid "Каждый дополнительный филиал (со 2-го по 10-й)"
+msgstr "Har bir qo'shimcha filial (2-dan 10-gacha)"
+
+msgid "Как клиенты платят за заказы"
+msgstr "Mijozlar buyurtmalar uchun qanday to'laydilar"
+
+msgid "Как начать продавать за 3 шага?"
+msgstr "3 qadamda qanday sotishni boshlash kerak?"
+
+msgid "Как только кто-то оплатит покупку, она появится здесь."
+msgstr "Kimdir to'lov qilishi bilan bu yerda paydo bo'ladi."
+
+msgid "Карта"
+msgstr "Karta"
+
+msgid "Карта для приёма оплат от клиентов"
+msgstr "Mijozlardan to'lov qabul qilish uchun karta"
+
+msgid "Карта для приёма оплат от покупателей (Uzcard / Humo)"
+msgstr "Xaridorlardan to'lov qabul qilish uchun karta (Uzcard / Humo)"
+
+msgid "Карта не привязана!"
+msgstr "Karta ulanmagan!"
+
+msgid "Категории не созданы"
+msgstr "Kategoriyalar yaratilmagan"
+
+msgid "Категория товара"
+msgstr "Tovar toifasi"
+
+msgid "Клиент"
+msgstr "Mijoz"
+
+msgid "Клиент переводит деньги прямо на вашу карту Uzcard/Humo"
+msgstr "Mijoz pulni to'g'ridan-to'g'ri sizning Uzcard/Humo kartangizga o'tkazadi"
+
+msgid "Клиент переводит напрямую"
+msgstr "Mijoz to'g'ridan-to'g'ri o'tkazadi"
+
+msgid "Клиент прикладывает подтверждение перевода — вы подтверждаете заказ"
+msgstr "Mijoz to'lov chekini biriktiradi — siz buyurtmani tasdiqlaysiz"
+
+msgid "Клиент присылает скрин"
+msgstr "Mijoz chek skrinshotini yuboradi"
+
+msgid "Клиенты"
+msgstr "Mijozlar"
+
+msgid "Клиенты выбирают удобный филиал и вызывают такси к вашей точке."
+msgstr "Mijozlar qulay filialni tanlaydilar va taksini o'sha nuqtaga chaqiradilar."
+
+msgid "Клиенты платят через Click или наличными. После подтверждения доставки средства автоматически зачисляются на вашу карту Uzcard или Humo."
+msgstr "Mijozlar Click orqali yoki naqd to'laydilar. Yetkazib berish tasdiqlangandan so'ng, mablag'lar avtomatik ravishda Uzcard yoki Humo kartangizga tushadi."
+
+msgid "Кликните на карту в нужном месте или перетащите маркер, чтобы выставить точку."
+msgstr "Nuqtani belgilash uchun xaritadagi kerakli joyni bosing yoki markerni suring."
+
+msgid "Книги и канцелярия"
+msgstr "Kitoblar va kanselyariya"
+
+msgid "Количество на складе (шт.)"
+msgstr "Ombordagi soni (dona)"
+
+msgid "Количество товаров:"
+msgstr "Mahsulotlar soni:"
+
+msgid "Комиссия brainmart"
+msgstr "brainmart komissiyasi"
+
+msgid "Комиссия магазина"
+msgstr "Do'kon komissiyasi"
+
+msgid "Комиссия платформы"
+msgstr "Platforma komissiyasi"
+
+msgid "Комиссия:"
+msgstr "Komissiya:"
+
+msgid "Кому отправить (Сегмент)"
+msgstr "Kimga yuborilsin (Segment)"
+
+msgid "Конверсия в заказ:"
+msgstr "Buyurtmaga konversiya:"
+
+msgid "Контролируйте остатки по цветам и размерам, управляйте базой клиентов, передавайте заказы курьерам Яндекс.Доставки и отслеживайте аналитику выручки."
+msgstr "Ranglar va o'lchamlar bo'yicha qoldiqlarni nazorat qiling, mijozlar bazasini boshqaring, buyurtmalarni Yandex.Yetkazib berish kuryerlariga topshiring va tushum tahlilini kuzating."
+
+msgid "Корзина"
+msgstr "Savat"
+
+msgid "Корзина пуста"
+msgstr "Savat bo'sh"
+
+msgid "Корзина пуста."
+msgstr "Savat bo'sh."
+
+msgid "Косметика и парфюмерия"
+msgstr "Kosmetika va parfyumeriya"
+
+msgid "Купить"
+msgstr "Sotib olish"
+
+msgid "Логотип виден клиентам в вашем каталоге."
+msgstr "Logotip mijozlarga katalogingizda ko'rinadi."
+
+msgid "Локация прикреплена"
+msgstr "Lokatsiya biriktirildi"
+
+msgid "Локация, телефон и оплата подтверждаются в Telegram-боте"
+msgstr "Lokatsiya, telefon va to'lov Telegram botida tasdiqlanadi"
+
+msgid "Магазин и ИИ-продавец заблокированы!"
+msgstr "Do'kon va AI-sotuvchi bloklandi!"
+
+msgid "Магазин онлайн"
+msgstr "Do'kon onlayn"
+
+msgid "Магазин:"
+msgstr "Do'kon:"
+
+msgid "Маркетплейс"
+msgstr "Bozor"
+
+msgid "Маркетплейс одежды"
+msgstr "Kiyimlar bozori"
+
+msgid "Мгновенные автовыплаты"
+msgstr "Tezkor avtoto'lovlar"
+
+msgid "Менеджер магазина:"
+msgstr "Do'kon menejeri:"
+
+msgid "Метод оплаты"
+msgstr "To'lov usuli"
+
+msgid "Модель «База + Филиалы»"
+msgstr "«Baza + Filiallar» modeli"
+
+msgid "Мои товары"
+msgstr "Mening tovarlarim"
+
+msgid "Мой бренд"
+msgstr "Mening brendim"
+
+msgid "Моя витрина"
+msgstr "Mening vitrinam"
+
+msgid "Мы берем CRM-абонплату только по себестоимости серверов и AI-токенов. Наша прибыль — это небольшая комиссия от ваших РЕАЛЬНЫХ успешных продаж:"
+msgstr "Biz CRM oylik to'lovini faqat serverlar va AI-tokenlar tannarxi bo'yicha olamiz. Bizning daromadimiz — bu sizning HAQIQIY muvaffaqiyatli savdolaringizdan kichik komissiya:"
+
+msgid "Мы передали заказ сотрудникам магазина. Вы также можете напрямую связаться с ними в Telegram:"
+msgstr "Biz buyurtmani do'kon xodimlariga topshirdik. Shuningdek, ular bilan Telegram orqali to'g'ridan-to'g'ri bog'lanishingiz mumkin:"
+
+msgid "Мы перенаправили заказ и чек сотрудникам магазина «"
+msgstr "Biz buyurtma va chekni «"
+
+msgid "Мы работаем над этим!"
+msgstr "Biz bu ustida ishlamoqdamiz!"
+
+msgid "Мы уже уведомили сотрудника в Telegram. Вы также можете напрямую связаться с ним для любых уточнений по доставке:"
+msgstr "Biz xodimni Telegram orqali xabardor qildik. Yetkazib berish bo'yicha har qanday savollar uchun u bilan to'g'ridan-to'g'ri bog'lanishingiz mumkin:"
+
+msgid "На балансе"
+msgstr "Balansda"
+
+msgid "На проверке"
+msgstr "Tekshiruvda"
+
+msgid "На свидание"
+msgstr "Uchrashuvga"
+
+msgid "Нажмите здесь, чтобы изменить выбор фото"
+msgstr "Rasmlarni o'zgartirish uchun bu yerni bosing"
+
+msgid "Нажмите или перетащите фото"
+msgstr "Rasm tanlash uchun bosing yoki bu yerga torting"
+
+msgid "Нажмите, чтобы выбрать фото чека"
+msgstr "Chek rasmini tanlash uchun bosing"
+
+msgid "Нажмите, чтобы заменить"
+msgstr "Almashtirish uchun bosing"
+
+msgid "Нажмите, чтобы заменить файл"
+msgstr "Faylni almashtirish uchun bosing"
+
+msgid "Нажмите, чтобы прикрепить фото или скан чека"
+msgstr "Chek fotosurati yoki skanini yuklash uchun bosing"
+
+msgid "Назад к адресу"
+msgstr "Manzilga qaytish"
+
+msgid "Назад к контактам"
+msgstr "Kontaktlarga qaytish"
+
+msgid "Назад к товарам"
+msgstr "Mahsulotlarga qaytish"
+
+msgid "Название магазина"
+msgstr "Do'kon nomi"
+
+msgid "Название товара"
+msgstr "Tovar nomi"
+
+msgid "Название точки"
+msgstr "Nuqta nomi"
+
+msgid "Название цвета"
+msgstr "Rang nomi"
+
+msgid "Назначить локацию на карте"
+msgstr "Xaritada manzilni belgilash"
+
+msgid "Найти"
+msgstr "Topish"
+
+msgid "Найти худи, кроссовки..."
+msgstr "Xudi, krossovka qidirish..."
+
+msgid "Наличными или переводом курьеру"
+msgstr "Naqd yoki kuryerga o'tkazma orqali"
+
+msgid "Написать в Telegram-поддержку"
+msgstr "Telegram qo'llab-quvvatlash xizmatiga yozish"
+
+msgid "Написать менеджеру в Telegram"
+msgstr "Telegramda menejerga yozish"
+
+msgid "Написать основателю в Telegram"
+msgstr "Asoschiga Telegramda yozish"
+
+msgid "Написать через ИИ"
+msgstr "AI orqali yozish"
+
+msgid "Напишите краткую идею — ИИ составит цепляющий пост с эмодзи, выгодой и кнопкой!"
+msgstr "Qisqa g'oyani yozing — AI emojilar, foyda va tugma bilan jozibador post tuzadi!"
+
+msgid "Например: 15"
+msgstr "Masalan: 15"
+
+msgid "Например: Азиз Каримов"
+msgstr "Masalan: Aziz Karimov"
+
+msgid "Настройки"
+msgstr "Sozlamalar"
+
+msgid "Не выбран"
+msgstr "Tanlanmagan"
+
+msgid "Не удалось оформить заказ"
+msgstr "Buyurtmani rasmiylashtirib bo'lmadi"
+
+msgid "Не удалось получить GPS координаты. Пожалуйста, напишите адрес текстом ниже."
+msgstr "GPS koordinatalarini olib bo'lmadi. Iltimos, manzilni matn ko'rinishida yozing."
+
+msgid "Не удалось получить геолокацию. Пожалуйста, введите точный адрес и ориентир."
+msgstr "Geolokatsiyani aniqlab bo'lmadi. Iltimos, aniq manzil va mo'ljalni kiriting."
+
+msgid "Нет в наличии"
+msgstr "Mavjud emas"
+
+msgid "Нет доступных вариантов"
+msgstr "Mavjud variantlar yo'q"
+
+msgid "Нет продаж — вы ничего не платите за комиссию. Мы зарабатываем только тогда, когда зарабатываете вы!"
+msgstr "Savdo bo'lmasa — komissiya uchun hech narsa to'lamaysiz. Biz faqat siz daromad ko'rganingizda ishlaymiz!"
+
+msgid "Нет товаров"
+msgstr "Tovarlar yo'q"
+
+msgid "Ничего не найдено"
+msgstr "Hech narsa topilmadi"
+
+msgid "Новая рассылка"
+msgstr "Yangi xabarnoma"
+
+msgid "Новичкам (1 заказ)"
+msgstr "Yangi mijozlarga (1 buyurtma)"
+
+msgid "Новички"
+msgstr "Yangi mijozlar"
+
+msgid "Новый филиал"
+msgstr "Yangi filial"
+
+msgid "Номер карты (16 цифр)"
+msgstr "Karta raqami (16 ta raqam)"
+
+msgid "Номер телефона (для курьера)"
+msgstr "Telefon raqami (kuryer uchun)"
+
+msgid "Номер телефона для курьера"
+msgstr "Kuryer uchun telefon raqami"
+
+msgid "Номер транзакции или комментарий (необязательно)"
+msgstr "Tranzaksiya raqami yoki izoh (ixtiyoriy)"
+
+msgid "Номер чека или последние 4 цифры карты"
+msgstr "Chek raqami yoki kartaning oxirgi 4 raqami"
+
+msgid "О товаре"
+msgstr "Mahsulot haqida"
+
+msgid "Общий LTV (Выручка)"
+msgstr "Umumiy LTV (Daromad)"
+
+msgid "Общий чистый доход магазина за вычетом комиссии"
+msgstr "Komissiyadan tashqari do'konning umumiy sof daromadi"
+
+msgid "Обязательно:"
+msgstr "Majburiy:"
+
+msgid "Одежда и обувь"
+msgstr "Kiyim va poyabzal"
+
+msgid "Одежда от лучших магазинов"
+msgstr "Eng yaxshi do'konlardan kiyimlar"
+
+msgid "Одежда, обувь и аксессуары (с выбором размеров)"
+msgstr "Kiyim, poyabzal va aksessuarlar (o'lchamlari bilan)"
+
+msgid "Один из товаров в корзине больше не доступен на складе."
+msgstr "Savatdagi mahsulotlardan biri omborda qolmagan."
+
+msgid "Ожидает обработки"
+msgstr "Ishlov berilmoqda"
+
+msgid "Ожидает оплаты"
+msgstr "To'lov kutilmoqda"
+
+msgid "Ожидает перевода на карту"
+msgstr "Kartaga o'tkazma kutilmoqda"
+
+msgid "Онлайн-эквайринг картой (Click/Payme)"
+msgstr "Karta orqali onlayn to'lov (Click/Payme)"
+
+msgid "Описание товара"
+msgstr "Tovar tavsifi"
+
+msgid "Опишите товар: материал, особенности, комплектацию... или нажмите Написать через ИИ"
+msgstr "Tovarni tasvirlang: material, xususiyatlar, to'plam... yoki 'AI orqali yozish'ni bosing"
+
+msgid "Оплата картой Uzcard / Humo онлайн"
+msgstr "Uzcard / Humo kartasi orqali onlayn to'lov"
+
+msgid "Оплата мгновенно подтверждена! Чек сформирован автоматически, загрузка фото не требуется. Магазин уже собирает заказ и вызывает такси."
+msgstr "To'lov darhol tasdiqlandi! Chek avtomatik shakllantirildi, rasm yuklash shart emas. Do'kon allaqachon buyurtmani yig'moqda va taksi chaqirmoqda."
+
+msgid "Оплата подписки BrainMart"
+msgstr "BrainMart obunasini to'lash"
+
+msgid "Оплата подтверждена магазином!"
+msgstr "To'lov do'kon tomonidan tasdiqlandi!"
+
+msgid "Оплатить 150 000 сум"
+msgstr "150 000 so'm to'lash"
+
+msgid "Оплатить 150 000 сум с баланса"
+msgstr "Balansdan 150 000 so'm to'lash"
+
+msgid "Оплатить заказ онлайн сразу"
+msgstr "Buyurtmani hoziroq onlayn to'lash"
+
+msgid "Оплатить переводом"
+msgstr "O'tkazma orqali to'lash"
+
+msgid "Оплачен"
+msgstr "To'langan"
+
+msgid "Оплачен (В сборке)"
+msgstr "To'langan (Yig'ilmoqda)"
+
+msgid "Оплачено"
+msgstr "To'langan"
+
+msgid "Оплачено до:"
+msgstr "To'langan muddat:"
+
+msgid "Оплачено онлайн (Авто-эквайринг)"
+msgstr "Onlayn to'langan (Avto-ekvayring)"
+
+msgid "Определить где я по GPS (Точно)"
+msgstr "GPS orqali joylashuvimni aniqlash (Aniq)"
+
+msgid "Определить моё местоположение"
+msgstr "Mening joylashuvimni aniqlash"
+
+msgid "Определяем координаты..."
+msgstr "Koordinatalar aniqlanmoqda..."
+
+msgid "Опубликовать товар"
+msgstr "Tovarni chop etish"
+
+msgid "Ориентир для такси (подъезд, этаж, вывеска рядом)"
+msgstr "Taksi uchun mo'ljal (podyezd, qavat, yaqin atrofdagi belgi)"
+
+msgid "Основная информация"
+msgstr "Asosiy ma'lumotlar"
+
+msgid "Основной"
+msgstr "Asosiy"
+
+msgid "Основной цвет (Primary)"
+msgstr "Asosiy rang (Primary)"
+
+msgid "Оставить отзыв"
+msgstr "Fikr qoldirish"
+
+msgid "Остаток"
+msgstr "Qoldiq"
+
+msgid "Ответов от ИИ-агента:"
+msgstr "AI-agent javoblari:"
+
+msgid "Ответственный менеджер магазина"
+msgstr "Do'konning mas'ul menejeri"
+
+msgid "Отзывы"
+msgstr "Sharhlar"
+
+msgid "Отзывы клиентов"
+msgstr "Mijozlar fikrlari"
+
+msgid "Отзывы покупателей"
+msgstr "Xaridorlar fikrlari"
+
+msgid "Отклонена"
+msgstr "Rad etilgan"
+
+msgid "Открыть"
+msgstr "Ochish"
+
+msgid "Открыть магазин"
+msgstr "Do'konni ochish"
+
+msgid "Открыть на карте"
+msgstr "Xaritada ochish"
+
+msgid "Открыть отслеживание заказа"
+msgstr "Buyurtmani kuzatishni ochish"
+
+msgid "Отлично! Фото готовы к публикации"
+msgstr "Ajoyib! Rasmlar chop etishga tayyor"
+
+msgid "Отмена"
+msgstr "Bekor qilish"
+
+msgid "Отправить моё местоположение (GPS)"
+msgstr "Mening joylashuvimni yuborish (GPS)"
+
+msgid "Отправить рассылку в Telegram"
+msgstr "Telegramga xabarnoma yuborish"
+
+msgid "Отправить чек продавцу"
+msgstr "Chekni sotuvchiga yuborish"
+
+msgid "Отправка чека..."
+msgstr "Chek yuborilmoqda..."
+
+msgid "Отправляем в бот..."
+msgstr "Botga yuborilmoqda..."
+
+msgid "Отправляйте акции, скидки и анонсы коллекций напрямую в Telegram своим клиентам"
+msgstr "Aksiya, chegirma va yangiliklarni to'g'ridan-to'g'ri mijozlaringiz Telegramiga yuboring"
+
+msgid "Официальная витрина"
+msgstr "Rasmiy vitrina"
+
+msgid "Оформить"
+msgstr "Rasmiylashtirish"
+
+msgid "Оформить заказ"
+msgstr "Buyurtma berish"
+
+msgid "Оформляем заказ..."
+msgstr "Buyurtma rasmiylashtirilmoqda..."
+
+msgid "Очистить историю заказов и кассы"
+msgstr "Buyurtmalar va kassa tarixini tozalash"
+
+msgid "Очистка истории и сброс данных"
+msgstr "Tarixni tozalash va ma'lumotlarni qayta tiklash"
+
+msgid "Ошибка"
+msgstr "Xatolik"
+
+msgid "Ошибка GPS. Введите адрес вручную"
+msgstr "GPS xatosi. Manzilni qo'lda kiriting"
+
+msgid "Ошибка сети"
+msgstr "Tarmoq xatosi"
+
+msgid "Ошибка сети. Попробуйте еще раз."
+msgstr "Tarmoq xatosi. Qaytadan urinib ko'ring."
+
+msgid "Ошибка соединения с сервером."
+msgstr "Server bilan aloqa xatosi."
+
+msgid "Панель продавца"
+msgstr "Sotuvchi paneli"
+
+msgid "Партнёрство с brainmart"
+msgstr "brainmart bilan hamkorlik"
+
+msgid "Первая точка: 450 000 сум · Каждая дополнительная: +150 000 сум/мес"
+msgstr "Birinchi nuqta: 450 000 so'm · Har bir qo'shimcha: +150 000 so'm/oy"
+
+msgid "Переведите деньги на карту BrainMart"
+msgstr "BrainMart kartasiga pul o'tkazing"
+
+msgid "Переведите точную сумму на карту продавца через Payme, Click или банк. Продавец свяжется с вами по телефону для подтверждения отправки такси!"
+msgstr "Payme, Click yoki bank orqali sotuvchining kartasiga aniq summani o'tkazing. Sotuvchi taksi yuborilishini tasdiqlash uchun siz bilan telefon orqali bog'lanadi!"
+
+msgid "Перевод на карту"
+msgstr "Kartaga o'tkazma"
+
+msgid "Перевод на карту продавца (с чеком)"
+msgstr "Sotuvchining kartasiga o'tkazma (chek bilan)"
+
+msgid "Передать курьеру"
+msgstr "Kuryerga topshirish"
+
+msgid "Перейти к оформлению"
+msgstr "Buyurtma berishga o'tish"
+
+msgid "Персонализация дизайна"
+msgstr "Dizaynni shaxsiylashtirish"
+
+msgid "Персональная ссылка на ваш фирменный магазин с логотипом. Покупатель оформляет заказ за 2 клика прямо в Telegram без скачивания приложений."
+msgstr "Logotipingiz bilan shaxsiy brend do'koni havolasi. Xaridor hech qanday ilovani yuklab olmasdan to'g'ridan-to'g'ri Telegramda 2 bosishda buyurtma beradi."
+
+msgid "По тарифу курьера"
+msgstr "Kuryer tarifi bo'yicha"
+
+msgid "Повторные заказы"
+msgstr "Qayta buyurtmalar"
+
+msgid "Подарок"
+msgstr "Sovg'a"
+
+msgid "Подключенные филиалы и франшизы"
+msgstr "Ulangan filiallar va franchayzing"
+
+msgid "Подключите Telegram и получайте заказы"
+msgstr "Telegramni ulang va buyurtmalarni qabul qiling"
+
+msgid "Подключите бота и получайте заказы"
+msgstr "Botni ulang va buyurtmalarni qabul qiling"
+
+msgid "Подписка CRM & ИИ заканчивается через"
+msgstr "CRM & AI obunasi tugashiga qoldi:"
+
+msgid "Подписка покрывает работу CRM, ИИ-продавца, витрины и Telegram Mini App. При неуплате действует льготный период 5 дней."
+msgstr "Obuna CRM, AI-sotuvchi, onlayn-vitrina va Telegram Mini App xizmatlarini qamrab oladi. To'lov qilinmasa 5 kun imtiyozli davr beriladi."
+
+msgid "Подписка покрывает работу CRM, ИИ-продавца, витрины и Telegram Mini App. При неуплате действует льготный период 6 дней."
+msgstr "Obuna CRM, AI-sotuvchi, vitrina va Telegram Mini App faoliyatini qoplaydi. To'lov qilinmaganda 6 kunlik imtiyozli davr amal qiladi."
+
+msgid "Подтвердить доставку"
+msgstr "Yetkazilganini tasdiqlash"
+
+msgid "Подтвердить заказ"
+msgstr "Buyurtmani tasdiqlash"
+
+msgid "Подтвердить оплату на карту"
+msgstr "Kartaga to'lovni tasdiqlash"
+
+msgid "Подтверждена"
+msgstr "Tasdiqlangan"
+
+msgid "Подъезд 3, домофон 28, рядом с Korzinka"
+msgstr "3-podyezd, 28-domofon, Korzinka yonida"
+
+msgid "Пожалуйста, введите корректный номер телефона!"
+msgstr "Iltimos, to'g'ri telefon raqamini kiriting!"
+
+msgid "Пожалуйста, выберите размер!"
+msgstr "Iltimos, o'lchamni tanlang!"
+
+msgid "Пожалуйста, загрузите хотя бы 1 фото для цвета"
+msgstr "Iltimos, rang uchun kamida 1 ta rasm yuklang"
+
+msgid "Пожалуйста, обязательно выберите фото или скриншот чека перед отправкой!"
+msgstr "Iltimos, yuborishdan oldin albatta chek rasmi yoki skrinshotini tanlang!"
+
+msgid "Пожалуйста, оплатите 150 000 сум во избежание остановки ИИ."
+msgstr "Iltimos, AI to'xtab qolmasligi uchun 150 000 so'm to'lang."
+
+msgid "Пожалуйста, укажите адрес доставки или нажмите кнопку определения GPS!"
+msgstr "Iltimos, yetkazish manzilini kiriting yoki GPS tugmasini bosing!"
+
+msgid "Пожалуйста, укажите адрес доставки или нажмите кнопку отправки локации!"
+msgstr "Iltimos, yetkazib berish manzilini yozing yoki lokatsiyani yuborish tugmasini bosing!"
+
+msgid "Пожалуйста, укажите ваш номер телефона для связи!"
+msgstr "Iltimos, bog'lanish uchun telefon raqamingizni kiriting!"
+
+msgid "Пожалуйста, укажите номер телефона для связи."
+msgstr "Iltimos, bog'lanish uchun telefon raqamini kiriting."
+
+msgid "Поиск по товарам или стилю (напр: айтишник, на свидание)..."
+msgstr "Mahsulotlar yoki uslub bo'yicha qidirish (masalan: dasturchi, uchrashuv)..."
+
+msgid "Пока нет оплаченных заказов для сплитования."
+msgstr "Taqsimlash uchun to'langan buyurtmalar hozircha yo'q."
+
+msgid "Пока нет оплаченных заказов."
+msgstr "Hozircha to'langan buyurtmalar yo'q."
+
+msgid "Пока нет отзывов"
+msgstr "Hozircha fikrlar yo'q"
+
+msgid "Покажите эту карту клиентам для оплаты заказов. После получения перевода — подтвердите заказ в разделе «Заказы»."
+msgstr "Buyurtmalarga to'lov uchun ushbu kartani mijozlarga ko'rsating. Pul tushgach — «Buyurtmalar» bo'limida tasdiqlang."
+
+msgid "Показать"
+msgstr "Ko'rsatish"
+
+msgid "Получатель"
+msgstr "Qabul qiluvchi"
+
+msgid "Получатель:"
+msgstr "Qabul qiluvchi:"
+
+msgid "Получить карту продавца и прикрепить чек"
+msgstr "Sotuvchi kartasini olish va chekni biriktirish"
+
+msgid "Попробуйте выбрать другой сегмент или дождитесь новых заказов через каталог."
+msgstr "Boshqa segmentni tanlab ko'ring yoki katalog orqali yangi buyurtmalarni kuting."
+
+msgid "После отправки чек мгновенно поступает администратору. Подписка продлевается сразу после подтверждения."
+msgstr "Yuborilgandan so'ng chek darhol administratorga boradi. Obuna tasdiqlangach darhol uzaytiriladi."
+
+msgid "Посмотреть на карте"
+msgstr "Xaritada ko'rish"
+
+msgid "Почему продавцы выбирают brainmart?"
+msgstr "Nega sotuvchilar brainmartni tanlaydi?"
+
+msgid "Премиум / Old Money"
+msgstr "Premium / Old Money"
+
+msgid "При получении"
+msgstr "Qabul qilganda"
+
+msgid "Привяжите Telegram-бота для мгновенных уведомлений и автоответов ИИ."
+msgstr "Tezkor bildirishnomalar va AI avtojavoblari uchun Telegram botini ulang."
+
+msgid "Прикрепите фото перевода"
+msgstr "O'tkazma rasmini biriktiring"
+
+msgid "Приход на склад (Остатки)"
+msgstr "Omborga kirim (Qoldiqlar)"
+
+msgid "Продажи за 7 дней"
+msgstr "7 kunlik savdo"
+
+msgid "Продлить (150 000 сум)"
+msgstr "Uzaytirish (150 000 so'm)"
+
+msgid "Просрочка подписки превысила 5 дней. Приём заказов и автоответы ИИ отключены."
+msgstr "Obuna muddati 5 kundan oshdi. Buyurtmalarni qabul qilish va AI avtojavoblari o'chirildi."
+
+msgid "Простая и прозрачная схема без посредников"
+msgstr "Vositasiz oddiy va shaffof tizim"
+
+msgid "Простой товар"
+msgstr "Oddiy tovar"
+
+msgid "Прямой перевод на вашу карту (100% вам, 0% комиссии)"
+msgstr "Kartangizga to'g'ridan-to'g'ri o'tkazma (100% sizga, 0% komissiya)"
+
+msgid "Прямой перевод на вашу карту (100%% вам, 0%% комиссии)"
+msgstr "Kartangizga to'g'ridan-to'g'ri o'tkazma (100%% sizga, 0%% komissiya)"
+
+msgid "Прямой перевод на карту продавца"
+msgstr "Sotuvchi kartasiga to'g'ridan-to'g'ri o'tkazma"
+
+msgid "Размер (S, M, L, 42...)"
+msgstr "O'lcham (S, M, L, 42...)"
+
+msgid "Размер:"
+msgstr "O'lchami:"
+
+msgid "Рассылки"
+msgstr "Xabarnomalar"
+
+msgid "Реквизиты карты для выплат (Uzcard / Humo)"
+msgstr "To'lovlar uchun karta rekvizitlari (Uzcard / Humo)"
+
+msgid "СОХРАНИТЬ ИЗМЕНЕНИЯ"
+msgstr "O'ZGARISHLARNI SAQLASH"
+
+msgid "СОХРАНИТЬ ТОЧКУ"
+msgstr "NUQTANI SAQLASH"
+
+msgid "Сбой"
+msgstr "Nosozlik"
+
+msgid "Сбой оформления заказа"
+msgstr "Buyurtma berishda xatolik yuz berdi"
+
+msgid "Сбросить фото"
+msgstr "Rasmlarni tozalash"
+
+msgid "Свой дизайн (Фирменные цвета):"
+msgstr "O'z dizayningiz (Brend ranglar):"
+
+msgid "Сгенерировать текст через ИИ"
+msgstr "AI orqali matn yaratish"
+
+msgid "Сетка размеров и остатки:"
+msgstr "O'lchamlar jadvali va qoldiqlar:"
+
+msgid "Сеть из 10 точек"
+msgstr "10 ta nuqtadan iborat tarmoq"
+
+msgid "Сеть из 3 точек"
+msgstr "3 ta nuqtadan iborat tarmoq"
+
+msgid "Сеть из 5 точек"
+msgstr "5 ta nuqtadan iborat tarmoq"
+
+msgid "Система POS-кассы для оффлайн-точек ещё не закончена. Наша команда активно работает над этим функционалом!"
+msgstr "Oflayn nuqtalar uchun POS-kassa tizimi hali to'liq yakunlanmadi. Jamoamiz ushbu funksional ustida faol ishlamoqda!"
+
+msgid "Скан / Фото чека перевода"
+msgstr "O'tkazma chekining fotosurati / skani"
+
+msgid "Скопировано"
+msgstr "Nusxalandi"
+
+msgid "Скопировано!"
+msgstr "Nusxalandi!"
+
+msgid "Скопировать"
+msgstr "Nusxa olish"
+
+msgid "Скопировать номер карты"
+msgstr "Karta raqamini nusxalash"
+
+msgid "Скоро"
+msgstr "Tez kunda"
+
+msgid "Скриншот или квитанция из банковского приложения"
+msgstr "Bank ilovasidagi skrinshot yoki kvitansiya"
+
+msgid "Скрыт"
+msgstr "Yashirilgan"
+
+msgid "Скрыть"
+msgstr "Yashirish"
+
+msgid "Следующая дата списания:"
+msgstr "Keyingi to'lov sanasi:"
+
+msgid "Смотреть чек"
+msgstr "Chekni ko'rish"
+
+msgid "Сначала прикрепите фото чека"
+msgstr "Avval chek rasmini biriktiring"
+
+msgid "Совет ИИ-Стилиста brainmart"
+msgstr "brainmart AI-Stilist maslahati"
+
+msgid "Создать рассылку"
+msgstr "Xabar yuborish"
+
+msgid "Состав заказа:"
+msgstr "Buyurtma tarkibi:"
+
+msgid "Сохранить карту"
+msgstr "Kartani saqlash"
+
+msgid "Сохранить оформление витрины"
+msgstr "Vitrina dizaynini saqlash"
+
+msgid "Сохранить реквизиты"
+msgstr "Rekvizitlarni saqlash"
+
+msgid "Спасибо за покупку! Продавец уже собирает ваш заказ."
+msgstr "Xaridingiz uchun rahmat! Sotuvchi buyurtmangizni tayyorlamoqda."
+
+msgid "Список ваших точек"
+msgstr "Sizning nuqtalaringiz ro'yxati"
+
+msgid "Спорт"
+msgstr "Sport"
+
+msgid "Способ оплаты"
+msgstr "To'lov usuli"
+
+msgid "Спящие >30 дней"
+msgstr "Uxlayotgan >30 kun"
+
+msgid "Спящим клиентам (не заказывали > 30 дней)"
+msgstr "Uxlayotgan mijozlarga (>30 kun buyurtma bermagan)"
+
+msgid "Средний чек (AOV)"
+msgstr "O'rtacha chek (AOV)"
+
+msgid "Средства за доставленные заказы, готовые к выплате на карту"
+msgstr "Yetkazib berilgan buyurtmalar uchun kartaga yechishga tayyor mablag'"
+
+msgid "Срок подписки истёк"
+msgstr "Obuna muddati tugadi"
+
+msgid "Срочно / Дедлайн"
+msgstr "Shoshilinch / Dedlayn"
+
+msgid "Ссылка кнопки"
+msgstr "Tugma havolasi"
+
+msgid "Ссылка на доставку (Яндекс...)"
+msgstr "Yetkazib berish havolasi (Yandex...)"
+
+msgid "Статус"
+msgstr "Holat"
+
+msgid "Статус выплаты"
+msgstr "To'lov holati"
+
+msgid "Статус заказа"
+msgstr "Buyurtma holati"
+
+msgid "Стать продавцом"
+msgstr "Sotuvchi bo'lish"
+
+msgid "Страна: Узбекистан"
+msgstr "Mamlakat: O'zbekiston"
+
+msgid "Сумма"
+msgstr "Summa"
+
+msgid "Сумма заказа"
+msgstr "Buyurtma summasi"
+
+msgid "Сумма к переводу"
+msgstr "O'tkaziladigan summa"
+
+msgid "Тариф BrainMart SaaS:"
+msgstr "BrainMart SaaS tarifi:"
+
+msgid "Тариф:"
+msgstr "Tarif:"
+
+msgid "Тарифы и Комиссия платформы"
+msgstr "Platforma tariflari va komissiyasi"
+
+msgid "Ташкент, ул. Навои, 14, кв. 28"
+msgstr "Toshkent, Navoiy ko'chasi, 14, 28-xonadon"
+
+msgid "Текст кнопки"
+msgstr "Tugma matni"
+
+msgid "Текст сообщения в Telegram"
+msgstr "Telegramdagi xabar matni"
+
+msgid "Телефон (для клиентов)"
+msgstr "Telefon (mijozlar uchun)"
+
+msgid "Телефон:"
+msgstr "Telefon:"
+
+msgid "Тема / Название кампании (для вас)"
+msgstr "Mavzu / Kampaniya nomi (siz uchun)"
+
+msgid "Тип товара (размеры)"
+msgstr "Tovar turi (o'lchamlar)"
+
+msgid "Товар"
+msgstr "Mahsulot"
+
+msgid "Товар не найден на складе."
+msgstr "Mahsulot omborda topilmadi."
+
+msgid "Товары"
+msgstr "Mahsulotlar"
+
+msgid "Товары от лучших магазинов"
+msgstr "Eng yaxshi do'konlardan mahsulotlar"
+
+msgid "Только VIP (LTV > 500k сум или > 2 заказов)"
+msgstr "Faqat VIP (LTV > 500k so'm yoki > 2 buyurtma)"
+
+msgid "Точка ещё не указана на карте"
+msgstr "Nuqta hali xaritada belgilanmagan"
+
+msgid "Точка на карте:"
+msgstr "Xaritadagi nuqta:"
+
+msgid "Точка:"
+msgstr "Nuqta:"
+
+msgid "Точки и филиалы магазина"
+msgstr "Do'kon nuqtalari va filiallari"
+
+msgid "Точки:"
+msgstr "Nuqtalar:"
+
+msgid "Точная сумма к переводу:"
+msgstr "O'tkazish uchun aniq summa:"
+
+msgid "Точные координаты получены"
+msgstr "Aniq koordinatalar olindi"
+
+msgid "Транзакция"
+msgstr "Tranzaksiya"
+
+msgid "Трекинг доставки"
+msgstr "Yetkazib berish trekingi"
+
+msgid "У курьера"
+msgstr "Kuryerda"
+
+msgid "У курьера (В пути)"
+msgstr "Kuryerda (Yo'lda)"
+
+msgid "Удалить"
+msgstr "O'chirish"
+
+msgid "Удалить товар"
+msgstr "Tovarni o'chirish"
+
+msgid "Удалить этот цвет"
+msgstr "Ushbu rangni o'chirish"
+
+msgid "Удержанная комиссия платформы за привлечение клиентов и ИИ"
+msgstr "Mijozlarni jalb qilish va AI uchun ushlab qolingan komissiya"
+
+msgid "Укажите адрес доставки или отправьте локацию."
+msgstr "Yetkazib berish manzilini kiriting yoki lokatsiyani yuboring."
+
+msgid "Укажите название бренда, нишу и контакты в удобной форме."
+msgstr "Brend nomi, nisha va kontaktlarni qulay shaklda kiriting."
+
+msgid "Укажите номер транзакции или карту, с которой был сделан перевод. Подписка активируется после проверки."
+msgstr "Tranzaksiya raqami yoki to'lov qilingan kartani ko'rsating. Obuna tekshiruvdan so'ng faollashtiriladi."
+
+msgid "Умная CRM и Склад"
+msgstr "Aqlli CRM va Ombor"
+
+msgid "Управление заказами"
+msgstr "Buyurtmalarni boshqarish"
+
+msgid "Управление покупателями, LTV и сегментами для Telegram-рассылок"
+msgstr "Xaridorlar, LTV va Telegram xabarnomalari segmentlarini boshqarish"
+
+msgid "Управление точками"
+msgstr "Nuqtalarni boshqarish"
+
+msgid "Управление точками и филиалами"
+msgstr "Filiallar va savdo nuqtalarini boshqarish"
+
+msgid "Управление филиалами"
+msgstr "Filiallarni boshqarish"
+
+msgid "Успешно"
+msgstr "Muvaffaqiyatli"
+
+msgid "Филиалы"
+msgstr "Filiallar"
+
+msgid "Финансы"
+msgstr "Moliya"
+
+msgid "Финансы и Выплаты"
+msgstr "Moliya va To'lovlar"
+
+msgid "Фирменный цвет бренда (Витрина и Панель)"
+msgstr "Brendning firma rangi (Vitrina va Panel)"
+
+msgid "Формируем заказ..."
+msgstr "Buyurtma shakllantirilmoqda..."
+
+msgid "Фотографии этого цвета"
+msgstr "Ushbu rang rasmlari"
+
+msgid "Характеристики"
+msgstr "Xususiyatlari"
+
+msgid "Цвет/Размер"
+msgstr "Rangi/O'lchami"
+
+msgid "Цвет:"
+msgstr "Rangi:"
+
+msgid "Цвета, фото и остатки"
+msgstr "Ranglar, rasmlar va qoldiqlar"
+
+msgid "Цена за 1 шт. (сум)"
+msgstr "1 dona narxi (so'm)"
+
+msgid "Чек выбран!"
+msgstr "Chek tanlandi!"
+
+msgid "Чек на проверке"
+msgstr "Chek tekshirilmoqda"
+
+msgid "Чек перевода успешно отправлен!"
+msgstr "O'tkazma cheki muvaffaqiyatli yuborildi!"
+
+msgid "Чек прикреплен"
+msgstr "Chek biriktirildi"
+
+msgid "Черный"
+msgstr "Qora"
+
+msgid "Честная модель Win-Win"
+msgstr "Adolatli Win-Win modeli"
+
+msgid "Широта"
+msgstr "Kenglik"
+
+msgid "Широта (Lat)"
+msgstr "Kenglik (Lat)"
+
+msgid "Электроника и гаджеты"
+msgstr "Elektronika va gadjetlar"
+
+msgid "Электроника, книги, косметика, гигиена и др. (без размеров)"
+msgstr "Elektronika, kitoblar, kosmetika, gigiyena va boshqalar (o'lchamsiz)"
+
+msgid "Эта карта будет показана клиентам при оформлении заказа. Клиент переводит деньги напрямую на неё."
+msgstr "Ushbu karta buyurtma berishda mijozlarga ko'rsatiladi. Mijoz to'g'ridan-to'g'ri unga pul o'tkazadi."
+
+msgid "Я перевёл, активировать"
+msgstr "O'tkazdim, faollashtirish"
+
+msgid "Я перевёл, отправить чек"
+msgstr "O'tkazdim, chekni yuborish"
+
+msgid "Язык уведомлений в Telegram"
+msgstr "Telegram bildirishnomalari tili"
+
+msgid "Яндекс"
+msgstr "Yandex"
+
+msgid "вкл. 1-ю точку"
+msgstr "1-nuqta kiritilgan"
+
+msgid "диалогов"
+msgstr "muloqot"
+
+msgid "дн. до блокировки)"
+msgstr "kun qoldi)"
+
+msgid "до"
+msgstr "gacha"
+
+msgid "доп. точки"
+msgstr "qo'shimcha nuqtalar"
+
+msgid "доп. филиалы: +150 000 сум/мес за каждый"
+msgstr "qo'shimcha filiallar: har biri uchun +150 000 so'm/oy"
+
+msgid "доставлено"
+msgstr "yetkazildi"
+
+msgid "й день (осталось"
+msgstr "-kun (bloklanishgacha"
+
+msgid "комиссии с продаж"
+msgstr "savdolardan komissiya"
+
+msgid "мес."
+msgstr "oy"
+
+msgid "от 2 до 10 фото"
+msgstr "2 tadan 10 tagacha rasm"
+
+msgid "отзывов"
+msgstr "ta sharh"
+
+msgid "подписчиков в боте"
+msgstr "botdagi obunachi"
+
+msgid "сум"
+msgstr "so'm"
+
+msgid "сум/мес"
+msgstr "so'm/oy"
+
+msgid "сум/месяц"
+msgstr "so'm/oyiga"
+
+msgid "точек"
+msgstr "nuqta"
+
+msgid "человек купили на этой неделе"
+msgstr "kishi shu haftada sotib oldi"
+
+msgid "чтобы магазин получил ваш заказ и отправил курьера, прикрепите фото или скриншот чека перевода из Payme/Click/банка:"
+msgstr "do'kon buyurtmangizni qabul qilib kuryer yuborishi uchun Payme/Click/bankdan o'tkazma cheki fotosurati yoki skrinshotini biriktiring:"
+
+msgid "шт"
+msgstr "ta"
+
+msgid "шт."
+msgstr "ta."
+
+msgid "⚙️ Автоматический эквайринг сейчас находится на технической доработке.\n\nПожалуйста, выберите прямой перевод на карту с отправкой фото чека — продавец лично проверит платёж перед отправкой!"
+msgstr "⚙️ Avtomatik ekvayring texnik yangilanishda.\n\nIltimos, kartaga to'g'ridan-to'g'ri o'tkazmani tanlang va chek rasmini yuklang — sotuvchi yuborishdan oldin to'lovni shaxsan tekshiradi!"
+
+msgid "⚙️ Автоматический эквайринг сейчас находится на технической доработке.\\n\\nПожалуйста, выберите прямой перевод на карту с отправкой фото чека — продавец лично проверит платёж перед отправкой!"
+msgstr "⚙️ Avtomatik ekvayring texnik yangilanishda.\\n\\nIltimos, kartaga to'g'ridan-to'g'ri o'tkazmani tanlang va chek rasmini yuklang — sotuvchi yuborishdan oldin to'lovni shaxsan tekshiradi!"
+
+msgid "⚠️ Пожалуйста, обязательно прикрепите фото или скриншот чека об оплате!"
+msgstr "⚠️ Iltimos, albatta to'lov cheki fotosurati yoki skrinshotini biriktiring!"
+
+msgid "✅ Чек успешно передан магазину! Скоро заказ будет доставлен."
+msgstr "✅ Chek do'konga muvaffaqiyatli topshirildi! Tez orada buyurtma yetkaziladi."
+
+msgid "🔍 Поиск адреса (напр: Чорсу, ЦУМ, Юнусабад...)"
+msgstr "🔍 Manzil qidirish (masalan: Chorsu, TSUM, Yunusobod...)"
+

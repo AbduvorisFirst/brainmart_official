@@ -1,0 +1,347 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<style>
+    .seller-landing {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 16px 16px 60px;
+    }
+    .hero-box {
+        background: linear-gradient(145deg, #1E1B4B 0%, #0F172A 100%);
+        border-radius: 24px;
+        padding: 36px 24px;
+        color: white;
+        text-align: center;
+        margin-bottom: 28px;
+        box-shadow: 0 12px 32px rgba(79, 70, 229, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+    .hero-badge {
+        display: inline-block;
+        background: rgba(99, 102, 241, 0.25);
+        border: 1px solid rgba(99, 102, 241, 0.5);
+        color: #A5B4FC;
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        padding: 6px 14px;
+        border-radius: 20px;
+        margin-bottom: 16px;
+    }
+    .hero-title {
+        font-size: 28px;
+        font-weight: 900;
+        line-height: 1.25;
+        margin: 0 0 14px;
+        letter-spacing: -0.5px;
+    }
+    .hero-subtitle {
+        font-size: 14.5px;
+        color: #CBD5E1;
+        line-height: 1.55;
+        margin: 0 auto 24px;
+        max-width: 620px;
+    }
+    .hero-cta-btn {
+        display: inline-block;
+        background: var(--primary);
+        color: white;
+        padding: 15px 32px;
+        border-radius: 14px;
+        font-size: 15px;
+        font-weight: 800;
+        text-decoration: none;
+        box-shadow: 0 4px 18px rgba(79, 70, 229, 0.45);
+        transition: transform 0.15s ease, filter 0.15s ease;
+    }
+    .hero-cta-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    .hero-cta-btn:active { transform: scale(0.97); }
+
+    /* Сетка преимуществ */
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+    .feature-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 22px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    }
+    .feature-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        background: var(--primary-light);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 14px;
+    }
+    .feature-title { font-size: 16px; font-weight: 800; color: var(--text-main); margin: 0 0 6px; }
+    .feature-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin: 0; }
+
+    /* Тарифные карточки SaaS */
+    .saas-card {
+        background: var(--surface);
+        border: 2px solid var(--primary);
+        border-radius: 22px;
+        padding: 28px;
+        margin-bottom: 28px;
+        box-shadow: 0 8px 24px rgba(79, 70, 229, 0.12);
+    }
+    .calc-example-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+        margin-top: 18px;
+    }
+    .calc-box {
+        background: rgba(0, 0, 0, 0.03);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 16px;
+        text-align: center;
+    }
+    .calc-box-title { font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+    .calc-box-price { font-size: 18px; font-weight: 900; color: var(--text-main); }
+    .calc-box-sub { font-size: 11px; color: var(--primary); font-weight: 700; margin-top: 4px; }
+
+    /* Шаги подключения */
+    .steps-container {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 32px;
+    }
+    .step-box {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        background: var(--surface);
+        padding: 18px;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+    }
+    .step-num {
+        width: 34px;
+        height: 34px;
+        background: var(--primary);
+        color: white;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 15px;
+        flex-shrink: 0;
+    }
+
+    @media (min-width: 600px) {
+        .hero-title { font-size: 34px; }
+    }
+</style>
+
+<div class="seller-landing">
+    <!-- Навигация назад -->
+    <div style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+        <a href="/{{ LANGUAGE_CODE }}/" style="text-decoration: none; color: var(--text-muted); font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+            ← {% trans "Вернуться в каталог" %}
+        </a>
+        <a href="{% url 'seller-login' %}" style="text-decoration: none; color: var(--primary); font-size: 13px; font-weight: 700;">
+            {% trans "Вход для продавцов" %} ➔
+        </a>
+    </div>
+
+    <!-- ГЛАВНЫЙ БАННЕР -->
+    <div class="hero-box">
+        <div class="hero-badge">🚀 {% trans "SaaS Платформа brainmart" %}</div>
+        <h1 class="hero-title">
+            {% trans "Развивайте продажи с ИИ и управляйте сетью магазинов без комиссии" %}
+        </h1>
+        <p class="hero-subtitle">
+            {% trans "Мы работаем исключительно по фиксированной подписке. Никаких скрытых процентов и комиссий с ваших продаж. Выручка от клиентов сразу поступает на вашу карту." %}
+        </p>
+        <a href="{% url 'seller-register' %}" class="hero-cta-btn">
+            ✨ {% trans "Зарегистрировать магазин" %}
+        </a>
+    </div>
+
+    <!-- ПРЕИМУЩЕСТВА СИСТЕМЫ -->
+    <h2 style="font-size: 20px; font-weight: 800; color: var(--text-main); margin: 0 0 16px;">
+        🌟 {% trans "Что вы получаете в платформе brainmart?" %}
+    </h2>
+
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">🤖</div>
+            <h3 class="feature-title">{% trans "Gemini Vision ИИ-Продавец 24/7" %}</h3>
+            <p class="feature-desc">
+                {% trans "Умный искусственный интеллект консультирует клиентов в Telegram и Instagram Direct, распознаёт товары по фото и помогает оформить заказ круглосуточно." %}
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">📱</div>
+            <h3 class="feature-title">{% trans "Telegram Mini App + Веб-Витрина" %}</h3>
+            <p class="feature-desc">
+                {% trans "Персональный фирменный интернет-магазин с каталогом, цветами и размерами. Покупатели заказывают за 2 клика без скачивания приложений." %}
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">🏢</div>
+            <h3 class="feature-title">{% trans "Мульти-филиалы и франшиза" %}</h3>
+            <p class="feature-desc">
+                {% trans "Управляйте сетью из нескольких торговых точек в одном месте. Добавляйте новые филиалы с адресами и GPS-координатами в пару кликов." %}
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">💳</div>
+            <h3 class="feature-title">{% trans "0% комиссии с продаж" %}</h3>
+            <p class="feature-desc">
+                {% trans "Все средства от продаж принадлежат вам. Клиент оплачивает — деньги зачисляются на привязанную карту продавца Uzcard / Humo." %}
+            </p>
+        </div>
+    </div>
+
+    <!-- ТАРИФНАЯ МОДЕЛЬ «БАЗА + ФИЛИАЛЫ» -->
+    <div class="saas-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px; border-bottom: 1px dashed var(--border); padding-bottom: 20px; margin-bottom: 20px;">
+            <div>
+                <span style="font-size: 11px; font-weight: 900; color: var(--primary); text-transform: uppercase; letter-spacing: 0.8px;">
+                    💎 {% trans "Единая прозрачная модель подписки" %}
+                </span>
+                <h2 style="font-size: 24px; font-weight: 900; color: var(--text-main); margin: 6px 0 6px;">
+                    {% trans "Модель «База + Филиалы»" %}
+                </h2>
+                <p style="font-size: 13.5px; color: var(--text-muted); margin: 0; line-height: 1.45;">
+                    {% trans "Честная и понятная ценовая политика как для отдельных магазинов, так и для крупных сетей." %}
+                </p>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 28px; font-weight: 900; color: var(--primary);">
+                    450 000 <span style="font-size: 15px; font-weight: 600; color: var(--text-muted);">{% trans "сум/мес" %}</span>
+                </div>
+                <div style="font-size: 12px; color: #10B981; font-weight: 800;">
+                    ✓ {% trans "0% комиссии со всех продаж" %}
+                </div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 22px;">
+            <div style="background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 14px; padding: 18px;">
+                <div style="font-size: 16px; font-weight: 800; color: var(--primary); margin-bottom: 8px;">
+                    🏪 {% trans "Базовый тариф (1-я точка / Головной магазин)" %}
+                </div>
+                <div style="font-size: 22px; font-weight: 900; color: var(--text-main); margin-bottom: 8px;">
+                    450 000 {% trans "сум/мес" %}
+                </div>
+                <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.45; margin: 0;">
+                    {% trans "Сюда входит полная CRM-система, складской учёт, интеграция с Telegram Mini App и полный безлимит Gemini Vision ИИ." %}
+                </p>
+            </div>
+
+            <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 14px; padding: 18px;">
+                <div style="font-size: 16px; font-weight: 800; color: #10B981; margin-bottom: 8px;">
+                    🏢 {% trans "Каждый дополнительный филиал (со 2-го по 10-й)" %}
+                </div>
+                <div style="font-size: 22px; font-weight: 900; color: var(--text-main); margin-bottom: 8px;">
+                    +150 000 {% trans "сум/мес за точку" %}
+                </div>
+                <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.45; margin: 0;">
+                    {% trans "Идеально для торговых сетей и франшиз. Подключайте отдельные филиалы с собственным учётом локаций и аналитикой." %}
+                </p>
+            </div>
+        </div>
+
+        <!-- НАГЛЯДНЫЕ ПРИМЕРЫ РАСЧЁТА ДЛЯ СЕТЕЙ -->
+        <div style="margin-top: 12px;">
+            <div style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">
+                📊 {% trans "Примеры расчёта стоимости для сетей:" %}
+            </div>
+            <p style="font-size: 12.5px; color: var(--text-muted); margin: 0 0 12px;">
+                {% trans "Чем больше у вас точек, тем дешевле обходится каждая отдельная точка сети:" %}
+            </p>
+
+            <div class="calc-example-grid">
+                <div class="calc-box">
+                    <div class="calc-box-title">{% trans "1 магазин (База)" %}</div>
+                    <div class="calc-box-price">450 000 сум</div>
+                    <div class="calc-box-sub">450 000 сум/точка</div>
+                </div>
+
+                <div class="calc-box">
+                    <div class="calc-box-title">{% trans "Сеть из 3 точек" %}</div>
+                    <div class="calc-box-price">750 000 сум</div>
+                    <div class="calc-box-sub">250 000 сум/точка (-44%)</div>
+                </div>
+
+                <div class="calc-box">
+                    <div class="calc-box-title">{% trans "Сеть из 5 точек" %}</div>
+                    <div class="calc-box-price">1 050 000 сум</div>
+                    <div class="calc-box-sub">210 000 сум/точка (-53%)</div>
+                </div>
+
+                <div class="calc-box">
+                    <div class="calc-box-title">{% trans "Сеть из 10 точек" %}</div>
+                    <div class="calc-box-price">1 800 000 сум</div>
+                    <div class="calc-box-sub">180 000 сум/точка (-60%)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3 ПРОСТЫХ ШАГА ДЛЯ СТАРТА -->
+    <h2 style="font-size: 20px; font-weight: 800; color: var(--text-main); margin: 0 0 16px;">
+        🚀 {% trans "Как начать продавать за 3 простых шага?" %}
+    </h2>
+
+    <div class="steps-container">
+        <div class="step-box">
+            <div class="step-num">1</div>
+            <div>
+                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 700; color: var(--text-main);">{% trans "Зарегистрируйте магазин" %}</h4>
+                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">{% trans "Заполните короткую заявку: название бренда, имя владельца, контакты и соцсети." %}</p>
+            </div>
+        </div>
+
+        <div class="step-box">
+            <div class="step-num">2</div>
+            <div>
+                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 700; color: var(--text-main);">{% trans "Добавьте товары и филиалы" %}</h4>
+                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">{% trans "Загрузите фото ассортимента, укажите цвета, размеры и добавьте адреса ваших магазинов." %}</p>
+            </div>
+        </div>
+
+        <div class="step-box">
+            <div class="step-num">3</div>
+            <div>
+                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 700; color: var(--text-main);">{% trans "Подключите Telegram и получайте заказы" %}</h4>
+                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">{% trans "Привяжите Telegram-бота для приёма оплат, мгновенных уведомлений и работы ИИ-продавца." %}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- КНОПКИ ДЕЙСТВИЯ ВНИЗУ -->
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+        <a href="{% url 'seller-register' %}" class="hero-cta-btn" style="text-align: center;">
+            🚀 {% trans "Зарегистрировать магазин сейчас" %}
+        </a>
+        <a href="https://t.me/abdvoris07" target="_blank" style="text-align: center; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-main); padding: 14px; border-radius: 14px; font-size: 14px; font-weight: 700; text-decoration: none;">
+            💬 {% trans "Написать основателю в Telegram" %}
+        </a>
+    </div>
+</div>
+{% endblock %}

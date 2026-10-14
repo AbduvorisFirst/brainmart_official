@@ -1,0 +1,597 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛡 brainmart | Executive Platform Admin</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --accent: #10B981;
+            --bg: #0B0F19;
+            --surface: #141C2B;
+            --surface-card: #182235;
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            background: var(--bg);
+            color: var(--text-main);
+            padding: 24px 32px 80px;
+            -webkit-font-smoothing: antialiased;
+        }
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 16px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+        }
+        .admin-title-wrap h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: -0.5px;
+        }
+        .admin-badge {
+            background: linear-gradient(135deg, #EF4444, #F59E0B);
+            color: white;
+            font-size: 11px;
+            font-weight: 900;
+            padding: 3px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .btn-link {
+            text-decoration: none;
+            color: #A5B4FC;
+            background: rgba(79, 70, 229, 0.15);
+            border: 1px solid rgba(79, 70, 229, 0.3);
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            transition: 0.2s;
+        }
+        .btn-link:hover { background: var(--primary); color: white; }
+
+        /* Метрики */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        .metric-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+        .metric-card.highlight {
+            border-color: rgba(99, 102, 241, 0.4);
+            background: linear-gradient(145deg, rgba(79, 70, 229, 0.12) 0%, var(--surface) 100%);
+        }
+        .metric-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .metric-value { font-size: 24px; font-weight: 900; color: white; letter-spacing: -0.5px; }
+        .metric-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+        /* Секция контента */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        @media (max-width: 1000px) {
+            .content-grid { grid-template-columns: 1fr; }
+        }
+
+        .panel-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+        .panel-title { font-size: 16px; font-weight: 800; color: white; margin: 0 0 16px; display: flex; align-items: center; justify-content: space-between; }
+
+        /* Таблица модерации */
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; min-width: 850px; }
+        th { text-align: left; padding: 12px 14px; font-size: 11.5px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; border-bottom: 1px solid var(--border); }
+        td { padding: 14px; font-size: 13px; color: #D1D5DB; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+        .tier-badge { padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tier-max { background: linear-gradient(135deg, #F59E0B, #EC4899); color: white; }
+        .tier-pro { background: linear-gradient(135deg, #4F46E5, #06B6D4); color: white; }
+        .tier-standard { background: rgba(255, 255, 255, 0.08); color: #94A3B8; border: 1px solid var(--border); }
+
+        .status-pill { padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-block; }
+        .status-active { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .status-frozen { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+        .status-grace { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+
+        .action-btn {
+            border: none; padding: 6px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; transition: 0.15s;
+        }
+        .btn-freeze { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .btn-freeze:hover { background: #ef4444; color: white; }
+        .btn-unfreeze { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .btn-unfreeze:hover { background: #10b981; color: white; }
+
+        .filter-tab {
+            padding: 6px 14px; border-radius: 10px; font-size: 12px; font-weight: 700; text-decoration: none; color: var(--text-muted); border: 1px solid var(--border); background: rgba(255,255,255,0.02);
+        }
+        .filter-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+    </style>
+</head>
+<body>
+
+    <!-- ШАПКА АДМИНКИ -->
+    <div class="admin-header">
+        <div class="admin-title-wrap">
+            <h1>🛡 brain<span>mart</span> Platform Admin <span class="admin-badge">Superuser</span></h1>
+            <div style="font-size: 12.5px; color: var(--text-muted); margin-top: 4px;">
+                Единый центр управления маркетплейсом, мониторинг GMV, подписок и модерация магазинов
+            </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <a href="/brainmart-secure-admin-panel/" class="btn-link" style="background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.4); color: #fbbf24;">⚙️ Django Admin</a>
+            <a href="/ru/" class="btn-link">🌍 Витрина каталога</a>
+            <a href="/dashboard/" class="btn-link">🏪 Кабинет продавца</a>
+            <a href="{% url 'seller-logout' %}" class="btn-link" style="color: #ef4444; border-color: rgba(239,68,68,0.3);">🚪 Выйти</a>
+        </div>
+    </div>
+
+    <!-- БЛОК ПРИВЯЗКИ TELEGRAM СУПЕР-АДМИНИСТРАТОРА -->
+    <div style="background: var(--surface); border: 1.5px solid {% if platform_settings.superadmin_telegram_chat_id %}rgba(16, 185, 129, 0.4){% else %}rgba(99, 102, 241, 0.4){% endif %}; border-radius: 18px; padding: 18px 24px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 44px; height: 44px; border-radius: 12px; background: {% if platform_settings.superadmin_telegram_chat_id %}rgba(16, 185, 129, 0.15){% else %}rgba(99, 102, 241, 0.15){% endif %}; display: flex; align-items: center; justify-content: center; font-size: 22px;">
+                {% if platform_settings.superadmin_telegram_chat_id %}🔔{% else %}📱{% endif %}
+            </div>
+            <div>
+                <div style="font-size: 15px; font-weight: 800; color: white; display: flex; align-items: center; gap: 8px;">
+                    Уведомления Главного Администратора в Telegram
+                    {% if platform_settings.superadmin_telegram_chat_id %}
+                        <span style="font-size: 11px; background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 2px 8px; border-radius: 6px; font-weight: 700;">✅ ПОДКЛЮЧЕНО</span>
+                    {% else %}
+                        <span style="font-size: 11px; background: rgba(239, 68, 68, 0.2); color: #f87171; padding: 2px 8px; border-radius: 6px; font-weight: 700;">НЕ ПРИВЯЗАН</span>
+                    {% endif %}
+                </div>
+                <div style="font-size: 12.5px; color: var(--text-muted); margin-top: 3px;">
+                    {% if platform_settings.superadmin_telegram_chat_id %}
+                        Ваш аккаунт привязан: <strong style="color: #818cf8;">@{{ platform_settings.superadmin_telegram_username|default:"админ" }}</strong> (Chat ID: {{ platform_settings.superadmin_telegram_chat_id }}). Заявки новых продавцов моментально прилетают вам в Telegram с кнопками для одобрения в один клик!
+                    {% else %}
+                        Привяжите свой Telegram в 1 клик, чтобы получать уведомления о каждой новой заявке на открытие магазина прямо в личку с кнопками «Одобрить / Отклонить».
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="{{ superadmin_telegram_link }}" target="_blank" class="btn-link" style="background: linear-gradient(135deg, #4F46E5, #3730A3); color: white; border: none; padding: 10px 18px; font-size: 13.5px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);">
+                ✈️ {% if platform_settings.superadmin_telegram_chat_id %}Перепривязать Telegram{% else %}Привязать мой Telegram{% endif %}
+            </a>
+            {% if platform_settings.superadmin_telegram_chat_id %}
+                <form method="post" style="margin: 0;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="unlink_telegram">
+                    <button type="submit" onclick="return confirm('Отвязать ваш Telegram?')" style="background: transparent; border: 1px solid rgba(239,68,68,0.3); color: #f87171; padding: 10px 14px; border-radius: 10px; font-size: 12.5px; font-weight: 700; cursor: pointer;">
+                        Отвязать
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ЗАЯВКИ НА МОДЕРАЦИИ -->
+    {% if pending_stores %}
+        <div style="background: linear-gradient(145deg, rgba(245, 158, 11, 0.08) 0%, var(--surface) 100%); border: 1.5px solid rgba(245, 158, 11, 0.4); border-radius: 20px; padding: 24px; margin-bottom: 28px; box-shadow: 0 8px 30px rgba(0,0,0,0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 26px;">⏳</span>
+                    <div>
+                        <h2 style="margin: 0; font-size: 18px; font-weight: 800; color: #fbbf24;">
+                            Новые заявки на открытие магазинов ({{ pending_stores_count }})
+                        </h2>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+                            Эти продавцы заполнили анкету и ожидают вашей проверки. Их витрины скрыты от покупателей до одобрения.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+                {% for ps in pending_stores %}
+                    <div style="background: var(--surface-card); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                                <div>
+                                    <div style="font-size: 16px; font-weight: 800; color: white;">{{ ps.name }}</div>
+                                    <div style="font-size: 11.5px; color: var(--text-muted);">Логин: @{{ ps.owner.username }}</div>
+                                </div>
+                                <span class="tier-badge" style="background: rgba(99,102,241,0.2); color: #818cf8; border: 1px solid rgba(99,102,241,0.4);">{{ ps.current_tier_fee|floatformat:"0" }} сум/мес</span>
+                            </div>
+
+                            <div style="font-size: 13px; line-height: 1.8; color: #cbd5e1; margin-bottom: 14px;">
+                                <div>📱 <strong>Телефон:</strong> <a href="tel:{{ ps.phone_number }}" style="color: #38bdf8; text-decoration: none;">{{ ps.phone_number }}</a></div>
+                                <div>📸 <strong>Instagram:</strong> <a href="https://instagram.com/{{ ps.instagram_username }}" target="_blank" style="color: #ec4899; text-decoration: none; font-weight: 600;">@{{ ps.instagram_username }} ↗</a></div>
+                                <div>💬 <strong>Telegram:</strong> {% if ps.owner_telegram_username %}<a href="https://t.me/{{ ps.owner_telegram_username }}" target="_blank" style="color: #818cf8; text-decoration: none; font-weight: 600;">@{{ ps.owner_telegram_username }} ↗</a>{% else %}<span style="color: var(--text-muted);">Не указан</span>{% endif %}</div>
+                                <div>📦 <strong>Ниша:</strong> {{ ps.get_niche_display }}</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">📅 Заявка подана: {{ ps.created_at|date:"d.m.Y H:i" }}</div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 8px; border-top: 1px solid var(--border); padding-top: 12px;">
+                            <form method="post" style="flex: 1; margin: 0;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="approve_store">
+                                <input type="hidden" name="store_id" value="{{ ps.id }}">
+                                <button type="submit" style="width: 100%; padding: 10px; background: #10B981; color: white; border: none; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                    ✅ Одобрить
+                                </button>
+                            </form>
+                            <button type="button" onclick="openRejectModal('{{ ps.id }}', '{{ ps.name|escapejs }}')" style="padding: 10px 14px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer;">
+                                ❌ Отклонить
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if messages %}
+        <div style="margin-bottom: 20px;">
+            {% for m in messages %}
+                <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; font-size: 13.5px; font-weight: 600;">
+                    {{ m }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- 1. КЛЮЧЕВЫЕ МЕТРИКИ ПЛАТФОРМЫ -->
+    <div class="metrics-grid">
+        <div class="metric-card highlight">
+            <div class="metric-title">💰 Общий Оборот (Total GMV)</div>
+            <div class="metric-value" style="color: #34d399;">{{ total_gmv|floatformat:"0" }} сум</div>
+            <div class="metric-sub">Сумма всех оплаченных заказов на платформе</div>
+        </div>
+
+        <div class="metric-card highlight">
+            <div class="metric-title">⚡ Чистый Доход Платформы</div>
+            <div class="metric-value" style="color: #818cf8;">{{ total_platform_net_revenue|floatformat:"0" }} сум</div>
+            <div class="metric-sub">Подписки: {{ total_subscription_revenue|floatformat:"0" }} сум</div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-title">📦 Заказы за сегодня</div>
+            <div class="metric-value">{{ orders_today_count }} <span style="font-size: 15px; font-weight: 600; color: #34d399;">({{ orders_today_revenue|floatformat:"0" }} сум)</span></div>
+            <div class="metric-sub">Заказы во всех магазинах с 00:00 сегодня</div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-title">🏪 Магазины / Продавцы</div>
+            <div class="metric-value">{{ active_stores_count }} <span style="font-size: 15px; font-weight: 500; color: var(--text-muted);">/ {{ total_stores_count }} всего</span></div>
+            <div class="metric-sub">Активных: {{ active_stores_count }} | Заморожено: <strong style="color:#f87171;">{{ frozen_stores_count }}</strong> | Продавцов: {{ total_sellers_count }}</div>
+        </div>
+    </div>
+
+    <!-- 2. ГРАФИК И ТОП ПРОДАЖ -->
+    <div class="content-grid">
+        <!-- График продаж -->
+        <div class="panel-card">
+            <div class="panel-title">
+                <span>📈 Динамика GMV за 7 дней</span>
+                <span style="font-size: 12px; color: var(--text-muted);">Обновляется в реальном времени</span>
+            </div>
+            <div style="height: 240px; position: relative;">
+                <canvas id="adminChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Топ продаваемых товаров -->
+        <div class="panel-card">
+            <div class="panel-title">
+                <span>🔥 Топ Продаваемых Товаров</span>
+            </div>
+            {% if top_products %}
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    {% for p in top_products %}
+                        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 13px; font-weight: 700; color: white;">{{ p.variant__product__name }}</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
+                                    Магазин: <span style="color: #818cf8;">{{ p.variant__product__store__name }}</span>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 13px; font-weight: 800; color: #34d399;">{{ p.units_sold }} шт.</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">{{ p.total_revenue|floatformat:"0" }} сум</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p style="color: var(--text-muted); font-size: 13px; text-align: center; margin: 40px 0;">Пока нет доставленных заказов для формирования топа.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 3. БЕЗОПАСНОСТЬ И МОДЕРАЦИЯ МАГАЗИНОВ -->
+    <div class="panel-card">
+        <div class="panel-title" style="flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span>🛡 Управление Магазинами и Антифрод-Модерация</span>
+                <span style="font-size: 12px; color: var(--text-muted);">({{ stores|length }} показано)</span>
+            </div>
+
+            <!-- Фильтры статусов -->
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <a href="?status=all{% if search_q %}&q={{ search_q }}{% endif %}" class="filter-tab {% if status_filter == 'all' %}active{% endif %}">Все ({{ total_stores_count }})</a>
+                <a href="?status=pending{% if search_q %}&q={{ search_q }}{% endif %}" class="filter-tab {% if status_filter == 'pending' %}active{% endif %}" style="{% if pending_stores_count > 0 %}border-color: rgba(245, 158, 11, 0.4); color: #fbbf24; font-weight: 800;{% endif %}">⏳ На модерации ({{ pending_stores_count }})</a>
+                <a href="?status=active{% if search_q %}&q={{ search_q }}{% endif %}" class="filter-tab {% if status_filter == 'active' %}active{% endif %}">Активные ({{ active_stores_count }})</a>
+                <a href="?status=frozen{% if search_q %}&q={{ search_q }}{% endif %}" class="filter-tab {% if status_filter == 'frozen' %}active{% endif %}">🔒 Замороженные ({{ frozen_stores_count }})</a>
+            </div>
+        </div>
+
+        <!-- Поиск магазинов -->
+        <form method="get" style="margin-bottom: 16px; display: flex; gap: 10px;">
+            <input type="hidden" name="status" value="{{ status_filter }}">
+            <input type="text" name="q" value="{{ search_q }}" placeholder="🔍 Поиск магазина по названию, логину владельца, телефону..." style="flex: 1; padding: 12px 16px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px; color: white; font-size: 13.5px; outline: none;">
+            <button type="submit" style="padding: 12px 20px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer;">Найти</button>
+            {% if search_q %}
+                <a href="?status={{ status_filter }}" style="padding: 12px 16px; background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid var(--border); border-radius: 12px; text-decoration: none; font-size: 13px; font-weight: 700; display: flex; align-items: center;">Сброс</a>
+            {% endif %}
+        </form>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Магазин / Владелец</th>
+                        <th>Тариф</th>
+                        <th>Филиалы</th>
+                        <th>Заказы / Выручка</th>
+                        <th>Баланс к выплате</th>
+                        <th>Статус</th>
+                        <th>Модерация (Антифрод)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in stores %}
+                        <tr>
+                            <td>
+                                <div style="font-weight: 800; color: white; font-size: 14px;">{{ s.name }}</div>
+                                <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">
+                                    👤 {{ s.owner.username }} | 📱 {{ s.phone_number }}
+                                </div>
+                                <div style="font-size: 11px; color: #a5b4fc; margin-top: 2px;">
+                                    📸 <a href="https://instagram.com/{{ s.instagram_username }}" target="_blank" style="color: #f472b6; text-decoration: none;">@{{ s.instagram_username }}</a>
+                                    {% if s.owner_telegram_username %} | 💬 <a href="https://t.me/{{ s.owner_telegram_username }}" target="_blank" style="color: #818cf8; text-decoration: none;">@{{ s.owner_telegram_username }}</a>{% endif %}
+                                </div>
+                                {% if s.rejection_reason %}
+                                    <div style="font-size: 11px; color: #f87171; margin-top: 4px; font-weight: 600;">
+                                        ❌ Причина отказа: {{ s.rejection_reason }}
+                                    </div>
+                                {% endif %}
+                                {% if s.freeze_reason %}
+                                    <div style="font-size: 11px; color: #f87171; margin-top: 4px; font-weight: 600;">
+                                        ⚠️ Причина блока: {{ s.freeze_reason }}
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="tier-badge" style="background: rgba(99,102,241,0.2); color: #818cf8; border: 1px solid rgba(99,102,241,0.4);">
+                                    {{ s.current_tier_fee|floatformat:"0" }} сум/мес
+                                </span>
+                            </td>
+                            <td>
+                                <div style="font-weight: 700; color: white;">🏢 {{ s.branches.count }} филиал(ов)</div>
+                                <div style="font-size: 11px; color: #34d399;">0% комиссии</div>
+                            </td>
+                            <td>
+                                <div style="font-weight: 800; color: white;">{{ s.total_orders }} заказов</div>
+                                <div style="font-size: 11.5px; color: #34d399;">{{ s.store_revenue|default:0|floatformat:"0" }} сум</div>
+                            </td>
+                            <td>
+                                <div style="font-weight: 800; color: #34d399;">{{ s.balance|floatformat:"0" }} сум</div>
+                                {% if s.held_balance > 0 %}
+                                    <div style="font-size: 11px; color: #fbbf24;">(Холд: {{ s.held_balance|floatformat:"0" }} сум)</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if s.verification_status == 'pending' %}
+                                    <span class="status-pill status-grace" style="background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid rgba(245,158,11,0.4);">⏳ На модерации</span>
+                                {% elif s.verification_status == 'rejected' %}
+                                    <span class="status-pill status-frozen" style="background: rgba(239,68,68,0.2); color: #f87171;">❌ Отклонён</span>
+                                {% elif s.is_frozen_by_admin %}
+                                    <span class="status-pill status-frozen">🔒 Заморожен</span>
+                                {% elif s.subscription_status == 'active' %}
+                                    <span class="status-pill status-active">✅ Активен</span>
+                                {% elif s.subscription_status == 'grace_period' %}
+                                    <span class="status-pill status-grace">⏳ Льготный</span>
+                                {% else %}
+                                    <span class="status-pill" style="background: rgba(107,114,128,0.2); color: #9CA3AF;">Не оплачен</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                                    <a href="/ru/?store_id={{ s.id }}" target="_blank" class="action-btn" style="background: rgba(255,255,255,0.05); color: #A5B4FC; text-decoration: none; border: 1px solid var(--border);">
+                                        👁 Витрина
+                                    </a>
+
+                                    {% if s.verification_status == 'pending' %}
+                                        <form method="post" style="margin: 0;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="approve_store">
+                                            <input type="hidden" name="store_id" value="{{ s.id }}">
+                                            <button type="submit" class="action-btn" style="background: #10B981; color: white; border: none; cursor: pointer;">
+                                                ✅ Одобрить
+                                            </button>
+                                        </form>
+                                        <button type="button" class="action-btn" style="background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); cursor: pointer;" onclick="openRejectModal('{{ s.id }}', '{{ s.name|escapejs }}')">
+                                            ❌ Отклонить
+                                        </button>
+                                    {% elif s.is_frozen_by_admin %}
+                                        <form method="post" style="margin: 0;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="unfreeze_store">
+                                            <input type="hidden" name="store_id" value="{{ s.id }}">
+                                            <button type="submit" class="action-btn btn-unfreeze">
+                                                🔓 Разморозить
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <button type="button" class="action-btn btn-freeze" onclick="openFreezeModal('{{ s.id }}', '{{ s.name|escapejs }}')">
+                                            🔒 Заморозить
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 30px; color: var(--text-muted);">
+                                Магазины по заданным критериям не найдены.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО ЗАМОРОЗКИ МАГАЗИНА -->
+    <div id="freezeModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center;">
+        <div style="background: #141C2B; border: 1px solid var(--border); border-radius: 20px; padding: 24px; max-width: 440px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+            <h3 style="margin: 0 0 8px; font-size: 18px; font-weight: 800; color: #f87171;">
+                🔒 Блокировка магазина
+            </h3>
+            <p id="freezeStoreName" style="margin: 0 0 16px; font-size: 13px; color: var(--text-muted);">
+                Укажите причину блокировки:
+            </p>
+            <form method="post" id="freezeForm">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="freeze_store">
+                <input type="hidden" name="store_id" id="freezeStoreId">
+                <textarea name="reason" rows="3" placeholder="Например: Подозрительные заказы / мошенничество / невыполнение условий доставки..." required style="width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px; color: white; font-size: 13px; margin-bottom: 16px;"></textarea>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" onclick="closeFreezeModal()" style="padding: 10px 18px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: white; border-radius: 10px; font-weight: 700; cursor: pointer;">
+                        Отмена
+                    </button>
+                    <button type="submit" style="padding: 10px 18px; background: #EF4444; border: none; color: white; border-radius: 10px; font-weight: 800; cursor: pointer;">
+                        Заморозить магазин
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО ОТКЛОНЕНИЯ МАГАЗИНА -->
+    <div id="rejectModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center;">
+        <div style="background: #141C2B; border: 1px solid var(--border); border-radius: 20px; padding: 24px; max-width: 440px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+            <h3 style="margin: 0 0 8px; font-size: 18px; font-weight: 800; color: #f87171;">
+                ❌ Отклонение заявки магазина
+            </h3>
+            <p id="rejectStoreName" style="margin: 0 0 16px; font-size: 13px; color: var(--text-muted);">
+                Укажите причину отклонения:
+            </p>
+            <form method="post" id="rejectForm">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="reject_store">
+                <input type="hidden" name="store_id" id="rejectStoreId">
+                <textarea name="reason" rows="3" placeholder="Например: Не указан реальный Instagram / недостоверные данные / неподходящий ассортимент..." required style="width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px; color: white; font-size: 13px; margin-bottom: 16px; box-sizing: border-box;"></textarea>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" onclick="closeRejectModal()" style="padding: 10px 18px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: white; border-radius: 10px; font-weight: 700; cursor: pointer;">
+                        Отмена
+                    </button>
+                    <button type="submit" style="padding: 10px 20px; background: #EF4444; border: none; color: white; border-radius: 10px; font-weight: 800; cursor: pointer;">
+                        Отклонить заявку
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openFreezeModal(storeId, storeName) {
+            document.getElementById('freezeStoreId').value = storeId;
+            document.getElementById('freezeStoreName').textContent = 'Блокировка магазина «' + storeName + '». Витрина будет скрыта от покупателей:';
+            document.getElementById('freezeModal').style.display = 'flex';
+        }
+        function closeFreezeModal() {
+            document.getElementById('freezeModal').style.display = 'none';
+        }
+
+        function openRejectModal(storeId, storeName) {
+            document.getElementById('rejectStoreId').value = storeId;
+            document.getElementById('rejectStoreName').textContent = 'Отклонить заявку магазина: «' + storeName + '»';
+            document.getElementById('rejectModal').style.display = 'flex';
+        }
+        function closeRejectModal() {
+            document.getElementById('rejectModal').style.display = 'none';
+        }
+
+        // Chart.js График GMV
+        const ctx = document.getElementById('adminChart').getContext('2d');
+        const chartLabels = {{ chart_labels|safe }};
+        const chartGmv = {{ chart_gmv|safe }};
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartLabels,
+                datasets: [
+                    {
+                        label: 'Оборот GMV (сум)',
+                        data: chartGmv,
+                        borderColor: '#34D399',
+                        backgroundColor: 'rgba(52, 211, 153, 0.1)',
+                        fill: true,
+                        tension: 0.35,
+                        borderWidth: 2.5
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#94A3B8', font: { weight: 'bold', size: 11 } }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#64748B', font: { size: 11 } },
+                        grid: { color: 'rgba(255, 255, 255, 0.04)' }
+                    },
+                    y: {
+                        ticks: { color: '#64748B', font: { size: 11 } },
+                        grid: { color: 'rgba(255, 255, 255, 0.04)' }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

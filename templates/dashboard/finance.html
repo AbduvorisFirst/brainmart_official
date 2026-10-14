@@ -1,0 +1,526 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<style>
+    .finance-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    .stat-card-finance {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+    }
+    .stat-card-finance.highlight {
+        background: linear-gradient(145deg, rgba(16, 185, 129, 0.12) 0%, var(--card-bg) 100%);
+        border-color: rgba(16, 185, 129, 0.35);
+    }
+    .stat-title {
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .stat-amount {
+        font-size: 26px;
+        font-weight: 800;
+        color: white;
+        line-height: 1.1;
+    }
+    .stat-subtext {
+        font-size: 11px;
+        color: var(--text-muted);
+        margin-top: 8px;
+    }
+    .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -16px; padding: 0 16px; }
+    table { width: 100%; min-width: 600px; border-collapse: collapse; }
+    th { text-align: left; padding: 12px 10px; font-size: 12px; color: var(--text-muted); border-bottom: 1px solid var(--border); text-transform: uppercase; }
+    td { padding: 14px 10px; font-size: 13px; border-bottom: 1px solid var(--border); color: #d1d5db; }
+    .badge-held { background: rgba(245, 158, 11, 0.2); color: #fbbf24; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+    .badge-ready { background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+    .badge-paid { background: rgba(79, 70, 229, 0.2); color: #818cf8; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+</style>
+
+<!-- PAGE HEADER -->
+<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+    <div>
+        <h2 style="margin: 0; font-size: 22px; font-weight: 800; color: white;">💰 {% trans "Финансы" %}</h2>
+        <p style="margin: 4px 0 0; font-size: 13px; color: var(--text-muted);">
+            {% trans "SaaS-подписка" %} · <strong style="color: #34d399;">0% {% trans "комиссии с продаж" %}</strong>
+        </p>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     🟩 БЛОК 1: КАК РАБОТАЕТ ОПЛАТА КЛИЕНТОВ (Продавцу напрямую)
+     ════════════════════════════════════════════════════════════ -->
+<div class="card" style="margin-bottom: 24px; background: linear-gradient(145deg, rgba(16,185,129,0.1), rgba(16,185,129,0.04)); border: 1.5px solid rgba(16,185,129,0.35);">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px;">
+        <span style="font-size: 28px;">💳</span>
+        <div>
+            <h4 style="margin: 0; font-size: 16px; font-weight: 800; color: white;">{% trans "Как клиенты платят за заказы" %}</h4>
+            <p style="margin: 4px 0 0; font-size: 12.5px; color: var(--text-muted);">{% trans "Простая и прозрачная схема без посредников" %}</p>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px;">
+        <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 14px; text-align: center;">
+            <div style="font-size: 24px; margin-bottom: 6px;">📱</div>
+            <div style="font-size: 12px; font-weight: 800; color: white; margin-bottom: 4px;">{% trans "Клиент переводит напрямую" %}</div>
+            <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">{% trans "Клиент переводит деньги прямо на вашу карту Uzcard/Humo" %}</div>
+        </div>
+        <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 14px; text-align: center;">
+            <div style="font-size: 24px; margin-bottom: 6px;">✅</div>
+            <div style="font-size: 12px; font-weight: 800; color: white; margin-bottom: 4px;">{% trans "Вы получаете 100%" %}</div>
+            <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">{% trans "Деньги сразу на вашей карте. Никаких удержаний платформой" %}</div>
+        </div>
+        <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 14px; text-align: center;">
+            <div style="font-size: 24px; margin-bottom: 6px;">📸</div>
+            <div style="font-size: 12px; font-weight: 800; color: white; margin-bottom: 4px;">{% trans "Клиент присылает скрин" %}</div>
+            <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">{% trans "Клиент прикладывает подтверждение перевода — вы подтверждаете заказ" %}</div>
+        </div>
+    </div>
+
+    {% if store.payout_card %}
+    <div style="background: linear-gradient(145deg, #1E1B4B 0%, #0F172A 100%); border: 1.5px solid #4F46E5; border-radius: 14px; padding: 16px;">
+        <div style="font-size: 11px; font-weight: 800; color: #818CF8; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">{% trans "Ваша карта для приёма оплат" %}</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div>
+                <div id="myCardNumber" style="font-family: monospace; font-size: 19px; font-weight: 900; color: white; letter-spacing: 2px;">{{ store.payout_card }}</div>
+                {% if store.payout_card_holder %}
+                <div style="font-size: 12px; color: #9CA3AF; margin-top: 4px;">{{ store.payout_card_holder }}</div>
+                {% endif %}
+            </div>
+            <button type="button" onclick="copyMyCard()" id="copyMyCardBtn" style="background: rgba(79, 70, 229, 0.25); border: 1px solid #4F46E5; color: #C7D2FE; font-size: 12px; font-weight: 700; padding: 8px 14px; border-radius: 10px; cursor: pointer;">
+                📋 {% trans "Скопировать" %}
+            </button>
+        </div>
+        <div style="font-size: 11px; color: var(--text-muted); margin-top: 10px; line-height: 1.5;">
+            💡 {% trans "Покажите эту карту клиентам для оплаты заказов. После получения перевода — подтвердите заказ в разделе «Заказы»." %}
+        </div>
+    </div>
+    {% else %}
+    <div style="background: rgba(245,158,11,0.1); border: 1.5px solid rgba(245,158,11,0.4); border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 12px;">
+        <span style="font-size: 24px;">⚠️</span>
+        <div>
+            <div style="font-size: 13px; font-weight: 800; color: #fbbf24;">{% trans "Карта не привязана!" %}</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">{% trans "Добавьте номер карты ниже, чтобы клиенты знали, куда переводить деньги за заказы." %}</div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     💳 БЛОК 2: РЕКВИЗИТЫ КАРТЫ ДЛЯ ПРИЁМА ОПЛАТ (от клиентов)
+     ════════════════════════════════════════════════════════════ -->
+<div class="card" style="margin-bottom: 24px;">
+    <h3 style="margin: 0 0 6px; font-size: 16px; font-weight: 800; color: white; display: flex; align-items: center; gap: 8px;">
+        💳 {% trans "Карта для приёма оплат от клиентов" %}
+    </h3>
+    <p style="margin: 0 0 18px; font-size: 12.5px; color: var(--text-muted);">
+        {% trans "Эта карта будет показана клиентам при оформлении заказа. Клиент переводит деньги напрямую на неё." %}
+    </p>
+    <form method="post" style="margin: 0;">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="save_card">
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 16px;">
+            <div>
+                <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px;">
+                    {% trans "Номер карты (16 цифр)" %}
+                </label>
+                <input type="text" name="payout_card" value="{{ store.payout_card }}" placeholder="8600 0000 0000 0000 / 9860..." maxlength="20"
+                       style="width: 100%; background: var(--bg); border: 1px solid var(--border); color: white; padding: 12px 14px; border-radius: 12px; font-size: 14px; font-weight: 600; font-family: monospace; margin: 0;">
+            </div>
+            <div>
+                <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px;">
+                    {% trans "Владелец карты (ФИО)" %}
+                </label>
+                <input type="text" name="payout_card_holder" value="{{ store.payout_card_holder }}" placeholder="ISLOMOV ANVAR"
+                       style="width: 100%; background: var(--bg); border: 1px solid var(--border); color: white; padding: 12px 14px; border-radius: 12px; font-size: 14px; font-weight: 500; margin: 0;">
+            </div>
+        </div>
+
+        <button type="submit" class="btn" style="width: auto; padding: 12px 28px; border-radius: 12px; font-size: 14px; font-weight: 700;">
+            💾 {% trans "Сохранить карту" %}
+        </button>
+    </form>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     📅 БЛОК 3: ПОДПИСКА BRAINMART (Оплата нам)
+     ════════════════════════════════════════════════════════════ -->
+<div class="card" style="margin-bottom: 24px; border: 1.5px solid {% if subscription_info.status == 'suspended' %}#EF4444{% elif subscription_info.status == 'grace_period' %}#F59E0B{% else %}rgba(99, 102, 241, 0.3){% endif %};">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 16px;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap;">
+                <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: white;">
+                    🤖 {% trans "Ежемесячная подписка BrainMart" %}
+                </h3>
+                <span style="background: rgba(99,102,241,0.2); border: 1.5px solid var(--primary); color: #818cf8; padding: 3px 10px; border-radius: 8px; font-size: 11px; font-weight: 800;">
+                    {{ store.current_tier_fee|floatformat:"0" }} {% trans "сум/мес" %}
+                </span>
+                <span class="badge" style="{% if subscription_info.status == 'active' %}background: rgba(16,185,129,0.2); color: #34d399;{% elif subscription_info.status == 'expiring' %}background: rgba(245,158,11,0.2); color: #fbbf24;{% elif subscription_info.status == 'grace_period' %}background: rgba(239,68,68,0.2); color: #f87171;{% else %}background: #374151; color: #9CA3AF;{% endif %}">
+                    {{ subscription_info.text }}
+                </span>
+            </div>
+            <p style="margin: 0; font-size: 13px; color: var(--text-muted);">
+                {% trans "Оплачено до:" %} <strong style="color: white;">{{ store.subscription_paid_until|date:"d.m.Y" }} г.</strong>
+                · {{ store.branches.count }} {% trans "точек" %}
+            </p>
+        </div>
+
+        <!-- Кнопка перевода на карту BrainMart -->
+        <button type="button" onclick="openTransferModal()" class="btn" style="width: auto; background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; padding: 10px 20px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);">
+            💳 {% trans "Оплатить переводом" %}
+        </button>
+    </div>
+
+    <!-- Информация о филиалах -->
+    <div style="margin: 0 0 16px; padding: 14px 16px; background: rgba(0,0,0,0.25); border: 1px solid var(--border); border-radius: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <div style="font-size: 13px; font-weight: 800; color: white;">
+                🏢 {% trans "Точки:" %} <span style="color: var(--primary);">{{ store.branches.count }}</span>
+            </div>
+            <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 3px;">
+                {% trans "Первая точка: 450 000 сум · Каждая дополнительная: +150 000 сум/мес" %}
+            </div>
+        </div>
+        <a href="{% url 'seller-branches' %}" class="btn" style="width: auto; background: rgba(99,102,241,0.15); border: 1px solid var(--primary); color: #818cf8; padding: 8px 16px; border-radius: 10px; font-size: 12px; font-weight: 700; text-decoration: none;">
+            + {% trans "Управление точками" %}
+        </a>
+    </div>
+
+    <div style="background: rgba(255, 255, 255, 0.03); border: 1px dashed var(--border); border-radius: 10px; padding: 12px 14px; font-size: 12px; color: var(--text-muted); line-height: 1.45;">
+        ℹ️ {% trans "Подписка покрывает работу CRM, ИИ-продавца, витрины и Telegram Mini App. При неуплате действует льготный период 6 дней." %}
+    </div>
+
+    <!-- История оплат подписки -->
+    {% if subscription_payments %}
+        <div style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 14px;">
+            <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">
+                {% trans "История оплат подписки" %}:
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                {% for sub_pay in subscription_payments %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #D1D5DB; background: rgba(255,255,255,0.02); padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border); flex-wrap: wrap; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <span>📅 {{ sub_pay.paid_at|date:"d.m.Y H:i" }}</span>
+                            {% if sub_pay.period_end %}
+                                <span style="color: #9CA3AF;">({% trans "до" %} {{ sub_pay.period_end|date:"d.m.Y" }})</span>
+                            {% endif %}
+                            {% if sub_pay.status == 'pending' %}
+                                <span style="background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); color: #fbbf24; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700;">⏳ {% trans "На проверке" %}</span>
+                            {% elif sub_pay.status == 'completed' %}
+                                <span style="background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: #34d399; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700;">✅ {% trans "Подтверждена" %}</span>
+                            {% elif sub_pay.status == 'rejected' %}
+                                <span style="background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #f87171; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700;">❌ {% trans "Отклонена" %}</span>
+                            {% endif %}
+                            <span style="color: var(--text-muted); font-size: 11px;">({{ sub_pay.months }} {% trans "мес." %})</span>
+                            {% if sub_pay.receipt_image %}
+                                <a href="{{ sub_pay.receipt_image.url }}" target="_blank" style="color: #818cf8; text-decoration: underline; font-size: 11px; font-weight: 700;">🧾 {% trans "Смотреть чек" %}</a>
+                            {% endif %}
+                        </div>
+                        <strong style="color: #34d399; font-size: 13px;">{{ sub_pay.amount|floatformat:"0" }} {% trans "сум" %}</strong>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     📦 БЛОК 4: ДЕТАЛИЗАЦИЯ ЗАКАЗОВ
+     ════════════════════════════════════════════════════════════ -->
+<div class="card" style="margin-bottom: 24px;">
+    <h3 style="margin: 0 0 16px; font-size: 16px; font-weight: 800; color: white;">
+        📦 {% trans "Детализация оплаченных заказов" %}
+    </h3>
+    {% if orders %}
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>{% trans "Заказ" %}</th>
+                        <th>{% trans "Сумма" %}</th>
+                        <th>{% trans "Метод оплаты" %}</th>
+                        <th>{% trans "Статус заказа" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                        <tr>
+                            <td><strong>#{{ order.id }}</strong> <br><span style="font-size: 11px; color: var(--text-muted);">{{ order.created_at|date:"d.m.Y H:i" }}</span></td>
+                            <td><strong style="color: #34d399; font-size: 15px; font-weight: 900;">{{ order.total_price|floatformat:"0" }} {% trans "сум" %}</strong><br><span style="font-size: 10px; color: var(--text-muted);">{% trans "100% к вам" %}</span></td>
+                            <td>
+                                {% if order.payment_method == 'card_transfer' %}
+                                    <span class="badge-ready">💳 {% trans "Перевод на карту" %}</span>
+                                {% elif order.payment_method == 'cash' %}
+                                    <span class="badge-held">💵 {% trans "Наличные" %}</span>
+                                {% else %}
+                                    <span class="badge-held">{{ order.payment_method|default:"—" }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if order.status == 'delivered' %}
+                                    <span class="badge" style="background: rgba(16,185,129,0.2); color: #34d399;">{% trans "Доставлен" %}</span>
+                                {% elif order.status == 'handed_to_courier' %}
+                                    <span class="badge" style="background: rgba(59,130,246,0.2); color: #60a5fa;">{% trans "У курьера" %}</span>
+                                {% else %}
+                                    <span class="badge" style="background: rgba(245,158,11,0.2); color: #fbbf24;">{% trans "Оплачен" %}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p style="color: var(--text-muted); margin: 0; font-size: 13px;">{% trans "Пока нет оплаченных заказов." %}</p>
+    {% endif %}
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     МОДАЛЬНОЕ ОКНО: ОПЛАТА ПОДПИСКИ BRAINMART ПЕРЕВОДОМ
+     ════════════════════════════════════════════════════════════ -->
+<div id="transferModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(6px); z-index: 9999; align-items: center; justify-content: center; padding: 16px; overflow-y: auto;">
+    <div style="background: #1F2937; border: 1.5px solid var(--border); border-radius: 20px; max-width: 480px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.5); overflow: hidden; position: relative;">
+        <div style="padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02);">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 20px;">🤖</span>
+                <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: white;">{% trans "Оплата подписки BrainMart" %}</h3>
+            </div>
+            <button type="button" onclick="closeTransferModal()" style="background: transparent; border: none; color: var(--text-muted); font-size: 22px; cursor: pointer; padding: 4px 8px; border-radius: 8px; line-height: 1;">&times;</button>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" style="padding: 22px; margin: 0;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="pay_subscription_transfer">
+
+            <!-- Шаг 1: Карта BrainMart -->
+            <div style="margin-bottom: 20px;">
+                <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                    1. {% trans "Переведите деньги на карту BrainMart" %}
+                </div>
+                <div style="background: linear-gradient(145deg, #1E1B4B 0%, #0F172A 100%); border: 1.5px solid #4F46E5; border-radius: 14px; padding: 16px; position: relative;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="font-size: 11px; font-weight: 800; color: #818CF8; letter-spacing: 1px; text-transform: uppercase;">UZCARD / HUMO</span>
+                        <span style="font-size: 11px; color: #9CA3AF;">BrainMart Billing</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                        <span id="targetCardNumber" style="font-family: monospace; font-size: 17px; font-weight: 800; color: white; letter-spacing: 1.5px;">{{ billing_card|default:"6262 4700 9041 1583" }}</span>
+                        <button type="button" onclick="copyCardToClipboard()" id="copyCardBtn" style="background: rgba(79, 70, 229, 0.25); border: 1px solid #4F46E5; color: #C7D2FE; font-size: 11.5px; font-weight: 700; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: 0.2s;">
+                            📋 {% trans "Скопировать" %}
+                        </button>
+                    </div>
+                    <div style="font-size: 11px; color: #94A3B8; margin-top: 8px;">
+                        {% trans "Получатель" %}: <strong>{{ billing_holder|default:"Munisa Yakubova" }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Шаг 2: Выбор срока -->
+            <div style="margin-bottom: 20px;">
+                <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                    2. {% trans "Выберите срок продления" %}
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                    <label style="cursor: pointer; margin: 0;">
+                        <input type="radio" name="months" value="1" checked onchange="updateCalc(1)" style="display: none;" class="dur-radio">
+                        <div class="dur-btn" id="dur-btn-1" style="border: 1.5px solid var(--primary); background: rgba(79,70,229,0.15); border-radius: 12px; padding: 10px 8px; text-align: center;">
+                            <div style="font-weight: 800; font-size: 13px; color: white;">1 {% trans "мес." %}</div>
+                            <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 2px;">{{ store.current_tier_fee|floatformat:"0" }} сум</div>
+                        </div>
+                    </label>
+                    <label style="cursor: pointer; margin: 0;">
+                        <input type="radio" name="months" value="3" onchange="updateCalc(3)" style="display: none;" class="dur-radio">
+                        <div class="dur-btn" id="dur-btn-3" style="border: 1.5px solid var(--border); background: rgba(255,255,255,0.02); border-radius: 12px; padding: 10px 8px; text-align: center;">
+                            <div style="font-weight: 800; font-size: 13px; color: white;">3 {% trans "мес." %}</div>
+                            <div style="font-size: 10.5px; color: #34d399; margin-top: 2px;" id="calc-sum-3">...</div>
+                        </div>
+                    </label>
+                    <label style="cursor: pointer; margin: 0;">
+                        <input type="radio" name="months" value="6" onchange="updateCalc(6)" style="display: none;" class="dur-radio">
+                        <div class="dur-btn" id="dur-btn-6" style="border: 1.5px solid var(--border); background: rgba(255,255,255,0.02); border-radius: 12px; padding: 10px 8px; text-align: center;">
+                            <div style="font-weight: 800; font-size: 13px; color: white;">6 {% trans "мес." %}</div>
+                            <div style="font-size: 10.5px; color: #fbbf24; margin-top: 2px;" id="calc-sum-6">...</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Итоговая сумма -->
+            <div style="background: rgba(16, 185, 129, 0.1); border: 1.5px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 12.5px; color: #D1D5DB;">{% trans "Сумма к переводу" %}:</span>
+                <strong id="transferTotalDisplay" style="font-size: 17px; color: #34d399; font-weight: 900;">
+                    {{ store.current_tier_fee|floatformat:"0" }} сум
+                </strong>
+            </div>
+
+            <!-- Шаг 3: Скан / Чек перевода -->
+            <div style="margin-bottom: 20px;">
+                <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">
+                    3. {% trans "Скан / Фото чека перевода" %} <span style="color: #EF4444;">*</span>
+                </label>
+                <div style="position: relative; border: 2px dashed rgba(255,255,255,0.22); border-radius: 14px; padding: 18px 14px; text-align: center; cursor: pointer; transition: 0.2s; background: rgba(15,23,42,0.5);" id="receiptDropzone">
+                    <span id="receiptIcon" style="font-size: 28px; display: block; margin-bottom: 4px;">🧾</span>
+                    <div id="receiptText" style="font-size: 13.5px; font-weight: 700; color: white;">{% trans "Нажмите, чтобы прикрепить фото или скан чека" %}</div>
+                    <div id="receiptSubtext" style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">{% trans "Скриншот или квитанция из банковского приложения" %}</div>
+                    <input type="file" name="receipt_image" id="receiptInput" accept="image/*" required style="position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;" onchange="handleReceiptChange(this)">
+                </div>
+                <div id="receiptPreviewWrap" style="display: none; margin-top: 10px; border-radius: 12px; overflow: hidden; border: 1.5px solid #10b981; max-height: 160px; text-align: center; background: #0f172a; padding: 6px;">
+                    <img id="receiptPreviewImg" src="" style="max-height: 150px; max-width: 100%; object-fit: contain; border-radius: 8px;">
+                </div>
+
+                <div style="margin-top: 14px;">
+                    <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">
+                        {% trans "Номер транзакции или последние 4 цифры карты" %}
+                    </label>
+                    <input type="text" name="transaction_id" id="transferTxId"
+                           placeholder="{% trans 'Например: Чек #458291 или карта 8600...' %}"
+                           style="margin-bottom: 4px; font-size: 13px;">
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4; margin-top: 6px;">
+                    {% trans "После отправки чек мгновенно поступает администратору. Подписка продлевается сразу после подтверждения." %}
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button type="button" onclick="closeTransferModal()" class="btn btn-secondary" style="width: 35%; padding: 12px; font-size: 13px;">{% trans "Отмена" %}</button>
+                <button type="submit" class="btn" style="width: 65%; background: linear-gradient(135deg, #10B981, #059669); padding: 12px; font-size: 13px; font-weight: 800;">
+                    ✅ {% trans "Я перевёл, отправить чек" %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const I18N_FIN = {
+        receiptAttached: "{% filter escapejs %}{% trans 'Чек прикреплен' %}{% endfilter %}",
+        clickToReplace: "{% filter escapejs %}{% trans 'Нажмите, чтобы заменить файл' %}{% endfilter %}",
+        copied: "{% filter escapejs %}{% trans 'Скопировано!' %}{% endfilter %}"
+    };
+
+    const MONTHLY_FEE = parseFloat("{{ store.current_tier_fee }}") || 450000;
+
+    function fmt(num) {
+        return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    }
+
+    function handleReceiptChange(input) {
+        if (input.files && input.files[0]) {
+            var file = input.files[0];
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var previewImg = document.getElementById('receiptPreviewImg');
+                var previewWrap = document.getElementById('receiptPreviewWrap');
+                var dropzone = document.getElementById('receiptDropzone');
+                var icon = document.getElementById('receiptIcon');
+                var text = document.getElementById('receiptText');
+                var subtext = document.getElementById('receiptSubtext');
+                if (previewImg) previewImg.src = e.target.result;
+                if (previewWrap) previewWrap.style.display = 'block';
+                if (dropzone) {
+                    dropzone.style.borderColor = '#10b981';
+                    dropzone.style.background = 'rgba(16, 185, 129, 0.12)';
+                }
+                if (icon) icon.innerText = '✅';
+                if (text) text.innerHTML = '<span style="color:#10b981;">✅ ' + I18N_FIN.receiptAttached + ': ' + file.name + '</span>';
+                if (subtext) subtext.innerText = I18N_FIN.clickToReplace;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function initCalc() {
+        var s3 = document.getElementById('calc-sum-3');
+        var s6 = document.getElementById('calc-sum-6');
+        if (s3) s3.innerText = fmt(MONTHLY_FEE * 3) + ' сум';
+        if (s6) s6.innerText = fmt(MONTHLY_FEE * 6) + ' сум';
+    }
+
+    function openTransferModal() {
+        var modal = document.getElementById('transferModal');
+        if (modal) { modal.style.display = 'flex'; initCalc(); }
+    }
+    function closeTransferModal() {
+        var modal = document.getElementById('transferModal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    function updateCalc(months) {
+        [1, 3, 6].forEach(function(m) {
+            var btn = document.getElementById('dur-btn-' + m);
+            if (btn) {
+                if (m === months) {
+                    btn.style.border = '1.5px solid var(--primary)';
+                    btn.style.background = 'rgba(79,70,229,0.15)';
+                } else {
+                    btn.style.border = '1.5px solid var(--border)';
+                    btn.style.background = 'rgba(255,255,255,0.02)';
+                }
+            }
+        });
+        var total = MONTHLY_FEE * months;
+        var display = document.getElementById('transferTotalDisplay');
+        if (display) display.innerText = fmt(total) + ' сум';
+    }
+
+    function copyCardToClipboard() {
+        var cardNum = "{{ billing_card_clean|default:'6262470090411583' }}";
+        navigator.clipboard.writeText(cardNum).then(function() {
+            var btn = document.getElementById('copyCardBtn');
+            if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '✅ ' + I18N_FIN.copied;
+                btn.style.background = 'rgba(16, 185, 129, 0.3)';
+                btn.style.borderColor = '#10B981';
+                btn.style.color = '#34d399';
+                setTimeout(function() {
+                    btn.innerHTML = orig;
+                    btn.style.background = 'rgba(79, 70, 229, 0.25)';
+                    btn.style.borderColor = '#4F46E5';
+                    btn.style.color = '#C7D2FE';
+                }, 2000);
+            }
+        });
+    }
+
+    function copyMyCard() {
+        var cardEl = document.getElementById('myCardNumber');
+        if (!cardEl) return;
+        var cardStr = cardEl.innerText.replace(/\s/g, '');
+        navigator.clipboard.writeText(cardStr).then(function() {
+            var btn = document.getElementById('copyMyCardBtn');
+            if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '✅ ' + I18N_FIN.copied;
+                setTimeout(function() { btn.innerHTML = orig; }, 2000);
+            }
+        });
+    }
+
+    window.addEventListener('click', function(e) {
+        var modal = document.getElementById('transferModal');
+        if (e.target === modal) closeTransferModal();
+    });
+
+    document.addEventListener('DOMContentLoaded', initCalc);
+</script>
+
+{% endblock %}

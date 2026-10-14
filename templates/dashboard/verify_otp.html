@@ -1,0 +1,195 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div style="min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 20px 10px;">
+    <div class="card" style="max-width: 460px; width: 100%; margin: 0 auto; border-radius: 28px; padding: 36px 30px; box-shadow: 0 20px 45px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); text-align: center;">
+        
+        <!-- Верхняя иконка -->
+        <div style="width: 72px; height: 72px; border-radius: 24px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(16, 185, 129, 0.2)); border: 1px solid rgba(255,255,255,0.15); display: inline-flex; align-items: center; justify-content: center; font-size: 34px; margin-bottom: 16px; box-shadow: 0 10px 24px rgba(0,0,0,0.3);">
+            📲
+        </div>
+
+        <h2 style="margin: 0 0 6px 0; font-size: 22px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em;">
+            Подтверждение входа
+        </h2>
+        <p style="margin: 0 0 20px 0; font-size: 14px; color: var(--text-muted); line-height: 1.5;">
+            Двухфакторная аутентификация BrainMart (2FA OTP)
+        </p>
+
+        <!-- Инфо-блок аккаунта -->
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 18px; padding: 14px 16px; margin-bottom: 22px; text-align: left; display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #94A3B8; letter-spacing: 0.05em;">Магазин</div>
+                <div style="font-size: 15px; font-weight: 800; color: #FFFFFF; margin-top: 2px;">{{ store.name|default:"BrainMart" }}</div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #94A3B8; letter-spacing: 0.05em;">Владелец</div>
+                <div style="font-size: 14px; font-weight: 700; color: #818CF8; margin-top: 2px;">
+                    {% if store.owner_telegram_username %}
+                        @{{ store.owner_telegram_username }}
+                    {% else %}
+                        {{ user_obj.username }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if messages %}
+            <div style="margin-bottom: 18px; text-align: left;">
+                {% for message in messages %}
+                    <div style="padding: 12px 16px; border-radius: 14px; margin-bottom: 8px; font-size: 13px; font-weight: 600; display: flex; align-items: flex-start; gap: 10px; {% if message.tags == 'error' %}background: rgba(239, 68, 68, 0.15); border: 1.5px solid #EF4444; color: #FCA5A5;{% elif message.tags == 'warning' %}background: rgba(245, 158, 11, 0.15); border: 1.5px solid #F59E0B; color: #FCD34D;{% else %}background: rgba(16, 185, 129, 0.15); border: 1.5px solid #10B981; color: #6EE7B7;{% endif %}">
+                        <span style="font-size: 16px; line-height: 1;">
+                            {% if message.tags == 'error' %}⚠️{% elif message.tags == 'warning' %}⏳{% else %}✅{% endif %}
+                        </span>
+                        <div style="line-height: 1.4;">{{ message }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if not has_telegram and link_url %}
+            <!-- Предупреждение: Бот не привязан, ссылка для подключения -->
+            <div style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 20px; padding: 18px; margin-bottom: 24px; text-align: left;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                    <span style="font-size: 20px;">🤖</span>
+                    <strong style="color: #FBBF24; font-size: 14px;">Telegram-бот еще не привязан к магазину</strong>
+                </div>
+                <p style="font-size: 13px; color: #FDE68A; margin: 0 0 14px 0; line-height: 1.45;">
+                    Чтобы получить код входа, подключите Telegram-бота в один клик. После нажатия код сразу придет в чат:
+                </p>
+                <a href="{{ link_url }}" target="_blank" class="btn" style="background: linear-gradient(135deg, #0284C7, #0369A1); border-radius: 14px; padding: 12px 18px; font-size: 14px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; color: white;">
+                    <span>✈️ Подключить бота и получить код</span>
+                </a>
+                <div id="tg-status-hint" style="font-size: 11.5px; color: #94A3B8; text-align: center; margin-top: 10px;">
+                    🔄 Ожидание подключения бота...
+                </div>
+            </div>
+        {% else %}
+            <!-- Сообщение, что код отправлен -->
+            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 16px; padding: 12px 16px; margin-bottom: 20px; text-align: left; display: flex; align-items: center; gap: 12px;">
+                <div style="font-size: 22px;">💬</div>
+                <div style="font-size: 13px; color: #A7F3D0; line-height: 1.4;">
+                    Код отправлен в Telegram владельца магазина. Также можно отправить боту команду <code>/code</code>.
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Форма ввода 6-значного OTP -->
+        <form method="post" action="{% url 'seller-verify-otp' %}" id="otp-form" style="margin-top: 10px;">
+            {% csrf_token %}
+            
+            <label for="otp_code_input" style="display: block; font-size: 13px; font-weight: 700; color: #CBD5E1; margin-bottom: 10px; text-align: center;">
+                Введите 6-значный код безопасности
+            </label>
+
+            <div style="display: flex; justify-content: center; margin-bottom: 18px;">
+                <input 
+                    type="text" 
+                    id="otp_code_input" 
+                    name="otp_code" 
+                    maxlength="6" 
+                    pattern="[0-9]{6}" 
+                    inputmode="numeric" 
+                    autocomplete="one-time-code" 
+                    required 
+                    autofocus
+                    placeholder="• • • • • •" 
+                    style="max-width: 280px; width: 100%; text-align: center; font-size: 30px; font-weight: 800; letter-spacing: 0.28em; padding: 14px 10px; background: rgba(15, 23, 42, 0.7); border: 2px solid rgba(99, 102, 241, 0.5); border-radius: 18px; color: #FFFFFF; font-family: monospace; outline: none; transition: border-color 0.2s, box-shadow 0.2s;"
+                >
+            </div>
+
+            <!-- Таймер обратного отсчета -->
+            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 22px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                <span>⏱</span>
+                <span>Код действителен:</span>
+                <strong id="timer-display" style="color: #F8FAFC; font-family: monospace; font-size: 14px;">--:--</strong>
+            </div>
+
+            <button type="submit" id="submit-btn" class="btn" style="width: 100%; border-radius: 16px; padding: 15px; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);">
+                ✅ Подтвердить и войти
+            </button>
+        </form>
+
+        <!-- Кнопка повторной отправки кода -->
+        <div style="margin-top: 20px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 12px; align-items: center;">
+            <form method="post" action="{% url 'seller-resend-otp' %}" style="width: 100%;">
+                {% csrf_token %}
+                <button type="submit" id="resend-btn" class="btn btn-secondary" style="width: 100%; border-radius: 14px; padding: 12px; font-size: 13.5px; font-weight: 600;">
+                    🔄 Отправить код повторно
+                </button>
+            </form>
+
+            <a href="{% url 'seller-login' %}" style="color: var(--text-muted); font-size: 13px; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='var(--text-muted)'">
+                ← Войти другим пользователем
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Обратный отсчёт времени действия OTP
+    let totalSeconds = {{ seconds_left|default:300 }};
+    const timerDisplay = document.getElementById("timer-display");
+    const otpInput = document.getElementById("otp_code_input");
+    const submitBtn = document.getElementById("submit-btn");
+
+    function formatTime(sec) {
+        if (sec <= 0) return "00:00 (истёк)";
+        const m = Math.floor(sec / 60);
+        const s = sec % 60;
+        return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function updateTimer() {
+        timerDisplay.textContent = formatTime(totalSeconds);
+        if (totalSeconds <= 0) {
+            timerDisplay.style.color = "#EF4444";
+        } else {
+            totalSeconds--;
+            setTimeout(updateTimer, 1000);
+        }
+    }
+    updateTimer();
+
+    // Автоматическая отправка формы при вводе 6 цифр
+    if (otpInput) {
+        otpInput.addEventListener("input", function(e) {
+            // Оставляем только цифры
+            this.value = this.value.replace(/\D/g, '').slice(0, 6);
+            if (this.value.length === 6) {
+                // Небольшая задержка для визуального комфорта перед сабмитом
+                setTimeout(() => {
+                    document.getElementById("otp-form").submit();
+                }, 200);
+            }
+        });
+
+        // Фокус при клике на карточку
+        otpInput.focus();
+    }
+
+    // Если бот не был привязан — опрашиваем сервер каждые 3 секунды
+    {% if not has_telegram %}
+    const pollInterval = setInterval(() => {
+        fetch("{% url 'seller-check-tg-status' %}")
+            .then(res => res.json())
+            .then(data => {
+                if (data.linked) {
+                    clearInterval(pollInterval);
+                    const hint = document.getElementById("tg-status-hint");
+                    if (hint) {
+                        hint.innerHTML = "✅ Бот успешно подключен! Запрашиваем код...";
+                        hint.style.color = "#10B981";
+                    }
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1200);
+                }
+            })
+            .catch(() => {});
+    }, 3000);
+    {% endif %}
+</script>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<style>
+    .product-list { display: flex; flex-direction: column; gap: 16px; }
+    .product-card-mobile {
+        background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px;
+    }
+    .product-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .product-title { font-size: 16px; font-weight: 700; color: white; margin: 0 0 4px; }
+    .product-price { font-size: 14px; font-weight: 800; color: var(--primary); }
+
+    .variants-list { background: rgba(0,0,0,0.15); border-radius: 8px; padding: 12px; margin-bottom: 16px; }
+    .variant-item { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+    .variant-item:last-child { margin-bottom: 0; }
+    .variant-stock { color: white; font-weight: 700; }
+
+    /* СЕТКА КНОПОК УПРАВЛЕНИЯ */
+    .card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .btn-action { padding: 10px; font-size: 13px; font-weight: 600; display: flex; justify-content: center; align-items: center; border-radius: 10px; }
+    .btn-delete { grid-column: span 2; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+</style>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h2 style="margin: 0; font-size: 20px;">📦 {% trans "Мои товары" %}</h2>
+    </div>
+
+    {% if products %}
+        <div class="product-list">
+            {% for product in products %}
+                <div class="product-card-mobile">
+                    <div class="product-header">
+                        <div>
+                            <h3 class="product-title">{{ product.name }}</h3>
+                            <div class="product-price">{{ product.base_price }} {% trans "сум" %}</div>
+                        </div>
+                        <div>
+                            {% if product.is_active %}
+                                <span class="badge badge-active">{% trans "Активен" %}</span>
+                            {% else %}
+                                <span class="badge badge-inactive">{% trans "Скрыт" %}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="variants-list">
+                        {% for variant in product.variants.all %}
+                            <div class="variant-item">
+                                <span>{% if variant.color or variant.size %}{{ variant.color }} ({{ variant.size }}){% else %}{% trans "Простой товар" %}{% endif %}</span>
+                                <span class="variant-stock">{{ variant.stock_quantity }} {% trans "шт." %}</span>
+                            </div>
+                        {% endfor %}
+
+                    </div>
+
+                    <!-- КНОПКИ УПРАВЛЕНИЯ ТОВАРОМ -->
+                    <div class="card-actions">
+                        <!-- 1. Скрыть / Показать -->
+                        <form method="post" action="{% url 'seller-product-toggle' product.id %}" style="margin: 0;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-secondary btn-action" style="width: 100%;">
+                                {% if product.is_active %}👁 {% trans "Скрыть" %}{% else %}🙈 {% trans "Показать" %}{% endif %}
+                            </button>
+                        </form>
+
+                        <!-- 2. Редактировать (Название и Цена) -->
+                        <a href="{% url 'seller-product-edit' product.id %}" class="btn btn-secondary btn-action" style="text-decoration: none; border-color: var(--primary); color: var(--primary);">
+                            ✏️ {% trans "Изменить" %}
+                        </a>
+
+                        <!-- 2.5 Приход / Склад -->
+                        <a href="{% url 'seller-product-inventory' product.id %}" class="btn btn-secondary btn-action" style="text-decoration: none; border-color: #10B981; color: #10B981; grid-column: span 2;">
+                            📦 {% trans "Приход на склад (Остатки)" %}
+                        </a>
+
+                        <!-- 3. Удалить навсегда -->
+                        <form method="post" action="{% url 'seller-product-delete' product.id %}" onsubmit="return confirm('{% trans "Вы уверены, что хотите удалить этот товар навсегда?" %}');" style="margin: 0; grid-column: span 2;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-delete btn-action" style="width: 100%;">
+                                🗑 {% trans "Удалить товар" %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card" style="text-align: center; padding: 40px 20px;">
+            <div style="font-size: 40px; margin-bottom: 12px;">📦</div>
+            <h3 style="margin: 0 0 8px; color: white;">{% trans "Нет товаров" %}</h3>
+            <p style="color: var(--text-muted); font-size: 14px;">{% trans "Вы еще не добавили ни одного товара." %}</p>
+        </div>
+    {% endif %}
+{% endblock %}

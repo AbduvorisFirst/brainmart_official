@@ -1,0 +1,332 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<style>
+    .section-title { font-size: 15px; font-weight: 800; color: white; margin: 0 0 16px; display: flex; align-items: center; gap: 8px; }
+    .info-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: var(--text-muted); font-weight: 600; }
+    .info-value { color: white; font-weight: 500; text-align: right; max-width: 55%; word-break: break-all; }
+    .copy-btn { background: rgba(79,70,229,0.15); color: var(--primary); border: 1px solid rgba(79,70,229,0.3); padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+    .tg-connected { display: inline-flex; align-items: center; gap: 6px; background: rgba(16,185,129,0.1); color: #34d399; padding: 6px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; }
+    .tg-disconnected { display: inline-flex; align-items: center; gap: 6px; background: rgba(245,158,11,0.1); color: #fbbf24; padding: 6px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; }
+</style>
+
+{% if messages %}
+    {% for message in messages %}
+    <div class="card" style="background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);color:#34d399;padding:12px 16px;margin-bottom:12px;">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
+<div class="card">
+    <h4 class="section-title">✏️ {% trans "Данные магазина и Брендинг" %}</h4>
+    <form method="post">
+        {% csrf_token %}
+        <label>{% trans "Название магазина" %}</label>
+        <input type="text" name="store_name" value="{{ store.name }}" required>
+        
+        <label>{% trans "Телефон (для клиентов)" %}</label>
+        <input type="tel" name="phone_number" value="{{ store.phone_number }}" placeholder="+998 90 000 00 00">
+        
+        <label>{% trans "Адрес магазина" %}</label>
+        <input type="text" name="address" value="{{ store.address }}" placeholder="Ташкент, ул. Навои 15">
+        
+        <label>{% trans "Instagram аккаунт (без @)" %}</label>
+        <input type="text" name="instagram_username" value="{{ store.instagram_username }}" placeholder="sultan_wear">
+
+        <label>🏷️ {% trans "Основная ниша / Категория магазина" %}</label>
+        <select name="category_id" style="background: rgba(255,255,255,0.05); border: 1.5px solid var(--border); color: white; padding: 12px 14px; border-radius: 10px; width: 100%; margin-bottom: 6px; font-weight: 700; font-size: 14px; box-sizing: border-box;">
+            <option value="" {% if not store.category %}selected{% endif %}>{% trans "Не выбрано (выбрать при добавлении товара)" %}</option>
+            {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if store.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+            {% endfor %}
+        </select>
+        <p style="font-size: 11.5px; color: var(--text-muted); margin: 0 0 16px; line-height: 1.4;">
+            💡 {% trans "Эта категория подставляется по умолчанию при добавлении каждого нового товара. Если вы измените категорию при добавлении товара, она сохранится навечно здесь автоматически." %}
+        </p>
+
+        <label>💳 {% trans "Карта для приёма оплат от покупателей (Uzcard / Humo)" %}</label>
+        <input type="text" name="payout_card" value="{{ store.payout_card|default:'' }}" placeholder="8600 0000 0000 0000 / 9860..." maxlength="20" style="font-family: monospace; font-weight: 700;">
+
+        <label>👤 {% trans "Владелец карты (ФИО)" %}</label>
+        <input type="text" name="payout_card_holder" value="{{ store.payout_card_holder|default:'' }}" placeholder="ISLOMOV ANVAR">
+
+        <!-- НАСТРОЙКА СПОСОБОВ ОПЛАТЫ -->
+        <div style="margin: 20px 0; padding: 18px; background: rgba(0,0,0,0.3); border: 1.5px solid var(--border); border-radius: 16px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <label style="margin: 0; font-size: 15px; font-weight: 800; color: white;">
+                    💳 {% trans "Способы приёма оплат от покупателей" %}
+                </label>
+                <span style="font-size: 11px; font-weight: 700; color: #22c55e; background: rgba(34,197,94,0.15); padding: 3px 8px; border-radius: 6px;">ПЕРЕВОД С ЧЕКОМ</span>
+            </div>
+            <p style="margin: 0 0 16px; font-size: 12.5px; color: var(--text-muted); line-height: 1.4;">
+                {% trans "Настройте способ оплаты заказов в вашей онлайн-витрине:" %}
+            </p>
+
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <!-- 1. Прямой перевод на карту (Активен) -->
+                <label style="display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; background: rgba(255,255,255,0.03); border: 1.5px solid rgba(34,197,94,0.3); border-radius: 12px; cursor: pointer;">
+                    <input type="checkbox" name="enable_card_transfer" value="1" checked disabled style="width: auto; margin-top: 3px;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <strong style="font-size: 13.5px; color: white;">💳 {% trans "Прямой перевод на карту продавца (с загрузкой фото чека)" %}</strong>
+                            <span style="font-size: 10px; background: rgba(34, 197, 94, 0.2); color: #4ade80; padding: 2px 6px; border-radius: 5px; font-weight: 700;">АКТИВНО</span>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
+                            {% trans "Клиент переводит по номеру вашей карты Uzcard/Humo выше и прикрепляет фото чека. Заказ поступает только после отправки чека." %}
+                        </div>
+                    </div>
+                </label>
+
+                <!-- 2. Автоматический эквайринг (ЗАМОРОЖЕН) -->
+                <div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; opacity: 0.65;">
+                    <input type="checkbox" name="enable_auto_acquiring" value="0" disabled style="width: auto; margin-top: 3px; cursor: not-allowed;">
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <strong style="font-size: 13.5px; color: #94A3B8;">🔒 {% trans "Автоматический онлайн-эквайринг (Click / Payme)" %}</strong>
+                            <span style="font-size: 10.5px; background: rgba(245, 158, 11, 0.15); color: #f59e0b; padding: 2px 7px; border-radius: 6px; font-weight: 700;">{% trans "В разработке" %}</span>
+                        </div>
+                        <div style="font-size: 11.5px; color: #64748B; margin-top: 3px;">
+                            {% trans "Временно заморожен на техническую доработку интеграции с банковским мерчант-шлюзом во избежание неподтвержденных оплат. Скоро будет доступен!" %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ЯЗЫК УВЕДОМЛЕНИЙ В TELEGRAM -->
+        <div style="margin: 20px 0; padding: 18px; background: rgba(0,0,0,0.3); border: 1.5px solid var(--border); border-radius: 16px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <label style="margin: 0; font-size: 15px; font-weight: 800; color: white;">
+                    🌐 {% trans "Язык уведомлений в Telegram" %}
+                </label>
+            </div>
+            <p style="margin: 0 0 16px; font-size: 12.5px; color: var(--text-muted); line-height: 1.4;">
+                {% trans "Выберите, на каком языке вам будут приходить карточки заказов, кнопки и уведомления в Telegram-боте:" %}
+            </p>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                <label style="display: flex; align-items: center; gap: 8px; padding: 12px 18px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.telegram_notification_language == 'ru' %}rgba(79,70,229,0.5){% else %}var(--border){% endif %}; border-radius: 12px; cursor: pointer;">
+                    <input type="radio" name="telegram_notification_language" value="ru" {% if store.telegram_notification_language == 'ru' %}checked{% endif %} style="margin:0;">
+                    <span style="font-size: 13px; font-weight: 700; color: white;">🇷🇺 Русский</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; padding: 12px 18px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.telegram_notification_language == 'uz' or not store.telegram_notification_language %}rgba(79,70,229,0.5){% else %}var(--border){% endif %}; border-radius: 12px; cursor: pointer;">
+                    <input type="radio" name="telegram_notification_language" value="uz" {% if store.telegram_notification_language == 'uz' or not store.telegram_notification_language %}checked{% endif %} style="margin:0;">
+                    <span style="font-size: 13px; font-weight: 700; color: white;">🇺🇿 O'zbekcha</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; padding: 12px 18px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.telegram_notification_language == 'en' %}rgba(79,70,229,0.5){% else %}var(--border){% endif %}; border-radius: 12px; cursor: pointer;">
+                    <input type="radio" name="telegram_notification_language" value="en" {% if store.telegram_notification_language == 'en' %}checked{% endif %} style="margin:0;">
+                    <span style="font-size: 13px; font-weight: 700; color: white;">🇬🇧 English</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- ВЫБОР ЦВЕТОВОЙ ТЕМЫ И БРЕНДИНГА -->
+        <div style="margin: 20px 0; padding: 18px; background: rgba(0,0,0,0.3); border: 1.5px solid var(--border); border-radius: 16px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <label style="margin: 0; font-size: 15px; font-weight: 800; color: white;">
+                    🎨 {% trans "Персонализация дизайна" %}
+                </label>
+                <span style="font-size: 11px; font-weight: 700; color: #10B981; background: rgba(16,185,129,0.15); padding: 3px 8px; border-radius: 6px;">SAAS PRO</span>
+            </div>
+            <p style="margin: 0 0 16px; font-size: 12.5px; color: var(--text-muted); line-height: 1.4;">
+                {% trans "Выберите одну из готовых премиальных тем или настройте свои фирменные цвета." %}
+            </p>
+
+            <label style="font-size: 12px; font-weight: 700; color: #D1D5DB; margin-bottom: 8px; display: block;">
+                ✨ {% trans "Готовые палитры от дизайнеров:" %}
+            </label>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px;">
+                <!-- 1. Default Black -->
+                <label style="display: flex; flex-direction: column; gap: 8px; padding: 12px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'default_black' or not store.theme_style %}#8B5CF6{% else %}var(--border){% endif %}; border-radius: 12px; cursor: pointer; text-align: left;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="radio" name="theme_style" value="default_black" {% if store.theme_style == 'default_black' or not store.theme_style %}checked{% endif %} style="margin:0;">
+                        <span style="font-size: 12px; font-weight: 700; color: white;">Classic Black</span>
+                    </div>
+                    <div style="height: 38px; border-radius: 8px; background: #0B0E14; border: 1px solid rgba(255,255,255,0.1); display: flex; overflow: hidden;">
+                        <div style="flex: 1.2; background: #0B0E14;"></div>
+                        <div style="flex: 1; background: #3B82F6;"></div>
+                        <div style="flex: 1; background: #10B981;"></div>
+                    </div>
+                </label>
+
+                <!-- 2. Kids Playful -->
+                <label style="display: flex; flex-direction: column; gap: 8px; padding: 12px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'kids_playful' %}#8B5CF6{% else %}var(--border){% endif %}; border-radius: 12px; cursor: pointer; text-align: left;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="radio" name="theme_style" value="kids_playful" {% if store.theme_style == 'kids_playful' %}checked{% endif %} style="margin:0;">
+                        <span style="font-size: 12px; font-weight: 700; color: white;">🧸 Kids Playful</span>
+                    </div>
+                    <div style="height: 38px; border-radius: 8px; background: #FFFDF5; border: 1px solid rgba(245, 158, 11, 0.35); display: flex; overflow: hidden;">
+                        <div style="flex: 1.2; background: #FFFDF5;"></div>
+                        <div style="flex: 1; background: #F59E0B;"></div>
+                        <div style="flex: 1; background: #EC4899;"></div>
+                    </div>
+                </label>
+
+                <!-- 3. Premium Gold -->
+                <label style="display: flex; flex-direction: column; gap: 8px; padding: 12px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'premium_gold' %}#8B5CF6{% else %}var(--border){% endif %}; border-radius: 12px; cursor: pointer; text-align: left;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="radio" name="theme_style" value="premium_gold" {% if store.theme_style == 'premium_gold' %}checked{% endif %} style="margin:0;">
+                        <span style="font-size: 12px; font-weight: 700; color: white;">👑 Premium Gold</span>
+                    </div>
+                    <div style="height: 38px; border-radius: 8px; background: #08070C; border: 1px solid rgba(212, 168, 67, 0.3); display: flex; overflow: hidden;">
+                        <div style="flex: 1.2; background: #08070C;"></div>
+                        <div style="flex: 1; background: #D4A843;"></div>
+                        <div style="flex: 1; background: #F59E0B;"></div>
+                    </div>
+                </label>
+
+                <!-- 4. Gen-Z Neon -->
+                <label style="display: flex; flex-direction: column; gap: 8px; padding: 12px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'genz_neon' %}#8B5CF6{% else %}var(--border){% endif %}; border-radius: 12px; cursor: pointer; text-align: left;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="radio" name="theme_style" value="genz_neon" {% if store.theme_style == 'genz_neon' %}checked{% endif %} style="margin:0;">
+                        <span style="font-size: 12px; font-weight: 700; color: white;">⚡ Gen-Z Neon</span>
+                    </div>
+                    <div style="height: 38px; border-radius: 8px; background: #070714; border: 1px solid rgba(168, 85, 247, 0.3); display: flex; overflow: hidden;">
+                        <div style="flex: 1.2; background: #070714;"></div>
+                        <div style="flex: 1; background: #A855F7;"></div>
+                        <div style="flex: 1; background: #06B6D4;"></div>
+                    </div>
+                </label>
+            </div>
+
+            <label style="font-size: 12px; font-weight: 700; color: #D1D5DB; margin-bottom: 8px; display: block;">
+                🎯 {% trans "Свой дизайн (Фирменные цвета):" %}
+            </label>
+            
+            <div style="position: relative; padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: rgba(255,255,255,0.02);">
+                <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; cursor: pointer;">
+                    <input type="radio" name="theme_style" value="custom" {% if store.theme_style == 'custom' %}checked{% endif %} style="margin:0;">
+                    <span style="font-size: 12px; font-weight: 700; color: white;">{% trans "Использовать свои цвета" %}</span>
+                </label>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px; display: block;">{% trans "Основной цвет (Primary)" %}</label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="color" name="primary_color" value="{{ store.primary_color|default:'#4F46E5' }}" style="width: 44px; height: 40px; padding: 2px; cursor: pointer; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg);">
+                        </div>
+                    </div>
+                    <div>
+                        <label style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px; display: block;">{% trans "Акцентный цвет (Accent)" %}</label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="color" name="accent_color" value="{{ store.accent_color|default:'#10B981' }}" style="width: 44px; height: 40px; padding: 2px; cursor: pointer; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg);">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
+            <button type="submit" class="btn" style="flex: 1; padding: 14px; font-size: 15px; font-weight: 800;">💾 {% trans "Сохранить оформление витрины" %}</button>
+            <a href="/ru/?store_id={{ store.id }}" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; font-weight: 700; font-size: 14px; padding: 12px 18px; border-radius: 12px; text-decoration: none; white-space: nowrap;">
+                👁️ {% trans "Посмотреть витрину" %} ↗
+            </a>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+        <h4 class="section-title" style="margin: 0;">👥 {% trans "Менеджеры магазина (Telegram-уведомления)" %}</h4>
+        <span style="font-size: 11px; font-weight: 700; color: #818CF8; background: rgba(99,102,241,0.15); padding: 3px 8px; border-radius: 6px;">{{ managers|length }} {% trans "сотрудников" %}</span>
+    </div>
+    <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.4; margin-bottom: 16px;">
+        {% trans "Менеджеры получают карточки новых заказов для сборки и отправки такси в свой личный Telegram на выбранном ими языке." %}
+    </p>
+
+    <!-- Список существующих менеджеров -->
+    {% if managers %}
+    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+        {% for m in managers %}
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; gap: 10px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 14px; font-weight: 700; color: white;">{{ m.name }}</span>
+                <span style="font-size: 10.5px; font-weight: 700; background: rgba(255,255,255,0.06); padding: 2px 7px; border-radius: 6px; color: #94A3B8;">
+                    {% if m.language == 'uz' %}🇺🇿 UZ{% elif m.language == 'en' %}🇬🇧 EN{% else %}🇷🇺 RU{% endif %}
+                </span>
+                {% if m.is_connected %}
+                    <span class="tg-connected" style="font-size: 11px; padding: 3px 8px;">✅ {% trans "Подключен" %}</span>
+                {% else %}
+                    <span class="tg-disconnected" style="font-size: 11px; padding: 3px 8px;">⏳ {% trans "Ожидает привязки" %}</span>
+                {% endif %}
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px;">
+                {% if m.link and not m.is_connected %}
+                    <button type="button" class="copy-btn" onclick="copyText('{{ m.link }}', this)">📋 {% trans "Ссылка" %}</button>
+                {% endif %}
+                <form method="post" style="margin: 0;" onsubmit="return confirm('{% trans "Удалить этого менеджера?" %}');">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_manager">
+                    <input type="hidden" name="manager_id" value="{{ m.id }}">
+                    <button type="submit" style="background: none; border: none; color: #ef4444; font-size: 14px; cursor: pointer; padding: 4px;">✕</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Форма добавления нового менеджера -->
+    <form method="post" style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: 14px; border: 1px solid var(--border);">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add_manager">
+        <label style="font-size: 12px; font-weight: 700; color: #D1D5DB; margin-bottom: 6px; display: block;">➕ {% trans "Добавить нового менеджера:" %}</label>
+        
+        <div style="display: grid; grid-template-columns: 2fr 1fr auto; gap: 10px; align-items: center;">
+            <input type="text" name="manager_name" placeholder="{% trans "Имя (напр. Ахмед, Дильноза)" %}" required style="margin: 0; padding: 10px 14px; font-size: 13px;">
+            <select name="manager_language" style="margin: 0; padding: 10px 12px; font-size: 13px; background: rgba(15,23,42,0.8); color: white; border: 1px solid var(--border); border-radius: 10px;">
+                <option value="uz" {% if store.telegram_notification_language == 'uz' %}selected{% endif %}>🇺🇿 O'zbekcha</option>
+                <option value="ru" {% if store.telegram_notification_language == 'ru' %}selected{% endif %}>🇷🇺 Русский</option>
+                <option value="en" {% if store.telegram_notification_language == 'en' %}selected{% endif %}>🇬🇧 English</option>
+            </select>
+            <button type="submit" class="btn" style="padding: 10px 16px; font-size: 13px; font-weight: 700; white-space: nowrap; margin: 0;">➕ {% trans "Добавить" %}</button>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <h4 class="section-title">🛍 {% trans "Моя витрина" %}</h4>
+
+    <div class="info-row">
+        <span class="info-label">{% trans "Дата регистрации" %}</span>
+        <span class="info-value">{{ store.created_at|date:"d.m.Y" }}</span>
+    </div>
+    <p style="margin:12px 0 0;font-size:11px;color:var(--text-muted);line-height:1.5;">{% trans "BrainMart работает по фиксированной подписке. 0% комиссии с продаж. Никаких скрытых платежей." %}</p>
+</div>
+
+<div class="card">
+    <h4 class="section-title">⚡ {% trans "Быстрые действия" %}</h4>
+    <a href="{% url 'seller-product-add' %}" class="btn" style="margin-bottom:10px;">➕ {% trans "Добавить товар" %}</a>
+    <a href="{% url 'seller-logout' %}" class="btn btn-secondary" style="text-align:center;">🚪 {% trans "Выйти из аккаунта" %}</a>
+</div>
+
+<div class="card" style="border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.03);">
+    <h4 class="section-title" style="color: #f87171;">🧹 {% trans "Очистка истории и сброс данных" %}</h4>
+    <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
+        {% trans "Если вы закончили тестирование кассы и витрины и хотите начать продажи с чистого листа, вы можете удалить все тестовые заказы, чеки кассы, смены и движения склада." %}
+        <strong style="color: white;">{% trans "Ваши товары, категории и настройки магазина останутся нетронутыми." %}</strong>
+    </p>
+
+    <form method="post" onsubmit="return confirm('{% filter escapejs %}{% trans "Вы действительно хотите очистить историю магазина?" %}{% endfilter %}');">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="clear_store_history">
+        <button type="submit" class="btn" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); font-weight: 700;">
+            🗑 {% trans "Очистить историю заказов и кассы" %}
+        </button>
+    </form>
+</div>
+
+<script>
+function copyText(text, btn) {
+    navigator.clipboard.writeText(text).then(function() {
+        var orig = btn.innerHTML;
+        btn.innerHTML = '✅ {% filter escapejs %}{% trans "Скопировано" %}{% endfilter %}';
+        btn.style.color = '#34d399';
+        setTimeout(function() { btn.innerHTML = orig; btn.style.color = ''; }, 2000);
+    });
+}
+</script>
+{% endblock %}

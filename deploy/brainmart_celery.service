@@ -1,0 +1,18 @@
+[Unit]
+Description=BrainMart Celery Background Worker
+After=network.target redis-server.service
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/brainmart
+EnvironmentFile=/var/www/brainmart/.env
+ExecStart=/var/www/brainmart/venv/bin/celery \
+    -A src worker \
+    --loglevel=info \
+    --concurrency=3
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

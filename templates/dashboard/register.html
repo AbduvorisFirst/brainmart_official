@@ -1,0 +1,236 @@
+{% extends "dashboard/base.html" %}
+{% load i18n l10n %}
+
+{% block content %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+    .reg-card {
+        max-width: 540px;
+        margin: 30px auto;
+        padding: 30px 24px;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        box-shadow: 0 12px 36px rgba(0,0,0,0.25);
+    }
+    #regMapPicker {
+        height: 250px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        margin-bottom: 12px;
+    }
+    .field-hint {
+        font-size: 11.5px;
+        color: var(--text-muted);
+        margin: -14px 0 16px;
+        line-height: 1.4;
+    }
+    .section-divider {
+        margin: 22px 0 16px;
+        padding-top: 18px;
+        border-top: 1px dashed var(--border);
+        font-size: 13px;
+        font-weight: 800;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+</style>
+
+<div class="reg-card">
+    <h2 style="margin-top: 0; font-size: 24px; font-weight: 800; color: white;">
+        🚀 {% trans "Регистрация магазина" %}
+    </h2>
+    <p style="color: var(--text-muted); font-size: 13.5px; line-height: 1.5; margin-bottom: 20px;">
+        {% trans "Зарегистрируйте магазин на BrainMart. 0% комиссии с продаж — оплаты от клиентов поступают сразу на вашу карту!" %}
+    </p>
+
+    {% if messages %}
+        <div style="margin-bottom: 18px;">
+            {% for message in messages %}
+                <div style="padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; font-size: 13.5px; font-weight: 600; display: flex; align-items: flex-start; gap: 10px; {% if message.tags == 'error' %}background: rgba(239, 68, 68, 0.15); border: 1.5px solid #EF4444; color: #FCA5A5;{% elif message.tags == 'success' %}background: rgba(16, 185, 129, 0.15); border: 1.5px solid #10B981; color: #6EE7B7;{% else %}background: rgba(59, 130, 246, 0.15); border: 1.5px solid #3B82F6; color: #93C5FD;{% endif %}">
+                    <span style="font-size: 16px;">{% if message.tags == 'error' %}⚠️{% else %}✅{% endif %}</span>
+                    <div style="flex: 1; line-height: 1.4;">{{ message }}</div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="post" autocomplete="on">
+        {% csrf_token %}
+
+        <!-- БЛОК 1: АККАУНТ -->
+        <div class="section-divider" style="margin-top: 0; padding-top: 0; border-top: none;">
+            👤 {% trans "1. Учётная запись продавца" %}
+        </div>
+
+        <label>{% trans "Логин для входа" %} <span style="color: #EF4444;">*</span></label>
+        <input type="text" name="username" value="{{ form_data.username|default:'' }}" required placeholder="{% trans 'например: sultan_seller' %}" autocomplete="username">
+
+        <label>{% trans "Пароль (минимум 8 символов)" %} <span style="color: #EF4444;">*</span></label>
+        <input type="password" name="password" required minlength="8" placeholder="••••••••" autocomplete="new-password">
+
+        <label>{% trans "Telegram владельца (@username)" %} <span style="color: #94A3B8; font-size: 11px; font-weight: normal;">({% trans "для связи и одобрения заявки" %})</span></label>
+        <input type="text" name="owner_telegram_username" value="{{ form_data.owner_telegram_username|default:'' }}" placeholder="например: sardor_ceo">
+
+        <!-- БЛОК 2: МАГАЗИН -->
+        <div class="section-divider">
+            🏪 {% trans "2. Данные магазина и ниша" %}
+        </div>
+
+        <label>{% trans "Название магазина" %} <span style="color: #EF4444;">*</span></label>
+        <input type="text" name="store_name" value="{{ form_data.store_name|default:'' }}" required placeholder="Sultan Wear">
+
+        <label>{% trans "Instagram магазина (без @)" %} <span style="color: #EF4444;">*</span></label>
+        <input type="text" name="instagram_username" value="{{ form_data.instagram_username|default:'' }}" required placeholder="sultan_wear">
+
+        <label>{% trans "Номер телефона для заказов" %} <span style="color: #EF4444;">*</span></label>
+        <input type="tel" name="phone_number" value="{{ form_data.phone_number|default:'' }}" required placeholder="+998 90 123 45 67">
+
+        <label>{% trans "Основная ниша / Категория товаров" %}</label>
+        <select name="category_id" required style="background: rgba(255,255,255,0.05); border: 1.5px solid var(--border); color: white; padding: 14px; border-radius: 12px; width: 100%; margin-bottom: 20px; font-weight: 700; font-size: 14px;">
+            {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if form_data.category_id == cat.id|stringformat:'s' %}selected{% endif %}>{{ cat.name }}</option>
+            {% empty %}
+                <option value="">👕 {% trans "Одежда и обувь" %}</option>
+            {% endfor %}
+        </select>
+
+        <!-- БЛОК 3: ЛОКАЦИЯ И ТОЧКА НА КАРТЕ -->
+        <div class="section-divider">
+            📍 {% trans "3. Адрес и точка на карте (Базовый филиал)" %}
+        </div>
+
+        <label>{% trans "Адрес магазина" %} <span style="color: #EF4444;">*</span></label>
+        <input type="text" name="address" id="regAddress" value="{{ form_data.address|default:'' }}" required placeholder="ул. Амира Темура, 1, Ташкент">
+
+        <label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span>📍 {% trans "Поставьте точку магазина на карте" %}</span>
+            <button type="button" onclick="detectRegGPS()" style="background: rgba(99,102,241,0.2); border: 1px solid var(--primary); color: #818cf8; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer;">
+                🎯 {% trans "Мой GPS" %}
+            </button>
+        </label>
+        <div id="regMapPicker"></div>
+        <div class="field-hint">
+            {% trans "Нажмите на карту, чтобы установить точную геопозицию магазина. Клиенты будут видеть расстояние и вызывать такси к этой точке." %}
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+            <div style="flex: 1;">
+                <label style="font-size: 11px; color: var(--text-muted); font-weight: 600;">{% trans "Широта (Lat)" %}</label>
+                <input type="text" name="latitude" id="regLat" value="{% if form_data.latitude %}{{ form_data.latitude|unlocalize }}{% else %}41.2995{% endif %}" style="margin: 4px 0 0; font-size: 13px; font-family: monospace;">
+            </div>
+            <div style="flex: 1;">
+                <label style="font-size: 11px; color: var(--text-muted); font-weight: 600;">{% trans "Долгота (Lon)" %}</label>
+                <input type="text" name="longitude" id="regLon" value="{% if form_data.longitude %}{{ form_data.longitude|unlocalize }}{% else %}69.2401{% endif %}" style="margin: 4px 0 0; font-size: 13px; font-family: monospace;">
+            </div>
+        </div>
+
+        <!-- БЛОК 4: КАРТА ДЛЯ ПРИЁМА ОПЛАТ -->
+        <div class="section-divider">
+            💳 {% trans "4. Ваша карта для приёма оплат от покупателей" %}
+        </div>
+
+        <label>{% trans "Номер карты (Uzcard / Humo)" %} <span style="color: #EF4444;">*</span></label>
+        <input type="text" name="payout_card" value="{{ form_data.payout_card|default:'' }}" required placeholder="8600 0000 0000 0000 / 9860..." maxlength="20" style="font-family: monospace; font-weight: 700;">
+        <div class="field-hint">
+            {% trans "⚠️ На эту карту покупатели будут напрямую переводить деньги за товары. Вы получаете 100% выручки без посредников!" %}
+        </div>
+
+        <label>{% trans "Имя владельца карты (ФИО)" %} <span style="color: #EF4444;">*</span></label>
+        <input type="text" name="payout_card_holder" value="{{ form_data.payout_card_holder|default:'' }}" required placeholder="ISLOMOV ANVAR">
+
+        <!-- ЕДИНЫЙ ТАРИФ SAAS -->
+        <div style="background: rgba(99,102,241,0.08); border: 1.5px solid rgba(99,102,241,0.3); border-radius: 14px; padding: 16px; margin: 20px 0;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                <span style="font-size: 13px; font-weight: 800; color: white;">💳 {% trans "SaaS-подписка BrainMart" %}</span>
+                <span style="font-size: 14px; font-weight: 900; color: #818cf8;">450 000 {% trans "сум/мес" %}</span>
+            </div>
+            <div style="font-size: 12px; color: #34d399; font-weight: 700; margin-bottom: 4px;">
+                ✓ {% trans "0% комиссии со всех продаж (выручка 100% на вашу карту)" %}
+            </div>
+            <div style="font-size: 11.5px; color: var(--text-muted); line-height: 1.45;">
+                {% trans "Включает CRM, витрину, базовую точку, Telegram Mini App и безлимитный ИИ. Дополнительные филиалы при необходимости: +150 000 сум/мес." %}
+            </div>
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%; margin-top: 4px; padding: 16px; font-weight: 800; font-size: 15px; background: linear-gradient(135deg, var(--primary), #4338CA); cursor: pointer;">
+            🚀 {% trans "Зарегистрировать магазин" %}
+        </button>
+    </form>
+
+    <p style="text-align: center; margin-top: 18px; font-size: 14px; color: var(--text-muted);">
+        {% trans "Уже есть аккаунт?" %} <a href="{% url 'seller-login' %}" style="color: #818cf8; font-weight: 700; text-decoration: none;">{% trans "Войти" %}</a>
+    </p>
+</div>
+
+<script>
+if (typeof L !== 'undefined' && L.Icon && L.Icon.Default) {
+    delete L.Icon.Default.prototype._getIconUrl;
+    L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+    });
+}
+var regMap = null;
+var regMarker = null;
+
+function parseSafeFloat(val, defVal) {
+    if (!val) return defVal;
+    var str = String(val).replace(',', '.').trim();
+    var num = parseFloat(str);
+    return isNaN(num) ? defVal : num;
+}
+
+function initRegMap() {
+    var lat = parseSafeFloat(document.getElementById('regLat').value, 41.2995);
+    var lon = parseSafeFloat(document.getElementById('regLon').value, 69.2401);
+
+    regMap = L.map('regMapPicker', { center: [lat, lon], zoom: 13 });
+    L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+        attribution: '&copy; Google'
+    }).addTo(regMap);
+
+    regMarker = L.marker([lat, lon], { draggable: true }).addTo(regMap);
+
+    regMarker.on('dragend', function(e) {
+        var pos = regMarker.getLatLng();
+        document.getElementById('regLat').value = pos.lat.toFixed(6);
+        document.getElementById('regLon').value = pos.lng.toFixed(6);
+    });
+
+    regMap.on('click', function(e) {
+        var pos = e.latlng;
+        regMarker.setLatLng(pos);
+        document.getElementById('regLat').value = pos.lat.toFixed(6);
+        document.getElementById('regLon').value = pos.lng.toFixed(6);
+    });
+}
+
+function detectRegGPS() {
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            var lat = position.coords.latitude;
+            var lon = position.coords.longitude;
+            document.getElementById('regLat').value = lat.toFixed(6);
+            document.getElementById('regLon').value = lon.toFixed(6);
+            if (regMarker) regMarker.setLatLng([lat, lon]);
+            if (regMap) regMap.setView([lat, lon], 15);
+        }, function(err) {
+            alert("{% filter escapejs %}{% trans 'Не удалось определить геолокацию. Выберите точку кликом на карте.' %}{% endfilter %}");
+        });
+    } else {
+        alert("{% filter escapejs %}{% trans 'Геолокация не поддерживается вашим браузером.' %}{% endfilter %}");
+    }
+}
+
+document.addEventListener('DOMContentLoaded', initRegMap);
+</script>
+{% endblock %}

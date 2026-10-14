@@ -1,0 +1,275 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<style>
+    .checkout-wrap {
+        max-width: 480px;
+        margin: 20px auto 60px;
+        padding: 0 16px;
+    }
+    .pay-card {
+        background: var(--surface-card, #1E293B);
+        border: 1px solid var(--border, rgba(255,255,255,0.1));
+        border-radius: 24px;
+        padding: 26px 22px;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    }
+    .pay-header {
+        text-align: center;
+        margin-bottom: 22px;
+    }
+    .pay-badge-secure {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(16, 185, 129, 0.12);
+        color: #34D399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        padding: 5px 12px;
+        border-radius: 12px;
+        font-size: 11.5px;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+    .order-summary-box {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 16px;
+        padding: 14px 16px;
+        margin-bottom: 20px;
+    }
+    .summary-line {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 13.5px;
+        margin-bottom: 8px;
+        color: var(--text-muted, #94A3B8);
+    }
+    .summary-line:last-child {
+        margin-bottom: 0;
+        padding-top: 8px;
+        border-top: 1px dashed rgba(255,255,255,0.1);
+        font-size: 15px;
+        font-weight: 800;
+        color: white;
+    }
+    .pay-input-label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        color: #CBD5E1;
+        margin-bottom: 6px;
+    }
+    .pay-input {
+        width: 100%;
+        box-sizing: border-box;
+        background: #0F172A;
+        border: 1.5px solid rgba(255,255,255,0.15);
+        border-radius: 14px;
+        padding: 14px 16px;
+        font-size: 15px;
+        font-weight: 600;
+        color: white;
+        outline: none;
+        transition: border-color 0.2s;
+        font-family: inherit;
+    }
+    .pay-input:focus {
+        border-color: #6366F1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+    .pay-btn-submit {
+        width: 100%;
+        background: linear-gradient(135deg, #4F46E5 0%, #4338CA 100%);
+        color: white;
+        border: none;
+        padding: 16px;
+        border-radius: 16px;
+        font-size: 16px;
+        font-weight: 800;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 4px 16px rgba(79, 70, 229, 0.4);
+        transition: transform 0.15s ease;
+        margin-top: 20px;
+    }
+    .pay-btn-submit:active {
+        transform: scale(0.98);
+    }
+    .click-btn {
+        width: 100%;
+        background: #00A3E0;
+        color: white;
+        text-decoration: none;
+        border: none;
+        padding: 14px;
+        border-radius: 16px;
+        font-size: 15px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 18px;
+        box-shadow: 0 4px 14px rgba(0, 163, 224, 0.3);
+    }
+    .cards-row {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        align-items: center;
+        margin-top: 16px;
+    }
+    .card-badge {
+        font-size: 11px;
+        font-weight: 800;
+        padding: 4px 8px;
+        border-radius: 6px;
+        background: rgba(255,255,255,0.06);
+        color: #94A3B8;
+        border: 1px solid rgba(255,255,255,0.08);
+    }
+</style>
+
+<div class="checkout-wrap">
+    <div class="pay-card">
+        <div class="pay-header">
+            <div class="pay-badge-secure">
+                🔒 {% trans "Безопасный эквайринг (SSL 256-bit)" %}
+            </div>
+            <h1 style="font-size: 20px; font-weight: 900; color: white; margin: 0 0 6px;">
+                {% trans "Оплата заказа" %} #{{ order.id }}
+            </h1>
+            <p style="font-size: 13px; color: var(--text-muted, #94A3B8); margin: 0;">
+                {% trans "Магазин" %}: <strong style="color: white;">{{ order.store.name }}</strong>
+            </p>
+        </div>
+
+        {% if messages %}
+            {% for msg in messages %}
+                <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #FCA5A5; padding: 12px 14px; border-radius: 12px; font-size: 13px; margin-bottom: 16px; text-align: center;">
+                    {{ msg }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="order-summary-box">
+            <div class="summary-line">
+                <span>{% trans "Получатель" %}:</span>
+                <strong style="color: white;">{{ order.customer.full_name }}</strong>
+            </div>
+            <div class="summary-line">
+                <span>{% trans "Телефон" %}:</span>
+                <span style="color: white;">{{ order.customer.phone_number }}</span>
+            </div>
+            <div class="summary-line">
+                <span>{% trans "Товаров в заказе" %}:</span>
+                <span style="color: white;">{{ order.items.count }} {% trans "поз." %}</span>
+            </div>
+            <div class="summary-line">
+                <span>{% trans "Сумма к списанию" %}:</span>
+                <span style="color: #34D399; font-size: 17px; font-weight: 900;">{{ order.total_price|floatformat:"0" }} {% trans "сум" %}</span>
+            </div>
+        </div>
+
+        {% if click_url %}
+            <a href="{{ click_url }}" class="click-btn">
+                ⚡ {% trans "Оплатить через приложение Click" %}
+            </a>
+            <div style="text-align: center; margin: 12px 0; font-size: 12px; color: var(--text-muted); position: relative;">
+                <span style="background: var(--surface-card, #1E293B); padding: 0 10px; position: relative; z-index: 1;">{% trans "или банковской картой онлайн" %}</span>
+                <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: rgba(255,255,255,0.08); z-index: 0;"></div>
+            </div>
+        {% endif %}
+
+        <form method="post" id="cardPayForm">
+            {% csrf_token %}
+
+            <div style="margin-bottom: 14px;">
+                <label class="pay-input-label">{% trans "Номер карты (Uzcard / Humo / Visa)" %}</label>
+                <div style="position: relative;">
+                    <input type="text" name="card_number" id="cardInput" class="pay-input" placeholder="8600 •••• •••• ••••" maxlength="19" required inputmode="numeric" autocomplete="cc-number">
+                    <span id="cardTypeIcon" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 18px;">💳</span>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                <div>
+                    <label class="pay-input-label">{% trans "Срок действия" %}</label>
+                    <input type="text" name="card_expire" id="expireInput" class="pay-input" placeholder="ММ/ГГ" maxlength="5" required inputmode="numeric" autocomplete="cc-exp">
+                </div>
+                <div>
+                    <label class="pay-input-label">{% trans "CVV / ПИН" %} <span style="font-weight:400; color: #94A3B8;">({% trans "опц." %})</span></label>
+                    <input type="password" class="pay-input" placeholder="•••" maxlength="4" inputmode="numeric">
+                </div>
+            </div>
+
+            <button type="submit" class="pay-btn-submit" id="paySubmitBtn">
+                ⚡ {% trans "Оплатить" %} {{ order.total_price|floatformat:"0" }} {% trans "сум" %}
+            </button>
+        </form>
+
+        <div class="cards-row">
+            <span class="card-badge">UZCARD</span>
+            <span class="card-badge">HUMO</span>
+            <span class="card-badge">CLICK</span>
+            <span class="card-badge">PAYME</span>
+            <span class="card-badge">VISA</span>
+        </div>
+
+        <p style="text-align: center; margin: 16px 0 0; font-size: 11.5px; color: var(--text-muted, #94A3B8); line-height: 1.45;">
+            {% trans "После успешной оплаты чек будет сформирован автоматически, а заказ мгновенно передан магазину для отправки такси." %}
+        </p>
+    </div>
+</div>
+
+<script>
+    const cardInput = document.getElementById('cardInput');
+    const expireInput = document.getElementById('expireInput');
+    const cardTypeIcon = document.getElementById('cardTypeIcon');
+    const paySubmitBtn = document.getElementById('paySubmitBtn');
+    const cardPayForm = document.getElementById('cardPayForm');
+
+    if (cardInput) {
+        cardInput.addEventListener('input', function (e) {
+            let val = e.target.value.replace(/\D/g, '');
+            if (val.startsWith('8600')) {
+                cardTypeIcon.innerText = '🟦 Uzcard';
+            } else if (val.startsWith('9860')) {
+                cardTypeIcon.innerText = '🟧 Humo';
+            } else if (val.startsWith('4')) {
+                cardTypeIcon.innerText = '💳 Visa';
+            } else if (val.startsWith('5')) {
+                cardTypeIcon.innerText = '💳 MC';
+            } else {
+                cardTypeIcon.innerText = '💳';
+            }
+            // Форматирование 0000 0000 0000 0000
+            val = val.match(/.{1,4}/g)?.join(' ') || val;
+            e.target.value = val.substring(0, 19);
+        });
+    }
+
+    if (expireInput) {
+        expireInput.addEventListener('input', function (e) {
+            let val = e.target.value.replace(/\D/g, '');
+            if (val.length >= 2) {
+                val = val.substring(0, 2) + '/' + val.substring(2, 4);
+            }
+            e.target.value = val.substring(0, 5);
+        });
+    }
+
+    if (cardPayForm) {
+        cardPayForm.addEventListener('submit', function () {
+            paySubmitBtn.disabled = true;
+            paySubmitBtn.innerHTML = '⏳ {% trans "Списание средств и оформление..." %}';
+        });
+    }
+</script>
+{% endblock %}

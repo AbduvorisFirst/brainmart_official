@@ -1,0 +1,688 @@
+{% extends 'dashboard/base.html' %}
+{% load i18n l10n %}
+
+{% block content %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+    .branches-page-wrap {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    /* Компактная плашка тарифа */
+    .tariff-summary-card {
+        background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(99,102,241,0.04));
+        border: 1.5px solid rgba(99,102,241,0.3);
+        border-radius: 18px;
+        padding: 16px 20px;
+        margin-bottom: 22px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    .tariff-left-title {
+        font-size: 13.5px;
+        font-weight: 800;
+        color: white;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .tariff-left-desc {
+        font-size: 12.5px;
+        color: var(--text-muted);
+        line-height: 1.5;
+    }
+    .tariff-right-price {
+        font-size: 24px;
+        font-weight: 900;
+        color: #818cf8;
+        line-height: 1.1;
+    }
+
+    /* Карточки филиалов */
+    .branch-card {
+        background: var(--card-bg, #1E293B);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 18px 20px;
+        margin-bottom: 14px;
+        transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .branch-card:hover {
+        border-color: rgba(99, 102, 241, 0.4);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+    .badge-loc {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 10px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+    .badge-loc-ok {
+        background: rgba(16, 185, 129, 0.12);
+        color: #34D399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .badge-loc-none {
+        background: rgba(245, 158, 11, 0.12);
+        color: #FBBF24;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    .badge-main-point {
+        background: rgba(99, 102, 241, 0.15);
+        color: #A5B4FC;
+        border: 1px solid rgba(99, 102, 241, 0.35);
+        font-size: 11px;
+        font-weight: 800;
+        padding: 2px 8px;
+        border-radius: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Кнопка открытия модалки на карточке */
+    .btn-edit-location {
+        background: rgba(99, 102, 241, 0.15);
+        border: 1.5px solid #6366F1;
+        color: #C7D2FE;
+        padding: 8px 14px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 800;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s;
+    }
+    .btn-edit-location:hover {
+        background: #6366F1;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    /* ══════════════════════════════════════════════════════════════════ */
+    /* АККУРАТНОЕ ВСПЛЫВАЮЩЕЕ МОДАЛЬНОЕ ОКНО ДЛЯ КАРТЫ (MODAL POPUP)      */
+    /* ══════════════════════════════════════════════════════════════════ */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.78);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+    }
+    .modal-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .modal-dialog-box {
+        background: #1E293B;
+        border: 1.5px solid rgba(99, 102, 241, 0.4);
+        border-radius: 22px;
+        width: 100%;
+        max-width: 620px;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7);
+        transform: scale(0.95);
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .modal-overlay.active .modal-dialog-box {
+        transform: scale(1);
+    }
+
+    /* Шапка модалки */
+    .modal-head {
+        padding: 16px 22px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.02);
+    }
+    .modal-head h3 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 800;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn-modal-close {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .btn-modal-close:hover {
+        background: rgba(239, 68, 68, 0.2);
+        color: #F87171;
+        border-color: #EF4444;
+    }
+
+    /* Тело модалки с прокруткой */
+    .modal-body {
+        padding: 18px 22px;
+        overflow-y: auto;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    /* Поиск и карта в модалке */
+    .modal-search-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+    .modal-search-input {
+        flex: 1;
+        margin: 0 !important;
+        padding: 10px 14px !important;
+        font-size: 13.5px !important;
+        border-radius: 12px !important;
+    }
+    .btn-modal-gps {
+        background: rgba(99, 102, 241, 0.15);
+        border: 1.5px solid #6366F1;
+        color: #A5B4FC;
+        padding: 10px 14px;
+        border-radius: 12px;
+        font-size: 12.5px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+        transition: all 0.2s;
+    }
+    .btn-modal-gps:hover {
+        background: #6366F1;
+        color: white;
+    }
+
+    #modalBranchMap {
+        height: 270px;
+        border-radius: 14px;
+        border: 1.5px solid var(--border);
+        overflow: hidden;
+        margin: 4px 0;
+        box-shadow: inset 0 2px 6px rgba(0,0,0,0.3);
+    }
+
+    /* Футер модалки: ВСЕГДА ПРИКРЕПЛЁН ВНИЗУ И ВИДЕН */
+    .modal-foot {
+        padding: 14px 22px;
+        border-top: 1px solid var(--border);
+        background: #172234;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: flex-end;
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
+    }
+    .btn-modal-cancel {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        padding: 12px 18px;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .btn-modal-cancel:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: white;
+    }
+    .btn-modal-save {
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-size: 14.5px;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-modal-save:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+    }
+</style>
+
+<div class="branches-page-wrap">
+
+    <!-- СООБЩЕНИЯ СЕРВЕРА -->
+    {% if messages %}
+        <div style="margin-bottom: 16px;">
+            {% for message in messages %}
+                <div style="padding: 12px 16px; border-radius: 14px; margin-bottom: 8px; font-size: 13.5px; font-weight: 700; display: flex; align-items: center; gap: 8px; {% if message.tags == 'error' %}background: rgba(239, 68, 68, 0.15); border: 1.5px solid #EF4444; color: #FCA5A5;{% else %}background: rgba(16, 185, 129, 0.15); border: 1.5px solid #10B981; color: #6EE7B7;{% endif %}">
+                    <span>{% if message.tags == 'error' %}⚠️{% else %}✅{% endif %}</span>
+                    <div>{{ message }}</div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- ШАПКА СТРАНИЦЫ -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+        <div>
+            <h2 style="margin: 0 0 4px; color: white; font-size: 22px; font-weight: 800;">🏢 {% trans "Точки и филиалы магазина" %}</h2>
+            <p style="margin: 0; font-size: 13px; color: var(--text-muted);">
+                {% trans "Клиенты выбирают удобный филиал и вызывают такси к вашей точке." %}
+            </p>
+        </div>
+        <button type="button" onclick="openAddBranchModal()" class="btn" style="width: auto; padding: 10px 18px; font-size: 13.5px; font-weight: 800; border-radius: 14px; background: linear-gradient(135deg, var(--primary), #4338CA);">
+            + {% trans "Добавить филиал" %}
+        </button>
+    </div>
+
+    <!-- КОМПАКТНАЯ ПЛАШКА ТАРИФА -->
+    <div class="tariff-summary-card">
+        <div>
+            <div class="tariff-left-title">
+                <span>📊 {% trans "Тариф BrainMart SaaS:" %}</span>
+                <span style="color: #34D399;">{% trans "0% комиссии" %}</span>
+            </div>
+            <div class="tariff-left-desc">
+                🏪 <strong>450 000 {% trans "сум/мес" %}</strong> ({% trans "вкл. 1-ю точку" %})
+                {% if extra_count > 0 %}
+                • 🏢 <strong>{{ extra_count }} {% trans "доп. точки" %}:</strong> +{{ extra_fee|floatformat:"0" }} {% trans "сум/мес" %}
+                {% else %}
+                • 🏢 <em>{% trans "доп. филиалы: +150 000 сум/мес за каждый" %}</em>
+                {% endif %}
+            </div>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">{% trans "Итого в месяц" %}</div>
+            <div class="tariff-right-price">{{ total_monthly_fee|floatformat:"0" }} <span style="font-size: 13px; font-weight: 600;">сум</span></div>
+            <div style="font-size: 11.5px; color: var(--text-muted);">{{ branches_count }} {% trans "точек" %}</div>
+        </div>
+    </div>
+
+    <!-- БАННЕР: ПОЧЕМУ ВЫГОДНО ДОБАВИТЬ ВСЕ ТОЧКИ -->
+    <div style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(99, 102, 241, 0.35); border-radius: 18px; padding: 18px 20px; margin-bottom: 22px; text-align: left;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+            <span style="font-size: 20px;">💡</span>
+            <h4 style="margin: 0; font-size: 15px; font-weight: 800; color: #FFFFFF;">
+                {% trans "Как филиалы увеличивают ваши продажи и привлекают клиентов:" %}
+            </h4>
+        </div>
+        <div style="font-size: 13px; color: #CBD5E1; line-height: 1.6;">
+            • <strong>{% trans "Автоматическая маршрутизация" %}:</strong> {% trans "Когда клиент заказывает товар, система автоматически находит ближайший к нему филиал и отгружает заказ оттуда." %}<br>
+            • <strong>{% trans "Экономия на такси" %}:</strong> {% trans "Клиент видит точное расстояние до точки. Доставка с соседней улицы стоит 12 000 сум (10 мин) вместо 45 000 сум (1.5 часа) через весь город." %}<br>
+            • <strong>{% trans "Высокая конверсия" %}:</strong> {% trans "Если вы не укажете филиал в районе клиента, он увидит расстояние 20 км и уйдёт к ближайшим конкурентам. Дополнительная точка (+150 000 сум/мес) окупается уже с первых двух заказов!" %}
+        </div>
+    </div>
+
+    <!-- СПИСОК ФИЛИАЛОВ -->
+    <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: white;">
+            📋 {% trans "Список ваших точек" %} ({{ branches_count }})
+        </h3>
+    </div>
+
+    {% if branches %}
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            {% for b in branches %}
+            <div class="branch-card" id="branchCard-{{ b.id }}">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 220px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                            <span style="font-size: 16px; font-weight: 800; color: white;">🏢 {{ b.name }}</span>
+                            {% if forloop.first %}
+                                <span class="badge-main-point">{% trans "Главная точка" %}</span>
+                            {% endif %}
+                        </div>
+                        <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">
+                            📍 {{ b.address }}
+                        </div>
+
+                        {% if b.latitude and b.longitude %}
+                            <span class="badge-loc badge-loc-ok">
+                                ✅ {% trans "Точка на карте:" %} {{ b.latitude|unlocalize }}, {{ b.longitude|unlocalize }}
+                            </span>
+                        {% else %}
+                            <span class="badge-loc badge-loc-none">
+                                ⚠️ {% trans "Точка ещё не указана на карте" %}
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <!-- КНОПКИ ДЕЙСТВИЙ -->
+                    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                        {% if b.latitude and b.longitude %}
+                            <a href="https://yandex.com/maps/?pt={{ b.longitude|unlocalize }},{{ b.latitude|unlocalize }}&z=16&l=map" target="_blank" style="background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: #94A3B8; padding: 8px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; text-decoration: none;">
+                                🗺 {% trans "Яндекс" %}
+                            </a>
+                        {% endif %}
+
+                        <!-- КНОПКА ОТКРЫТИЯ АККУРАТНОЙ МОДАЛКИ С КАРТОЙ -->
+                        <button type="button" onclick="openEditBranchModal({{ b.id }}, '{{ b.name|escapejs }}', '{{ b.address|escapejs }}', '{% if b.latitude %}{{ b.latitude|unlocalize }}{% endif %}', '{% if b.longitude %}{{ b.longitude|unlocalize }}{% endif %}')" class="btn-edit-location">
+                            📍 {% trans "Изменить точку на карте" %}
+                        </button>
+
+                        {% if branches_count > 1 %}
+                        <form method="POST" onsubmit="return confirm('{% trans "Вы действительно хотите удалить эту точку?" %}');" style="margin: 0;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="branch_id" value="{{ b.id }}">
+                            <button type="submit" style="background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.25); color: #F87171; padding: 8px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; cursor: pointer;">
+                                🗑
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- АККУРАТНОЕ МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ ТОЧКИ НА КАРТЕ           -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="branchMapModal">
+    <div class="modal-dialog-box" onclick="event.stopPropagation();">
+        <!-- ШАПКА -->
+        <div class="modal-head">
+            <h3 id="modalTitleText">
+                📍 {% trans "Назначить локацию на карте" %}
+            </h3>
+            <button type="button" class="btn-modal-close" onclick="closeBranchModal()" title="{% trans 'Закрыть' %}">✕</button>
+        </div>
+
+        <!-- ФОРМА -->
+        <form method="POST" id="branchModalForm" style="display: flex; flex-direction: column; flex: 1; overflow: hidden; margin: 0;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="save">
+            <input type="hidden" name="branch_id" id="modalInputBranchId" value="">
+
+            <div class="modal-body">
+                <!-- ПОИСК И GPS -->
+                <div class="modal-search-row">
+                    <input type="text" id="modalGeoSearchInput" class="modal-search-input" placeholder="{% trans '🔍 Поиск адреса (напр: Чорсу, ЦУМ, Юнусабад...)' %}" onkeypress="if(event.key==='Enter'){event.preventDefault();doModalAddressSearch();}">
+                    <button type="button" onclick="doModalAddressSearch()" class="btn" style="width: auto; padding: 10px 14px; font-size: 12.5px; font-weight: 700; border-radius: 12px;">
+                        {% trans "Найти" %}
+                    </button>
+                    <button type="button" onclick="getModalUserGPS()" class="btn-modal-gps" title="{% trans 'Определить моё местоположение' %}">
+                        🎯 GPS
+                    </button>
+                </div>
+
+                <!-- КАРТА GOOGLE MAPS -->
+                <div id="modalBranchMap"></div>
+
+                <div style="font-size: 11.5px; color: #94A3B8;">
+                    👉 {% trans "Кликните на карту в нужном месте или перетащите маркер, чтобы выставить точку." %}
+                </div>
+
+                <!-- ПОЛЯ НАЗВАНИЯ И АДРЕСА -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; display: block;">
+                            {% trans "Название точки" %} <span style="color: #EF4444;">*</span>
+                        </label>
+                        <input type="text" name="name" id="modalInputBranchName" required placeholder="Напр: Главный магазин" style="margin: 0; padding: 10px 14px; font-size: 13.5px; font-weight: 700; border-radius: 12px;">
+                    </div>
+                    <div>
+                        <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; display: block;">
+                            {% trans "Адрес точки" %} <span style="color: #EF4444;">*</span>
+                        </label>
+                        <input type="text" name="address" id="modalInputBranchAddress" required placeholder="ул. Амира Темура, 1" style="margin: 0; padding: 10px 14px; font-size: 13.5px; border-radius: 12px;">
+                    </div>
+                </div>
+
+                <!-- КООРДИНАТЫ (КОМПАКТНЫЕ) -->
+                <div style="display: flex; gap: 10px; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); align-items: center;">
+                    <div style="flex: 1; font-size: 11.5px; color: var(--text-muted);">
+                        {% trans "Широта (Lat)" %}: <input type="text" name="latitude" id="modalInputLat" value="41.299500" style="width: 80px; display: inline-block; margin: 0; padding: 2px 6px; font-size: 11.5px; font-family: monospace; background: transparent; border: none; color: #34d399; font-weight: 700;" readonly>
+                    </div>
+                    <div style="flex: 1; font-size: 11.5px; color: var(--text-muted);">
+                        {% trans "Долгота (Lon)" %}: <input type="text" name="longitude" id="modalInputLon" value="69.240100" style="width: 80px; display: inline-block; margin: 0; padding: 2px 6px; font-size: 11.5px; font-family: monospace; background: transparent; border: none; color: #34d399; font-weight: 700;" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ЛИПКИЙ ФУТЕР (ВСЕГДА ВИДЕН НА ЭКРАНЕ) -->
+            <div class="modal-foot">
+                <button type="button" class="btn-modal-cancel" onclick="closeBranchModal()">
+                    {% trans "Отмена" %}
+                </button>
+                <button type="submit" class="btn-modal-save" id="modalBtnSave">
+                    💾 {% trans "СОХРАНИТЬ ТОЧКУ" %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- СКРИПТ КАРТЫ И УПРАВЛЕНИЯ МОДАЛКОЙ                                -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<script>
+// Исправление Leaflet маркеров
+if (typeof L !== 'undefined' && L.Icon && L.Icon.Default) {
+    delete L.Icon.Default.prototype._getIconUrl;
+    L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+    });
+}
+
+var modalMap = null;
+var modalMarker = null;
+
+const I18N_BRANCH = {
+    pointPrefix: "{% filter escapejs %}{% trans 'Точка:' %}{% endfilter %}",
+    btnSaveEdit: "{% filter escapejs %}{% trans 'СОХРАНИТЬ ИЗМЕНЕНИЯ' %}{% endfilter %}",
+    newBranchName: "{% filter escapejs %}{% trans 'Новый филиал' %}{% endfilter %}",
+    titleAdd: "{% filter escapejs %}{% trans 'Добавить новый филиал на карту' %}{% endfilter %}",
+    btnAdd: "{% filter escapejs %}{% trans 'ДОБАВИТЬ ТОЧКУ' %}{% endfilter %}",
+    searchPrompt: "{% filter escapejs %}{% trans 'Введите адрес или ориентир для поиска (напр: Чорсу, ЦУМ, Юнусабад...)' %}{% endfilter %}",
+    notFound: "{% filter escapejs %}{% trans 'Адрес не найден. Кликните прямо на карте в нужном месте, чтобы поставить точку!' %}{% endfilter %}",
+    searchError: "{% filter escapejs %}{% trans 'Не удалось выполнить поиск. Пожалуйста, выберите точку кликом по карте.' %}{% endfilter %}",
+    gpsError: "{% filter escapejs %}{% trans 'Браузер не смог определить геолокацию. Выберите точку кликом по карте.' %}{% endfilter %}",
+    noGeo: "{% filter escapejs %}{% trans 'Геолокация не поддерживается вашим браузером.' %}{% endfilter %}"
+};
+
+function parseSafeFloat(val, defVal) {
+    if (!val) return defVal;
+    var str = String(val).replace(',', '.').trim();
+    var num = parseFloat(str);
+    return isNaN(num) ? defVal : num;
+}
+
+function updateModalCoordInputs(lat, lon) {
+    var latClean = Number(lat).toFixed(6);
+    var lonClean = Number(lon).toFixed(6);
+    document.getElementById('modalInputLat').value = latClean;
+    document.getElementById('modalInputLon').value = lonClean;
+}
+
+function ensureModalMapInit(lat, lon) {
+    if (!modalMap) {
+        modalMap = L.map('modalBranchMap', {
+            center: [lat, lon],
+            zoom: 14
+        });
+
+        // Быстрые и подробные тайлы Google Maps без API-ключей и без водяных знаков
+        L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+            attribution: '&copy; Google'
+        }).addTo(modalMap);
+
+        modalMarker = L.marker([lat, lon], { draggable: true }).addTo(modalMap);
+
+        modalMarker.on('dragend', function() {
+            var pos = modalMarker.getLatLng();
+            updateModalCoordInputs(pos.lat, pos.lng);
+        });
+
+        modalMap.on('click', function(e) {
+            modalMarker.setLatLng(e.latlng);
+            updateModalCoordInputs(e.latlng.lat, e.latlng.lng);
+        });
+    } else {
+        modalMarker.setLatLng([lat, lon]);
+        modalMap.setView([lat, lon], 15);
+    }
+
+    setTimeout(function() {
+        if (modalMap) modalMap.invalidateSize();
+    }, 180);
+}
+
+function openEditBranchModal(id, name, address, lat, lon) {
+    document.getElementById('modalInputBranchId').value = id;
+    document.getElementById('modalInputBranchName').value = name;
+    document.getElementById('modalInputBranchAddress').value = address;
+    document.getElementById('modalTitleText').innerHTML = `✏️ ${I18N_BRANCH.pointPrefix} <span style="color:#818cf8;margin-left:6px;">${name}</span>`;
+    document.getElementById('modalBtnSave').innerHTML = `💾 ${I18N_BRANCH.btnSaveEdit}`;
+
+    var la = parseSafeFloat(lat, 41.2995);
+    var lo = parseSafeFloat(lon, 69.2401);
+    updateModalCoordInputs(la, lo);
+
+    document.getElementById('branchMapModal').classList.add('active');
+    ensureModalMapInit(la, lo);
+}
+
+function openAddBranchModal() {
+    document.getElementById('modalInputBranchId').value = '';
+    document.getElementById('modalInputBranchName').value = I18N_BRANCH.newBranchName;
+    document.getElementById('modalInputBranchAddress').value = '';
+    document.getElementById('modalTitleText').innerHTML = `📍 ${I18N_BRANCH.titleAdd}`;
+    document.getElementById('modalBtnSave').innerHTML = `💾 ${I18N_BRANCH.btnAdd}`;
+
+    var la = 41.2995;
+    var lo = 69.2401;
+    updateModalCoordInputs(la, lo);
+
+    document.getElementById('branchMapModal').classList.add('active');
+    ensureModalMapInit(la, lo);
+}
+
+function closeBranchModal() {
+    document.getElementById('branchMapModal').classList.remove('active');
+}
+
+// Закрытие по клику на фон или по клавише Esc
+document.getElementById('branchMapModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeBranchModal();
+    }
+});
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeBranchModal();
+    }
+});
+
+// Поиск адреса
+function doModalAddressSearch() {
+    var q = document.getElementById('modalGeoSearchInput').value.trim();
+    if (!q) {
+        alert(I18N_BRANCH.searchPrompt);
+        return;
+    }
+    var fullQuery = q + ', Ташкент, Узбекистан';
+    var url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(fullQuery);
+
+    fetch(url)
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            if (data && data.length > 0) {
+                var lat = parseFloat(data[0].lat);
+                var lon = parseFloat(data[0].lon);
+                if (modalMarker) modalMarker.setLatLng([lat, lon]);
+                if (modalMap) modalMap.setView([lat, lon], 16);
+                updateModalCoordInputs(lat, lon);
+                if (!document.getElementById('modalInputBranchAddress').value) {
+                    document.getElementById('modalInputBranchAddress').value = q;
+                }
+            } else {
+                fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(q))
+                    .then(function(res2) { return res2.json(); })
+                    .then(function(data2) {
+                        if (data2 && data2.length > 0) {
+                            var lat = parseFloat(data2[0].lat);
+                            var lon = parseFloat(data2[0].lon);
+                            if (modalMarker) modalMarker.setLatLng([lat, lon]);
+                            if (modalMap) modalMap.setView([lat, lon], 16);
+                            updateModalCoordInputs(lat, lon);
+                        } else {
+                            alert(I18N_BRANCH.notFound);
+                        }
+                    });
+            }
+        })
+        .catch(function() {
+            alert(I18N_BRANCH.searchError);
+        });
+}
+
+// GPS геолокация
+function getModalUserGPS() {
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(function(pos) {
+            var lat = pos.coords.latitude;
+            var lon = pos.coords.longitude;
+            if (modalMarker) modalMarker.setLatLng([lat, lon]);
+            if (modalMap) modalMap.setView([lat, lon], 16);
+            updateModalCoordInputs(lat, lon);
+        }, function() {
+            alert(I18N_BRANCH.gpsError);
+        });
+    } else {
+        alert(I18N_BRANCH.noGeo);
+    }
+}
+</script>
+{% endblock %}

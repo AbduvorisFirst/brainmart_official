@@ -1,0 +1,653 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<style>
+    body { padding: 0; background: var(--bg-app); }
+    header { display: none; }
+
+    .app-header {
+        position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+        display: flex; justify-content: space-between; padding: 12px 16px;
+        background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 100%);
+    }
+    .back-btn {
+        width: 36px; height: 36px; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        text-decoration: none; color: var(--text-main); font-weight: bold; font-size: 18px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .gallery-container {
+        display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+        scrollbar-width: none; background: var(--surface); position: relative;
+    }
+    .gallery-container::-webkit-scrollbar { display: none; }
+    .gallery-item { width: 100%; flex-shrink: 0; scroll-snap-align: center; }
+    .gallery-item img, .gallery-item .no-image {
+        width: 100%; height: 60vh; object-fit: cover; display: block; background: var(--border);
+    }
+
+    .content-sheet {
+        background: var(--surface); border-radius: 24px 24px 0 0; margin-top: -24px;
+        position: relative; z-index: 10; padding: 24px 16px 120px;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+    }
+
+    .price-block { margin-bottom: 16px; }
+    .price-main { font-size: 28px; font-weight: 800; color: var(--primary); line-height: 1.1; }
+    .price-old { font-size: 14px; color: var(--text-muted); text-decoration: line-through; margin-top: 4px; }
+
+    .product-title { font-size: 19px; font-weight: 700; color: var(--text-main); margin: 0 0 12px; line-height: 1.4; }
+
+    .rating-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+    .stars { color: #f59e0b; font-size: 16px; letter-spacing: -2px; }
+
+    .social-proof {
+        background: #F9FAFB; padding: 12px 14px; border-radius: 14px;
+        display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text-main);
+        margin-bottom: 24px; border: 1px solid var(--border);
+    }
+
+    .section-title { font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; }
+    .section-title span { color: var(--text-muted); font-weight: 500; margin-left: 4px; }
+
+    /* НОВЫЙ ДИЗАЙН КНОПОК ЦВЕТА (КАРТИНКИ) */
+    .color-grid { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+    .color-btn {
+        width: 64px; height: 80px; border: 2.5px solid transparent; border-radius: 12px;
+        background-size: cover; background-position: center; background-color: var(--border);
+        cursor: pointer; transition: 0.2s ease; position: relative; overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .color-btn.active {
+        border-color: var(--primary); transform: scale(1.05);
+        box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+    }
+    .color-btn.text-fallback {
+        display: flex; align-items: center; justify-content: center;
+        font-size: 12px; font-weight: 600; text-align: center; border: 1.5px solid var(--border); background: var(--surface);
+    }
+    .color-btn.text-fallback.active { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+
+    /* Дизайн кнопок размеров */
+    .size-grid { display: flex; gap: 10px; margin-bottom: 28px; flex-wrap: wrap; }
+    .size-btn {
+        width: 52px; height: 52px; border: 1.5px solid var(--border); border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 15px; font-weight: 700; color: var(--text-main); background: var(--surface); transition: 0.2s ease;
+        position: relative; overflow: hidden;
+    }
+    .size-btn.active { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+    .size-btn.disabled { color: var(--text-muted); background: var(--bg-app); border-color: var(--border); pointer-events: none; opacity: 0.6; }
+    .size-btn.disabled::after {
+        content: ''; position: absolute; top: 50%; left: -10%; right: -10%;
+        height: 1.5px; background: var(--text-muted); transform: rotate(-45deg);
+    }
+
+    details { border-bottom: 1px solid var(--border); padding: 18px 0; }
+    details summary {
+        font-size: 16px; font-weight: 700; color: var(--text-main); list-style: none;
+        display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+    }
+    details summary::-webkit-details-marker { display: none; }
+    details summary::after { content: '+'; font-size: 22px; font-weight: 400; color: var(--text-muted); transition: 0.3s; }
+    details[open] summary::after { content: '−'; }
+    .details-content { padding-top: 14px; font-size: 14px; color: #4b5563; line-height: 1.6; }
+
+    .bottom-bar {
+        position: fixed; bottom: 0; left: 0; right: 0;
+        background: var(--surface);
+        backdrop-filter: blur(14px);
+        padding: 12px 16px;
+        border-top: 1px solid var(--border);
+        z-index: 100;
+        padding-bottom: calc(12px + env(safe-area-inset-bottom));
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+    }
+    .btn-cart {
+        width: 100%; background: var(--btn-gradient); color: white; border: none;
+        border-radius: 16px; font-size: 16px; font-weight: 800; padding: 16px;
+        transition: 0.15s ease; box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+        cursor: pointer;
+    }
+    .btn-cart:active { transform: scale(0.97); }
+    .qty-control-large {
+        display: flex; align-items: center; justify-content: space-between;
+        background: var(--input-bg); border: 2px solid var(--primary);
+        border-radius: 16px; padding: 4px; width: 100%; height: 54px;
+    }
+    .qty-btn-large {
+        width: 46px; height: 100%; border: none; background: var(--surface);
+        border-radius: 12px; font-weight: 800; font-size: 20px; cursor: pointer;
+        color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .qty-val-large { font-size: 18px; font-weight: 800; color: var(--text-main); }
+</style>
+
+<div class="app-header" style="align-items: center;">
+    <a href="{% url 'catalog' %}?store_id={{ product.store.id }}" class="back-btn">←</a>
+    
+    <!-- Языковой переключатель в стиле iOS -->
+    <div class="segmented-control" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); border-radius: 10px; padding: 2px;">
+        {% get_current_language as CURRENT_LANG %}
+        {% get_available_languages as LANGUAGES %}
+        {% for lang_code, lang_name in LANGUAGES %}
+            <button type="button" class="{% if lang_code == CURRENT_LANG %}active{% endif %}" onclick="changeLang('{{ lang_code }}')" style="font-size: 11px;">
+                {% if lang_code == 'ru' %}RU{% elif lang_code == 'uz' %}UZ{% else %}EN{% endif %}
+            </button>
+        {% endfor %}
+    </div>
+</div>
+
+
+<div class="gallery-container">
+    <div class="gallery-item">
+        {% if product.main_image %}
+            <img src="{{ product.main_image.url }}" id="main-product-image">
+        {% else %}
+            <div class="no-image" id="main-product-image"></div>
+        {% endif %}
+    </div>
+
+    {% for img in product.images.all %}
+        <div class="gallery-item"><img src="{{ img.image.url }}"></div>
+    {% endfor %}
+</div>
+
+<div class="content-sheet">
+    <div class="price-block">
+        <div class="price-main" id="display-price">{{ product.base_price }} {% trans "сум" %}</div>
+        <div class="price-old" id="display-old-price"></div>
+    </div>
+
+    <h1 class="product-title">{{ product.name }}</h1>
+
+    <div class="rating-row">
+        <span class="stars">
+            {% if average_rating >= 4.5 %}★★★★★
+            {% elif average_rating >= 3.5 %}★★★★☆
+            {% elif average_rating >= 2.5 %}★★★☆☆
+            {% else %}★★☆☆☆
+            {% endif %}
+        </span>
+        <strong style="color: var(--text-main);">{{ average_rating }}</strong>
+        <span style="color: var(--text-muted); font-size: 13px;">•</span>
+        <a href="#reviews-section" style="color: var(--primary); text-decoration: none; font-weight: 600; font-size: 13px;">
+            {{ reviews_count }} {% trans "отзывов" %}
+        </a>
+        <span style="color: var(--text-muted); font-size: 13px;">•</span>
+        <span style="font-size: 13px;">{% trans "Более 100+ заказов" %}</span>
+    </div>
+
+    <div class="social-proof" id="social-proof" style="display: none;">
+        🛍 <span id="bought-count"></span> {% trans "человек купили на этой неделе" %}
+    </div>
+
+    {% if variants %}
+        <div id="color-section">
+            <div class="section-title">{% trans "Цвет:" %} <span id="selected-color-label"></span></div>
+            <div class="color-grid" id="color-container"></div>
+        </div>
+
+        <div id="size-section">
+            <div class="section-title">{% trans "Размер:" %} <span id="selected-size-label"></span></div>
+            <div class="size-grid" id="size-container"></div>
+        </div>
+    {% else %}
+
+        <p style="color: #9ca3af;">{% trans "Нет доступных вариантов" %}</p>
+    {% endif %}
+
+    <details open>
+        <summary>{% trans "О товаре" %}</summary>
+        <div class="details-content">{{ product.description|linebreaksbr }}</div>
+    </details>
+    <details>
+        <summary>{% trans "Характеристики" %}</summary>
+        <div class="details-content">
+            {% trans "Магазин:" %} <strong>{{ product.store.name }}</strong><br>
+            {% trans "Страна: Узбекистан" %}<br>
+            {% trans "Артикул:" %} {{ product.id }}
+        </div>
+    </details>
+
+    <!-- БЛОК ОТЗЫВОВ И РЕЙТИНГА -->
+    <div id="reviews-section" style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div>
+                <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: var(--text-main);">
+                    {% trans "Отзывы покупателей" %}
+                    <span style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 4px;">({{ reviews_count }})</span>
+                </h3>
+                <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+                    <span style="color: #F59E0B; font-size: 14px;">★</span>
+                    <span style="font-size: 14px; font-weight: 800; color: var(--text-main);">{{ average_rating }}</span>
+                    <span style="font-size: 12px; color: var(--text-muted);">/ 5.0</span>
+                </div>
+            </div>
+            <button type="button" onclick="openReviewModal()" style="background: var(--surface); border: 1.5px solid var(--border); color: var(--text-main); font-size: 12px; font-weight: 700; padding: 8px 14px; border-radius: 12px; cursor: pointer; transition: 0.15s ease;">
+                ✍️ {% trans "Оставить отзыв" %}
+            </button>
+        </div>
+
+        <!-- МОДАЛЬНОЕ ОКНО ФОРМЫ ОТЗЫВА -->
+        <div id="review-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 10001; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box;">
+            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 24px; width: 100%; max-width: 440px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); position: relative; box-sizing: border-box;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: var(--text-main);">{% trans "Ваш отзыв о товаре" %}</h3>
+                    <button type="button" onclick="closeReviewModal()" style="background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text-muted);">✕</button>
+                </div>
+
+                <form method="post" action="{% url 'submit-product-review' product.id %}">
+                    {% csrf_token %}
+                    <!-- Выбор оценки звёздами -->
+                    <div style="margin-bottom: 16px; text-align: center;">
+                        <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase;">{% trans "Ваша оценка" %}</div>
+                        <div id="star-picker" style="font-size: 32px; cursor: pointer; display: inline-flex; gap: 4px; color: #F59E0B;">
+                            <span class="star-pick" data-val="1" onclick="selectStar(1)">★</span>
+                            <span class="star-pick" data-val="2" onclick="selectStar(2)">★</span>
+                            <span class="star-pick" data-val="3" onclick="selectStar(3)">★</span>
+                            <span class="star-pick" data-val="4" onclick="selectStar(4)">★</span>
+                            <span class="star-pick" data-val="5" onclick="selectStar(5)">★</span>
+                        </div>
+                        <input type="hidden" name="rating" id="review-rating-input" value="5">
+                    </div>
+
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px;">{% trans "Ваше имя" %}</label>
+                        <input type="text" name="customer_name" required placeholder="{% trans 'Например, Азиз' %}" style="width: 100%; box-sizing: border-box; background: var(--input-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; color: var(--text-main); font-size: 14px; outline: none;">
+                    </div>
+
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px;">{% trans "Номер телефона (не публикуется)" %}</label>
+                        <input type="tel" name="customer_phone" placeholder="+998 90 123 45 67" style="width: 100%; box-sizing: border-box; background: var(--input-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; color: var(--text-main); font-size: 14px; outline: none;">
+                    </div>
+
+                    <div style="margin-bottom: 18px;">
+                        <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px;">{% trans "Текст отзыва" %}</label>
+                        <textarea name="text" rows="4" required placeholder="{% trans 'Расскажите о качестве, размере, удобстве...' %}" style="width: 100%; box-sizing: border-box; background: var(--input-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; color: var(--text-main); font-size: 14px; outline: none; resize: vertical;"></textarea>
+                    </div>
+
+                    <button type="submit" style="width: 100%; background: var(--btn-gradient); color: white; border: none; border-radius: 14px; padding: 14px; font-weight: 800; font-size: 15px; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.2);">
+                        🚀 {% trans "Опубликовать отзыв" %}
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- СПИСОК ОПУБЛИКОВАННЫХ ОТЗЫВОВ -->
+        {% if reviews %}
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                {% for r in reviews %}
+                    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <div style="font-size: 13.5px; font-weight: 700; color: var(--text-main);">{{ r.customer_name }}</div>
+                            <div style="color: #F59E0B; font-size: 13px;">
+                                {% if r.rating == 5 %}★★★★★
+                                {% elif r.rating == 4 %}★★★★☆
+                                {% elif r.rating == 3 %}★★★☆☆
+                                {% elif r.rating == 2 %}★★☆☆☆
+                                {% else %}★☆☆☆☆
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 8px;">
+                            {{ r.created_at|date:"d.m.Y" }}
+                        </div>
+                        <div style="font-size: 13.5px; color: var(--text-main); line-height: 1.45;">
+                            {{ r.text|linebreaksbr }}
+                        </div>
+
+                        {% if r.seller_reply %}
+                            <div style="margin-top: 10px; background: rgba(59, 130, 246, 0.08); border-left: 3px solid #3B82F6; padding: 8px 12px; border-radius: 0 10px 10px 0;">
+                                <div style="font-size: 11.5px; font-weight: 800; color: #3B82F6; margin-bottom: 2px;">
+                                    🏪 {% trans "Ответ магазина" %} ({{ product.store.name }}):
+                                </div>
+                                <div style="font-size: 12.5px; color: var(--text-main);">
+                                    {{ r.seller_reply|linebreaksbr }}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 24px 12px; color: var(--text-muted); background: var(--surface); border: 1px dashed var(--border); border-radius: 16px;">
+                <div style="font-size: 28px; margin-bottom: 6px;">💬</div>
+                <div style="font-size: 13.5px; font-weight: 600;">{% trans "Пока нет отзывов" %}</div>
+                <div style="font-size: 12px; margin-top: 2px;">{% trans "Будьте первым, кто оставит отзыв об этом товаре!" %}</div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="bottom-bar">
+    <div id="cart-action-container">
+        <button class="btn-cart" id="add-cart-btn">{% trans "В корзину" %}</button>
+        <div class="qty-control-large" id="qty-control-container" style="display: none;">
+            <button class="qty-btn-large" id="qty-minus">—</button>
+            <span class="qty-val-large" id="qty-value">1</span>
+            <button class="qty-btn-large" id="qty-plus">+</button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        let cart = JSON.parse(localStorage.getItem('tg_cart')) || [];
+
+        // ЗАГРУЖАЕМ ВАРИАНТЫ (ТЕПЕРЬ С ФОТОГРАФИЯМИ!)
+        const variantsData = [
+            {% for v in variants %}
+            {
+                id: "{{ v.id }}",
+                color: "{{ v.color }}",
+                size: "{{ v.size }}",
+                price: parseFloat("{{ v.final_price|stringformat:'f' }}"),
+                in_stock: {{ v.in_stock|yesno:"true,false" }},
+                qty: parseInt("{{ v.stock_quantity }}"),
+                image_url: "{% if v.image %}{{ v.image.url }}{% else %}{% endif %}"
+            },
+            {% endfor %}
+        ];
+
+        const fakeBought = ({{ product.id }} * 17) % 150;
+        if (fakeBought > 3) {
+            document.getElementById('bought-count').innerText = fakeBought;
+            document.getElementById('social-proof').style.display = 'flex';
+        }
+
+        // Группируем уникальные цвета и привязываем к ним картинки
+        let uniqueColors = [];
+        let colorsMap = new Map();
+
+        variantsData.forEach(v => {
+            if(!colorsMap.has(v.color)) {
+                colorsMap.set(v.color, v.image_url);
+                uniqueColors.push({ name: v.color, image: v.image_url });
+            }
+        });
+
+        let sizes = [...new Set(variantsData.map(v => v.size))];
+
+        // Получаем выбранный цвет из GET-параметра URL (?color=...)
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlColor = urlParams.get('color');
+
+        let selectedColor = uniqueColors.length > 0 ? uniqueColors[0].name : '';
+        if (urlColor && uniqueColors.some(c => c.name === urlColor)) {
+            selectedColor = urlColor;
+        }
+        let selectedVariantId = null;
+        let selectedVariantPrice = 0;
+
+
+        const colorContainer = document.getElementById('color-container');
+        const sizeContainer = document.getElementById('size-container');
+        const colorLabel = document.getElementById('selected-color-label');
+        const sizeLabel = document.getElementById('selected-size-label');
+        const priceMain = document.getElementById('display-price');
+        const priceOld = document.getElementById('display-old-price');
+
+        function renderColors() {
+            colorContainer.innerHTML = '';
+            colorLabel.innerText = selectedColor;
+
+            // Обновляем главное фото товара на фото выбранного цвета
+            const mainImg = document.getElementById('main-product-image');
+            if (mainImg) {
+                const colorPhoto = colorsMap.get(selectedColor);
+                if (colorPhoto) {
+                    if (mainImg.tagName === 'IMG') {
+                        mainImg.src = colorPhoto;
+                    } else {
+                        mainImg.style.backgroundImage = `url('${colorPhoto}')`;
+                    }
+                } else {
+                    {% if product.main_image %}
+                        if (mainImg.tagName === 'IMG') {
+                            mainImg.src = "{{ product.main_image.url }}";
+                        } else {
+                            mainImg.style.backgroundImage = `url('{{ product.main_image.url }}')`;
+                        }
+                    {% endif %}
+                }
+            }
+
+
+            uniqueColors.forEach(c => {
+                let btn = document.createElement('div');
+
+                if (c.image) {
+                    // Если у цвета есть фото, показываем картинку
+                    btn.className = `color-btn ${c.name === selectedColor ? 'active' : ''}`;
+                    btn.style.backgroundImage = `url('${c.image}')`;
+                } else {
+                    // Если фото нет, показываем красивую текстовую заглушку
+                    btn.className = `color-btn text-fallback ${c.name === selectedColor ? 'active' : ''}`;
+                    btn.innerText = c.name;
+                }
+
+                btn.onclick = () => {
+                    selectedColor = c.name;
+                    selectedVariantId = null;
+
+                    // Обновляем GET-параметр ?color= в строке адреса
+                    const newUrl = new URL(window.location);
+                    newUrl.searchParams.set('color', c.name);
+                    window.history.replaceState({}, '', newUrl);
+
+                    renderColors();
+                    renderSizes();
+                };
+
+                colorContainer.appendChild(btn);
+            });
+        }
+
+        function renderSizes() {
+            sizeContainer.innerHTML = '';
+            sizeLabel.innerText = selectedVariantId ? variantsData.find(v=>v.id === selectedVariantId).size : 'Не выбран';
+
+            let variantsForColor = variantsData.filter(v => v.color === selectedColor);
+
+            sizes.forEach(sizeStr => {
+                let variant = variantsForColor.find(v => v.size === sizeStr);
+                let btn = document.createElement('div');
+
+                if (!variant || !variant.in_stock || variant.qty === 0) {
+                    btn.className = 'size-btn disabled';
+                    btn.innerText = sizeStr;
+                } else {
+                    btn.className = `size-btn ${variant.id === selectedVariantId ? 'active' : ''}`;
+                    btn.innerText = sizeStr;
+                    btn.onclick = () => {
+                        selectedVariantId = variant.id;
+                        selectedVariantPrice = variant.price;
+                        updatePriceDisplay();
+                        renderSizes();
+                    };
+                }
+                sizeContainer.appendChild(btn);
+            });
+        }
+
+        function updatePriceDisplay() {
+            if(selectedVariantPrice > 0) {
+                priceMain.innerText = selectedVariantPrice.toLocaleString() + ' сум';
+                priceOld.innerText = (selectedVariantPrice * 1.15).toLocaleString() + ' сум';
+            }
+            updateActionUI();
+        }
+
+        function updateActionUI() {
+            const addBtn = document.getElementById('add-cart-btn');
+            const qtyContainer = document.getElementById('qty-control-container');
+            const qtyVal = document.getElementById('qty-value');
+            
+            if (!addBtn || !qtyContainer) return;
+            
+            if (!selectedVariantId) {
+                addBtn.style.display = 'block';
+                qtyContainer.style.display = 'none';
+                return;
+            }
+            
+            let cart = getCart();
+            let existing = cart.find(i => i.variant_id === selectedVariantId);
+            
+            if (existing) {
+                addBtn.style.display = 'none';
+                qtyContainer.style.display = 'flex';
+                if (qtyVal) qtyVal.innerText = existing.quantity;
+            } else {
+                addBtn.style.display = 'block';
+                qtyContainer.style.display = 'none';
+            }
+        }
+
+        if(variantsData.length > 0) {
+            const isSimpleProduct = variantsData.length === 1 && !variantsData[0].color && !variantsData[0].size;
+            if (isSimpleProduct) {
+                const colorSec = document.getElementById('color-section');
+                const sizeSec = document.getElementById('size-section');
+                if (colorSec) colorSec.style.display = 'none';
+                if (sizeSec) sizeSec.style.display = 'none';
+                
+                selectedVariantId = variantsData[0].id;
+                selectedVariantPrice = variantsData[0].price;
+                updatePriceDisplay();
+            } else {
+                renderColors();
+                renderSizes();
+                let firstAvail = variantsData.find(v => v.color === selectedColor && v.in_stock && v.qty > 0);
+                if(firstAvail) {
+                    selectedVariantId = firstAvail.id;
+                    selectedVariantPrice = firstAvail.price;
+                    updatePriceDisplay();
+                    renderSizes();
+                }
+            }
+        }
+
+
+        function updateMainButton() {
+            const cart = getCart();
+            if (cart.length > 0 && tg.MainButton) {
+                let total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                tg.MainButton.text = `🛒 {% filter escapejs %}{% trans "Корзина" %}{% endfilter %}: ${total.toLocaleString()} {% filter escapejs %}{% trans "сум" %}{% endfilter %} | {% filter escapejs %}{% trans "Оформить" %}{% endfilter %}`;
+                tg.MainButton.color = "#4F46E5";
+                tg.MainButton.show();
+            } else if (tg.MainButton) {
+                tg.MainButton.hide();
+            }
+        }
+
+        if (tg.MainButton) {
+            tg.MainButton.onClick(function() {
+                openCartModal();
+            });
+        }
+
+        document.getElementById('add-cart-btn').addEventListener('click', function() {
+            if (!selectedVariantId) {
+                alert("{% filter escapejs %}{% trans 'Пожалуйста, выберите размер!' %}{% endfilter %}");
+                return;
+            }
+            let variant = variantsData.find(v => v.id === selectedVariantId);
+            let cart = getCart();
+
+            // Проверяем — нет ли в корзине товаров из ДРУГОГО магазина
+            const thisStoreId = "{{ product.store.id }}";
+            const existingStoreId = cart.length > 0 ? cart[0].store_id : null;
+            if (existingStoreId && existingStoreId !== thisStoreId) {
+                const confirmClear = confirm("{% filter escapejs %}{% trans 'В корзине уже есть товары из другого магазина. Очистить корзину и добавить этот товар?' %}{% endfilter %}");
+                if (!confirmClear) return;
+                cart = [];
+            }
+
+            let existing = cart.find(i => i.variant_id === variant.id);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                let displayName = "{{ product.name|escapejs }}";
+                if (variant.color || variant.size) {
+                    displayName += ` (${variant.color || '—'}/${variant.size || '—'})`;
+                }
+                cart.push({
+                    variant_id: variant.id,
+                    name: displayName,
+                    price: variant.price,
+                    quantity: 1,
+                    store_id: thisStoreId,
+                    image_url: variant.image_url || ""
+                });
+            }
+
+            saveCart(cart);
+            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
+        });
+
+        document.getElementById('qty-plus').addEventListener('click', function() {
+            if (!selectedVariantId) return;
+            let cart = getCart();
+            let index = cart.findIndex(i => i.variant_id === selectedVariantId);
+            if (index !== -1) {
+                cart[index].quantity += 1;
+                saveCart(cart);
+                if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+            }
+        });
+
+        document.getElementById('qty-minus').addEventListener('click', function() {
+            if (!selectedVariantId) return;
+            let cart = getCart();
+            let index = cart.findIndex(i => i.variant_id === selectedVariantId);
+            if (index !== -1) {
+                cart[index].quantity -= 1;
+                if (cart[index].quantity <= 0) {
+                    cart.splice(index, 1);
+                }
+                saveCart(cart);
+                if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+                // updateActionUI() will be called by cartUpdated event
+            }
+        });
+
+        window.addEventListener('cartUpdated', function() {
+            updateActionUI();
+            renderGlobalCartBar();
+            updateMainButton();
+        });
+
+        renderGlobalCartBar();
+        updateMainButton();
+    });
+
+    function openReviewModal() {
+        const modal = document.getElementById('review-modal');
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function closeReviewModal() {
+        const modal = document.getElementById('review-modal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    function selectStar(val) {
+        document.getElementById('review-rating-input').value = val;
+        const stars = document.querySelectorAll('#star-picker .star-pick');
+        stars.forEach((s, idx) => {
+            if (idx < val) {
+                s.style.color = '#F59E0B';
+            } else {
+                s.style.color = '#4B5563';
+            }
+        });
+    }
+</script>
+{% endblock %}

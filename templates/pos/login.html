@@ -1,0 +1,157 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'ru' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{% trans "Вход кассира" %} | {% trans "Умная Касса" %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #f3f4f6; }
+        .numpad-btn {
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            padding: 1rem;
+            transition: all 0.1s;
+        }
+        .numpad-btn:active {
+            background-color: #e5e7eb;
+            transform: scale(0.95);
+        }
+        .pin-dot {
+            width: 1rem;
+            height: 1rem;
+            border-radius: 9999px;
+            background-color: #e5e7eb;
+            margin: 0 0.5rem;
+            transition: all 0.2s;
+        }
+        .pin-dot.filled {
+            background-color: #4f46e5;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+<div class="bg-white p-8 rounded-2xl shadow-xl max-w-sm w-full mx-auto">
+    <!-- Переключатель языка -->
+    <div class="flex justify-end gap-1 mb-4">
+        {% get_current_language as CURRENT_LANG %}
+        {% get_available_languages as LANGUAGES %}
+        {% for lang_code, lang_name in LANGUAGES %}
+            <form action="{% url 'set_language' %}" method="post" class="inline">
+                {% csrf_token %}
+                <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                <input name="language" type="hidden" value="{{ lang_code }}">
+                <button type="submit" class="px-2 py-1 text-xs font-bold rounded {% if lang_code == CURRENT_LANG %}bg-indigo-600 text-white{% else %}bg-gray-100 text-gray-500 hover:bg-gray-200{% endif %}">
+                    {% if lang_code == 'ru' %}RU{% elif lang_code == 'uz' %}UZ{% else %}EN{% endif %}
+                </button>
+            </form>
+        {% endfor %}
+    </div>
+
+    <!-- БАННЕР В РАЗРАБОТКЕ -->
+    <div class="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-300 text-center">
+        <div class="text-2xl mb-1">🛠</div>
+        <div class="text-sm font-extrabold text-amber-900">
+            {% trans "Мы работаем над этим!" %}
+        </div>
+        <p class="text-xs text-amber-800 mt-1 leading-relaxed">
+            {% trans "Система POS-кассы для оффлайн-точек ещё не закончена. Наша команда активно работает над этим функционалом!" %}
+        </p>
+    </div>
+
+    <div class="text-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">{% trans "Умная Касса" %}</h1>
+        {% if store %}
+        <p class="text-gray-500 mt-1 text-sm">{{ store.name }}</p>
+        {% endif %}
+    </div>
+
+    {% if error %}
+    <div class="bg-red-50 text-red-600 p-3 rounded-lg mb-6 text-sm text-center">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <div class="flex justify-center mb-8" id="pin-dots">
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+    </div>
+
+    <form method="POST" action="{% url 'pos:pos_login' %}" id="login-form">
+        {% csrf_token %}
+        <input type="hidden" name="store_id" value="{{ store_id }}">
+        <input type="hidden" name="pin" id="pin-input" value="">
+        
+        <div class="grid grid-cols-3 gap-4 mb-6">
+            <button type="button" class="numpad-btn" onclick="addPin('1')">1</button>
+            <button type="button" class="numpad-btn" onclick="addPin('2')">2</button>
+            <button type="button" class="numpad-btn" onclick="addPin('3')">3</button>
+            <button type="button" class="numpad-btn" onclick="addPin('4')">4</button>
+            <button type="button" class="numpad-btn" onclick="addPin('5')">5</button>
+            <button type="button" class="numpad-btn" onclick="addPin('6')">6</button>
+            <button type="button" class="numpad-btn" onclick="addPin('7')">7</button>
+            <button type="button" class="numpad-btn" onclick="addPin('8')">8</button>
+            <button type="button" class="numpad-btn" onclick="addPin('9')">9</button>
+            <button type="button" class="numpad-btn bg-red-50 text-red-600" onclick="clearPin()">C</button>
+            <button type="button" class="numpad-btn" onclick="addPin('0')">0</button>
+            <button type="button" class="numpad-btn bg-gray-100" onclick="delPin()">⌫</button>
+        </div>
+    </form>
+
+    <div class="text-center mt-6">
+        <a href="{% url 'seller-dashboard' %}" class="text-indigo-600 text-sm hover:underline">Вернуться в кабинет</a>
+    </div>
+</div>
+
+<script>
+    let currentPin = '';
+    const dots = document.querySelectorAll('.pin-dot');
+    const pinInput = document.getElementById('pin-input');
+    const loginForm = document.getElementById('login-form');
+
+    function updateDots() {
+        dots.forEach((dot, index) => {
+            if (index < currentPin.length) {
+                dot.classList.add('filled');
+            } else {
+                dot.classList.remove('filled');
+            }
+        });
+        pinInput.value = currentPin;
+
+        if (currentPin.length === 4) {
+            // Задержка чтобы юзер увидел заполненную 4-ю точку перед сабмитом
+            setTimeout(() => {
+                loginForm.submit();
+            }, 100);
+        }
+    }
+
+    function addPin(num) {
+        if (currentPin.length < 4) {
+            currentPin += num;
+            updateDots();
+        }
+    }
+
+    function delPin() {
+        if (currentPin.length > 0) {
+            currentPin = currentPin.slice(0, -1);
+            updateDots();
+        }
+    }
+
+    function clearPin() {
+        currentPin = '';
+        updateDots();
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>POS Терминал | Умная Касса</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Иконки Heroicons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { background-color: #f3f4f6; user-select: none; }
+        .cart-item-enter { opacity: 0; transform: translateX(-20px); }
+        .cart-item-enter-active { opacity: 1; transform: translateX(0); transition: all 0.3s; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 3px; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden" x-data="posApp()">
+
+<!-- Header -->
+<header class="bg-white shadow-sm border-b px-4 py-3 flex justify-between items-center z-10 shrink-0">
+    <div class="flex items-center space-x-4">
+        <h1 class="text-xl font-bold text-indigo-600">POS | {{ store.name }}</h1>
+        <span class="px-2 py-1 text-xs rounded-full" 
+              :class="shift.isOpen ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
+              x-text="shift.isOpen ? 'Смена открыта' : 'Смена закрыта'"></span>
+    </div>
+    <div class="flex items-center space-x-4">
+        <div class="text-sm font-medium text-gray-700">
+            <i data-lucide="user" class="inline w-4 h-4 mr-1"></i>
+            {{ cashier.name }} ({{ cashier.get_role_display }})
+        </div>
+        <button @click="shift.isOpen ? closeShiftModal = true : openShiftModal = true" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg font-medium transition">
+            <span x-text="shift.isOpen ? 'Закрыть смену' : 'Открыть смену'"></span>
+        </button>
+        <a href="{% url 'pos:pos_logout' %}" class="text-sm text-red-600 hover:text-red-800 font-medium">Выход</a>
+    </div>
+</header>
+
+<!-- Main Workspace -->
+<main class="flex-1 flex overflow-hidden relative">
+    
+    <!-- Left Panel: Cart / Receipt -->
+    <section class="w-1/3 bg-white border-r flex flex-col h-full z-0">
+        <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
+            <h2 class="font-bold text-gray-700">Текущий чек</h2>
+            <button @click="clearCart()" class="text-red-500 hover:text-red-700 text-sm font-medium" x-show="cart.length > 0">
+                Очистить
+            </button>
+        </div>
+        
+        <!-- Cart Items list -->
+        <div class="flex-1 overflow-y-auto p-2 space-y-2">
+            <template x-if="cart.length === 0">
+                <div class="h-full flex flex-col items-center justify-center text-gray-400">
+                    <i data-lucide="shopping-cart" class="w-12 h-12 mb-2 opacity-50"></i>
+                    <p>Корзина пуста</p>
+                </div>
+            </template>
+            
+            <template x-for="(item, index) in cart" :key="index">
+                <div class="flex flex-col p-3 border rounded-lg bg-white shadow-sm relative group">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <p class="font-semibold text-gray-800 text-sm" x-text="item.name"></p>
+                            <p class="text-xs text-gray-500" x-text="`${item.color || ''} ${item.size || ''}`"></p>
+                        </div>
+                        <button @click="removeFromCart(index)" class="text-gray-400 hover:text-red-500 transition opacity-0 group-hover:opacity-100">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <div class="flex justify-between items-center mt-2">
+                        <div class="flex items-center border rounded-lg overflow-hidden">
+                            <button @click="updateQty(index, -1)" class="px-3 py-1 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold">-</button>
+                            <span class="px-3 py-1 text-sm font-semibold min-w-[2.5rem] text-center" x-text="item.qty"></span>
+                            <button @click="updateQty(index, 1)" class="px-3 py-1 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold">+</button>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-indigo-600" x-text="formatMoney(item.price * item.qty)"></p>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+        
+        <!-- Cart Totals & Checkout -->
+        <div class="p-4 bg-gray-50 border-t shrink-0">
+            <div class="flex justify-between items-center mb-4 text-lg font-bold">
+                <span>Итого к оплате:</span>
+                <span class="text-2xl text-indigo-700" x-text="formatMoney(cartTotal)"></span>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <button @click="checkout('cash')" :disabled="cart.length === 0 || !shift.isOpen" 
+                        class="py-3 bg-green-500 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl flex items-center justify-center transition shadow-sm">
+                    <i data-lucide="banknote" class="w-5 h-5 mr-2"></i> Наличные
+                </button>
+                <button @click="checkout('card')" :disabled="cart.length === 0 || !shift.isOpen" 
+                        class="py-3 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl flex items-center justify-center transition shadow-sm">
+                    <i data-lucide="credit-card" class="w-5 h-5 mr-2"></i> Карта
+                </button>
+            </div>
+            <p x-show="!shift.isOpen" class="text-red-500 text-xs text-center mt-2 font-medium">Для продажи необходимо открыть смену</p>
+        </div>
+    </section>
+    
+    <!-- Right Panel: Search & Products -->
+    <section class="flex-1 bg-gray-100 flex flex-col relative z-0">
+        <!-- Search Bar -->
+        <div class="p-4 bg-white shadow-sm border-b">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i data-lucide="search" class="text-gray-400 w-5 h-5"></i>
+                </div>
+                <input type="text" x-model="searchQuery" @input.debounce.300ms="searchProducts" @keydown.enter.prevent="searchProducts"
+                       x-ref="searchInput"
+                       class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl leading-5 bg-gray-50 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition" 
+                       placeholder="Штрихкод, артикул или название (сканируйте сюда)..." autofocus>
+            </div>
+        </div>
+        
+        <!-- Search Results Grid -->
+        <div class="flex-1 overflow-y-auto p-4">
+            <div x-show="isSearching" class="text-center text-gray-500 py-8">
+                <i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto mb-2 text-indigo-500"></i>
+                <p>Поиск...</p>
+            </div>
+            
+            <div x-show="searchResults.length === 0 && searchQuery && !isSearching" class="text-center text-gray-500 py-8">
+                <p>Ничего не найдено</p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <template x-for="product in searchResults" :key="product.id">
+                    <button @click="addToCart(product)" class="bg-white rounded-xl p-4 shadow-sm border border-transparent hover:border-indigo-300 hover:shadow-md transition text-left flex flex-col justify-between h-full group focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <div>
+                            <h3 class="font-bold text-gray-800 text-sm leading-tight mb-1" x-text="product.name"></h3>
+                            <p class="text-xs text-gray-500 mb-2" x-text="`${product.color || ''} ${product.size || ''}`"></p>
+                        </div>
+                        <div class="flex justify-between items-end mt-2">
+                            <span class="font-bold text-indigo-600" x-text="formatMoney(product.price)"></span>
+                            <span class="text-xs px-2 py-1 rounded-md" 
+                                  :class="product.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
+                                  x-text="`Остаток: ${product.stock}`"></span>
+                        </div>
+                    </button>
+                </template>
+            </div>
+            
+            <!-- Default Dashboard when no search -->
+            <div x-show="!searchQuery && searchResults.length === 0" class="h-full flex flex-col items-center justify-center opacity-30 pointer-events-none">
+                <i data-lucide="barcode" class="w-24 h-24 mb-4"></i>
+                <p class="text-xl font-bold">Сканируйте штрихкод</p>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- Modals -->
+
+<!-- Открытие смены -->
+<div x-show="openShiftModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" style="display: none;" x-transition>
+    <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl" @click.away="openShiftModal = false">
+        <h2 class="text-xl font-bold mb-4">Открыть смену</h2>
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Наличные в кассе на начало (Сум)</label>
+            <input type="number" x-model="startCash" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2 border text-lg font-bold" min="0">
+        </div>
+        <div class="flex justify-end space-x-3">
+            <button @click="openShiftModal = false" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">Отмена</button>
+            <button @click="openShift()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm">Открыть смену</button>
+        </div>
+    </div>
+</div>
+
+<!-- Закрытие смены -->
+<div x-show="closeShiftModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" style="display: none;" x-transition>
+    <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl" @click.away="closeShiftModal = false">
+        <h2 class="text-xl font-bold mb-4">Закрыть смену</h2>
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Фактические наличные в кассе (Сум)</label>
+            <input type="number" x-model="closingCash" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2 border text-lg font-bold" min="0">
+        </div>
+        <div class="flex justify-end space-x-3">
+            <button @click="closeShiftModal = false" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">Отмена</button>
+            <button @click="closeShift()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium shadow-sm">Закрыть смену</button>
+        </div>
+    </div>
+</div>
+
+<!-- Успешная продажа -->
+<div x-show="successModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" style="display: none;" x-transition>
+    <div class="bg-white rounded-2xl p-8 w-full max-w-sm shadow-2xl text-center">
+        <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="check" class="w-8 h-8"></i>
+        </div>
+        <h2 class="text-2xl font-bold mb-2">Продажа успешна!</h2>
+        <p class="text-gray-500 mb-6">Сумма чека: <span class="font-bold text-gray-900" x-text="formatMoney(lastTotal)"></span></p>
+        <button @click="successModal = false; $refs.searchInput.focus()" class="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-sm">
+            Новый чек
+        </button>
+    </div>
+</div>
+
+<script>
+    lucide.createIcons();
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    function posApp() {
+        return {
+            shift: {
+                isOpen: {% if current_shift %}true{% else %}false{% endif %},
+            },
+            cart: [],
+            searchQuery: '',
+            searchResults: [],
+            isSearching: false,
+            
+            // Modals state
+            openShiftModal: false,
+            closeShiftModal: false,
+            successModal: false,
+            startCash: 0,
+            closingCash: 0,
+            lastTotal: 0,
+            
+            init() {
+                // Фокус на поиске при загрузке
+                setTimeout(() => this.$refs.searchInput.focus(), 100);
+            },
+            
+            get cartTotal() {
+                return this.cart.reduce((total, item) => total + (item.price * item.qty), 0);
+            },
+            
+            formatMoney(amount) {
+                return new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'UZS', minimumFractionDigits: 0 }).format(amount);
+            },
+            
+            async searchProducts() {
+                if (!this.searchQuery.trim()) {
+                    this.searchResults = [];
+                    return;
+                }
+                
+                this.isSearching = true;
+                try {
+                    const res = await fetch(`/pos/api/search/?q=${encodeURIComponent(this.searchQuery)}`);
+                    const data = await res.json();
+                    
+                    if (data.results) {
+                        this.searchResults = data.results;
+                        
+                        // Если найден только 1 товар по штрихкоду, сразу добавляем в корзину и очищаем поиск
+                        if (this.searchResults.length === 1 && this.searchResults[0].barcode === this.searchQuery) {
+                            this.addToCart(this.searchResults[0]);
+                            this.searchQuery = '';
+                            this.searchResults = [];
+                        }
+                    }
+                } catch (e) {
+                    console.error('Search error', e);
+                } finally {
+                    this.isSearching = false;
+                }
+            },
+            
+            addToCart(product) {
+                const existing = this.cart.findIndex(i => i.id === product.id);
+                if (existing >= 0) {
+                    if (this.cart[existing].qty < product.stock) {
+                        this.cart[existing].qty++;
+                    } else {
+                        alert('Недостаточно товара на складе!');
+                    }
+                } else {
+                    if (product.stock > 0) {
+                        this.cart.push({ ...product, qty: 1 });
+                    } else {
+                        alert('Товара нет в наличии!');
+                    }
+                }
+                this.$refs.searchInput.focus();
+            },
+            
+            updateQty(index, delta) {
+                const item = this.cart[index];
+                const newQty = item.qty + delta;
+                if (newQty > 0 && newQty <= item.stock) {
+                    item.qty = newQty;
+                } else if (newQty > item.stock) {
+                    alert('Недостаточно товара на складе!');
+                } else if (newQty <= 0) {
+                    this.removeFromCart(index);
+                }
+            },
+            
+            removeFromCart(index) {
+                this.cart.splice(index, 1);
+            },
+            
+            clearCart() {
+                if (confirm('Очистить текущий чек?')) {
+                    this.cart = [];
+                }
+            },
+            
+            async checkout(method) {
+                if (!this.shift.isOpen) {
+                    alert("Смена закрыта. Откройте смену для продаж.");
+                    return;
+                }
+                if (this.cart.length === 0) return;
+                
+                try {
+                    const res = await fetch('/pos/api/checkout/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken
+                        },
+                        body: JSON.stringify({
+                            items: this.cart,
+                            payment_method: method
+                        })
+                    });
+                    
+                    const data = await res.json();
+                    if (data.success) {
+                        this.lastTotal = this.cartTotal;
+                        this.cart = [];
+                        this.successModal = true;
+                    } else {
+                        alert("Ошибка: " + data.error);
+                    }
+                } catch (e) {
+                    alert("Ошибка соединения");
+                }
+            },
+            
+            async openShift() {
+                try {
+                    const res = await fetch('/pos/api/shift/open/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken
+                        },
+                        body: JSON.stringify({ start_cash: this.startCash })
+                    });
+                    
+                    const data = await res.json();
+                    if (data.success) {
+                        this.shift.isOpen = true;
+                        this.openShiftModal = false;
+                    } else {
+                        alert("Ошибка: " + data.error);
+                    }
+                } catch (e) {
+                    alert("Ошибка соединения");
+                }
+            },
+            
+            async closeShift() {
+                try {
+                    const res = await fetch('/pos/api/shift/close/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken
+                        },
+                        body: JSON.stringify({ closing_cash_actual: this.closingCash })
+                    });
+                    
+                    const data = await res.json();
+                    if (data.success) {
+                        this.shift.isOpen = false;
+                        this.closeShiftModal = false;
+                        alert(`Смена закрыта.\nОжидалось в кассе: ${this.formatMoney(data.expected)}\nРазница: ${this.formatMoney(data.difference)}`);
+                    } else {
+                        alert("Ошибка: " + data.error);
+                    }
+                } catch (e) {
+                    alert("Ошибка соединения");
+                }
+            }
+        }
+    }
+</script>
+</body>
+</html>

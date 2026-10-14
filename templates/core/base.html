@@ -1,0 +1,312 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>brainmart — {% trans "Маркетплейс" %}</title>
+    
+    <!-- PWA & Mobile Web App meta tags -->
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="brainmart">
+    <meta name="theme-color" content="#4F46E5">
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            {% with store=current_store %}
+            {% if store %}
+                {% if store.theme_style == 'custom' %}
+                    /* Свой дизайн: используем цвета продавца на тёмном/светлом фоне */
+                    --primary: {{ store.primary_color|default:"#4F46E5" }};
+                    --accent: {{ store.accent_color|default:"#10B981" }};
+                    {% if store.theme_mode == 'light' %}
+                        --bg-app: #F8FAFC;
+                        --surface: #FFFFFF;
+                        --surface-card: #FFFFFF;
+                        --text-main: #0F172A;
+                        --text-muted: #64748B;
+                        --border: rgba(15, 23, 42, 0.08);
+                        --input-bg: #F1F5F9;
+                        --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+                        --badge-bg: rgba(255, 255, 255, 0.95);
+                        --header-bg: rgba(248, 250, 252, 0.92);
+                    {% else %}
+                        --bg-app: #0B0E14;
+                        --surface: #141C28;
+                        --surface-card: #161D28;
+                        --text-main: #F8FAFC;
+                        --text-muted: #94A3B8;
+                        --border: rgba(255, 255, 255, 0.09);
+                        --input-bg: #101622;
+                        --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+                        --badge-bg: rgba(20, 28, 43, 0.92);
+                        --header-bg: rgba(11, 14, 20, 0.88);
+                    {% endif %}
+                    --radius-lg: 20px;
+                    --radius-md: 14px;
+                    --btn-gradient: linear-gradient(135deg, {{ store.primary_color|default:"#4F46E5" }} 0%, {{ store.accent_color|default:"#10B981" }} 100%);
+                {% elif store.theme_style == 'kids_playful' %}
+                    /* Яркий детский (Kids Playful) — жизнерадостный, теплый, дружелюбный дизайн */
+                    --primary: #F59E0B;
+                    --accent: #EC4899;
+                    --bg-app: #FFFDF5;
+                    --surface: #FFFFFF;
+                    --surface-card: #FFFFFF;
+                    --text-main: #1E293B;
+                    --text-muted: #64748B;
+                    --border: rgba(245, 158, 11, 0.25);
+                    --input-bg: #FEF3C7;
+                    --card-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.18), 0 8px 10px -6px rgba(236, 72, 153, 0.12);
+                    --badge-bg: rgba(254, 243, 199, 0.95);
+                    --header-bg: rgba(255, 253, 245, 0.94);
+                    --radius-lg: 26px;
+                    --radius-md: 18px;
+                    --btn-gradient: linear-gradient(135deg, #F59E0B 0%, #EC4899 100%);
+                {% elif store.theme_style == 'premium_gold' %}
+                    /* Премиальное золото (Luxury Gold & Dark) */
+                    --primary: #D4A843;
+                    --accent: #F59E0B;
+                    --bg-app: #08070C;
+                    --surface: #121018;
+                    --surface-card: #161320;
+                    --text-main: #FBF7EE;
+                    --text-muted: #A89060;
+                    --border: rgba(212, 168, 67, 0.22);
+                    --input-bg: #0E0C15;
+                    --card-shadow: 0 10px 30px rgba(212, 168, 67, 0.18);
+                    --badge-bg: rgba(18, 16, 24, 0.95);
+                    --header-bg: rgba(8, 7, 12, 0.92);
+                    --radius-lg: 20px;
+                    --radius-md: 13px;
+                    --btn-gradient: linear-gradient(135deg, #D4A843 0%, #B8860B 100%);
+                {% elif store.theme_style == 'genz_neon' %}
+                    /* Gen-Z Неон (Cyber Neon Violet & Cyan) */
+                    --primary: #A855F7;
+                    --accent: #06B6D4;
+                    --bg-app: #070714;
+                    --surface: #0E0E26;
+                    --surface-card: #121232;
+                    --text-main: #F3EEFF;
+                    --text-muted: #8E84BC;
+                    --border: rgba(168, 85, 247, 0.28);
+                    --input-bg: #0A0A1C;
+                    --card-shadow: 0 8px 25px rgba(168, 85, 247, 0.28);
+                    --badge-bg: rgba(14, 14, 38, 0.95);
+                    --header-bg: rgba(7, 7, 20, 0.92);
+                    --radius-lg: 22px;
+                    --radius-md: 14px;
+                    --btn-gradient: linear-gradient(135deg, #A855F7 0%, #06B6D4 100%);
+                {% else %}
+                    /* default_black — тёмный классический OLED для всех магазинов */
+                    --primary: #3B82F6;
+                    --accent: #10B981;
+                    --bg-app: #0B0E14;
+                    --surface: #141C28;
+                    --surface-card: #161D28;
+                    --text-main: #F8FAFC;
+                    --text-muted: #94A3B8;
+                    --border: rgba(255, 255, 255, 0.09);
+                    --input-bg: #101622;
+                    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+                    --badge-bg: rgba(20, 28, 43, 0.92);
+                    --header-bg: rgba(11, 14, 20, 0.88);
+                    --radius-lg: 22px;
+                    --radius-md: 14px;
+                    --btn-gradient: linear-gradient(135deg, #3B82F6 0%, #10B981 100%);
+                {% endif %}
+            {% else %}
+                /* По умолчанию Dark OLED для маркетплейса */
+                --primary: #3B82F6;
+                --accent: #10B981;
+                --bg-app: #0B0E14;
+                --surface: #141C28;
+                --surface-card: #161D28;
+                --text-main: #F8FAFC;
+                --text-muted: #94A3B8;
+                --border: rgba(255, 255, 255, 0.09);
+                --input-bg: #101622;
+                --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+                --badge-bg: rgba(20, 28, 43, 0.92);
+                --header-bg: rgba(11, 14, 20, 0.88);
+                --radius-lg: 22px;
+                --radius-md: 14px;
+                --btn-gradient: linear-gradient(135deg, #3B82F6 0%, #10B981 100%);
+            {% endif %}
+            {% endwith %}
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0; padding: 0 0 80px;
+            background: var(--bg-app); color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* ─── ШАПКА ─── */
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 20px; position: sticky; top: 0;
+            background: var(--header-bg); backdrop-filter: blur(12px);
+            z-index: 100; border-bottom: 1px solid var(--border);
+        }
+        .header-logo { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.5px; color: var(--text-main); }
+        .header-logo span { color: var(--primary); }
+
+        /* Переключатель языков */
+        .lang-switcher { display: flex; gap: 4px; }
+        .lang-switcher a {
+            padding: 4px 8px; border-radius: 8px; font-size: 11px; font-weight: 700;
+            color: var(--text-muted); text-decoration: none; background: var(--border);
+            transition: 0.15s;
+        }
+        .lang-switcher a.active { background: var(--primary); color: white; }
+        .lang-switcher a:hover:not(.active) { background: var(--input-bg); }
+
+        /* ─── ОСНОВНОЙ КОНТЕЙНЕР ─── */
+        #app-main { padding: 0; }
+
+        .messages { list-style: none; padding: 0 16px; margin: 10px 0; }
+        .messages li { background: #fee2e2; color: #991b1b; padding: 12px; border-radius: var(--radius-md); font-size: 14px; font-weight: 500; }
+
+        /* ─── DESKTOP ≥ 900px ─── */
+        @media (min-width: 900px) {
+            body { padding-bottom: 0; }
+            header {
+                padding: 14px 48px;
+            }
+            #app-main {
+                max-width: 1280px;
+                margin: 0 auto;
+                padding: 0 48px;
+            }
+        }
+        .segmented-control {
+            display: inline-flex;
+            background: var(--input-bg);
+            padding: 2px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+        .segmented-control button {
+            all: unset;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            transition: all 0.15s ease;
+            text-align: center;
+        }
+        .segmented-control button.active {
+            background: var(--primary);
+            color: #FFFFFF;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <h2 class="header-logo">⚡️ brain<span>mart</span></h2>
+
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            {% if request.user.is_authenticated %}
+                {% if request.user.is_superuser %}
+                    <a href="/platform-admin/" style="display: inline-flex; align-items: center; gap: 5px; background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); color: white; text-decoration: none; padding: 6px 10px; border-radius: 10px; font-size: 11px; font-weight: 800; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);">
+                        🛡 SuperAdmin
+                    </a>
+                    <a href="/brainmart-secure-admin-panel/" style="display: inline-flex; align-items: center; gap: 4px; background: rgba(245,158,11,0.2); border: 1px solid #F59E0B; color: #fbbf24; text-decoration: none; padding: 6px 10px; border-radius: 10px; font-size: 11px; font-weight: 800;">
+                        ⚙️ Django
+                    </a>
+                {% elif request.user.is_staff %}
+                    <a href="/brainmart-secure-admin-panel/" style="display: inline-flex; align-items: center; gap: 5px; background: rgba(245,158,11,0.2); border: 1px solid #F59E0B; color: #fbbf24; text-decoration: none; padding: 6px 10px; border-radius: 10px; font-size: 11px; font-weight: 800;">
+                        ⚙️ {% trans "Админ-панель" %}
+                    </a>
+                {% endif %}
+
+                {% if request.user.store %}
+                    <a href="{% url 'seller-dashboard' %}" style="display: inline-flex; align-items: center; gap: 4px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; text-decoration: none; padding: 6px 10px; border-radius: 10px; font-size: 11px; font-weight: 800;">
+                        🏪 {% trans "Кабинет" %}
+                    </a>
+                {% endif %}
+            {% endif %}
+
+            <!-- Языковой переключатель в стиле iOS -->
+            <div class="segmented-control">
+                {% get_current_language as CURRENT_LANG %}
+                {% get_available_languages as LANGUAGES %}
+                {% for lang_code, lang_name in LANGUAGES %}
+                    <button type="button" class="{% if lang_code == CURRENT_LANG %}active{% endif %}" onclick="changeLang('{{ lang_code }}')">
+                        {% if lang_code == 'ru' %}RU{% elif lang_code == 'uz' %}UZ{% else %}EN{% endif %}
+                    </button>
+                {% endfor %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Скрытая форма Django для сессии и куки -->
+    <form id="hidden-lang-form" action="{% url 'set_language' %}" method="post" style="display:none">
+        {% csrf_token %}
+        <input type="hidden" name="language" id="hidden-lang-input">
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+    </form>
+
+    <script>
+        function changeLang(langCode) {
+            const path = window.location.pathname;
+            const prefixes = ['/ru/', '/uz/', '/en/'];
+            let newPath = path;
+            let matched = false;
+            for (const prefix of prefixes) {
+                if (path.indexOf(prefix) === 0) {
+                    newPath = '/' + langCode + '/' + path.substring(prefix.length);
+                    matched = true;
+                    break;
+                }
+            }
+            if (matched) {
+                // Если путь содержит префикс языка, просто перенаправляем на нужный URL
+                window.location.href = newPath + window.location.search;
+            } else {
+                // Если префикса нет (например, корень /), отправляем POST форму Django
+                document.getElementById('hidden-lang-input').value = langCode;
+                document.getElementById('hidden-lang-form').submit();
+            }
+        }
+    </script>
+
+
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <main id="app-main">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Модальное окно чекаута и плавающая корзина -->
+    {% include "core/cart_modal.html" %}
+
+    <script>
+        // Адаптация под Telegram WebApp
+        if (window.Telegram && window.Telegram.WebApp) {
+            const tg = window.Telegram.WebApp;
+            tg.ready();
+            tg.expand();
+            tg.setHeaderColor('#F9FAFB');
+        }
+    </script>
+</body>
+</html>

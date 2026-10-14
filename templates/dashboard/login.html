@@ -1,0 +1,82 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div style="min-height: 75vh; display: flex; align-items: center; justify-content: center; padding: 20px 10px;">
+    <div class="card" style="max-width: 420px; width: 100%; margin: 0 auto; border-radius: 28px; padding: 32px 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.1);">
+        
+        <div style="text-align: center; margin-bottom: 24px;">
+            <div style="width: 64px; height: 64px; border-radius: 20px; background: linear-gradient(135deg, rgba(79, 70, 229, 0.2), rgba(16, 185, 129, 0.2)); border: 1px solid rgba(255,255,255,0.15); display: inline-flex; align-items: center; justify-content: center; font-size: 30px; margin-bottom: 14px; box-shadow: 0 8px 20px rgba(0,0,0,0.25);">
+                🔐
+            </div>
+            <h2 style="margin: 0 0 6px 0; font-size: 22px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em;">Вход в BrainMart</h2>
+            <p style="margin: 0; font-size: 14px; color: var(--text-muted); line-height: 1.4;">Панель управления интернет-магазином</p>
+        </div>
+
+        <!-- 2FA Защитный Бейдж -->
+        <div style="background: rgba(79, 70, 229, 0.12); border: 1px solid rgba(99, 102, 241, 0.35); border-radius: 16px; padding: 12px 14px; margin-bottom: 22px; display: flex; align-items: center; gap: 12px;">
+            <div style="font-size: 20px; line-height: 1;">🛡️</div>
+            <div style="font-size: 12.5px; color: #C7D2FE; line-height: 1.4;">
+                <strong style="color: #FFFFFF;">Двухфакторная защита (OTP):</strong> После ввода логина и пароля проверочный код будет отправлен в Telegram владельца.
+            </div>
+        </div>
+
+        {% if messages %}
+            <div style="margin-bottom: 18px;">
+                {% for message in messages %}
+                    <div style="padding: 12px 16px; border-radius: 14px; margin-bottom: 8px; font-size: 13px; font-weight: 600; display: flex; align-items: flex-start; gap: 10px; {% if message.tags == 'error' %}background: rgba(239, 68, 68, 0.15); border: 1.5px solid #EF4444; color: #FCA5A5;{% else %}background: rgba(16, 185, 129, 0.15); border: 1.5px solid #10B981; color: #6EE7B7;{% endif %}">
+                        <span style="font-size: 16px; line-height: 1;">{% if message.tags == 'error' %}⚠️{% else %}✅{% endif %}</span>
+                        <div style="line-height: 1.4;">{{ message }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'seller-login' %}" style="display: flex; flex-direction: column; gap: 4px;">
+            {% csrf_token %}
+
+            <div>
+                <label for="id_username" style="display: block; font-size: 13px; font-weight: 700; color: #CBD5E1; margin-bottom: 4px;">Логин или имя пользователя</label>
+                <div style="position: relative;">
+                    <input type="text" id="id_username" name="username" value="{{ username|default:'' }}" required autocomplete="username" placeholder="Например: my_store" style="width: 100%; padding: 14px 16px 14px 42px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.12); color: white; border-radius: 16px; font-size: 15px; margin: 4px 0 16px; transition: all 0.2s;">
+                    <span style="position: absolute; left: 14px; top: 16px; font-size: 17px; opacity: 0.6;">👤</span>
+                </div>
+            </div>
+
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <label for="id_password" style="font-size: 13px; font-weight: 700; color: #CBD5E1; margin: 0;">{% trans "Пароль" %}</label>
+                    <a href="{% url 'seller-forgot-password' %}" style="font-size: 12.5px; color: #818CF8; font-weight: 700; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#A5B4FC'" onmouseout="this.style.color='#818CF8'">
+                        {% trans "Забыли пароль?" %}
+                    </a>
+                </div>
+                <div style="position: relative;">
+                    <input type="password" id="id_password" name="password" required autocomplete="current-password" placeholder="••••••••" style="width: 100%; box-sizing: border-box; padding: 14px 16px 14px 42px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.12); color: white; border-radius: 16px; font-size: 15px; margin: 4px 0 20px; transition: all 0.2s;">
+                    <span style="position: absolute; left: 14px; top: 16px; font-size: 17px; opacity: 0.6;">🔑</span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn" style="width: 100%; border-radius: 16px; padding: 15px; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, #4F46E5, #4338CA); box-shadow: 0 4px 16px rgba(79, 70, 229, 0.4); margin-top: 4px;">
+                {% trans "Продолжить вход" %} ➔
+            </button>
+
+            <div style="text-align: center; margin-top: 10px;">
+                <a href="{% url 'seller-forgot-password' %}" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #94A3B8; text-decoration: none; font-weight: 600;" onmouseover="this.style.color='#E2E8F0'" onmouseout="this.style.color='#94A3B8'">
+                    <span>🔐 {% trans "Восстановить доступ через Telegram OTP" %} ➔</span>
+                </a>
+            </div>
+        </form>
+
+        <div style="text-align: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.08);">
+            <p style="margin: 0; font-size: 13.5px; color: var(--text-muted);">
+                Ещё нет магазина на BrainMart?
+                <br>
+                <a href="{% url 'seller-register' %}" style="color: #818CF8; font-weight: 700; text-decoration: none; display: inline-block; margin-top: 6px;">
+                    ✨ Открыть магазин бесплатно
+                </a>
+            </p>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

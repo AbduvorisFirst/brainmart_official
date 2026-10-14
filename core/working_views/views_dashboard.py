@@ -1,0 +1,1826 @@
+"""
+views_dashboard.py
+--------------------
+Личный кабинет продавца. Здесь продавец:
+- видит выручку и количество заказов
+- быстро добавляет товар с фото и описанием
+- включает/выключает товар, редактирует и удаляет его
+- загружает свой логотип
+- смотрит список заказов и передвигает их по статусам
+
+Все view здесь защищены @login_required — доступны только вошедшим
+пользователям, и только к СВОЕМУ магазину.
+"""
+
+import logging
+import json
+import secrets
+from datetime import timedelta
+
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
+from django.conf import settings
+from django.db import IntegrityError, transaction
+from django.db.models import Sum, Count, Q
+from django.utils import timezone
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.http import HttpResponse, JsonResponse
+from django.template import engines
+from django.core.cache import cache
+
+logger = logging.getLogger(__name__)
+
+from decimal import Decimal
+from core.models import Product, ProductVariant, Order, Store, StoreBranch, StoreManager, ProductImage, Customer, Message, Conversation, OrderItem, ProductReview
+from .telegram_bot import build_seller_link_deep_link, build_manager_link_deep_link, notify_customer_about_delivery
+from .services import generate_ai_store_insights, generate_ai_broadcast_copy, generate_ai_product_description
+
+
+
+
+
+def _get_store_or_none(request):
+    """
+    Небольшой помощник: возвращает Store текущего пользователя, либо None.
+    """
+    return getattr(request.user, "store", None)
+
+
+@login_required
+def dashboard_home(request):
+    """Главная страница кабинета — сводка по магазину, реальный график, реальная AI-аналитика."""
+    store = _get_store_or_none(request)
+    if store is None:
+        messages.error(request, "К вашему аккаунту не привязан магазин. Обратитесь к администратору.")
+        return render(request, "dashboard/no_store.html")
+
+    # --- БЛОК ДЛЯ СОХРАНЕНИЯ ЛОГОТИПА ---
+    if request.method == "POST" and request.FILES.get("logo"):
+        store.logo = request.FILES.get("logo")
+        store.save(update_fields=["logo"])
+        messages.success(request, "Логотип магазина успешно обновлен!")
+        return redirect("seller-dashboard")
+    # ------------------------------------
+
+    orders = Order.objects.filter(store=store)
+    paid_orders = orders.filter(status=Order.Status.PAID)
+    revenue_stats = paid_orders.aggregate(total=Sum("total_price"))
+
+    low_stock_variants = ProductVariant.objects.filter(
+        product__store=store, stock_quantity__lte=3, stock_quantity__gt=0
+    ).select_related("product")
+
+    # --- РЕАЛЬНЫЙ ГРАФИК ПРОДАЖ ЗА 7 ДНЕЙ ---
+    today = timezone.localdate()
+    chart_labels = []
+    chart_data = []
+    day_names = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
+
+    for i in range(6, -1, -1):
+        day = today - timedelta(days=i)
+        label = day_names[day.weekday()]
+        daily_revenue = paid_orders.filter(
+            created_at__date=day
+        ).aggregate(total=Sum("total_price"))["total"] or 0
+        chart_labels.append(label)
+        chart_data.append(float(daily_revenue))
+
+    # --- РЕАЛЬНАЯ AI-АНАЛИТИКА ---
+    # Все диалоги этого магазина
+    ai_conversations_count = Conversation.objects.filter(store=store).count()
+    # Сообщения от ИИ = количество ответов агента
+    ai_messages_count = Message.objects.filter(
+        conversation__store=store,
+        sender=Message.Sender.AI_AGENT
+    ).count()
+    # Конверсия: заказы из Telegram / общее кол-во ИИ-диалогов
+    tg_orders_count = orders.filter(customer__instagram_scoped_id__startswith="tg_").count()
+    ai_conversion = 0
+    if ai_conversations_count > 0:
+        ai_conversion = round((tg_orders_count / ai_conversations_count) * 100, 1)
+
+    context = {
+        "store": store,
+        "total_revenue": revenue_stats["total"] or 0,
+        "paid_orders_count": paid_orders.count(),
+        "pending_orders_count": orders.filter(status=Order.Status.PENDING_PAYMENT).count(),
+        "products_count": Product.objects.filter(store=store, is_active=True).count(),
+        "low_stock_variants": low_stock_variants,
+        "telegram_connected": bool(store.telegram_chat_id),
+        "telegram_link": (
+            None if store.telegram_chat_id
+            else build_seller_link_deep_link(store) if settings.TELEGRAM_BOT_USERNAME
+            else None
+        ),
+        # График
+        "chart_labels": json.dumps(chart_labels),
+        "chart_data": json.dumps(chart_data),
+        # AI-аналитика
+        "ai_conversations_count": ai_conversations_count,
+        "ai_messages_count": ai_messages_count,
+        "ai_conversion": ai_conversion,
+        "ai_insights": generate_ai_store_insights(store),
+    }
+    return render(request, "dashboard/home.html", context)
+
+
+@login_required
+def product_list_view(request):
+    """Список всех товаров магазина (и активных, и выключенных)."""
+    store = _get_store_or_none(request)
+    if store is None:
+        return redirect("seller-dashboard")
+
+    products = Product.objects.filter(store=store).prefetch_related("variants")
+    return render(request, "dashboard/products.html", {"products": products})
+
+
+@login_required
+def product_add_view(request):
+    """Добавление товара с выбором категории, мульти-загрузкой фото на каждый цвет и поддержкой размеров (для одежды) или без размеров (для электроники и др.)."""
+    store = _get_store_or_none(request)
+    if store is None:
+        return redirect("seller-dashboard")
+
+    if request.method == "POST":
+        name        = request.POST.get("name", "").strip()
+        base_price  = request.POST.get("base_price", "").strip()
+        description = request.POST.get("description", "").strip()
+        product_type = request.POST.get("product_type", "clothes").strip()  # 'clothes' | 'electronics'
+        category_id = request.POST.get("category_id")
+
+        if not name or not base_price:
+            messages.error(request, "Ошибка: заполните название и цену товара.")
+            return redirect("seller-product-add")
+
+        color_indices = request.POST.getlist("color_indices[]")
+        if not color_indices:
+            messages.error(request, "Ошибка: добавьте хотя бы один цвет/вариант товара.")
+            return redirect("seller-product-add")
+
+        category = None
+        if category_id:
+            from core.models import Category
+            category = Category.objects.filter(id=category_id).first()
+            if category:
+                # Выбранная продавцом категория сохраняется навечно как основная ниша магазина
+                if store.category_id != category.id:
+                    store.category = category
+                    store.save(update_fields=["category"])
+
+        # Создаём продукт (main_image зальём из первого фото первого цвета)
+        product = Product.objects.create(
+            store=store,
+            category=category,
+            name=name,
+            description=description,
+            base_price=float(base_price),
+        )
+
+        main_image_set = False
+
+        for idx in color_indices:
+            color_name   = request.POST.get(f"color_name_{idx}", "").strip()
+            color_images = request.FILES.getlist(f"color_images_{idx}")  # список файлов (2-10 шт)
+
+            # Первое фото этого цвета станет превью варианта (и главным фото товара, если ещё не задано)
+            first_image = color_images[0] if color_images else None
+
+            if not main_image_set and first_image:
+                product.main_image = first_image
+                product.save(update_fields=["main_image"])
+                main_image_set = True
+
+            # Сохраняем все фото этого цвета в ProductImage
+            for img_file in color_images:
+                ProductImage.objects.create(product=product, image=img_file, color=color_name)
+
+            has_variants_grid = product_type in (
+                "clothes", "shoes", "tires", "electronics_variants", "food_groceries"
+            )
+
+            if has_variants_grid:
+                # Для одежды, обуви, шин, гаджетов и продуктов — создаём вариант на каждый размер/параметр
+                sizes  = request.POST.getlist(f"size_{idx}[]")
+                qtys   = request.POST.getlist(f"qty_{idx}[]")
+                prices = request.POST.getlist(f"price_{idx}[]")
+
+                created_any = False
+                for i, (size, qty) in enumerate(zip(sizes, qtys)):
+                    size = size.strip()
+                    if not size:
+                        continue
+                    sku = f"{store.id}-{product.id}-{secrets.token_hex(3)}"
+                    price_val = None
+                    if i < len(prices) and prices[i].strip():
+                        try:
+                            price_val = float(prices[i].strip())
+                        except (ValueError, TypeError):
+                            price_val = None
+
+                    ProductVariant.objects.create(
+                        product=product,
+                        color=color_name,
+                        size=size,
+                        sku=sku,
+                        stock_quantity=int(qty) if str(qty).isdigit() else 0,
+                        price_override=price_val,
+                        image=first_image,
+                    )
+                    created_any = True
+
+                # Если продавец не ввёл строки размеров, но указал цвет/вариант и общее количество
+                if not created_any:
+                    qty_raw = request.POST.get(f"color_qty_{idx}", "0").strip()
+                    sku = f"{store.id}-{product.id}-{secrets.token_hex(3)}"
+                    ProductVariant.objects.create(
+                        product=product,
+                        color=color_name,
+                        size="",
+                        sku=sku,
+                        stock_quantity=int(qty_raw) if qty_raw.isdigit() else 0,
+                        image=first_image,
+                    )
+            else:
+                # Для штучных товаров (бытовая техника, книги, парфюмерия, косметика) — один вариант без размера
+                qty_raw = request.POST.get(f"color_qty_{idx}", "0").strip()
+                sku = f"{store.id}-{product.id}-{secrets.token_hex(3)}"
+                ProductVariant.objects.create(
+                    product=product,
+                    color=color_name,
+                    size="",
+                    sku=sku,
+                    stock_quantity=int(qty_raw) if qty_raw.isdigit() else 0,
+                    image=first_image,
+                )
+
+        # Сканируем лист ожидания: если клиенты ждали этот товар, оповещаем их автоматически!
+        try:
+            from core.working_views.services import check_and_notify_waitlist_for_new_product
+            notified_count = check_and_notify_waitlist_for_new_product(product)
+            if notified_count > 0:
+                messages.info(
+                    request,
+                    f"🎉 Автоматически отправлено {notified_count} уведомлений клиентам из листа ожидания (Waitlist)!"
+                )
+        except Exception as e:
+            logger.exception("Ошибка при уведомлении клиентов из листа ожидания: %s", e)
+
+        messages.success(request, f'Товар "{name}" успешно опубликован!')
+        return redirect("seller-products")
+
+    from core.models import Category
+    categories = Category.objects.all().order_by('id')
+    default_category = store.effective_category
+    default_category_id = default_category.id if default_category else None
+    return render(request, "dashboard/product_add.html", {
+        "categories": categories,
+        "default_category_id": default_category_id,
+        "default_category": default_category,
+    })
+
+
+
+
+@login_required
+def product_toggle_active_view(request, product_id):
+    """Скрытие/отображение товара в каталоге."""
+    store = _get_store_or_none(request)
+    product = get_object_or_404(Product, id=product_id, store=store)
+    product.is_active = not product.is_active
+    product.save(update_fields=["is_active"])
+    return redirect("seller-products")
+
+
+@login_required
+def order_list_view(request):
+    """Список заказов магазина."""
+    store = _get_store_or_none(request)
+    if store is None:
+        return redirect("seller-dashboard")
+
+    orders = Order.objects.filter(store=store).prefetch_related("items__variant__product")
+    return render(request, "dashboard/orders.html", {"orders": orders})
+
+
+@login_required
+def order_mark_handed_view(request, order_id):
+    """Смена статуса заказа на 'Передан курьеру' + отправка трекинг-ссылки клиенту."""
+    store = _get_store_or_none(request)
+    order = get_object_or_404(Order, id=order_id, store=store)
+
+    if request.method == "POST":
+        tracking_url = request.POST.get("tracking_url", "").strip()
+        if tracking_url:
+            order.tracking_url = tracking_url
+
+        order.status = Order.Status.HANDED_TO_COURIER
+        order.save(update_fields=["status", "tracking_url"] if tracking_url else ["status"])
+
+        # Уведомляем клиента в Telegram с ссылкой на отслеживание доставки
+        notify_customer_about_delivery(order)
+
+        messages.success(request, f"Заказ #{order.id} передан курьеру! Клиент получил уведомление.")
+
+    return redirect("seller-orders")
+
+
+@login_required
+def order_mark_delivered_view(request, order_id):
+    """Смена статуса заказа на 'Доставлен' + разморозка средств и автовыплата продавцу."""
+    store = _get_store_or_none(request)
+    order = get_object_or_404(Order, id=order_id, store=store)
+
+    if request.method == "POST":
+        order.status = Order.Status.DELIVERED
+        order.save(update_fields=["status"])
+
+        from core.payments.payout_service import release_order_funds_and_auto_payout
+        release_order_funds_and_auto_payout(order)
+
+        messages.success(request, f"Заказ #{order.id} успешно доставлен!")
+
+    return redirect("seller-orders")
+
+
+@login_required
+def order_confirm_payment_view(request, order_id):
+    """Продавец подтверждает поступление перевода от покупателя на свою карту."""
+    store = _get_store_or_none(request)
+    order = get_object_or_404(Order, id=order_id, store=store)
+
+    if request.method == "POST":
+        order.status = Order.Status.PAID
+        order.save(update_fields=["status"])
+
+        # Уведомляем менеджеров на сборку/такси и клиента об успешной оплате
+        try:
+            from core.working_views.telegram_bot import notify_seller_about_order
+            notify_seller_about_order(order)
+        except Exception as e:
+            logger.warning("Не удалось уведомить о подтверждении оплаты заказа: %s", e)
+
+        messages.success(request, f"✅ Оплата заказа #{order.id} подтверждена! Заказ передан менеджерам на сборку и отправку.")
+
+    return redirect("seller-orders")
+
+
+
+
+@login_required
+def product_delete_view(request, product_id):
+    """Полное удаление товара из базы данных."""
+    store = _get_store_or_none(request)
+    product = get_object_or_404(Product, id=product_id, store=store)
+
+    if request.method == "POST":
+        product.delete()
+        messages.success(request, "Товар успешно удален!")
+
+    return redirect("seller-products")
+
+
+@login_required
+def product_edit_view(request, product_id):
+    """Редактирование базовой информации товара (Название и Цена)."""
+    store = _get_store_or_none(request)
+    product = get_object_or_404(Product, id=product_id, store=store)
+
+    if request.method == "POST":
+        name = request.POST.get("name", "").strip()
+        base_price = request.POST.get("base_price", "").strip()
+
+        if name and base_price:
+            product.name = name
+            product.base_price = float(base_price)
+            product.save(update_fields=["name", "base_price"])
+            messages.success(request, "Название и цена успешно обновлены!")
+            return redirect("seller-products")
+        else:
+            messages.error(request, "Поля не могут быть пустыми.")
+
+    html_form = f"""
+    {{% extends "dashboard/base.html" %}}
+    {{% block content %}}
+    <h2 style="margin-bottom: 24px;">✏️ Редактирование</h2>
+    <div class="card" style="max-width: 500px;">
+        <form method="post">
+            {{% csrf_token %}}
+            <label>Название товара</label>
+            <input type="text" name="name" value="{product.name}" required>
+
+            <label>Базовая цена (сум)</label>
+            <input type="number" name="base_price" value="{int(product.base_price)}" required>
+
+            <button type="submit" class="btn" style="width: 100%; margin-top: 10px;">💾 Сохранить изменения</button>
+            <a href="{{% url 'seller-products' %}}" class="btn btn-secondary" style="width: 100%; margin-top: 10px; text-align: center;">Отмена</a>
+        </form>
+    </div>
+    {{% endblock %}}
+    """
+
+    template = engines['django'].from_string(html_form)
+    return HttpResponse(template.render({"product": product, "request": request}, request))
+
+
+@login_required
+def product_inventory_edit_view(request, product_id):
+    """Управление остатками и себестоимостью товара (Приход)."""
+    store = getattr(request.user, "store", None)
+    if not store:
+        return redirect("seller-dashboard")
+        
+    product = get_object_or_404(Product, id=product_id, store=store)
+    
+    if request.method == "POST":
+        for variant in product.variants.all():
+            cost_price_str = request.POST.get(f"cost_price_{variant.id}")
+            add_qty_str = request.POST.get(f"add_qty_{variant.id}")
+            
+            if cost_price_str:
+                variant.cost_price = float(cost_price_str)
+                
+            if add_qty_str and int(add_qty_str) != 0:
+                qty = int(add_qty_str)
+                variant.stock_quantity += qty
+                from core.models import StockMovement, CashierProfile
+                # Для прихода из дашборда используем владельца
+                cashier, _ = CashierProfile.objects.get_or_create(
+                    store=store, 
+                    role=CashierProfile.Role.OWNER,
+                    defaults={'name': 'Владелец (Dashboard)', 'pin_code': '0000'}
+                )
+                StockMovement.objects.create(
+                    variant=variant,
+                    movement_type=StockMovement.MovementType.RECEIPT if qty > 0 else StockMovement.MovementType.WRITE_OFF,
+                    quantity=qty,
+                    author=cashier,
+                    reason="Приход через дашборд"
+                )
+            
+            variant.save(update_fields=["cost_price", "stock_quantity"])
+
+        # Если товар пополнился — оповещаем покупателей из листа ожидания
+        try:
+            from core.working_views.services import check_and_notify_waitlist_for_new_product
+            notified_count = check_and_notify_waitlist_for_new_product(product)
+            if notified_count > 0:
+                messages.info(
+                    request,
+                    f"🎉 Автоматически отправлено {notified_count} уведомлений клиентам из листа ожидания (Waitlist)!"
+                )
+        except Exception as e:
+            logger.exception("Ошибка при уведомлении клиентов из листа ожидания: %s", e)
+            
+        from django.contrib import messages
+        messages.success(request, "Остатки и себестоимость успешно обновлены!")
+        return redirect("seller-products")
+        
+    html_form = f"""
+    {{% extends "dashboard/base.html" %}}
+    {{% block content %}}
+    <h2 style="margin-bottom: 24px;">📦 Склад: {{product.name}}</h2>
+    <div class="card" style="max-width: 600px;">
+        <form method="post">
+            {{% csrf_token %}}
+            <table style="width: 100%; text-align: left; border-collapse: collapse; margin-bottom: 20px;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--border);">
+                        <th style="padding: 10px 0;">Вариант</th>
+                        <th style="padding: 10px 0;">Остаток</th>
+                        <th style="padding: 10px 0;">Себестоимость</th>
+                        <th style="padding: 10px 0;">Приход (шт)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{% for v in product.variants.all %}}
+                    <tr style="border-bottom: 1px solid var(--border);">
+                        <td style="padding: 12px 0;">{{% if v.color or v.size %}}{{{{ v.color }}}} ({{{{ v.size }}}}){{% else %}}Стандарт{{% endif %}}</td>
+                        <td style="padding: 12px 0; font-weight: bold;">{{{{ v.stock_quantity }}}}</td>
+                        <td style="padding: 12px 0; width: 120px;">
+                            <input type="number" name="cost_price_{{{{ v.id }}}}" value="{{{{ v.cost_price|default_if_none:'' }}}}" style="margin:0; padding: 8px;" placeholder="0">
+                        </td>
+                        <td style="padding: 12px 0; width: 100px;">
+                            <input type="number" name="add_qty_{{{{ v.id }}}}" value="0" style="margin:0; padding: 8px;">
+                        </td>
+                    </tr>
+                    {{% endfor %}}
+                </tbody>
+            </table>
+
+            <button type="submit" class="btn" style="width: 100%; margin-top: 10px;">💾 Сохранить изменения</button>
+            <a href="{{% url 'seller-products' %}}" class="btn btn-secondary" style="width: 100%; margin-top: 10px; text-align: center;">Отмена</a>
+        </form>
+    </div>
+    {{% endblock %}}
+    """
+    
+    from django.template import engines
+    template = engines['django'].from_string(html_form)
+    return HttpResponse(template.render({"product": product, "request": request}, request))
+
+
+def seller_login_view(request):
+    """
+    Авторизация продавца с обязательной двухфакторной аутентификацией (Telegram OTP).
+    Если пароль верный — генерирует 6-значный код и отправляет владельцу в Telegram.
+    """
+    if request.user.is_authenticated:
+        return redirect("seller-dashboard")
+
+    if request.method == "POST":
+        username = request.POST.get("username", "").strip()
+        password = request.POST.get("password", "").strip()
+
+        user = authenticate(request, username=username, password=password)
+        if user is None:
+            messages.error(request, "Неверный логин или пароль.")
+            return render(request, "dashboard/login.html", {"username": username})
+
+        store = getattr(user, "store", None)
+
+        # Если это суперпользователь без привязанного магазина
+        if not store and user.is_superuser:
+            login(request, user)
+            messages.success(request, f"Добро пожаловать, администратор {user.username}!")
+            return redirect("platform-admin-dashboard")
+
+        # Если к аккаунту не привязан магазин
+        if not store:
+            login(request, user)
+            return redirect("seller-dashboard")
+
+        # Генерируем 6-значный надёжный OTP-код
+        otp_code = f"{secrets.randbelow(900000) + 100000}"
+        now_ts = timezone.now().timestamp()
+        expires_ts = (timezone.now() + timedelta(minutes=5)).timestamp()
+
+        # Сохраняем во временную сессию
+        request.session["pre_2fa_user_id"] = user.id
+        request.session["pre_2fa_store_id"] = store.id
+        request.session["otp_code"] = otp_code
+        request.session["otp_expires_at"] = expires_ts
+        request.session["otp_attempts"] = 0
+        request.session["otp_last_sent_at"] = now_ts
+
+        # Сохраняем в кэш для быстрой выдачи ботом
+        cache.set(f"store_pending_otp_{store.id}", otp_code, timeout=300)
+
+        # Определяем Telegram chat_id владельца
+        chat_id = store.telegram_chat_id
+        if not chat_id and store.owner_telegram_username:
+            clean_username = store.owner_telegram_username.lstrip("@").strip().lower()
+            customer_match = Customer.objects.filter(
+                telegram_username__iexact=clean_username
+            ).exclude(telegram_chat_id__isnull=True).exclude(telegram_chat_id="").first()
+            if customer_match:
+                chat_id = customer_match.telegram_chat_id
+                store.telegram_chat_id = str(chat_id)
+                store.save(update_fields=["telegram_chat_id"])
+
+        # Отправляем OTP код в Telegram, если chat_id известен
+        if chat_id:
+            try:
+                from core.working_views.telegram_bot import _send_telegram_message
+                client_ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', ''))
+                if client_ip and ',' in client_ip:
+                    client_ip = client_ip.split(',')[0].strip()
+
+                time_str = timezone.localtime().strftime("%H:%M:%S")
+                owner_tag = f"@{store.owner_telegram_username}" if store.owner_telegram_username else user.username
+                msg = (
+                    f"🔐 ВХОД В ПАНЕЛЬ BRAINMART (2FA)\n\n"
+                    f"👤 Аккаунт: {user.username} ({owner_tag})\n"
+                    f"🏪 Магазин: «{store.name}»\n"
+                    f"🕒 Время: {time_str}\n"
+                    f"🌐 IP: {client_ip or 'Локальный'}\n\n"
+                    f"Ваш одноразовый код подтверждения:\n"
+                    f"👉 {otp_code} 👈\n\n"
+                    f"⏱ Код действует 5 минут.\n"
+                    f"⚠️ Если это были не вы — срочно смените пароль в кабинете!"
+                )
+                _send_telegram_message(chat_id, msg)
+            except Exception as e:
+                logger.warning("Не удалось отправить OTP в Telegram: %s", e)
+
+        return redirect("seller-verify-otp")
+
+    return render(request, "dashboard/login.html")
+
+
+def seller_verify_otp_view(request):
+    """
+    Проверка одноразового кода OTP для завершения входа.
+    """
+    user_id = request.session.get("pre_2fa_user_id")
+    if not user_id:
+        return redirect("seller-login")
+
+    try:
+        user = User.objects.get(id=user_id)
+        store = getattr(user, "store", None)
+    except User.DoesNotExist:
+        request.session.flush()
+        return redirect("seller-login")
+
+    now_ts = timezone.now().timestamp()
+    expires_ts = request.session.get("otp_expires_at", 0)
+    expected_code = str(request.session.get("otp_code", ""))
+    attempts = request.session.get("otp_attempts", 0)
+
+    chat_id = store.telegram_chat_id if store else None
+
+    if request.method == "POST":
+        entered_code = request.POST.get("otp_code", "").strip().replace(" ", "")
+
+        # Проверка срока действия
+        if now_ts > expires_ts:
+            messages.error(request, "Срок действия кода истёк (5 мин). Нажмите «Отправить код повторно».")
+            return render(request, "dashboard/verify_otp.html", {
+                "store": store,
+                "user_obj": user,
+                "is_expired": True,
+                "bot_username": getattr(settings, "TELEGRAM_BOT_USERNAME", ""),
+                "has_telegram": bool(chat_id),
+            })
+
+        # Проверка количества попыток
+        if attempts >= 5:
+            request.session.flush()
+            messages.error(request, "Превышено максимальное число попыток ввода (5). Пожалуйста, войдите заново.")
+            return redirect("seller-login")
+
+        # Проверка совпадения кода
+        if entered_code and entered_code == expected_code:
+            # Успешная авторизация!
+            if store:
+                cache.delete(f"store_pending_otp_{store.id}")
+
+            # Очищаем сессионные данные 2FA
+            request.session.pop("pre_2fa_user_id", None)
+            request.session.pop("pre_2fa_store_id", None)
+            request.session.pop("otp_code", None)
+            request.session.pop("otp_expires_at", None)
+            request.session.pop("otp_attempts", None)
+            request.session.pop("otp_last_sent_at", None)
+
+            login(request, user)
+
+            if chat_id:
+                try:
+                    from core.working_views.telegram_bot import _send_telegram_message
+                    _send_telegram_message(
+                        chat_id,
+                        f"✅ Успешный вход в панель BrainMart выполнен ({user.username})."
+                    )
+                except Exception:
+                    pass
+
+            messages.success(request, f"Вход выполнен! Добро пожаловать, {store.name if store else user.username}!")
+            return redirect("seller-dashboard")
+        else:
+            request.session["otp_attempts"] = attempts + 1
+            left_attempts = 5 - (attempts + 1)
+            messages.error(request, f"Неверный код подтверждения! Осталось попыток: {left_attempts}")
+
+    seconds_left = max(0, int(expires_ts - now_ts))
+    bot_username = getattr(settings, "TELEGRAM_BOT_USERNAME", "")
+    link_url = f"https://t.me/{bot_username}?start=link_{store.telegram_link_token}" if (store and bot_username) else ""
+
+    return render(request, "dashboard/verify_otp.html", {
+        "store": store,
+        "user_obj": user,
+        "seconds_left": seconds_left,
+        "bot_username": bot_username,
+        "link_url": link_url,
+        "has_telegram": bool(chat_id),
+    })
+
+
+def seller_resend_otp_view(request):
+    """
+    Повторная отправка OTP-кода в Telegram с ограничением по времени (кулдаун 45 сек).
+    """
+    user_id = request.session.get("pre_2fa_user_id")
+    if not user_id:
+        return redirect("seller-login")
+
+    try:
+        user = User.objects.get(id=user_id)
+        store = getattr(user, "store", None)
+    except User.DoesNotExist:
+        request.session.flush()
+        return redirect("seller-login")
+
+    now_ts = timezone.now().timestamp()
+    last_sent = request.session.get("otp_last_sent_at", 0)
+
+    # Защита от спама: кулдаун 45 секунд
+    if now_ts - last_sent < 45:
+        remaining = int(45 - (now_ts - last_sent))
+        messages.warning(request, f"Пожалуйста, подождите {remaining} сек. перед повторной отправкой.")
+        return redirect("seller-verify-otp")
+
+    new_code = f"{secrets.randbelow(900000) + 100000}"
+    expires_ts = (timezone.now() + timedelta(minutes=5)).timestamp()
+
+    request.session["otp_code"] = new_code
+    request.session["otp_expires_at"] = expires_ts
+    request.session["otp_attempts"] = 0
+    request.session["otp_last_sent_at"] = now_ts
+
+    if store:
+        cache.set(f"store_pending_otp_{store.id}", new_code, timeout=300)
+
+    chat_id = store.telegram_chat_id if store else None
+    if chat_id:
+        try:
+            from core.working_views.telegram_bot import _send_telegram_message
+            time_str = timezone.localtime().strftime("%H:%M:%S")
+            msg = (
+                f"🔄 НОВЫЙ КОД ВХОДА BRAINMART\n\n"
+                f"Запрошен новый код подтверждения для: {user.username}\n"
+                f"🕒 Время: {time_str}\n\n"
+                f"Ваш новый код:\n"
+                f"👉 {new_code} 👈\n\n"
+                f"⏱ Код действует 5 минут."
+            )
+            _send_telegram_message(chat_id, msg)
+            messages.success(request, "Новый код успешно отправлен в ваш Telegram!")
+        except Exception as e:
+            messages.error(request, "Ошибка при отправке в Telegram. Проверьте подключение бота.")
+    else:
+        messages.warning(request, "Telegram-бот еще не привязан. Нажмите кнопку ниже, чтобы подключить бота и получить код.")
+
+    return redirect("seller-verify-otp")
+
+
+def seller_check_tg_status_api(request):
+    """
+    AJAX проверка: привязал ли продавец Telegram-бота.
+    """
+    user_id = request.session.get("pre_2fa_user_id")
+    if not user_id:
+        return JsonResponse({"linked": False})
+    user = User.objects.filter(id=user_id).first()
+    store = getattr(user, "store", None) if user else None
+    linked = bool(store and store.telegram_chat_id)
+    return JsonResponse({"linked": linked})
+
+
+def seller_forgot_password_view(request):
+    """
+    Запрос сброса пароля: продавец указывает логин, telegram-юзернейм или телефон.
+    Код подтверждения (OTP) отправляется в Telegram владельца магазина.
+    """
+    if request.user.is_authenticated:
+        return redirect("seller-dashboard")
+
+    if request.method == "POST":
+        identifier = request.POST.get("identifier", "").strip()
+        if not identifier:
+            messages.error(request, "Пожалуйста, введите ваш логин или Telegram-аккаунт.")
+            return render(request, "dashboard/forgot_password.html")
+
+        # Ищем пользователя или магазин по логину, @username или номеру телефона
+        user = User.objects.filter(username__iexact=identifier).first()
+        store = None
+
+        clean_tg = identifier.lstrip("@").strip()
+        if not user:
+            store = Store.objects.filter(owner_telegram_username__iexact=clean_tg).first()
+            if store:
+                user = store.owner
+
+        if not user and clean_tg:
+            # Если в Store username не был прописан, ищем среди Customer
+            customer_match = Customer.objects.filter(
+                telegram_username__iexact=clean_tg
+            ).exclude(telegram_chat_id__isnull=True).exclude(telegram_chat_id="").first()
+            if customer_match:
+                store = Store.objects.filter(telegram_chat_id=str(customer_match.telegram_chat_id)).first()
+                if store:
+                    user = store.owner
+
+        if not user:
+            clean_phone = identifier.replace("+", "").replace(" ", "").replace("-", "")
+            if clean_phone:
+                store = Store.objects.filter(phone_number__icontains=clean_phone).first()
+                if store:
+                    user = store.owner
+
+        if not user:
+            messages.error(request, "Аккаунт с таким логином или Telegram не найден. Проверьте правильность ввода.")
+            return render(request, "dashboard/forgot_password.html", {"identifier": identifier})
+
+        if not store:
+            store = getattr(user, "store", None)
+
+        if store and clean_tg and not store.owner_telegram_username:
+            store.owner_telegram_username = clean_tg
+            store.save(update_fields=["owner_telegram_username"])
+
+        # Генерируем одноразовый 6-значный код
+        otp_code = f"{secrets.randbelow(900000) + 100000}"
+        now_ts = timezone.now().timestamp()
+        expires_ts = (timezone.now() + timedelta(minutes=5)).timestamp()
+
+        # Сохраняем во временную сессию сброса пароля
+        request.session["reset_pwd_user_id"] = user.id
+        request.session["reset_pwd_store_id"] = store.id if store else None
+        request.session["reset_pwd_otp"] = otp_code
+        request.session["reset_pwd_expires_at"] = expires_ts
+        request.session["reset_pwd_attempts"] = 0
+        request.session["reset_pwd_last_sent"] = now_ts
+
+        if store:
+            cache.set(f"store_pending_otp_{store.id}", otp_code, timeout=300)
+
+        # Определяем Telegram chat_id
+        chat_id = store.telegram_chat_id if store else None
+        if not chat_id and store and store.owner_telegram_username:
+            clean_username = store.owner_telegram_username.lstrip("@").strip().lower()
+            customer_match = Customer.objects.filter(
+                telegram_username__iexact=clean_username
+            ).exclude(telegram_chat_id__isnull=True).exclude(telegram_chat_id="").first()
+            if customer_match:
+                chat_id = customer_match.telegram_chat_id
+                store.telegram_chat_id = str(chat_id)
+                store.save(update_fields=["telegram_chat_id"])
+
+        if chat_id:
+            try:
+                from core.working_views.telegram_bot import _send_telegram_message
+                time_str = timezone.localtime().strftime("%H:%M:%S")
+                msg = (
+                    f"🔐 СБРОС ПАРОЛЯ В BRAINMART\n\n"
+                    f"Запрошено восстановление пароля для аккаунта: {user.username}\n"
+                    f"🏪 Магазин: «{store.name if store else 'BrainMart'}»\n"
+                    f"🕒 Время: {time_str}\n\n"
+                    f"Ваш код для создания нового пароля:\n"
+                    f"👉 {otp_code} 👈\n\n"
+                    f"⏱ Код действует 5 минут.\n"
+                    f"⚠️ Введите этот код на странице восстановления и задайте новый пароль."
+                )
+                _send_telegram_message(chat_id, msg)
+                messages.info(request, "Код подтверждения отправлен в Telegram владельца магазина!")
+            except Exception as e:
+                logger.warning("Не удалось отправить код сброса пароля в Telegram: %s", e)
+                messages.warning(request, "Не удалось отправить сообщение в Telegram. Проверьте бота @BrainMart_bot.")
+        else:
+            messages.warning(request, "Telegram-аккаунт еще не привязан к боту. Подключите бота по кнопке ниже, чтобы получить код.")
+
+        return redirect("seller-reset-password-verify")
+
+    return render(request, "dashboard/forgot_password.html")
+
+
+def seller_reset_password_verify_view(request):
+    """
+    Проверка OTP и установка нового пароля.
+    """
+    if request.user.is_authenticated:
+        return redirect("seller-dashboard")
+
+    user_id = request.session.get("reset_pwd_user_id")
+    if not user_id:
+        messages.error(request, "Сессия восстановления устарела. Пожалуйста, начните заново.")
+        return redirect("seller-forgot-password")
+
+    try:
+        user = User.objects.get(id=user_id)
+        store = getattr(user, "store", None)
+    except User.DoesNotExist:
+        request.session.flush()
+        return redirect("seller-forgot-password")
+
+    now_ts = timezone.now().timestamp()
+    expires_ts = request.session.get("reset_pwd_expires_at", 0)
+    expected_otp = str(request.session.get("reset_pwd_otp", ""))
+    attempts = request.session.get("reset_pwd_attempts", 0)
+    chat_id = store.telegram_chat_id if store else None
+
+    if request.method == "POST":
+        entered_otp = request.POST.get("otp_code", "").strip().replace(" ", "")
+        new_password = request.POST.get("new_password", "").strip()
+        confirm_password = request.POST.get("confirm_password", "").strip()
+
+        if now_ts > expires_ts:
+            messages.error(request, "Срок действия кода истёк (5 минут). Запросите код повторно.")
+            return render(request, "dashboard/reset_password_verify.html", {
+                "user_obj": user,
+                "store": store,
+                "is_expired": True,
+                "has_telegram": bool(chat_id),
+                "bot_username": getattr(settings, "TELEGRAM_BOT_USERNAME", ""),
+            })
+
+        if attempts >= 5:
+            request.session.flush()
+            messages.error(request, "Превышено максимальное число попыток ввода (5). Пожалуйста, начните заново.")
+            return redirect("seller-forgot-password")
+
+        if entered_otp != expected_otp:
+            request.session["reset_pwd_attempts"] = attempts + 1
+            left_attempts = 5 - (attempts + 1)
+            messages.error(request, f"Неверный код подтверждения! Осталось попыток: {left_attempts}")
+            return render(request, "dashboard/reset_password_verify.html", {
+                "user_obj": user,
+                "store": store,
+                "seconds_left": max(0, int(expires_ts - now_ts)),
+                "has_telegram": bool(chat_id),
+                "bot_username": getattr(settings, "TELEGRAM_BOT_USERNAME", ""),
+            })
+
+        if not new_password or len(new_password) < 6:
+            messages.error(request, "Новый пароль должен содержать минимум 6 символов.")
+            return render(request, "dashboard/reset_password_verify.html", {
+                "user_obj": user,
+                "store": store,
+                "seconds_left": max(0, int(expires_ts - now_ts)),
+                "has_telegram": bool(chat_id),
+                "bot_username": getattr(settings, "TELEGRAM_BOT_USERNAME", ""),
+            })
+
+        if new_password != confirm_password:
+            messages.error(request, "Введенные пароли не совпадают. Повторите ввод.")
+            return render(request, "dashboard/reset_password_verify.html", {
+                "user_obj": user,
+                "store": store,
+                "seconds_left": max(0, int(expires_ts - now_ts)),
+                "has_telegram": bool(chat_id),
+                "bot_username": getattr(settings, "TELEGRAM_BOT_USERNAME", ""),
+            })
+
+        # Обновляем пароль пользователя!
+        user.set_password(new_password)
+        user.save()
+
+        if store:
+            cache.delete(f"store_pending_otp_{store.id}")
+
+        # Уведомляем в Telegram
+        if chat_id:
+            try:
+                from core.working_views.telegram_bot import _send_telegram_message
+                time_str = timezone.localtime().strftime("%H:%M:%S")
+                _send_telegram_message(
+                    chat_id,
+                    f"🎉 ПАРОЛЬ УСПЕШНО ИЗМЕНЕН!\n\n"
+                    f"Пароль от аккаунта {user.username} был успешно обновлен.\n"
+                    f"🕒 Время: {time_str}\n\n"
+                    f"Если это были не вы — немедленно свяжитесь с поддержкой платформы."
+                )
+            except Exception:
+                pass
+
+        # Очищаем сессионные данные сброса
+        request.session.pop("reset_pwd_user_id", None)
+        request.session.pop("reset_pwd_store_id", None)
+        request.session.pop("reset_pwd_otp", None)
+        request.session.pop("reset_pwd_expires_at", None)
+        request.session.pop("reset_pwd_attempts", None)
+        request.session.pop("reset_pwd_last_sent", None)
+
+        # Автоматически авторизуем продавца!
+        login(request, user)
+
+        messages.success(request, f"🎉 Пароль успешно изменён! Добро пожаловать в панель управления, {store.name if store else user.username}!")
+        return redirect("seller-dashboard")
+
+    seconds_left = max(0, int(expires_ts - now_ts))
+    bot_username = getattr(settings, "TELEGRAM_BOT_USERNAME", "")
+    link_url = f"https://t.me/{bot_username}?start=link_{store.telegram_link_token}" if (store and bot_username) else ""
+
+    return render(request, "dashboard/reset_password_verify.html", {
+        "user_obj": user,
+        "store": store,
+        "seconds_left": seconds_left,
+        "bot_username": bot_username,
+        "link_url": link_url,
+        "has_telegram": bool(chat_id),
+    })
+
+
+def seller_reset_password_resend_otp_view(request):
+    """
+    Повторная отправка OTP для сброса пароля с кулдауном 45 секунд.
+    """
+    user_id = request.session.get("reset_pwd_user_id")
+    if not user_id:
+        return redirect("seller-forgot-password")
+
+    try:
+        user = User.objects.get(id=user_id)
+        store = getattr(user, "store", None)
+    except User.DoesNotExist:
+        request.session.flush()
+        return redirect("seller-forgot-password")
+
+    now_ts = timezone.now().timestamp()
+    last_sent = request.session.get("reset_pwd_last_sent", 0)
+
+    if now_ts - last_sent < 45:
+        remaining = int(45 - (now_ts - last_sent))
+        messages.warning(request, f"Пожалуйста, подождите {remaining} сек. перед повторной отправкой.")
+        return redirect("seller-reset-password-verify")
+
+    new_code = f"{secrets.randbelow(900000) + 100000}"
+    expires_ts = (timezone.now() + timedelta(minutes=5)).timestamp()
+
+    request.session["reset_pwd_otp"] = new_code
+    request.session["reset_pwd_expires_at"] = expires_ts
+    request.session["reset_pwd_attempts"] = 0
+    request.session["reset_pwd_last_sent"] = now_ts
+
+    if store:
+        cache.set(f"store_pending_otp_{store.id}", new_code, timeout=300)
+
+    chat_id = store.telegram_chat_id if store else None
+    if chat_id:
+        try:
+            from core.working_views.telegram_bot import _send_telegram_message
+            time_str = timezone.localtime().strftime("%H:%M:%S")
+            msg = (
+                f"🔄 НОВЫЙ КОД СБРОСА ПАРОЛЯ\n\n"
+                f"Запрошен новый проверочный код для аккаунта: {user.username}\n"
+                f"🕒 Время: {time_str}\n\n"
+                f"Ваш код:\n"
+                f"👉 {new_code} 👈\n\n"
+                f"⏱ Код действует 5 минут."
+            )
+            _send_telegram_message(chat_id, msg)
+            messages.success(request, "Новый код успешно отправлен в ваш Telegram!")
+        except Exception:
+            messages.error(request, "Ошибка при отправке в Telegram.")
+    else:
+        messages.warning(request, "Telegram-бот еще не привязан.")
+
+    return redirect("seller-reset-password-verify")
+
+
+def seller_logout_view(request):
+    """
+    Безопасный выход из панели продавца.
+    """
+    request.session.flush()
+    logout(request)
+    messages.info(request, "Вы успешно вышли из панели управления.")
+    return redirect("seller-login")
+
+
+def seller_register_view(request):
+    """Самостоятельная регистрация продавца с выбором тарифного плана."""
+    # Если продавец уже авторизован и имеет магазин — сразу в панель управления
+    if request.user.is_authenticated and hasattr(request.user, "store") and request.user.store:
+        return redirect("seller-dashboard")
+
+    form_data = {}
+    
+
+    if request.method == "POST":
+        form_data = request.POST
+        username = request.POST.get("username", "").strip()
+        password = request.POST.get("password", "").strip()
+        store_name = request.POST.get("store_name", "").strip()
+        instagram_username = request.POST.get("instagram_username", "").strip().lstrip("@")
+        phone_number = request.POST.get("phone_number", "").strip()
+        owner_telegram_username = request.POST.get("owner_telegram_username", "").strip().lstrip("@")
+        niche = request.POST.get("niche", "clothes").strip()
+        address = request.POST.get("address", "").strip()
+        latitude = request.POST.get("latitude", "").strip()
+        longitude = request.POST.get("longitude", "").strip()
+        payout_card = request.POST.get("payout_card", "").strip().replace(" ", "")
+        payout_card_holder = request.POST.get("payout_card_holder", "").strip()
+
+        category_id = request.POST.get("category_id")
+        initial_category = None
+        if category_id:
+            from core.models import Category
+            initial_category = Category.objects.filter(id=category_id).first()
+
+        # 1. Валидация заполнения всех обязательных полей
+        if not all([username, password, store_name, instagram_username, phone_number]):
+            messages.error(request, "Пожалуйста, заполните все обязательные поля формы.")
+            from core.models import Category
+            return render(request, "dashboard/register.html", {
+                "form_data": form_data,
+                "categories": Category.objects.all().order_by("id"),
+            })
+
+        # 2. Валидация минимальной длины пароля
+        if len(password) < 8:
+            messages.error(request, "Пароль должен быть не короче 8 символов.")
+            from core.models import Category
+            return render(request, "dashboard/register.html", {
+                "form_data": form_data,
+                "categories": Category.objects.all().order_by("id"),
+            })
+
+        # 3. Предварительная проверка уникальности логина
+        if User.objects.filter(username__iexact=username).exists():
+            messages.error(request, f"Логин «{username}» уже занят. Пожалуйста, придумайте другой логин.")
+            from core.models import Category
+            return render(request, "dashboard/register.html", {
+                "form_data": form_data,
+                "categories": Category.objects.all().order_by("id"),
+            })
+
+        # 4. Предварительная проверка уникальности Instagram
+        if Store.objects.filter(instagram_username__iexact=instagram_username).exists():
+            messages.error(request, f"Магазин с Instagram @{instagram_username} уже зарегистрирован.")
+            from core.models import Category
+            return render(request, "dashboard/register.html", {
+                "form_data": form_data,
+                "categories": Category.objects.all().order_by("id"),
+            })
+
+        try:
+            with transaction.atomic():
+                user = User.objects.create_user(username=username, password=password)
+                try:
+                    lat_clean = str(latitude).replace(",", ".").strip() if latitude else ""
+                    lon_clean = str(longitude).replace(",", ".").strip() if longitude else ""
+                    lat_d = Decimal(lat_clean) if lat_clean else None
+                    lon_d = Decimal(lon_clean) if lon_clean else None
+                except Exception:
+                    lat_d, lon_d = None, None
+
+                store = Store.objects.create(
+                    owner=user,
+                    name=store_name,
+                    instagram_username=instagram_username,
+                    owner_telegram_username=owner_telegram_username,
+                    niche=niche,
+                    category=initial_category,
+                    phone_number=phone_number,
+                    address=address,
+                    latitude=lat_d,
+                    longitude=lon_d,
+                    payout_card=payout_card,
+                    payout_card_holder=payout_card_holder,
+                    telegram_link_token=secrets.token_hex(16),
+                    is_active=False,
+                    verification_status=Store.VerificationStatus.PENDING,
+                )
+
+                # Автоматически создаем 1-ю базовую точку на карте
+                StoreBranch.objects.create(
+                    store=store,
+                    name=f"Основная точка ({store_name})",
+                    address=address or "Ташкент (Главный магазин)",
+                    latitude=lat_d,
+                    longitude=lon_d,
+                    is_active=True,
+                )
+        except Exception as e:
+            messages.error(request, f"Не удалось завершить регистрацию: {e}")
+            from core.models import Category
+            return render(request, "dashboard/register.html", {
+                "form_data": form_data,
+                "categories": Category.objects.all().order_by("id"),
+            })
+
+        # Уведомляем основателя платформы в Telegram о новой заявке
+        try:
+            from core.tasks import notify_superadmin_about_new_store_task
+            notify_superadmin_about_new_store_task.delay(store.id)
+        except Exception:
+            try:
+                from core.working_views.telegram_bot import notify_superadmin_about_new_store
+                notify_superadmin_about_new_store(store)
+            except Exception:
+                pass
+
+        # Автоматическая авторизация нового продавца
+        login(request, user)
+
+        messages.success(
+            request,
+            f"🎉 Заявка на открытие магазина «{store_name}» успешно отправлена на проверку основателю (@abdvoris07)! "
+            "После проверки магазин будет автоматически активирован. "
+            "Команда BrainMart внимательно изучит вашу анкету. "
+            "Вы уже можете добавлять товары и настраивать магазин — витрина станет доступна покупателям сразу после одобрения ✨"
+        )
+        return redirect("seller-dashboard")
+
+    from core.models import Category
+    return render(request, "dashboard/register.html", {
+        "form_data": form_data,
+        "categories": Category.objects.all().order_by("id"),
+    })
+
+
+@login_required
+def store_settings_view(request):
+    """Настройки магазина: данные магазина, Telegram-привязка и управление менеджерами."""
+    store = _get_store_or_none(request)
+    if store is None:
+        return redirect("seller-dashboard")
+
+    if request.method == "POST":
+        action = request.POST.get("action", "update_store")
+
+        if action == "add_manager":
+            manager_name = request.POST.get("manager_name", "").strip()
+            manager_lang = request.POST.get("manager_language", "").strip()
+            if manager_lang not in ("uz", "ru", "en"):
+                manager_lang = getattr(store, "telegram_notification_language", "uz") or "uz"
+            if manager_name:
+                StoreManager.objects.create(store=store, name=manager_name, language=manager_lang)
+                messages.success(request, f"Менеджер '{manager_name}' добавлен! Отправьте ему ссылку для привязки Telegram.")
+            else:
+                messages.error(request, "Введите имя менеджера.")
+            return redirect("seller-settings")
+
+        elif action == "delete_manager":
+            manager_id = request.POST.get("manager_id")
+            StoreManager.objects.filter(id=manager_id, store=store).delete()
+            messages.success(request, "Менеджер удален.")
+            return redirect("seller-settings")
+
+        elif action == "clear_store_history":
+            from core.models import CashShift, StockMovement
+            orders_count = Order.objects.filter(store=store).count()
+            Order.objects.filter(store=store).delete()
+
+            shifts_count = CashShift.objects.filter(store=store).count()
+            CashShift.objects.filter(store=store).delete()
+
+            movements_count = StockMovement.objects.filter(variant__product__store=store).count()
+            StockMovement.objects.filter(variant__product__store=store).delete()
+
+            # Обнуляем балансы от тестовых заказов
+            store.balance = 0.00
+            store.held_balance = 0.00
+            store.save(update_fields=["balance", "held_balance"])
+
+            messages.success(
+                request,
+                f"🧹 История успешно очищена! Удалено заказов: {orders_count}, кассовых смен: {shifts_count}, движений склада: {movements_count}. Баланс обнулен."
+            )
+            return redirect("seller-settings")
+
+        else:
+            store_name = request.POST.get("store_name", "").strip()
+            phone_number = request.POST.get("phone_number", "").strip()
+            address = request.POST.get("address", "").strip()
+            instagram_username = request.POST.get("instagram_username", "").strip().lstrip("@")
+            payout_card = request.POST.get("payout_card", "").strip().replace(" ", "")
+            payout_card_holder = request.POST.get("payout_card_holder", "").strip()
+            primary_color = request.POST.get("primary_color", "").strip() or "#4F46E5"
+            accent_color = request.POST.get("accent_color", "").strip() or "#10B981"
+            theme_style = request.POST.get("theme_style", "default_black")
+            theme_mode = request.POST.get("theme_mode", "dark")
+            telegram_notification_language = request.POST.get("telegram_notification_language", "uz")
+            if telegram_notification_language not in ("ru", "uz", "en"):
+                telegram_notification_language = "uz"
+
+            category_id = request.POST.get("category_id")
+            if category_id:
+                try:
+                    store.category_id = int(category_id)
+                except (ValueError, TypeError):
+                    pass
+            elif "category_id" in request.POST:
+                store.category = None
+
+            if store_name:
+                store.name = store_name
+            if phone_number:
+                store.phone_number = phone_number
+            store.address = address
+            if instagram_username:
+                store.instagram_username = instagram_username
+            if payout_card:
+                store.payout_card = payout_card
+            if payout_card_holder:
+                store.payout_card_holder = payout_card_holder
+            store.primary_color = primary_color
+            store.accent_color = accent_color
+            store.theme_style = theme_style
+            store.theme_mode = theme_mode
+            store.telegram_notification_language = telegram_notification_language
+
+            # Авто-эквайринг временно заморожен на техническую доработку
+            store.enable_auto_acquiring = False
+            store.enable_card_transfer = True
+
+            store.save(update_fields=[
+                "name", "phone_number", "address", "instagram_username",
+                "payout_card", "payout_card_holder",
+                "category",
+                "primary_color", "accent_color", "theme_style", "theme_mode",
+                "telegram_notification_language",
+                "enable_auto_acquiring", "enable_card_transfer"
+            ])
+            messages.success(request, "Настройки магазина, ниша, способы оплаты и оформление витрины сохранены!")
+            return redirect("seller-settings")
+
+    # Формируем список менеджеров с готовыми ссылками на привязку
+    managers = []
+    for mgr in StoreManager.objects.filter(store=store).order_by("-created_at"):
+        managers.append({
+            "id": mgr.id,
+            "name": mgr.name,
+            "language": mgr.language,
+            "telegram_username": mgr.telegram_username,
+            "is_connected": bool(mgr.telegram_chat_id),
+            "link": build_manager_link_deep_link(mgr) if settings.TELEGRAM_BOT_USERNAME else None,
+        })
+
+    from core.models import Category
+    categories = Category.objects.all().order_by("id")
+
+    context = {
+        "store": store,
+        "categories": categories,
+        "managers": managers,
+        "telegram_connected": bool(store.telegram_chat_id),
+        "telegram_link": (
+            None if store.telegram_chat_id
+            else build_seller_link_deep_link(store) if settings.TELEGRAM_BOT_USERNAME
+            else None
+        ),
+        "store_catalog_url": f"{settings.SITE_URL}/ru/?store_id={store.id}",
+        "telegram_bot_url": (
+            f"https://t.me/{settings.TELEGRAM_BOT_USERNAME}?start=store_{store.id}"
+            if settings.TELEGRAM_BOT_USERNAME else None
+        ),
+    }
+    return render(request, "dashboard/settings.html", context)
+
+
+@login_required
+def ai_generate_broadcast_view(request):
+    """AJAX API: Генерация продающего текста Telegram-рассылки через Gemini AI."""
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+    store = _get_store_or_none(request)
+    if not store:
+        return JsonResponse({"error": "Store not found"}, status=403)
+
+    import json
+    try:
+        body_data = json.loads(request.body) if request.body else request.POST
+    except Exception:
+        body_data = request.POST
+
+    prompt = body_data.get("prompt", "").strip()
+    tone = body_data.get("tone", "hype")
+
+    if not prompt:
+        return JsonResponse({"error": "Prompt is required"}, status=400)
+
+    from core.working_views.services import generate_ai_broadcast_copy
+    result = generate_ai_broadcast_copy(
+        prompt=prompt,
+        tone=tone,
+        store_name=store.name,
+        niche=store.get_niche_display()
+    )
+    return JsonResponse({"status": "ok", "data": result})
+
+
+@login_required
+def ai_generate_description_view(request):
+    """AJAX API: Генерация описания и характеристик товара через Gemini AI."""
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+    store = _get_store_or_none(request)
+    if not store:
+        return JsonResponse({"error": "Store not found"}, status=403)
+
+    import json
+    try:
+        body_data = json.loads(request.body) if request.body else request.POST
+    except Exception:
+        body_data = request.POST
+
+    name = body_data.get("name", "").strip()
+    category = body_data.get("category", "").strip()
+    features = body_data.get("features", "").strip()
+
+    if not name:
+        return JsonResponse({"error": "Product name is required"}, status=400)
+
+    from core.working_views.services import generate_ai_product_description
+    desc = generate_ai_product_description(
+        name=name,
+        category=category,
+        features=features,
+        store_name=store.name
+    )
+    return JsonResponse({"status": "ok", "description": desc})
+
+
+
+
+@login_required
+def customers_view(request):
+    """CRM — расширенная база покупателей магазина с RFM сегментацией, аналитикой LTV и фильтрацией."""
+    store = _get_store_or_none(request)
+    if store is None:
+        return redirect("seller-dashboard")
+
+    from django.db.models import Max, Avg
+    import datetime
+    from django.utils import timezone
+
+    today = timezone.now().date()
+    thirty_days_ago = today - datetime.timedelta(days=30)
+
+    # Клиенты, у которых есть заказы в этом магазине
+    qs = Customer.objects.filter(
+        orders__store=store
+    ).annotate(
+        orders_count=Count("orders", filter=Q(orders__store=store)),
+        total_spent=Sum("orders__total_price", filter=Q(orders__store=store, orders__status=Order.Status.PAID)),
+        last_order_date=Max("orders__created_at", filter=Q(orders__store=store)),
+    ).distinct()
+
+    total_customers_count = qs.count()
+    total_revenue = qs.aggregate(sum=Sum("total_spent"))["sum"] or 0
+    avg_order_value = qs.aggregate(avg=Avg("total_spent"))["avg"] or 0
+
+    annotated_customers = []
+    vip_count = 0
+    sleeping_count = 0
+    new_count = 0
+    repeat_count = 0
+
+    segment_filter = request.GET.get("segment", "all")
+
+    for c in qs.order_by("-total_spent"):
+        c_spent = c.total_spent or 0
+        c_orders = c.orders_count or 0
+        last_date = c.last_order_date.date() if c.last_order_date else None
+
+        if c_orders >= 2 or c_spent >= 500000:
+            segment = "vip"
+            segment_badge = "🌟 VIP"
+            vip_count += 1
+        elif last_date and last_date < thirty_days_ago:
+            segment = "sleeping"
+            segment_badge = "💤 Спящий"
+            sleeping_count += 1
+        elif c_orders == 1:
+            segment = "new"
+            segment_badge = "🆕 Новый"
+            new_count += 1
+        else:
+            segment = "active"
+            segment_badge = "🔥 Активный"
+
+        if c_orders > 1:
+            repeat_count += 1
+
+        c.segment = segment
+        c.segment_badge = segment_badge
+
+        if segment_filter == "all" or segment_filter == segment:
+            annotated_customers.append(c)
+
+    repeat_rate = round((repeat_count / total_customers_count * 100), 1) if total_customers_count > 0 else 0
+
+    context = {
+        "customers": annotated_customers,
+        "total_customers": total_customers_count,
+        "vip_count": vip_count,
+        "sleeping_count": sleeping_count,
+        "new_count": new_count,
+        "repeat_rate": repeat_rate,
+        "total_revenue": total_revenue,
+        "avg_order_value": avg_order_value,
+        "active_segment": segment_filter,
+    }
+    return render(request, "dashboard/customers.html", context)
+
+
+@login_required
+def seller_broadcasts_view(request):
+    """CRM — Маркетинговые рассылки через Telegram-бота по базе клиентов магазина."""
+    store = _get_store_or_none(request)
+    if store is None:
+        return redirect("seller-dashboard")
+
+    from core.models import BroadcastCampaign
+    from core.working_views.telegram_bot import _send_telegram_message
+
+    if request.method == "POST":
+        title = request.POST.get("title", "").strip()
+        message_text = request.POST.get("message_text", "").strip()
+        target_segment = request.POST.get("target_segment", "all")
+        button_text = request.POST.get("button_text", "").strip() or "🛍 Открыть каталог"
+        button_url = request.POST.get("button_url", "").strip() or f"{settings.SITE_URL}/ru/?store_id={store.id}"
+
+        if not title or not message_text:
+            messages.error(request, "Пожалуйста, заполните тему и текст рассылки.")
+            return redirect("seller-broadcasts")
+
+        import datetime
+        from django.utils import timezone
+        today = timezone.now().date()
+        thirty_days_ago = today - datetime.timedelta(days=30)
+
+        base_customers = Customer.objects.filter(
+            orders__store=store,
+            telegram_chat_id__isnull=False
+        ).exclude(telegram_chat_id="").distinct()
+
+        if target_segment == "vip":
+            base_customers = base_customers.annotate(
+                orders_count=Count("orders", filter=Q(orders__store=store)),
+                total_spent=Sum("orders__total_price", filter=Q(orders__store=store, orders__status=Order.Status.PAID))
+            ).filter(Q(orders_count__gte=2) | Q(total_spent__gte=500000))
+
+        elif target_segment == "sleeping":
+            from django.db.models import Max
+            base_customers = base_customers.annotate(
+                last_order_date=Max("orders__created_at", filter=Q(orders__store=store))
+            ).filter(last_order_date__lt=thirty_days_ago)
+
+        elif target_segment == "new":
+            base_customers = base_customers.annotate(
+                orders_count=Count("orders", filter=Q(orders__store=store))
+            ).filter(orders_count=1)
+
+        target_list = list(base_customers)
+        recipients_count = len(target_list)
+
+        campaign = BroadcastCampaign.objects.create(
+            store=store,
+            title=title,
+            message_text=message_text,
+            target_segment=target_segment,
+            button_text=button_text,
+            button_url=button_url,
+            recipients_count=recipients_count,
+            status=BroadcastCampaign.Status.SENDING,
+        )
+
+        delivered = 0
+        reply_markup = None
+        if button_url:
+            reply_markup = {
+                "inline_keyboard": [[
+                    {"text": button_text, "url": button_url}
+                ]]
+            }
+
+        full_text = f"📢 {store.name}:\n\n{message_text}"
+
+        for cust in target_list:
+            if cust.telegram_chat_id:
+                try:
+                    success = _send_telegram_message(cust.telegram_chat_id, full_text, reply_markup=reply_markup)
+                    if success:
+                        delivered += 1
+                except Exception as e:
+                    logger.warning("Ошибка отправки рассылки клиенту %s: %s", cust.telegram_chat_id, e)
+
+        campaign.delivered_count = delivered
+        campaign.status = BroadcastCampaign.Status.COMPLETED
+        campaign.save(update_fields=["delivered_count", "status"])
+
+        messages.success(request, f"Рассылка '{title}' успешно отправлена {delivered} клиентам в Telegram!")
+        return redirect("seller-broadcasts")
+
+    campaigns = BroadcastCampaign.objects.filter(store=store).order_by("-created_at")[:30]
+    total_subscribers = Customer.objects.filter(orders__store=store, telegram_chat_id__isnull=False).exclude(telegram_chat_id="").distinct().count()
+
+    context = {
+        "campaigns": campaigns,
+        "total_subscribers": total_subscribers,
+    }
+    return render(request, "dashboard/broadcasts.html", context)
+
+
+
+@login_required
+def seller_finance_view(request):
+    """Раздел 'Финансы и Выплаты' — баланс, карта Uzcard/Humo, автовывод и история выплат."""
+    store = _get_store_or_none(request)
+    if store is None:
+        return redirect("seller-dashboard")
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+
+        if action == "save_card":
+            payout_card = request.POST.get("payout_card", "").strip().replace(" ", "")
+            payout_card_holder = request.POST.get("payout_card_holder", "").strip()
+
+            store.payout_card = payout_card
+            store.payout_card_holder = payout_card_holder
+            store.save(update_fields=["payout_card", "payout_card_holder"])
+            messages.success(request, "Реквизиты вашей карты для приёма оплат успешно сохранены!")
+            return redirect("seller-finance")
+
+        elif action == "pay_subscription_transfer":
+            from core.models import SubscriptionPayment
+            transaction_id = request.POST.get("transaction_id", "").strip()
+            try:
+                months = int(request.POST.get("months", 1))
+            except (ValueError, TypeError):
+                months = 1
+            if months < 1:
+                months = 1
+            receipt_image = request.FILES.get("receipt_image")
+
+            fee = store.current_tier_fee * months
+
+            # Создаём заявку на подтверждение оплаты (статус: pending)
+            payment = SubscriptionPayment.objects.create(
+                store=store,
+                amount=fee,
+                months=months,
+                payment_method="transfer",
+                status="pending",
+                transaction_id=transaction_id or "Прямой перевод на карту BrainMart",
+                receipt_image=receipt_image,
+            )
+
+            try:
+                from core.working_views.telegram_bot import _send_telegram_photo, _send_telegram_message
+                from core.models import PlatformSettings
+                ps = PlatformSettings.get_settings()
+                admin_chat = ps.superadmin_telegram_chat_id or "1821219115"
+
+                current_until = store.subscription_paid_until.strftime("%d.%m.%Y") if store.subscription_paid_until else "—"
+
+                admin_text = (
+                    f"💳 ЗАЯВКА НА ПОДПИСКУ BRAINMART!\n\n"
+                    f"🏪 Магазин: «{store.name}» (ID: {store.id})\n"
+                    f"👤 Владелец: @{store.owner.username} ({store.phone_number})\n"
+                    f"🏢 Филиалов: {store.branches.count()} точек\n"
+                    f"👑 Тариф: SaaS ({int(store.current_tier_fee):,} сум/мес)\n"
+                    f"💰 Сумма перевода: {int(fee):,} сум ({months} мес.)\n"
+                    f"🧾 Чек/Реквизиты: {transaction_id or 'Без комментария'}\n"
+                    f"📅 Оплачено до: {current_until}\n\n"
+                    f"Проверьте поступление средств на карту и выберите действие:"
+                )
+
+                reply_markup = {
+                    "inline_keyboard": [
+                        [
+                            {"text": f"✅ Подтвердить ({months} мес.)", "callback_data": f"sub_approve_{payment.id}"},
+                            {"text": "❌ Отклонить", "callback_data": f"sub_reject_{payment.id}"}
+                        ]
+                    ]
+                }
+
+                if receipt_image:
+                    _send_telegram_photo(admin_chat, receipt_image, caption=admin_text, reply_markup=reply_markup)
+                else:
+                    _send_telegram_message(admin_chat, admin_text, reply_markup=reply_markup)
+            except Exception as e:
+                logger.warning("Не удалось отправить уведомление о переводе администратору: %s", e)
+
+            messages.success(
+                request,
+                f"🎉 Чек и заявка на продление подписки ({months} мес.) отправлены администратору! После подтверждения подписка обновится автоматически."
+            )
+            return redirect("seller-finance")
+
+    # Сводка по заказам
+    from core.models import PayoutTransaction
+    orders = Order.objects.filter(store=store).exclude(status=Order.Status.CANCELLED)
+    paid_or_delivered = orders.filter(status__in=[Order.Status.PAID, Order.Status.HANDED_TO_COURIER, Order.Status.DELIVERED])
+
+    total_gross = paid_or_delivered.aggregate(total=Sum("total_price"))["total"] or 0
+    total_commission = 0
+    total_processing = paid_or_delivered.aggregate(total=Sum("processing_amount"))["total"] or 0
+    total_seller = paid_or_delivered.aggregate(total=Sum("seller_amount"))["total"] or 0
+
+    payout_transactions = PayoutTransaction.objects.filter(store=store).order_by("-created_at")[:50]
+    subscription_payments = store.subscription_payments.all()[:20]
+    subscription_info = store.get_subscription_status_info()
+
+    billing_card = getattr(settings, "BRAINMART_BILLING_CARD", "6262 4700 9041 1583")
+    billing_card_clean = "".join(filter(str.isdigit, billing_card))
+    billing_holder = getattr(settings, "BRAINMART_BILLING_HOLDER", "Munisa Yakubova")
+
+    context = {
+        "store": store,
+        "balance": store.balance or 0,
+        "held_balance": store.held_balance or 0,
+        "total_gross": total_gross,
+        "total_commission": total_commission,
+        "total_processing": total_processing,
+        "total_seller": total_seller,
+        "orders": paid_or_delivered.order_by("-created_at")[:20],
+        "payout_transactions": payout_transactions,
+        "subscription_payments": subscription_payments,
+        "subscription_info": subscription_info,
+        "billing_card": billing_card,
+        "billing_card_clean": billing_card_clean,
+        "billing_holder": billing_holder,
+    }
+    return render(request, "dashboard/finance.html", context)
+
+
+@login_required
+def seller_reviews_view(request):
+    """Управление отзывами покупателей: модерация, маскирование/скрытие, удаление и ответы."""
+    store = _get_store_or_none(request)
+    if store is None:
+        return redirect("seller-dashboard")
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+        review_id = request.POST.get("review_id")
+        review = get_object_or_404(ProductReview, id=review_id, product__store=store)
+
+        if action == "toggle_visibility":
+            review.is_visible = not review.is_visible
+            review.save(update_fields=["is_visible"])
+            status_label = "отображается на витрине" if review.is_visible else "скрыт (замаскирован)"
+            messages.success(request, f"Отзыв #{review.id} теперь {status_label}.")
+
+        elif action == "delete":
+            review.delete()
+            messages.success(request, "Отзыв успешно удалён из базы.")
+
+        elif action == "reply":
+            reply_text = request.POST.get("seller_reply", "").strip()
+            review.seller_reply = reply_text
+            review.save(update_fields=["seller_reply"])
+            messages.success(request, f"Ответ на отзыв #{review.id} сохранён и виден покупателям.")
+
+        return redirect("seller-reviews")
+
+    reviews = ProductReview.objects.filter(product__store=store).select_related("product").order_by("-created_at")
+    total_reviews = reviews.count()
+    visible_reviews = reviews.filter(is_visible=True).count()
+    hidden_reviews = reviews.filter(is_visible=False).count()
+
+    from django.db.models import Avg
+    avg_rating = reviews.aggregate(Avg("rating"))["rating__avg"]
+    avg_rating_display = round(float(avg_rating), 1) if avg_rating else 5.0
+
+    context = {
+        "store": store,
+        "reviews": reviews,
+        "total_reviews": total_reviews,
+        "visible_reviews": visible_reviews,
+        "hidden_reviews": hidden_reviews,
+        "avg_rating": avg_rating_display,
+    }
+    return render(request, "dashboard/reviews.html", context)
+
+
+@login_required
+def seller_waitlist_view(request):
+    """
+    Лист ожидания (Waitlist) магазина:
+    Показывает запросы клиентов из Telegram и Instagram на отсутствующие товары.
+    Продавец видит реальный спрос (что ищут клиенты) и статус авто-уведомления.
+    """
+    store = _get_store_or_none(request)
+    if store is None:
+        return redirect("seller-dashboard")
+
+    from core.models import ProductWaitlist
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+        entry_id = request.POST.get("entry_id")
+        entry = get_object_or_404(ProductWaitlist, id=entry_id, store=store)
+
+        if action == "cancel":
+            entry.status = ProductWaitlist.Status.CANCELLED
+            entry.save(update_fields=["status"])
+            messages.success(request, f"Запрос #{entry.id} отменен.")
+        elif action == "restore":
+            entry.status = ProductWaitlist.Status.PENDING
+            entry.save(update_fields=["status"])
+            messages.success(request, f"Запрос #{entry.id} возвращен в ожидание.")
+        return redirect("seller-waitlist")
+
+    filter_status = request.GET.get("status", "all")
+    qs = ProductWaitlist.objects.filter(store=store).select_related("customer", "notified_product")
+
+    if filter_status == "pending":
+        qs = qs.filter(status=ProductWaitlist.Status.PENDING)
+    elif filter_status == "notified":
+        qs = qs.filter(status=ProductWaitlist.Status.NOTIFIED)
+
+    waitlist_items = qs.order_by("-created_at")
+
+    total_count = ProductWaitlist.objects.filter(store=store).count()
+    pending_count = ProductWaitlist.objects.filter(store=store, status=ProductWaitlist.Status.PENDING).count()
+    notified_count = ProductWaitlist.objects.filter(store=store, status=ProductWaitlist.Status.NOTIFIED).count()
+
+    context = {
+        "store": store,
+        "waitlist_items": waitlist_items,
+        "total_count": total_count,
+        "pending_count": pending_count,
+        "notified_count": notified_count,
+        "filter_status": filter_status,
+    }
+    return render(request, "dashboard/waitlist.html", context)
+

@@ -1,0 +1,218 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<style>
+    .orders-container { display: flex; flex-direction: column; gap: 20px; }
+
+    .order-card {
+        background: var(--card-bg); border: 1px solid var(--border);
+        border-radius: 24px; padding: 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .order-card:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+
+    .order-header {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px dashed var(--border);
+    }
+    .order-id { font-size: 20px; font-weight: 800; color: white; }
+
+    .info-group { margin-bottom: 20px; }
+    .info-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .info-value { font-size: 15px; font-weight: 500; color: var(--text-main); line-height: 1.5; }
+
+    .items-box {
+        background: rgba(15, 23, 42, 0.4); border-radius: 16px; padding: 16px;
+        margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05);
+    }
+    .item-row { font-size: 14px; color: #E2E8F0; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .item-row:last-child { margin-bottom: 0; }
+
+    .order-footer {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-top: 20px; padding-top: 20px; border-top: 1px dashed var(--border);
+        flex-wrap: wrap; gap: 16px;
+    }
+    .total-price { font-size: 22px; font-weight: 800; color: var(--primary); }
+
+    .btn-map {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: rgba(79, 70, 229, 0.1); color: var(--primary);
+        padding: 8px 16px; border-radius: 12px; font-size: 13px; font-weight: 700;
+        text-decoration: none; margin-top: 8px; transition: background 0.2s;
+    }
+    .btn-map:hover { background: rgba(79, 70, 229, 0.2); }
+</style>
+
+    <h2 style="margin: 0 0 20px; font-size: 22px;">📦 {% trans "Управление заказами" %}</h2>
+
+    {% if orders %}
+        <div class="orders-container">
+            {% for order in orders %}
+                <div class="order-card">
+                    <!-- Шапка заказа -->
+                    <div class="order-header">
+                        <div class="order-id">{% trans "Заказ" %} #{{ order.id }}</div>
+                {% if order.branch %}
+                <div style="font-size: 13px; color: #818CF8; font-weight: 700; margin-top: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <span>🏢 {{ order.branch.name }}</span>
+                    {% if order.get_dispatch_distance_km %}
+                        <span style="background: rgba(99,102,241,0.15); color: #C7D2FE; font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 700;">
+                            📍 {{ order.get_dispatch_distance_km }} {% trans "км" %} · ~{{ order.get_estimated_taxi_mins }} {% trans "мин на такси" %}
+                        </span>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+                            {% if order.payment_method == 'auto_acquiring' or order.payment_method == 'click' %}
+                                <span class="badge" style="background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3);">⚡ {% trans "Авто-эквайринг" %}</span>
+                            {% elif order.payment_method == 'card_transfer' %}
+                                <span class="badge" style="background: rgba(99,102,241,0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.3);">💳 {% trans "Перевод на карту" %}</span>
+                            {% endif %}
+
+                            {% if order.status == "paid" %}
+                                <span class="badge" style="background: rgba(245,158,11,0.2); color: #fbbf24;">⏳ {% trans "Оплачен (В сборке)" %}</span>
+                            {% elif order.status == "handed_to_courier" %}
+                                <span class="badge" style="background: rgba(59,130,246,0.2); color: #60a5fa;">🚚 {% trans "У курьера (В пути)" %}</span>
+                            {% elif order.status == "delivered" %}
+                                <span class="badge" style="background: rgba(16,185,129,0.2); color: #34d399;">✅ {% trans "Доставлен" %}</span>
+                            {% elif order.status == "pending_payment" %}
+                                {% if order.payment_receipt or order.payment_confirmed_by_customer %}
+                                    <span class="badge" style="background: rgba(59,130,246,0.2); color: #60a5fa; border: 1px solid #3B82F6;">🧾 {% trans "Чек передан (Проверьте банк)" %}</span>
+                                {% else %}
+                                    <span class="badge" style="background: rgba(156,163,175,0.2); color: #9ca3af;">⏳ {% trans "Ожидает перевода" %}</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge" style="background: rgba(239,68,68,0.2); color: #f87171;">{{ order.get_status_display }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Клиент и Адрес -->
+                    <div class="info-group">
+                        <div class="info-label">{% trans "Клиент" %}</div>
+                        <div class="info-value">
+                            {{ order.customer.full_name }}
+                            {% if order.customer.telegram_username %}
+                                <a href="https://t.me/{{ order.customer.telegram_username }}" target="_blank" style="color: #818cf8; text-decoration: none; font-weight: 700; margin-left: 6px;">@{{ order.customer.telegram_username }}</a>
+                            {% endif %}
+                            <br>
+                            <span style="color: var(--primary);">{{ order.customer.phone_number }}</span>
+                        </div>
+                    </div>
+
+                    <div class="info-group">
+                        <div class="info-label">{% trans "Адрес доставки" %}</div>
+                        <div class="info-value">
+                            {{ order.delivery_address|default:"Адрес уточняется" }}
+                            {% if order.delivery_map_url %}
+                                <br><a href="{{ order.delivery_map_url }}" target="_blank" class="btn-map">📍 {% trans "Открыть на карте" %}</a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if order.get_dispatch_distance_km and order.get_dispatch_distance_km > 7.0 and order.store.branches.count <= 1 %}
+                        <div style="background: rgba(245, 158, 11, 0.1); border: 1px dashed rgba(245, 158, 11, 0.4); border-radius: 12px; padding: 10px 14px; margin-bottom: 14px; font-size: 12px; color: #FCD34D; display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 16px;">💡</span>
+                            <span>{% trans "Клиент далеко" %} ({{ order.get_dispatch_distance_km }} {% trans "км" %}, {% trans "такси ~" %}{{ order.get_estimated_taxi_fare|floatformat:"0" }} {% trans "сум" %}). {% trans "Добавьте филиал в этом районе в разделе «Филиалы», чтобы сократить расходы клиента на доставку и повысить продажи!" %}</span>
+                        </div>
+                    {% endif %}
+
+                    {% if order.assigned_manager %}
+                        <div style="background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2); border-radius: 12px; padding: 10px 14px; margin-bottom: 16px; font-size: 13px; color: #C7D2FE; display: flex; align-items: center; justify-content: space-between;">
+                            <span>👨‍💼 <strong>{% trans "Менеджер на сборке:" %}</strong> {{ order.assigned_manager.name }}</span>
+                            <span style="color: #818CF8; font-weight: 700;">{{ order.assigned_manager.display_contact }}</span>
+                        </div>
+                    {% endif %}
+
+                    {% if order.payment_receipt %}
+                        <div class="info-group" style="background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); border-radius: 14px; padding: 14px; margin-bottom: 16px;">
+                            <div class="info-label" style="color: #93C5FD; margin-bottom: 8px;">🧾 {% trans "Чек перевода от клиента" %}</div>
+                            <div style="display: flex; align-items: center; gap: 14px;">
+                                <a href="{{ order.payment_receipt.url }}" target="_blank">
+                                    <img src="{{ order.payment_receipt.url }}" style="height: 64px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; object-fit: cover;" title="{% trans 'Нажмите, чтобы открыть в полном размере' %}">
+                                </a>
+                                <div>
+                                    <a href="{{ order.payment_receipt.url }}" target="_blank" style="color: #60A5FA; font-weight: 700; font-size: 13.5px; text-decoration: none;">
+                                        🔍 {% trans "Посмотреть чек перевода" %}
+                                    </a>
+                                    <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">
+                                        {% trans "Сверьте сумму с мобильным банком перед подтверждением" %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% elif order.payment_confirmed_by_customer and order.status == 'pending_payment' %}
+                        <div style="background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); border-radius: 12px; padding: 10px 14px; margin-bottom: 16px; font-size: 12.5px; color: #FCD34D;">
+                            ℹ️ {% trans "Клиент нажал «Я перевёл деньги». Проверьте поступление средств в Payme/Click перед подтверждением." %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Состав заказа -->
+                    <div class="items-box">
+                        <div class="info-label" style="margin-bottom: 8px;">{% trans "Состав заказа:" %}</div>
+                        {% for item in order.items.all %}
+                            <div class="item-row">
+                                <span>{{ item.variant.product.name }} ({{ item.variant.color }} / {{ item.variant.size }})</span>
+                                <strong>x{{ item.quantity }}</strong>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    {% if order.tracking_url %}
+                        <div class="info-group" style="background: rgba(79,70,229,0.1); border: 1px solid rgba(79,70,229,0.3); border-radius: 10px; padding: 10px 12px; margin-bottom: 16px;">
+                            <div class="info-label" style="color: #818cf8;">🚚 {% trans "Трекинг доставки" %}</div>
+                            <a href="{{ order.tracking_url }}" target="_blank" style="color: #34d399; font-size: 13px; font-weight: 700; word-break: break-all; text-decoration: none;">
+                                🔗 {% trans "Открыть отслеживание заказа" %}
+                            </a>
+                        </div>
+                    {% endif %}
+
+                    <!-- Итог и Кнопки действий -->
+                    <div class="order-footer">
+                        <div>
+                            <div class="info-label">{% trans "Сумма заказа" %}</div>
+                            <div class="total-price">{{ order.total_price|floatformat:"0" }} {% trans "сум" %}</div>
+                            <div style="font-size: 12px; color: #34d399; margin-top: 4px; font-weight: 700;">
+                                💳 {% trans "Прямой перевод на вашу карту (100% вам, 0% комиссии)" %}
+                            </div>
+                        </div>
+
+                        {% if order.status == "pending_payment" %}
+                            <form method="post" action="{% url 'seller-order-confirm-payment' order.id %}" style="margin: 0;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn" style="background: linear-gradient(135deg, #10B981, #059669); border: none; padding: 11px 20px; box-shadow: 0 4px 14px rgba(16,185,129,0.3); font-size: 13px; font-weight: 800; border-radius: 12px; cursor: pointer;">
+                                    ✅ {% trans "Подтвердить оплату на карту" %}
+                                </button>
+                            </form>
+                        {% elif order.status == "paid" %}
+                            <form method="post" action="{% url 'seller-order-handed' order.id %}" style="margin: 0; display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 280px;">
+                                {% csrf_token %}
+                                <input type="url" name="tracking_url" placeholder="{% trans 'Ссылка на доставку (Яндекс...)' %}" style="background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: white; padding: 8px 12px; border-radius: 8px; font-size: 12px; width: 100%;">
+                                <button type="submit" class="btn" style="padding: 10px 16px; box-shadow: 0 4px 12px rgba(79,70,229,0.3); font-size: 13px;">
+                                    🚚 {% trans "Передать курьеру" %}
+                                </button>
+                            </form>
+                        {% elif order.status == "handed_to_courier" %}
+                            <form method="post" action="{% url 'seller-order-delivered' order.id %}" style="margin: 0;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn" style="background: #10B981; border: none; padding: 10px 20px; box-shadow: 0 4px 12px rgba(16,185,129,0.3); font-size: 13px; font-weight: 700; border-radius: 10px; cursor: pointer;">
+                                    ✅ {% trans "Подтвердить доставку" %}
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card" style="text-align: center; padding: 40px 20px;">
+            <div style="font-size: 40px; margin-bottom: 12px;">📭</div>
+            <h3 style="margin: 0 0 8px; color: white;">{% trans "Заказов пока нет" %}</h3>
+            <p style="color: var(--text-muted); font-size: 14px;">{% trans "Как только кто-то оплатит покупку, она появится здесь." %}</p>
+        </div>
+    {% endif %}
+{% endblock %}

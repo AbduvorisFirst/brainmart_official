@@ -1,0 +1,8 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+    <div class="card">
+        <p>К вашему аккаунту не привязан магазин. Обратитесь к администратору сайта.</p>
+        <a href="{% url 'seller-logout' %}" class="btn btn-secondary">Выйти</a>
+    </div>
+{% endblock %}

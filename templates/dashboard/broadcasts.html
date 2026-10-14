@@ -1,0 +1,201 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<style>
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+    .page-title { font-size: 22px; font-weight: 800; color: white; margin: 0; }
+    
+    .broadcast-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    @media (max-width: 900px) {
+        .broadcast-grid { grid-template-columns: 1fr; }
+    }
+    
+    .broadcast-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 20px;
+    }
+    .badge-completed { background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+    .badge-sending { background: rgba(245, 158, 11, 0.2); color: #fbbf24; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+</style>
+
+<div class="page-header">
+    <div>
+        <h2 class="page-title">📢 {% trans "Telegram SMS & Push Рассылки" %}</h2>
+        <p style="margin: 4px 0 0; font-size: 13px; color: var(--text-muted);">
+            {% trans "Отправляйте акции, скидки и анонсы коллекций напрямую в Telegram своим клиентам" %}
+        </p>
+    </div>
+    <div style="background: rgba(79,70,229,0.15); border: 1px solid rgba(79,70,229,0.3); padding: 8px 16px; border-radius: 12px; font-size: 13px; font-weight: 700; color: #818cf8;">
+        👥 {{ total_subscribers }} {% trans "подписчиков в боте" %}
+    </div>
+</div>
+
+<div class="broadcast-grid">
+    <!-- ФОРМА СОЗДАНИЯ РАССЫЛКИ С ИИ-КОПИРАЙТЕРОМ -->
+    <div class="broadcast-card">
+        <h3 style="margin: 0 0 16px; font-size: 16px; font-weight: 800; color: white;">
+            ✍️ {% trans "Новая рассылка" %}
+        </h3>
+
+        <!-- ИИ-ПОМОЩНИК ПО НАПИСАНИЮ ТЕКСТА РАССЫЛКИ -->
+        <div style="background: linear-gradient(135deg, rgba(79,70,229,0.15) 0%, rgba(147,51,234,0.1) 100%); border: 1.5px solid rgba(99,102,241,0.4); border-radius: 14px; padding: 14px; margin-bottom: 18px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <div style="font-size: 12px; font-weight: 800; color: #818cf8; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
+                    🤖 {% trans "ИИ-Копирайтер рассылок (Gemini AI)" %}
+                </div>
+            </div>
+            <p style="margin: 0 0 10px; font-size: 12px; color: var(--text-muted); line-height: 1.4;">
+                {% trans "Напишите краткую идею — ИИ составит цепляющий пост с эмодзи, выгодой и кнопкой!" %}
+            </p>
+
+            <input type="text" id="aiBroadcastPrompt" placeholder="{% trans 'Например: Скидка 20% на все худи до воскресенья...' %}" style="margin-bottom: 10px; font-size: 13px;">
+
+            <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;">
+                <button type="button" class="tone-btn active" onclick="selectTone('hype', this)" style="padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; background: var(--primary); border: none; color: white; cursor: pointer;">🔥 {% trans "Драйв / Скидки" %}</button>
+                <button type="button" class="tone-btn" onclick="selectTone('premium', this)" style="padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); cursor: pointer;">✨ {% trans "Премиум / Old Money" %}</button>
+                <button type="button" class="tone-btn" onclick="selectTone('urgent', this)" style="padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); cursor: pointer;">⚡️ {% trans "Срочно / Дедлайн" %}</button>
+                <button type="button" class="tone-btn" onclick="selectTone('friendly', this)" style="padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); cursor: pointer;">💛 {% trans "Забота / Новинки" %}</button>
+            </div>
+
+            <button type="button" id="aiGenerateBtn" onclick="generateAIBroadcast()" style="width: 100%; background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%); color: white; border: none; padding: 10px; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                <span id="aiBtnText">✨ {% trans "Сгенерировать текст через ИИ" %}</span>
+                <span id="aiSpinner" style="display: none;">⏳ {% trans "ИИ думает..." %}</span>
+            </button>
+        </div>
+
+        <form method="post" id="broadcastForm">
+            {% csrf_token %}
+            
+            <label>{% trans "Тема / Название кампании (для вас)" %}</label>
+            <input type="text" name="title" id="campaignTitle" placeholder="{% trans 'Например: Скидка 20% на оверсайз худи' %}" required>
+
+            <label>{% trans "Кому отправить (Сегмент)" %}</label>
+            <select name="target_segment" style="margin-bottom: 16px;">
+                <option value="all">👥 {% trans "Всем покупателям магазина" %}</option>
+                <option value="vip">🌟 {% trans "Только VIP (LTV > 500k сум или > 2 заказов)" %}</option>
+                <option value="sleeping">💤 {% trans "Спящим клиентам (не заказывали > 30 дней)" %}</option>
+                <option value="new">🆕 {% trans "Новичкам (1 заказ)" %}</option>
+            </select>
+
+            <label>{% trans "Текст сообщения в Telegram" %}</label>
+            <textarea name="message_text" id="campaignText" rows="6" placeholder="{% trans 'Привет! У нас отличная новость — новая весенняя коллекция уже в каталоге. Дарим скидку 15% по промокоду SPRING15 🔥' %}" required></textarea>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div>
+                    <label>{% trans "Текст кнопки" %}</label>
+                    <input type="text" name="button_text" id="campaignBtnText" value="🛍 {% trans 'Открыть каталог' %}">
+                </div>
+                <div>
+                    <label>{% trans "Ссылка кнопки" %}</label>
+                    <input type="text" name="button_url" id="campaignBtnUrl" placeholder="https://..." value="">
+                </div>
+            </div>
+
+            <button type="submit" class="btn" style="width: 100%; background: var(--primary); border: none; padding: 14px; border-radius: 12px; font-size: 14px; font-weight: 800; cursor: pointer; margin-top: 8px;">
+                🚀 {% trans "Отправить рассылку в Telegram" %}
+            </button>
+        </form>
+    </div>
+
+    <script>
+        let selectedTone = 'hype';
+        function selectTone(tone, btn) {
+            selectedTone = tone;
+            document.querySelectorAll('.tone-btn').forEach(b => {
+                b.style.background = 'rgba(255,255,255,0.05)';
+                b.style.color = 'var(--text-muted)';
+                b.style.border = '1px solid var(--border)';
+            });
+            btn.style.background = 'var(--primary)';
+            btn.style.color = 'white';
+            btn.style.border = 'none';
+        }
+
+        async function generateAIBroadcast() {
+            const prompt = document.getElementById('aiBroadcastPrompt').value.trim();
+            if (!prompt) {
+                alert('Пожалуйста, напишите краткую идею акции для ИИ.');
+                return;
+            }
+
+            const btnText = document.getElementById('aiBtnText');
+            const spinner = document.getElementById('aiSpinner');
+            const genBtn = document.getElementById('aiGenerateBtn');
+
+            btnText.style.display = 'none';
+            spinner.style.display = 'inline';
+            genBtn.disabled = true;
+
+            try {
+                const response = await fetch('/dashboard/api/ai-generate-broadcast/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({ prompt: prompt, tone: selectedTone })
+                });
+                const res = await response.json();
+                if (res.status === 'ok' && res.data) {
+                    document.getElementById('campaignTitle').value = res.data.title || '';
+                    document.getElementById('campaignText').value = res.data.message_text || '';
+                    if (res.data.button_text) {
+                        document.getElementById('campaignBtnText').value = res.data.button_text;
+                    }
+                } else {
+                    alert('Не удалось сгенерировать рассылку. Попробуйте еще раз.');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Ошибка соединения с ИИ-сервером.');
+            } finally {
+                btnText.style.display = 'inline';
+                spinner.style.display = 'none';
+                genBtn.disabled = false;
+            }
+        }
+    </script>
+
+    <!-- ИСТОРИЯ РАССЫЛОК -->
+    <div class="broadcast-card">
+        <h3 style="margin: 0 0 16px; font-size: 16px; font-weight: 800; color: white;">
+            📊 {% trans "История рассылок" %}
+        </h3>
+
+        {% if campaigns %}
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                {% for c in campaigns %}
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 14px; padding: 14px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                            <strong style="font-size: 14px; color: white;">{{ c.title }}</strong>
+                            <span class="{% if c.status == 'completed' %}badge-completed{% else %}badge-sending{% endif %}">
+                                {{ c.get_status_display }}
+                            </span>
+                        </div>
+                        <p style="margin: 0 0 8px; font-size: 12.5px; color: #D1D5DB; line-height: 1.4;">
+                            {{ c.message_text|truncatechars:120 }}
+                        </p>
+                        <div style="display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-muted);">
+                            <span>🎯 {{ c.get_target_segment_display }}</span>
+                            <span>✅ {{ c.delivered_count }}/{{ c.recipients_count }} {% trans "доставлено" %} • {{ c.created_at|date:"d.m.Y H:i" }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 40px 20px;">
+                <div style="font-size: 40px; margin-bottom: 8px;">📢</div>
+                <h4 style="margin: 0 0 6px; font-size: 16px; color: white;">{% trans "Пока нет отправленных рассылок" %}</h4>
+                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">{% trans "Создайте свою первую акцию слева, чтобы привлечь повторные заказы!" %}</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

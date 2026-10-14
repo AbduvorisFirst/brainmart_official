@@ -1,0 +1,143 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<style>
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+    .page-title { font-size: 22px; font-weight: 800; color: white; margin: 0; }
+    
+    .crm-metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    .metric-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px 16px;
+    }
+    .metric-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+    .metric-value { font-size: 20px; font-weight: 800; color: white; }
+
+    .segment-tabs {
+        display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 16px;
+        -webkit-overflow-scrolling: touch;
+    }
+    .seg-tab {
+        padding: 8px 16px; border-radius: 12px; font-size: 13px; font-weight: 700; text-decoration: none;
+        background: var(--card-bg); border: 1px solid var(--border); color: var(--text-muted); white-space: nowrap;
+    }
+    .seg-tab.active { background: rgba(79,70,229,0.15); border-color: var(--primary); color: #818cf8; }
+
+    .customer-card {
+        background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px;
+        padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
+        flex-wrap: wrap; gap: 14px;
+    }
+    .customer-left { display: flex; align-items: center; gap: 14px; }
+    .avatar {
+        width: 48px; height: 48px; border-radius: 14px; background: rgba(79,70,229,0.2);
+        color: #818cf8; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; flex-shrink: 0;
+    }
+    .customer-name { font-size: 15px; font-weight: 800; color: white; margin: 0 0 4px; display: flex; align-items: center; gap: 8px; }
+    .customer-contacts { font-size: 13px; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 12px; }
+    .customer-contacts a { color: #818cf8; text-decoration: none; font-weight: 600; }
+    .meta-chip { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 8px; }
+    .meta-orders { background: rgba(79,70,229,0.15); color: #818cf8; }
+    .meta-spent { background: rgba(16,185,129,0.15); color: #34d399; }
+</style>
+
+<div class="page-header">
+    <div>
+        <h2 class="page-title">👥 {% trans "CRM База Клиентов" %}</h2>
+        <p style="margin: 4px 0 0; font-size: 13px; color: var(--text-muted);">
+            {% trans "Управление покупателями, LTV и сегментами для Telegram-рассылок" %}
+        </p>
+    </div>
+    
+    <a href="{% url 'seller-broadcasts' %}" class="btn" style="background: var(--primary); text-decoration: none; padding: 10px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+        📢 {% trans "Telegram-Рассылка" %}
+    </a>
+</div>
+
+<!-- МЕТРИКИ CRM -->
+<div class="crm-metrics-grid">
+    <div class="metric-card">
+        <div class="metric-title">👥 {% trans "Всего клиентов" %}</div>
+        <div class="metric-value">{{ total_customers }}</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-title">💰 {% trans "Общий LTV (Выручка)" %}</div>
+        <div class="metric-value" style="color: #34d399;">{{ total_revenue|floatformat:"0" }} <span style="font-size: 13px;">{% trans "сум" %}</span></div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-title">💳 {% trans "Средний чек (AOV)" %}</div>
+        <div class="metric-value">{{ avg_order_value|floatformat:"0" }} <span style="font-size: 13px;">{% trans "сум" %}</span></div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-title">🔄 {% trans "Повторные заказы" %}</div>
+        <div class="metric-value" style="color: #818cf8;">{{ repeat_rate }}%</div>
+    </div>
+</div>
+
+<!-- ВКЛАДКИ СЕГМЕНТОВ -->
+<div class="segment-tabs">
+    <a href="?segment=all" class="seg-tab {% if active_segment == 'all' %}active{% endif %}">
+        {% trans "Все клиенты" %} ({{ total_customers }})
+    </a>
+    <a href="?segment=vip" class="seg-tab {% if active_segment == 'vip' %}active{% endif %}">
+        🌟 {% trans "VIP" %} ({{ vip_count }})
+    </a>
+    <a href="?segment=sleeping" class="seg-tab {% if active_segment == 'sleeping' %}active{% endif %}">
+        💤 {% trans "Спящие >30 дней" %} ({{ sleeping_count }})
+    </a>
+    <a href="?segment=new" class="seg-tab {% if active_segment == 'new' %}active{% endif %}">
+        🆕 {% trans "Новички" %} ({{ new_count }})
+    </a>
+</div>
+
+<!-- СПИСОК КЛИЕНТОВ -->
+{% if customers %}
+    {% for customer in customers %}
+    <div class="customer-card">
+        <div class="customer-left">
+            <div class="avatar">{{ customer.full_name|default:"?"|make_list|first|upper }}</div>
+            <div>
+                <p class="customer-name">
+                    {{ customer.full_name|default:"Покупатель" }}
+                    <span style="font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 700; {% if customer.segment == 'vip' %}background: rgba(245,158,11,0.2); color: #fbbf24;{% elif customer.segment == 'sleeping' %}background: rgba(107,114,128,0.2); color: #9ca3af;{% else %}background: rgba(59,130,246,0.2); color: #60a5fa;{% endif %}">
+                        {{ customer.segment_badge }}
+                    </span>
+                </p>
+                <div class="customer-contacts">
+                    {% if customer.phone_number %}
+                        <span>📱 <a href="tel:{{ customer.phone_number }}">{{ customer.phone_number }}</a></span>
+                    {% endif %}
+                    {% if customer.telegram_username %}
+                        <span>✈️ <a href="https://t.me/{{ customer.telegram_username }}" target="_blank">@{{ customer.telegram_username }}</a></span>
+                    {% elif customer.telegram_chat_id %}
+                        <span style="color: #34d399;">✓ Telegram подключен</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <span class="meta-chip meta-orders">📦 {{ customer.orders_count }} {% trans "заказ." %}</span>
+            {% if customer.total_spent %}
+                <span class="meta-chip meta-spent">💰 {{ customer.total_spent|floatformat:0 }} {% trans "сум" %}</span>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div style="text-align: center; padding: 40px 20px; background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border);">
+        <div style="font-size: 48px; margin-bottom: 12px;">👥</div>
+        <h3 style="font-size: 18px; font-weight: 800; color: white; margin: 0 0 6px;">{% trans "В этом сегменте пока нет клиентов" %}</h3>
+        <p style="font-size: 13px; color: var(--text-muted); margin: 0;">{% trans "Попробуйте выбрать другой сегмент или дождитесь новых заказов через каталог." %}</p>
+    </div>
+{% endif %}
+{% endblock %}
+

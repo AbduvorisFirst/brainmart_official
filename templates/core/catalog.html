@@ -1,0 +1,568 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<style>
+    /* Прячем дефолтную шапку из base.html, так как рисуем свою */
+    header { display: none !important; }
+
+    .catalog-container {
+        padding: 12px 14px 40px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* --- ВОДЯНОЙ ЗНАК БРЕНДА --- */
+    .globix-watermark {
+        font-size: 11px;
+        color: var(--primary);
+        font-weight: 900;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    /* --- ШАПКА ЛИЧНОЙ ВИТРИНЫ ПРОДАВЦА --- */
+    .store-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .store-brand-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+    }
+    .store-logo-placeholder {
+        width: 44px; height: 44px; border-radius: 14px;
+        background: var(--btn-gradient); color: white;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 900; font-size: 18px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        flex-shrink: 0;
+    }
+    .store-logo {
+        width: 44px; height: 44px; border-radius: 14px; object-fit: cover;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        border: 1px solid var(--border);
+        flex-shrink: 0;
+    }
+    .store-text { min-width: 0; }
+    .store-text h1 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--text-main);
+        line-height: 1.2;
+        letter-spacing: -0.4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .store-text p { margin: 2px 0 0; font-size: 11.5px; font-weight: 600; color: var(--text-muted); }
+
+    /* Кнопка на глобальный рынок */
+    .btn-global-mini {
+        width: 36px; height: 36px; background: var(--surface);
+        border: 1.5px solid var(--border); border-radius: 11px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 16px; text-decoration: none; transition: 0.15s ease;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        flex-shrink: 0;
+    }
+    .btn-global-mini:active { transform: scale(0.92); border-color: var(--primary); }
+
+    /* Компактная кнопка 'Стать продавцом' / 'Панель продавца' */
+    .btn-become-seller {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+        color: white;
+        text-decoration: none;
+        padding: 6px 12px;
+        border-radius: 11px;
+        font-size: 11px;
+        font-weight: 800;
+        box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        white-space: nowrap;
+        letter-spacing: 0.2px;
+    }
+    .btn-become-seller:active { transform: scale(0.95); }
+
+    /* --- ШАПКА ГЛОБАЛЬНОГО МАРКЕТПЛЕЙСА --- */
+    .global-header {
+        margin-bottom: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .global-top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+    }
+    .global-title-row {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+    .global-title {
+        font-size: 24px;
+        font-weight: 900;
+        color: var(--text-main);
+        margin: 0;
+        letter-spacing: -0.5px;
+        line-height: 1.15;
+    }
+    .global-subtitle {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-muted);
+        margin: 0;
+    }
+
+    /* Поиск в стиле iOS / Telegram */
+    .search-container {
+        position: relative;
+        margin-bottom: 12px;
+    }
+    .search-input {
+        width: 100%;
+        background: var(--input-bg);
+        border: 1.5px solid var(--border);
+        border-radius: 14px;
+        padding: 13px 14px 13px 40px;
+        font-size: 14px;
+        box-shadow: var(--card-shadow);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        color: var(--text-main);
+        font-weight: 500;
+        outline: none;
+    }
+    .search-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    }
+    .search-input::placeholder {
+        color: var(--text-muted);
+        font-size: 13px;
+    }
+    .search-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 15px;
+        pointer-events: none;
+        opacity: 0.6;
+    }
+    .search-btn { display: none; }
+
+    /* Горизонтальный скролл ИИ-тегов */
+    .ai-tags-scroll {
+        display: flex;
+        gap: 7px;
+        overflow-x: auto;
+        padding-bottom: 6px;
+        margin-bottom: 14px;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+    .ai-tags-scroll::-webkit-scrollbar { display: none; }
+    .ai-tag-chip {
+        white-space: nowrap;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 6px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text-main);
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: transform 0.15s ease;
+        flex-shrink: 0;
+    }
+    .ai-tag-chip:active { transform: scale(0.94); }
+
+    /* Сетка товаров: 2 колонки на мобиле, 4 на десктопе */
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    @media (min-width: 900px) {
+        .catalog-container { padding: 24px 0 60px; }
+        .global-title { font-size: 32px; }
+        .grid { grid-template-columns: repeat(4, 1fr); gap: 18px; }
+        .store-text h1 { font-size: 24px; }
+    }
+
+    /* Горизонтальный скролл Категорий */
+    .categories-scroll {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+    .categories-scroll::-webkit-scrollbar { display: none; }
+    .category-chip {
+        white-space: nowrap;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 8px 16px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text-main);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.15s ease;
+        flex-shrink: 0;
+    }
+    .category-chip.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+        box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+    }
+    .category-chip:active { transform: scale(0.95); }
+
+    /* Карточка товара в стиле премиального OLED */
+    .product-card {
+        background: var(--surface-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        position: relative;
+    }
+    .product-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+    }
+    .product-card:active { transform: scale(0.97); }
+
+    .img-wrapper {
+        width: 100%;
+        padding-bottom: 115%;
+        position: relative;
+        background: var(--border);
+    }
+    .img-wrapper img {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        object-fit: cover;
+    }
+    .img-wrapper .no-image {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: var(--surface);
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 36px;
+    }
+
+    /* Плашка с названием магазина на фото */
+    .store-badge {
+        position: absolute; top: 8px; left: 8px;
+        background: var(--badge-bg); backdrop-filter: blur(8px);
+        border: 1px solid var(--border);
+        padding: 3px 8px; border-radius: 7px;
+        font-size: 9.5px; font-weight: 800; color: var(--text-main);
+        text-transform: uppercase; letter-spacing: 0.4px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        max-width: calc(100% - 16px);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .product-info {
+        padding: 10px 11px 12px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        background: var(--surface-card);
+    }
+    .product-title {
+        font-size: 13px; font-weight: 700; line-height: 1.25; color: var(--text-main);
+        margin: 0 0 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        height: 32px;
+    }
+    .price-row { display: flex; justify-content: space-between; align-items: flex-end; }
+    .product-price { font-size: 14.5px; font-weight: 900; color: var(--primary); letter-spacing: -0.3px; }
+
+    .btn-mini {
+        width: 32px; height: 32px;
+        background: var(--btn-gradient);
+        color: white;
+        border-radius: var(--radius-md);
+        display: flex; justify-content: center; align-items: center;
+        font-size: 17px; font-weight: 800; line-height: 1;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        transition: transform 0.15s ease;
+        flex-shrink: 0;
+    }
+    .btn-mini:active { transform: scale(0.88); }
+
+    .empty-state { text-align: center; margin-top: 50px; padding: 0 16px; }
+    .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-title { font-size: 18px; font-weight: 800; color: var(--text-main); margin: 0 0 6px; }
+    .empty-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; padding: 0 10px; }
+</style>
+
+<div class="catalog-container">
+
+    <!-- ДИНАМИЧЕСКАЯ ШАПКА -->
+    {% if current_store %}
+        <!-- Если мы внутри конкретного магазина -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div class="globix-watermark">⚡️ brainmart</div>
+            <a href="{% url 'catalog' %}?global=1" class="btn-global-mini" title="{% trans 'Выйти на глобальный рынок' %}">🌍</a>
+        </div>
+
+        <div class="store-header">
+            <div class="store-brand-info">
+                {% if current_store.logo %}
+                    <img src="{{ current_store.logo.url }}" class="store-logo" alt="Логотип">
+                {% else %}
+                    <!-- Генерируем красивую аватарку из первой буквы названия -->
+                    <div class="store-logo-placeholder">{{ current_store.name|make_list|first|upper }}</div>
+                {% endif %}
+                <div class="store-text">
+                    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                        <h1>{{ current_store.name }}</h1>
+                        {% if current_store.theme_style == 'kids_playful' %}
+                            <span style="background: rgba(245, 158, 11, 0.2); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.4); padding: 2px 7px; border-radius: 999px; font-size: 10px; font-weight: 800;">🧸 {% trans "Kids Playful" %}</span>
+                        {% elif current_store.theme_style == 'premium_gold' %}
+                            <span style="background: rgba(212, 168, 67, 0.2); color: #D4A843; border: 1px solid rgba(212, 168, 67, 0.4); padding: 2px 7px; border-radius: 999px; font-size: 10px; font-weight: 800;">👑 {% trans "Premium Gold" %}</span>
+                        {% elif current_store.theme_style == 'genz_neon' %}
+                            <span style="background: rgba(168, 85, 247, 0.2); color: #C084FC; border: 1px solid rgba(168, 85, 247, 0.4); padding: 2px 7px; border-radius: 999px; font-size: 10px; font-weight: 800;">⚡ {% trans "Gen-Z Neon" %}</span>
+                        {% endif %}
+                    </div>
+                    <p>{% trans "Официальная витрина" %}</p>
+                </div>
+            </div>
+            
+            <!-- Кнопки управления шапки -->
+            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                {% if request.user.is_authenticated %}
+                    {% if request.user.is_superuser %}
+                        <a href="/platform-admin/" style="display: inline-flex; align-items: center; gap: 3px; background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); color: white; text-decoration: none; padding: 5px 8px; border-radius: 8px; font-size: 10.5px; font-weight: 800; box-shadow: 0 2px 6px rgba(239, 68, 68, 0.35); white-space: nowrap;">
+                            🛡 Admin
+                        </a>
+                        <a href="/brainmart-secure-admin-panel/" style="display: inline-flex; align-items: center; gap: 3px; background: rgba(245,158,11,0.2); border: 1px solid #F59E0B; color: #fbbf24; text-decoration: none; padding: 5px 8px; border-radius: 8px; font-size: 10.5px; font-weight: 800; white-space: nowrap;">
+                            ⚙️ Django
+                        </a>
+                    {% elif request.user.is_staff %}
+                        <a href="/brainmart-secure-admin-panel/" style="display: inline-flex; align-items: center; gap: 3px; background: rgba(245,158,11,0.2); border: 1px solid #F59E0B; color: #fbbf24; text-decoration: none; padding: 5px 8px; border-radius: 8px; font-size: 10.5px; font-weight: 800; white-space: nowrap;">
+                            ⚙️ Django
+                        </a>
+                    {% endif %}
+
+                    {% if request.user.store %}
+                        <a href="{% url 'seller-dashboard' %}" style="display: inline-flex; align-items: center; gap: 4px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; text-decoration: none; padding: 5px 9px; border-radius: 8px; font-size: 11px; font-weight: 800; white-space: nowrap;">
+                            🏪 {% trans "Кабинет" %}
+                        </a>
+                    {% endif %}
+                {% endif %}
+
+                <!-- Языковой переключатель в стиле iOS -->
+                <div class="segmented-control">
+                    {% get_current_language as CURRENT_LANG %}
+                    {% get_available_languages as LANGUAGES %}
+                    {% for lang_code, lang_name in LANGUAGES %}
+                        <button type="button" class="{% if lang_code == CURRENT_LANG %}active{% endif %}" onclick="changeLang('{{ lang_code }}')">
+                            {% if lang_code == 'ru' %}RU{% elif lang_code == 'uz' %}UZ{% else %}EN{% endif %}
+                        </button>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <!-- Если мы в глобальном поиске -->
+        <div class="global-header">
+            <div class="global-top-row">
+                <div class="globix-watermark">⚡️ brainmart</div>
+                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                    {% if request.user.is_authenticated %}
+                        {% if request.user.is_superuser %}
+                            <a href="/platform-admin/" class="btn-become-seller" style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); padding: 5px 9px; font-size: 10.5px;">
+                                🛡 SuperAdmin
+                            </a>
+                            <a href="/brainmart-secure-admin-panel/" class="btn-become-seller" style="background: rgba(245, 158, 11, 0.2); border: 1px solid #F59E0B; color: #fbbf24; padding: 5px 9px; font-size: 10.5px;">
+                                ⚙️ Django
+                            </a>
+                        {% elif request.user.is_staff %}
+                            <a href="/brainmart-secure-admin-panel/" class="btn-become-seller" style="background: rgba(245, 158, 11, 0.2); border: 1px solid #F59E0B; color: #fbbf24; padding: 5px 9px; font-size: 10.5px;">
+                                ⚙️ Django Admin
+                            </a>
+                        {% endif %}
+
+                        {% if request.user.store %}
+                            <a href="{% url 'seller-dashboard' %}" class="btn-become-seller" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%);">
+                                🏪 {% trans "Панель продавца" %}
+                            </a>
+                        {% elif not request.user.is_staff and not request.user.is_superuser %}
+                            <a href="{% url 'become-seller' %}" class="btn-become-seller">
+                                ✨ {% trans "Стать продавцом" %}
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <!-- Если обычный незалогиненный посетитель -->
+                        <a href="{% url 'become-seller' %}" class="btn-become-seller">
+                            ✨ {% trans "Стать продавцом" %}
+                        </a>
+                    {% endif %}
+
+                    <!-- Языковой переключатель на глобальном рынке -->
+                    <div class="segmented-control">
+                        {% get_current_language as CURRENT_LANG %}
+                        {% get_available_languages as LANGUAGES %}
+                        {% for lang_code, lang_name in LANGUAGES %}
+                            <button type="button" class="{% if lang_code == CURRENT_LANG %}active{% endif %}" onclick="changeLang('{{ lang_code }}')">
+                                {% if lang_code == 'ru' %}RU{% elif lang_code == 'uz' %}UZ{% else %}EN{% endif %}
+                            </button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="global-title-row">
+                <h1 class="global-title">{% trans "Глобальный рынок" %}</h1>
+                <p class="global-subtitle">{% trans "Товары от лучших магазинов" %}</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Поиск и ИИ-Стилист -->
+    <form method="get" class="search-container">
+        {% if current_store_id %}
+            <input type="hidden" name="store_id" value="{{ current_store_id }}">
+        {% endif %}
+        {% if selected_category_id %}
+            <input type="hidden" name="category" value="{{ selected_category_id }}">
+        {% endif %}
+        <span class="search-icon">🔍</span>
+        <input type="text" name="q" class="search-input" value="{{ search_query }}" placeholder="{% trans 'Поиск по товарам или стилю (напр: айтишник, оверсайз)...' %}">
+        <button type="submit" class="search-btn"></button>
+    </form>
+
+    <!-- Динамические Категории Маркетплейса -->
+    {% if categories %}
+        <div class="categories-scroll">
+            <a href="?{% if current_store_id %}store_id={{ current_store_id }}&{% endif %}{% if search_query %}q={{ search_query }}&{% endif %}" class="category-chip {% if not selected_category_id %}active{% endif %}">
+                ✨ {% trans "Все категории" %}
+            </a>
+            {% for cat in categories %}
+                <a href="?{% if current_store_id %}store_id={{ current_store_id }}&{% endif %}category={{ cat.id }}{% if search_query %}&q={{ search_query }}{% endif %}" class="category-chip {% if selected_category_id == cat.id %}active{% endif %}">
+                    {{ cat.name }}
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Быстрые ИИ-теги стилей -->
+    <div class="ai-tags-scroll">
+        <a href="?{% if current_store_id %}store_id={{ current_store_id }}&{% endif %}{% if selected_category_id %}category={{ selected_category_id }}&{% endif %}q=айтишник&ai=1" class="ai-tag-chip" style="color: #60A5FA;">
+            💻 {% trans "Айтишник" %}
+        </a>
+        <a href="?{% if current_store_id %}store_id={{ current_store_id }}&{% endif %}{% if selected_category_id %}category={{ selected_category_id }}&{% endif %}q=на+свидание&ai=1" class="ai-tag-chip" style="color: #F472B6;">
+            🥂 {% trans "На свидание" %}
+        </a>
+        <a href="?{% if current_store_id %}store_id={{ current_store_id }}&{% endif %}{% if selected_category_id %}category={{ selected_category_id }}&{% endif %}q=old+money&ai=1" class="ai-tag-chip" style="color: #FBBF24;">
+            ✨ {% trans "Old Money" %}
+        </a>
+        <a href="?{% if current_store_id %}store_id={{ current_store_id }}&{% endif %}{% if selected_category_id %}category={{ selected_category_id }}&{% endif %}q=спорт&ai=1" class="ai-tag-chip" style="color: #34D399;">
+            ⚡️ {% trans "Спорт" %}
+        </a>
+        <a href="?{% if current_store_id %}store_id={{ current_store_id }}&{% endif %}{% if selected_category_id %}category={{ selected_category_id }}&{% endif %}q=подарок&ai=1" class="ai-tag-chip" style="color: #A78BFA;">
+            🎁 {% trans "Подарок" %}
+        </a>
+    </div>
+
+    <!-- Плашка совета ИИ-Стилиста -->
+    {% if ai_advice %}
+        <div style="background: linear-gradient(135deg, rgba(79,70,229,0.15) 0%, rgba(147,51,234,0.15) 100%); border: 1.5px solid rgba(99,102,241,0.35); border-radius: 18px; padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.2);">
+            <div style="font-size: 24px; flex-shrink: 0; background: var(--primary); color: white; width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                🤖
+            </div>
+            <div>
+                <div style="font-size: 12px; font-weight: 800; color: #93C5FD; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+                    ✨ {% trans "Совет ИИ-Стилиста brainmart" %}
+                </div>
+                <div style="font-size: 13.5px; color: var(--text-main); font-weight: 600; line-height: 1.45;">
+                    {{ ai_advice }}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Товары -->
+    {% if products %}
+        <div class="grid">
+            {% for product in products %}
+                <a href="{% url 'product-detail' product.id %}{% if product.color %}?color={{ product.color }}{% endif %}" class="product-card">
+
+                    <div class="img-wrapper">
+                        {% if product.main_image %}
+                            <img src="{{ product.main_image.url }}" loading="lazy" alt="{{ product.name }}">
+                        {% else %}
+                            <div class="no-image">🛍</div>
+                        {% endif %}
+                        <!-- Показываем бейджик магазина ТОЛЬКО если мы на глобальном рынке -->
+                        {% if not current_store %}
+                            <div class="store-badge">{{ product.store.name }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="product-info">
+                        <div class="product-title">{{ product.name }}</div>
+                        <div style="display: flex; align-items: center; gap: 4px; font-size: 11.5px; margin-bottom: 6px; color: #F59E0B;">
+                            <span>★</span>
+                            <span style="font-weight: 800; color: var(--text-main);">{{ product.average_rating|default:"4.9" }}</span>
+                            {% if product.reviews_count %}
+                                <span style="color: var(--text-muted); font-size: 10.5px;">({{ product.reviews_count }})</span>
+                            {% endif %}
+                        </div>
+                        <div class="price-row">
+                            <div class="product-price">{{ product.base_price }} {% trans "сум" %}</div>
+                            <div class="btn-mini">+</div>
+                        </div>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">🧥</div>
+            <h3 class="empty-title">{% trans "Ничего не найдено" %}</h3>
+            <p class="empty-desc">{% trans "В этом разделе пока нет товаров. Попробуйте изменить поиск." %}</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

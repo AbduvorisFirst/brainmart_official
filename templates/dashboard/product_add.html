@@ -1,0 +1,850 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<style>
+    .form-section {
+        background: var(--card-bg); border: 1px solid var(--border);
+        border-radius: 24px; padding: 24px; margin-bottom: 24px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    .section-title { font-size: 20px; font-weight: 800; color: white; margin: 0 0 20px; display: flex; align-items: center; gap: 10px; }
+
+    /* Modern Drag-drop style for file input */
+    .file-input-wrapper {
+        position: relative;
+        background: rgba(15, 23, 42, 0.45); border: 2px dashed rgba(255, 255, 255, 0.22);
+        border-radius: 18px; padding: 28px 16px; text-align: center; color: var(--text-main);
+        cursor: pointer; width: 100%; box-sizing: border-box; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+    }
+    .file-input-wrapper:hover {
+        border-color: var(--primary);
+        background: rgba(79, 70, 229, 0.12);
+        transform: translateY(-2px);
+    }
+    .file-input-wrapper.is-dragover {
+        border-color: #6366f1 !important;
+        background: rgba(99, 102, 241, 0.18) !important;
+        transform: scale(1.02);
+        box-shadow: 0 0 28px rgba(99, 102, 241, 0.35) !important;
+    }
+    .file-input-wrapper.has-files {
+        border: 2px solid #10b981 !important;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(15, 23, 42, 0.7) 100%) !important;
+        box-shadow: 0 0 24px rgba(16, 185, 129, 0.22) !important;
+    }
+    .file-input-wrapper.pulse-active {
+        animation: dropzoneSuccessPulse 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes dropzoneSuccessPulse {
+        0% { transform: scale(0.97); }
+        50% { transform: scale(1.03); }
+        100% { transform: scale(1); }
+    }
+
+    .file-input-wrapper input[type="file"] {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;
+    }
+    .file-icon { font-size: 34px; color: var(--primary); display: inline-block; transition: transform 0.2s ease; }
+    .file-text { font-size: 15px; font-weight: 700; color: white; margin: 0; }
+    .file-subtext { font-size: 13px; color: var(--text-muted); margin: 0; }
+
+    @keyframes checkBounce {
+        0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+        60% { transform: scale(1.3) rotate(8deg); opacity: 1; }
+        85% { transform: scale(0.9) rotate(-3deg); }
+        100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    .success-badge-icon {
+        display: inline-block;
+        font-size: 34px;
+        animation: checkBounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    /* Photo Previews Grid */
+    .photo-preview-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        gap: 12px;
+        margin-top: 14px;
+    }
+    @media (max-width: 600px) {
+        .photo-preview-grid {
+            grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+            gap: 8px;
+        }
+    }
+
+    .photo-preview-card {
+        position: relative;
+        aspect-ratio: 1 / 1;
+        border-radius: 14px;
+        overflow: hidden;
+        background: rgba(15, 23, 42, 0.9);
+        border: 2px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+        animation: photoPopIn 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards;
+        animation-delay: calc(var(--delay, 0) * 0.06s);
+        transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .photo-preview-card:hover {
+        transform: translateY(-4px) scale(1.03);
+        border-color: #10b981;
+        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+        z-index: 2;
+    }
+    @keyframes photoPopIn {
+        0% {
+            opacity: 0;
+            transform: scale(0.4) translateY(20px);
+        }
+        70% {
+            opacity: 1;
+            transform: scale(1.08) translateY(-3px);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    .preview-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: opacity 0.25s ease;
+        opacity: 0;
+    }
+    .preview-img.loaded {
+        opacity: 1;
+    }
+
+    .badge-num {
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(6px);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 800;
+        padding: 2px 7px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+    .badge-size {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(6px);
+        color: #cbd5e1;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .badge-main-cover {
+        position: absolute;
+        bottom: 6px;
+        left: 6px;
+        right: 6px;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: #ffffff;
+        font-size: 10px;
+        font-weight: 800;
+        text-align: center;
+        padding: 3px 5px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.5);
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        letter-spacing: 0.3px;
+        animation: coverPulse 2s ease-in-out infinite alternate;
+    }
+    @keyframes coverPulse {
+        from { box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4); }
+        to { box-shadow: 0 2px 16px rgba(245, 158, 11, 0.85); }
+    }
+
+    .photo-status-banner {
+        margin-top: 12px;
+        padding: 12px 16px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 13px;
+        animation: bannerFadeIn 0.35s ease;
+    }
+    .photo-status-banner.is-success {
+        background: rgba(16, 185, 129, 0.12);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        color: #34d399;
+    }
+    .photo-status-banner.is-warning {
+        background: rgba(245, 158, 11, 0.12);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        color: #fbbf24;
+    }
+    @keyframes bannerFadeIn {
+        0% { opacity: 0; transform: translateY(-8px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .btn-clear-photos {
+        background: rgba(239, 68, 68, 0.15);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #ef4444;
+        padding: 6px 12px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+    .btn-clear-photos:hover {
+        background: rgba(239, 68, 68, 0.25);
+        color: #f87171;
+        transform: scale(1.04);
+    }
+
+    .is-shake-error {
+        animation: shakeError 0.5s ease-in-out !important;
+        border-color: #ef4444 !important;
+    }
+    @keyframes shakeError {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-8px); }
+        40%, 80% { transform: translateX(8px); }
+    }
+
+    .color-block {
+        background: rgba(15, 23, 42, 0.3); border: 1px solid var(--border);
+        border-radius: 20px; padding: 24px; margin-bottom: 20px; position: relative;
+    }
+    .remove-color-btn {
+        position: absolute; top: 16px; right: 16px; background: rgba(239, 68, 68, 0.1);
+        color: #ef4444; border: none; border-radius: 12px; width: 36px; height: 36px;
+        cursor: pointer; font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center; transition: background 0.2s;
+    }
+    .remove-color-btn:hover { background: rgba(239, 68, 68, 0.2); }
+
+    .sizes-wrapper {
+        background: rgba(15, 23, 42, 0.5); padding: 20px; border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.05); margin-top: 20px;
+    }
+    .quick-chips-wrapper {
+        display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;
+    }
+    .quick-chip {
+        background: rgba(79, 70, 229, 0.15); border: 1px solid rgba(99, 102, 241, 0.35);
+        color: #c7d2fe; font-size: 12px; font-weight: 700; padding: 5px 11px;
+        border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+    }
+    .quick-chip:hover {
+        background: rgba(79, 70, 229, 0.35); color: #ffffff; transform: translateY(-1px);
+        border-color: #818cf8;
+    }
+    .size-row { display: grid; grid-template-columns: 2fr 1fr 1.3fr auto; gap: 10px; align-items: center; margin-bottom: 10px; }
+    .size-row input { margin: 0; }
+
+    .electronics-stock-wrapper {
+        background: rgba(15, 23, 42, 0.5); padding: 20px; border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.05); margin-top: 20px;
+    }
+
+    .btn-add-mini {
+        background: rgba(79, 70, 229, 0.1); color: var(--primary); width: 100%;
+        border: 1px dashed var(--primary); padding: 14px; border-radius: 14px;
+        font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 10px; transition: background 0.2s;
+    }
+    .btn-add-mini:hover { background: rgba(79, 70, 229, 0.15); }
+
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .spinner {
+        border: 3px solid rgba(255,255,255,0.3); border-top-color: white;
+        border-radius: 50%; width: 20px; height: 20px;
+        animation: spin 1s linear infinite; display: inline-block; margin-right: 8px;
+    }
+    .btn-submit.loading { cursor: not-allowed; opacity: 0.8; }
+
+    @media (min-width: 768px) {
+        .desktop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    }
+    @media (max-width: 600px) {
+        .size-row { grid-template-columns: 1fr 1fr; gap: 8px; background: rgba(0,0,0,0.25); padding: 12px; border-radius: 12px; }
+        .size-row input { font-size: 13px; }
+        .size-row button { grid-column: span 2; }
+        .form-section { padding: 20px 16px; }
+    }
+</style>
+
+<div style="max-width: 1200px; margin: 0 auto;">
+    <h2 style="margin-bottom: 24px; font-size: 24px; font-weight: 800;">📦 {% trans "Добавить новый товар" %}</h2>
+
+    <form method="post" enctype="multipart/form-data" id="productForm">
+        {% csrf_token %}
+
+        <div class="desktop-grid">
+            <!-- ШАГ 1 -->
+            <div class="form-section" style="height: fit-content;">
+                <h3 class="section-title"><span>📝</span> 1. {% trans "Основная информация" %}</h3>
+
+                <label>{% trans "Тип параметров товара" %}</label>
+                <select name="product_type" id="productType" onchange="toggleProductType()" style="background: rgba(255,255,255,0.05); border: 1.5px solid var(--border); color: white; padding: 12px; border-radius: 10px; width: 100%; margin-bottom: 16px; font-weight: 700; font-size: 14px; box-sizing: border-box;">
+                    <option value="clothes" selected>👕 {% trans "Одежда (размеры S, M, L, XL, 42, 44... + цвет)" %}</option>
+                    <option value="shoes">👟 {% trans "Обувь (размеры 36, 37, 38, 39, 40... + цвет)" %}</option>
+                    <option value="tires">🚗 {% trans "Автошины и диски (типоразмер 205/55 R16, 195/65 R15... + сезон/бренд)" %}</option>
+                    <option value="electronics_variants">📱 {% trans "Электроника и гаджеты (память: 128GB, 256GB, 512GB... + цвет корпуса)" %}</option>
+                    <option value="food_groceries">🍏 {% trans "Продукты питания и напитки (фасовка/вес: 1 кг, 500 г, 1.5 л... + вкус/сорт)" %}</option>
+                    <option value="electronics">📦 {% trans "Штучный товар / Бытовая техника / Книги (без сетки размеров — поштучно)" %}</option>
+                </select>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <label style="margin: 0;">{% trans "Категория товара" %}</label>
+                    {% if default_category_id %}
+                        <span style="font-size: 11px; color: #10B981; font-weight: 700; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); padding: 2px 8px; border-radius: 6px;">
+                            📌 {% trans "Ниша магазина (по умолчанию)" %}
+                        </span>
+                    {% endif %}
+                </div>
+                <select name="category_id" id="categorySelect" onchange="onCategoryChange(this)" required style="background: rgba(255,255,255,0.05); border: 1.5px solid var(--border); color: white; padding: 12px; border-radius: 10px; width: 100%; margin-bottom: 6px; font-weight: 700; font-size: 14px; box-sizing: border-box;">
+                    {% if not default_category_id %}
+                        <option value="" disabled selected>{% trans "Выберите категорию..." %}</option>
+                    {% endif %}
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if cat.id == default_category_id %}selected{% endif %}>{{ cat.name }}</option>
+                    {% empty %}
+                        <option value="" disabled>{% trans "Категории не созданы" %}</option>
+                    {% endfor %}
+                </select>
+                <div style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 16px;">
+                    💡 {% trans "Выбранная категория сохраняется навечно для всех будущих товаров. Если смените её — новая категория станет основной." %}
+                </div>
+
+                <label>{% trans "Название товара" %}</label>
+                <input type="text" name="name" id="productNameInput" required placeholder="{% trans 'Например: Худи оверсайз / iPhone 15 Pro' %}">
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <label style="margin: 0;">{% trans "Описание товара" %}</label>
+                    <button type="button" onclick="generateAIDescription()" id="aiDescBtn" style="background: rgba(79,70,229,0.15); border: 1px solid rgba(79,70,229,0.3); color: #818cf8; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                        <span id="aiDescText">✨ {% trans "Написать через ИИ" %}</span>
+                        <span id="aiDescSpinner" style="display: none;">⏳ {% trans "ИИ пишет..." %}</span>
+                    </button>
+                </div>
+                <textarea name="description" id="productDescTextarea" rows="6" placeholder="{% trans 'Опишите товар: материал, особенности, комплектацию... или нажмите Написать через ИИ' %}"></textarea>
+
+                <label>{% trans "Цена за 1 шт. (сум)" %}</label>
+                <input type="number" name="base_price" required placeholder="350000">
+            </div>
+
+            <!-- ШАГ 2 -->
+            <div class="form-section" id="configurableSection">
+                <h3 class="section-title"><span>&#127912;</span> 2. {% trans "Цвета, фото и остатки" %}</h3>
+                <p id="sectionColorHint" style="font-size: 13px; color: var(--text-muted); margin-top: 0; margin-bottom: 20px;">
+                    {% trans "Для каждого цвета загрузите от 2 до 10 фотографий. Добавьте размеры и количество на складе." %}
+                </p>
+
+                <div id="colors-container"></div>
+
+                <button type="button" class="btn" style="background: rgba(255,255,255,0.05); border: 1.5px dashed var(--primary); color: white; padding: 16px; width: 100%; margin-top: 8px;" onclick="addColorBlock()">
+                    + {% trans "Добавить ещё один цвет" %}
+                </button>
+            </div>
+        </div>
+
+        <button type="submit" id="submitBtn" class="btn btn-submit" style="padding: 18px; font-size: 18px; font-weight: 800; box-shadow: 0 8px 24px rgba(79, 70, 229, 0.4); margin-top: 12px; margin-bottom: 40px; width: 100%; max-width: 400px; margin-left: auto; margin-right: auto; display: flex;">
+            &#128640; {% trans "Опубликовать товар" %}
+        </button>
+    </form>
+</div>
+
+<script>
+    let colorIndex = 0;
+    const activeObjectUrls = {};
+
+    const TYPE_CONFIG = {
+        clothes: {
+            isGrid: true,
+            colorLabel: "{% filter escapejs %}{% trans 'Цвет одежды' %}{% endfilter %}",
+            colorHint: "{% filter escapejs %}{% trans '(Черный, Белый, Оливковый...)' %}{% endfilter %}",
+            colorPlaceholder: "{% filter escapejs %}{% trans 'Черный' %}{% endfilter %}",
+            sizesTitle: "{% filter escapejs %}{% trans 'Сетка размеров и количество:' %}{% endfilter %}",
+            sizePlaceholder: "{% filter escapejs %}{% trans 'Размер (S, M, L, 42...)' %}{% endfilter %}",
+            qtyPlaceholder: "{% filter escapejs %}{% trans 'Шт.' %}{% endfilter %}",
+            pricePlaceholder: "{% filter escapejs %}{% trans 'Своя цена (необяз.)' %}{% endfilter %}",
+            hint: "{% filter escapejs %}{% trans 'Для каждого цвета загрузите фото, укажите размеры и количество на складе.' %}{% endfilter %}",
+            chips: ["XS", "S", "M", "L", "XL", "2XL", "3XL", "42", "44", "46", "48", "50"]
+        },
+        shoes: {
+            isGrid: true,
+            colorLabel: "{% filter escapejs %}{% trans 'Цвет обуви' %}{% endfilter %}",
+            colorHint: "{% filter escapejs %}{% trans '(Черный, Белый, Коричневый...)' %}{% endfilter %}",
+            colorPlaceholder: "{% filter escapejs %}{% trans 'Черный' %}{% endfilter %}",
+            sizesTitle: "{% filter escapejs %}{% trans 'Размеры обуви и количество:' %}{% endfilter %}",
+            sizePlaceholder: "{% filter escapejs %}{% trans 'Размер (38, 39, 40...)' %}{% endfilter %}",
+            qtyPlaceholder: "{% filter escapejs %}{% trans 'Пар' %}{% endfilter %}",
+            pricePlaceholder: "{% filter escapejs %}{% trans 'Своя цена (необяз.)' %}{% endfilter %}",
+            hint: "{% filter escapejs %}{% trans 'Для каждого цвета укажите размеры обуви и количество пар в наличии.' %}{% endfilter %}",
+            chips: ["36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46"]
+        },
+        tires: {
+            isGrid: true,
+            colorLabel: "{% filter escapejs %}{% trans 'Сезонность / Бренд / Модель' %}{% endfilter %}",
+            colorHint: "{% filter escapejs %}{% trans '(Летняя, Зимняя, Всесезонная, Michelin, Pirelli...)' %}{% endfilter %}",
+            colorPlaceholder: "{% filter escapejs %}{% trans 'Летняя (Michelin Primacy 4)' %}{% endfilter %}",
+            sizesTitle: "{% filter escapejs %}{% trans 'Типоразмеры шин и остатки:' %}{% endfilter %}",
+            sizePlaceholder: "{% filter escapejs %}{% trans 'Типоразмер (205/55 R16, 195/65 R15...)' %}{% endfilter %}",
+            qtyPlaceholder: "{% filter escapejs %}{% trans 'Шт.' %}{% endfilter %}",
+            pricePlaceholder: "{% filter escapejs %}{% trans 'Цена (необяз.)' %}{% endfilter %}",
+            hint: "{% filter escapejs %}{% trans 'Укажите сезонность и бренд, загрузите фото и выберите типоразмеры шин с количеством.' %}{% endfilter %}",
+            chips: ["185/65 R15", "195/65 R15", "205/55 R16", "205/60 R16", "215/55 R17", "215/60 R16", "225/45 R17", "225/55 R18", "235/55 R19", "275/40 R20"]
+        },
+        electronics_variants: {
+            isGrid: true,
+            colorLabel: "{% filter escapejs %}{% trans 'Цвет корпуса / Версия' %}{% endfilter %}",
+            colorHint: "{% filter escapejs %}{% trans '(Space Gray, Midnight, Silver, Черный...)' %}{% endfilter %}",
+            colorPlaceholder: "{% filter escapejs %}{% trans 'Черный (Midnight)' %}{% endfilter %}",
+            sizesTitle: "{% filter escapejs %}{% trans 'Объём памяти / Конфигурация и остатки:' %}{% endfilter %}",
+            sizePlaceholder: "{% filter escapejs %}{% trans 'Память (128 GB, 256 GB, 8/256...)' %}{% endfilter %}",
+            qtyPlaceholder: "{% filter escapejs %}{% trans 'Шт.' %}{% endfilter %}",
+            pricePlaceholder: "{% filter escapejs %}{% trans 'Цена (необяз.)' %}{% endfilter %}",
+            hint: "{% filter escapejs %}{% trans 'Для каждого цвета корпуса добавьте фото, укажите память/модификацию и цены.' %}{% endfilter %}",
+            chips: ["64 GB", "128 GB", "256 GB", "512 GB", "1 TB", "8/256 GB", "16/512 GB"]
+        },
+        food_groceries: {
+            isGrid: true,
+            colorLabel: "{% filter escapejs %}{% trans 'Вкус / Сорт / Вариант' %}{% endfilter %}",
+            colorHint: "{% filter escapejs %}{% trans '(Классический, Шоколадный, Высший сорт, Стандарт...)' %}{% endfilter %}",
+            colorPlaceholder: "{% filter escapejs %}{% trans 'Классический' %}{% endfilter %}",
+            sizesTitle: "{% filter escapejs %}{% trans 'Фасовка / Вес / Объём и остатки:' %}{% endfilter %}",
+            sizePlaceholder: "{% filter escapejs %}{% trans 'Фасовка (1 кг, 500 г, 1.5 л, Упаковка...)' %}{% endfilter %}",
+            qtyPlaceholder: "{% filter escapejs %}{% trans 'Шт./Упак.' %}{% endfilter %}",
+            pricePlaceholder: "{% filter escapejs %}{% trans 'Цена (необяз.)' %}{% endfilter %}",
+            hint: "{% filter escapejs %}{% trans 'Укажите вкус или сорт, загрузите фото товара и добавьте варианты фасовки/веса.' %}{% endfilter %}",
+            chips: ["100 г", "250 г", "500 г", "1 кг", "2 кг", "5 кг", "500 мл", "1 л", "1.5 л", "5 л", "1 шт", "Упаковка"]
+        },
+        electronics: {
+            isGrid: false,
+            colorLabel: "{% filter escapejs %}{% trans 'Цвет / Комплектация' %}{% endfilter %}",
+            colorHint: "{% filter escapejs %}{% trans '(Черный, Белый, Стандарт...)' %}{% endfilter %}",
+            colorPlaceholder: "{% filter escapejs %}{% trans 'Стандарт' %}{% endfilter %}",
+            stockLabel: "{% filter escapejs %}{% trans 'Количество на складе (шт.)' %}{% endfilter %}",
+            stockPlaceholder: "{% filter escapejs %}{% trans 'Например: 15' %}{% endfilter %}",
+            hint: "{% filter escapejs %}{% trans 'Для штучных товаров загрузите фото и укажите общее количество товара на складе.' %}{% endfilter %}",
+            chips: []
+        }
+    };
+
+    const I18N = {
+        photosLabel: "{% filter escapejs %}{% trans 'Фотографии товара' %}{% endfilter %}",
+        photosReq: "{% filter escapejs %}{% trans 'от 2 до 10 фото' %}{% endfilter %}",
+        dropzoneDefault: "{% filter escapejs %}{% trans 'Нажмите или перетащите фото' %}{% endfilter %}",
+        dropzoneSubDefault: "{% filter escapejs %}{% trans 'Вы можете выбрать сразу несколько (удерживайте Ctrl/Cmd)' %}{% endfilter %}",
+        selectedPhotos: "{% filter escapejs %}{% trans 'Выбрано фото:' %}{% endfilter %}",
+        changePhotos: "{% filter escapejs %}{% trans 'Нажмите здесь, чтобы изменить выбор фото' %}{% endfilter %}",
+        coverPhoto: "{% filter escapejs %}{% trans 'Главное фото' %}{% endfilter %}",
+        readyNotice: "{% filter escapejs %}{% trans 'Отлично! Фото готовы к публикации' %}{% endfilter %}",
+        singleWarning: "{% filter escapejs %}{% trans 'Выбрано только 1 фото. Рекомендуется от 2 до 10 фото!' %}{% endfilter %}",
+        resetPhotos: "{% filter escapejs %}{% trans 'Сбросить фото' %}{% endfilter %}",
+        deleteColor: "{% filter escapejs %}{% trans 'Удалить этот вариант' %}{% endfilter %}",
+        addSize: "{% filter escapejs %}{% trans '+ Добавить свой вариант / размер' %}{% endfilter %}",
+        quickPick: "{% filter escapejs %}{% trans 'Быстрый выбор:' %}{% endfilter %}",
+        uploadingBtn: "{% filter escapejs %}{% trans 'Загружаем фото, создаем товар...' %}{% endfilter %}",
+        atLeastOnePhoto: "{% filter escapejs %}{% trans 'Пожалуйста, загрузите хотя бы 1 фото для варианта' %}{% endfilter %}"
+    };
+
+    function renderChips(idx, chips) {
+        const wrap = document.getElementById('chips-container-' + idx);
+        if (!wrap) return;
+        if (!chips || chips.length === 0) {
+            wrap.style.display = 'none';
+            wrap.innerHTML = '';
+            return;
+        }
+        wrap.style.display = 'flex';
+        wrap.innerHTML = '<span style="font-size:11.5px;color:var(--text-muted);font-weight:700;display:flex;align-items:center;margin-right:4px;">' + I18N.quickPick + '</span>' +
+            chips.map(function(c) {
+                return '<button type="button" class="quick-chip" onclick="addSizeRow(' + idx + ', \'' + c + '\')">+ ' + c + '</button>';
+            }).join('');
+    }
+
+    function addColorBlock() {
+        colorIndex++;
+        const container = document.getElementById('colors-container');
+        const type = document.getElementById('productType').value;
+        const cfg = TYPE_CONFIG[type] || TYPE_CONFIG.clothes;
+        const block = document.createElement('div');
+        block.className = 'color-block';
+        block.id = 'color-block-' + colorIndex;
+
+        const sizesDisplay = cfg.isGrid ? 'block' : 'none';
+        const stockDisplay = cfg.isGrid ? 'none' : 'block';
+        const idx = colorIndex;
+
+        block.innerHTML =
+            '<input type="hidden" name="color_indices[]" value="' + idx + '">' +
+            '<button type="button" class="remove-color-btn" onclick="removeColorBlock(' + idx + ')" title="' + I18N.deleteColor + '">&#x2715;</button>' +
+
+            '<div style="margin-bottom:16px;">' +
+              '<label id="color-label-' + idx + '">' + cfg.colorLabel + ' <span id="color-hint-' + idx + '" style="color:var(--text-muted);font-weight:400;font-size:12px;">' + cfg.colorHint + '</span></label>' +
+              '<input type="text" name="color_name_' + idx + '" id="color-name-' + idx + '" placeholder="' + cfg.colorPlaceholder + '" required>' +
+            '</div>' +
+
+            '<div style="margin-bottom:16px;">' +
+              '<label style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">' +
+                '<span>' + I18N.photosLabel + ' <span style="color:#f59e0b;font-weight:700;">&#9733; ' + I18N.photosReq + '</span></span>' +
+              '</label>' +
+              '<div class="photo-upload-container" id="photo-container-' + idx + '">' +
+                '<label class="file-input-wrapper" id="dropzone-' + idx + '">' +
+                  '<div class="file-icon-wrap" id="file-icon-wrap-' + idx + '">' +
+                    '<span class="file-icon">📸</span>' +
+                  '</div>' +
+                  '<div class="file-info-text">' +
+                    '<p class="file-text" id="file-text-' + idx + '">' + I18N.dropzoneDefault + '</p>' +
+                    '<p class="file-subtext" id="file-subtext-' + idx + '">' + I18N.dropzoneSubDefault + '</p>' +
+                  '</div>' +
+                  '<input type="file" name="color_images_' + idx + '" id="file-input-' + idx + '" accept="image/*" multiple required onchange="handlePhotoSelect(this, ' + idx + ')">' +
+                '</label>' +
+                '<div class="photo-preview-grid" id="preview-grid-' + idx + '"></div>' +
+                '<div class="photo-status-banner" id="photo-banner-' + idx + '" style="display:none;"></div>' +
+              '</div>' +
+            '</div>' +
+
+            '<div class="sizes-wrapper" id="sizes-wrapper-' + idx + '" style="display:' + sizesDisplay + ';">' +
+              '<label id="sizes-title-' + idx + '" style="color:white;margin-bottom:10px;display:block;font-weight:700;">&#128208; ' + cfg.sizesTitle + '</label>' +
+              '<div class="quick-chips-wrapper" id="chips-container-' + idx + '"></div>' +
+              '<div id="sizes-container-' + idx + '"></div>' +
+              '<button type="button" class="btn-add-mini" onclick="addSizeRow(' + idx + ')">' + I18N.addSize + '</button>' +
+            '</div>' +
+
+            '<div class="electronics-stock-wrapper" id="electronics-wrapper-' + idx + '" style="display:' + stockDisplay + ';">' +
+              '<label id="stock-label-' + idx + '" style="color:white;margin-bottom:8px;display:block;font-weight:700;">&#128230; ' + (cfg.stockLabel || 'Количество на складе (шт.)') + '</label>' +
+              '<input type="number" name="color_qty_' + idx + '" placeholder="' + (cfg.stockPlaceholder || '15') + '" min="0">' +
+            '</div>';
+
+        container.appendChild(block);
+        attachDropzoneEvents(idx);
+        renderChips(idx, cfg.chips);
+        if (cfg.isGrid) {
+            addSizeRow(idx);
+        }
+    }
+
+    function removeColorBlock(idx) {
+        const block = document.getElementById('color-block-' + idx);
+        if (block) {
+            if (activeObjectUrls[idx]) {
+                activeObjectUrls[idx].forEach(url => URL.revokeObjectURL(url));
+                delete activeObjectUrls[idx];
+            }
+            block.remove();
+        }
+    }
+
+    function attachDropzoneEvents(idx) {
+        const dropzone = document.getElementById('dropzone-' + idx);
+        const input = document.getElementById('file-input-' + idx);
+        if (!dropzone || !input) return;
+
+        ['dragenter', 'dragover'].forEach(name => {
+            dropzone.addEventListener(name, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropzone.classList.add('is-dragover');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(name => {
+            dropzone.addEventListener(name, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropzone.classList.remove('is-dragover');
+            });
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                try {
+                    input.files = e.dataTransfer.files;
+                    handlePhotoSelect(input, idx);
+                } catch (err) {
+                    console.warn('Could not assign dataTransfer files to input', err);
+                }
+            }
+        });
+    }
+
+    function handlePhotoSelect(input, idx) {
+        const files = Array.from(input.files || []);
+        const dropzone = document.getElementById('dropzone-' + idx);
+        const grid = document.getElementById('preview-grid-' + idx);
+        const banner = document.getElementById('photo-banner-' + idx);
+        const iconWrap = document.getElementById('file-icon-wrap-' + idx);
+        const textEl = document.getElementById('file-text-' + idx);
+        const subtextEl = document.getElementById('file-subtext-' + idx);
+
+        if (activeObjectUrls[idx]) {
+            activeObjectUrls[idx].forEach(url => URL.revokeObjectURL(url));
+        }
+        activeObjectUrls[idx] = [];
+        grid.innerHTML = '';
+
+        if (files.length === 0) {
+            dropzone.classList.remove('has-files');
+            iconWrap.innerHTML = '<span class="file-icon">📸</span>';
+            textEl.innerText = I18N.dropzoneDefault;
+            subtextEl.innerText = I18N.dropzoneSubDefault;
+            banner.style.display = 'none';
+            return;
+        }
+
+        // Visual feedback on dropzone
+        dropzone.classList.add('has-files');
+        dropzone.classList.remove('pulse-active');
+        void dropzone.offsetWidth; // trigger reflow for smooth animation
+        dropzone.classList.add('pulse-active');
+
+        iconWrap.innerHTML = '<span class="success-badge-icon">✅</span>';
+        textEl.innerHTML = `<span style="color:#10b981; font-weight:800;">✅ ${I18N.selectedPhotos} ${files.length} ${I18N.pcs}</span>`;
+        subtextEl.innerText = I18N.changePhotos;
+
+        // Render photo cards with staggered pop-in animation
+        files.forEach((file, index) => {
+            const url = URL.createObjectURL(file);
+            activeObjectUrls[idx].push(url);
+
+            const card = document.createElement('div');
+            card.className = 'photo-preview-card';
+            card.style.setProperty('--delay', index);
+
+            let sizeStr = '';
+            if (file.size > 1024 * 1024) {
+                sizeStr = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+            } else {
+                sizeStr = Math.round(file.size / 1024) + ' KB';
+            }
+
+            let mainBadgeHtml = '';
+            if (index === 0) {
+                mainBadgeHtml = `<div class="badge-main-cover">&#9733; ${I18N.coverPhoto}</div>`;
+            }
+
+            card.innerHTML = `
+                <img src="${url}" alt="Фото ${index + 1}" class="preview-img" onload="this.classList.add('loaded')">
+                <span class="badge-num">#${index + 1}</span>
+                <span class="badge-size">${sizeStr}</span>
+                ${mainBadgeHtml}
+            `;
+            grid.appendChild(card);
+        });
+
+        // Status banner
+        banner.style.display = 'flex';
+        if (files.length >= 2) {
+            banner.className = 'photo-status-banner is-success';
+            banner.innerHTML = `
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:18px;">🎉</span>
+                    <span><strong>${I18N.readyNotice}</strong> (${files.length} ${I18N.pcs})</span>
+                </div>
+                <button type="button" class="btn-clear-photos" onclick="clearPhotos(${idx})" title="${I18N.resetPhotos}">✕ ${I18N.resetPhotos}</button>
+            `;
+        } else {
+            banner.className = 'photo-status-banner is-warning';
+            banner.innerHTML = `
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:18px;">⚠️</span>
+                    <span>${I18N.singleWarning}</span>
+                </div>
+                <button type="button" class="btn-clear-photos" onclick="clearPhotos(${idx})" title="${I18N.resetPhotos}">✕ ${I18N.resetPhotos}</button>
+            `;
+        }
+    }
+
+    function clearPhotos(idx) {
+        const input = document.getElementById('file-input-' + idx);
+        if (input) {
+            input.value = '';
+            handlePhotoSelect(input, idx);
+        }
+    }
+
+    function addSizeRow(idx, presetVal, presetQty, presetPrice) {
+        presetVal = (typeof presetVal === 'string') ? presetVal : '';
+        presetQty = (typeof presetQty === 'string' || typeof presetQty === 'number') ? presetQty : '';
+        presetPrice = (typeof presetPrice === 'string' || typeof presetPrice === 'number') ? presetPrice : '';
+
+        const type = document.getElementById('productType').value;
+        const cfg = TYPE_CONFIG[type] || TYPE_CONFIG.clothes;
+        const sizesContainer = document.getElementById('sizes-container-' + idx);
+        if (!sizesContainer) return;
+
+        const row = document.createElement('div');
+        row.className = 'size-row';
+        row.innerHTML =
+            '<div style="flex:2;"><input type="text" name="size_' + idx + '[]" value="' + presetVal + '" placeholder="' + cfg.sizePlaceholder + '"></div>' +
+            '<div style="flex:1;"><input type="number" name="qty_' + idx + '[]" value="' + presetQty + '" placeholder="' + cfg.qtyPlaceholder + '" min="0"></div>' +
+            '<div style="flex:1.3;"><input type="number" name="price_' + idx + '[]" value="' + presetPrice + '" placeholder="' + cfg.pricePlaceholder + '" min="0" step="1000"></div>' +
+            '<button type="button" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;padding:10px 14px;border-radius:8px;cursor:pointer;" onclick="this.parentElement.remove()" title="Удалить">&#x2715;</button>';
+        sizesContainer.appendChild(row);
+    }
+
+    function toggleProductType() {
+        const type = document.getElementById('productType').value;
+        const cfg = TYPE_CONFIG[type] || TYPE_CONFIG.clothes;
+        const hint = document.getElementById('sectionColorHint');
+
+        if (hint) {
+            hint.textContent = cfg.hint;
+        }
+
+        document.querySelectorAll('.color-block').forEach(function(block) {
+            var blockId = block.id.replace('color-block-', '');
+            var sw = document.getElementById('sizes-wrapper-' + blockId);
+            var ew = document.getElementById('electronics-wrapper-' + blockId);
+            var colorLabel = document.getElementById('color-label-' + blockId);
+            var colorHint = document.getElementById('color-hint-' + blockId);
+            var colorInput = document.getElementById('color-name-' + blockId);
+            var sizesTitle = document.getElementById('sizes-title-' + blockId);
+            var stockLabel = document.getElementById('stock-label-' + blockId);
+
+            if (colorLabel && colorHint) {
+                colorLabel.childNodes[0].nodeValue = cfg.colorLabel + ' ';
+                colorHint.textContent = cfg.colorHint;
+            }
+            if (colorInput && !colorInput.value) {
+                colorInput.placeholder = cfg.colorPlaceholder;
+            }
+            if (sizesTitle) {
+                sizesTitle.innerHTML = '&#128208; ' + cfg.sizesTitle;
+            }
+            if (stockLabel) {
+                stockLabel.innerHTML = '&#128230; ' + (cfg.stockLabel || 'Количество на складе (шт.)');
+            }
+
+            renderChips(blockId, cfg.chips);
+
+            if (sw && ew) {
+                if (cfg.isGrid) {
+                    sw.style.display = 'block';
+                    ew.style.display = 'none';
+                    sw.querySelectorAll('input[name="size_' + blockId + '[]"]').forEach(function(inp) {
+                        inp.placeholder = cfg.sizePlaceholder;
+                    });
+                    sw.querySelectorAll('input[name="qty_' + blockId + '[]"]').forEach(function(inp) {
+                        inp.placeholder = cfg.qtyPlaceholder;
+                    });
+                    sw.querySelectorAll('input[name="price_' + blockId + '[]"]').forEach(function(inp) {
+                        inp.placeholder = cfg.pricePlaceholder;
+                    });
+                } else {
+                    sw.style.display = 'none';
+                    ew.style.display = 'block';
+                }
+            }
+        });
+    }
+
+    function onCategoryChange(sel) {
+        if (!sel || sel.selectedIndex < 0) return;
+        const text = sel.options[sel.selectedIndex].text.toLowerCase();
+        const typeSelect = document.getElementById('productType');
+        if (!typeSelect) return;
+
+        if (text.includes('авто') || text.includes('шин')) {
+            typeSelect.value = 'tires';
+        } else if (text.includes('продукт')) {
+            typeSelect.value = 'food_groceries';
+        } else if (text.includes('электрон') || text.includes('техник')) {
+            typeSelect.value = 'electronics_variants';
+        } else if (text.includes('одежд') || text.includes('обув')) {
+            typeSelect.value = 'clothes';
+        } else {
+            typeSelect.value = 'electronics';
+        }
+        toggleProductType();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        addColorBlock();
+        const catSel = document.getElementById('categorySelect');
+        if (catSel && catSel.value) {
+            onCategoryChange(catSel);
+        }
+    });
+
+    async function generateAIDescription() {
+        const name = document.getElementById('productNameInput').value.trim();
+        if (!name) {
+            alert('Пожалуйста, введите название товара (например: Худи оверсайз / Кроссовки)');
+            return;
+        }
+
+        const type = document.getElementById('productType').value;
+        const btnText = document.getElementById('aiDescText');
+        const spinner = document.getElementById('aiDescSpinner');
+        const btn = document.getElementById('aiDescBtn');
+
+        btnText.style.display = 'none';
+        spinner.style.display = 'inline';
+        btn.disabled = true;
+
+        try {
+            const response = await fetch('/dashboard/api/ai-generate-description/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({ name: name, category: type })
+            });
+            const data = await response.json();
+            if (data.status === 'ok' && data.description) {
+                document.getElementById('productDescTextarea').value = data.description;
+            } else {
+                alert('Не удалось сгенерировать описание.');
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Ошибка связи с сервером Gemini AI.');
+        } finally {
+            btnText.style.display = 'inline';
+            spinner.style.display = 'none';
+            btn.disabled = false;
+        }
+    }
+
+    document.getElementById('productForm').addEventListener('submit', function(e) {
+        // Validate that each color block has photos
+        const fileInputs = document.querySelectorAll('input[type="file"][name^="color_images_"]');
+        for (let inp of fileInputs) {
+            if (!inp.files || inp.files.length === 0) {
+                e.preventDefault();
+                const block = inp.closest('.color-block');
+                if (block) {
+                    block.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    const drop = inp.closest('.file-input-wrapper');
+                    if (drop) {
+                        drop.classList.add('is-shake-error');
+                        setTimeout(() => drop.classList.remove('is-shake-error'), 800);
+                    }
+                }
+                alert(I18N.atLeastOnePhoto);
+                return;
+            }
+        }
+
+        const btn = document.getElementById('submitBtn');
+        if (btn.classList.contains('loading')) { e.preventDefault(); return; }
+        btn.classList.add('loading');
+        btn.innerHTML = '<span class="spinner"></span> &#9203; ' + I18N.uploadingBtn;
+    });
+</script>
+{% endblock %}

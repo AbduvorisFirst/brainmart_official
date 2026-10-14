@@ -1,0 +1,1653 @@
+# Language: en
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "(Черный, Золотой, Стандарт...)"
+msgstr "(Black, Gold, Standard...)"
+
+msgid "+ Добавить размер"
+msgstr "+ Add size"
+
+msgid "0% комиссии"
+msgstr "0% commission"
+
+msgid "0% комиссии со всех продаж"
+msgstr "0% commission on all sales"
+
+msgid "0%% комиссии"
+msgstr "0%% commission"
+
+msgid "1 магазин (База)"
+msgstr "1 store (Base)"
+
+msgid "450 000 сум/мес"
+msgstr "450,000 UZS/mo"
+
+msgid "BrainMart работает по фиксированной подписке. 0% комиссии с продаж. Никаких скрытых платежей."
+msgstr "BrainMart works on a fixed subscription. 0% commission on sales. No hidden fees."
+
+msgid "BrainMart работает по фиксированной подписке. 0%% комиссии с продаж. Никаких скрытых платежей."
+msgstr "BrainMart works on a fixed subscription. 0%% commission on sales. No hidden fees."
+
+msgid "CRM База Клиентов"
+msgstr "Customer CRM Base"
+
+msgid "CRM по себестоимости / месяц"
+msgstr "CRM at cost price / month"
+
+msgid "Gemini AI моментально отвечает на комментарии в Instagram, переводит клиентов в Direct и Telegram, подбирает одежду и товары по фото и доводит до оплаты."
+msgstr "Gemini AI instantly replies to Instagram comments, guides customers to Direct and Telegram, matches products by photo, and closes sales."
+
+msgid "Gemini автоматически подбирает товары по описанию и фото ваших клиентов."
+msgstr "Gemini automatically matches products based on customer descriptions and photos."
+
+msgid "ID выплаты"
+msgstr "Payout ID"
+
+msgid "Instagram аккаунт (без @)"
+msgstr "Instagram account (without @)"
+
+msgid "Old Money"
+msgstr "Old Money"
+
+msgid "SaaS Подписка CRM & ИИ"
+msgstr "SaaS CRM & AI Subscription"
+
+msgid "SaaS-подписка"
+msgstr "SaaS Subscription"
+
+msgid "Telegram SMS & Push Рассылки"
+msgstr "Telegram SMS & Push Broadcasts"
+
+msgid "Telegram-Рассылка"
+msgstr "Telegram Broadcast"
+
+msgid "Uzcard / Humo с прикреплением фото чека"
+msgstr "Uzcard / Humo with payment receipt upload"
+
+msgid "VIP"
+msgstr "VIP"
+
+msgid "»"
+msgstr "» store"
+
+msgid "». Скоро вам привезут товар!"
+msgstr "» store team. Your order will arrive soon!"
+
+msgid "Абонплата покрывает работу серверов и генерации ИИ. При неуплате действует льготный период 5 дней. На 5-й день ИИ-продавец и витрина автоматически приостанавливаются."
+msgstr "The subscription covers server costs and AI generation. In case of non-payment, a 5-day grace period applies. On Day 5, the AI agent and storefront are automatically suspended."
+
+msgid "Адрес доставки"
+msgstr "Delivery address"
+
+msgid "Адрес доставки (улица, дом / квартира)"
+msgstr "Delivery address (street, house / apt)"
+
+msgid "Адрес доставки / Ориентир"
+msgstr "Delivery address / Landmark"
+
+msgid "Адрес доставки:"
+msgstr "Delivery address:"
+
+msgid "Адрес магазина"
+msgstr "Store Address"
+
+msgid "Адрес точки"
+msgstr "Location Address"
+
+msgid "Адрес уточняется"
+msgstr "Address being clarified"
+
+msgid "Айтишник"
+msgstr "Tech / IT"
+
+msgid "Активен"
+msgstr "Active"
+
+msgid "Акцентный цвет (Accent)"
+msgstr "Accent color"
+
+msgid "Аналитика ИИ-Продавца"
+msgstr "AI Sales Analytics"
+
+msgid "Артикул:"
+msgstr "SKU:"
+
+msgid "Базовая подписка включает 1-ю точку (450 000 сум). Каждый дополнительный филиал: +150 000 сум/мес."
+msgstr "Base subscription includes 1st point (450,000 UZS). Each additional branch: +150,000 UZS/mo."
+
+msgid "Базовый тариф (1 точка): 450 000 сум + филиалы:"
+msgstr "Base plan (1 point): 450,000 UZS + branches:"
+
+msgid "Без фото чека заказ не может быть отправлен"
+msgstr "Order cannot be dispatched without a receipt photo"
+
+msgid "Более 100+ заказов"
+msgstr "Over 100+ orders"
+
+msgid "Будьте первым, кто оставит отзыв об этом товаре!"
+msgstr "Be the first to review this product!"
+
+msgid "Быстрые действия"
+msgstr "Quick Actions"
+
+msgid "В каталоге"
+msgstr "In catalog"
+
+msgid "В корзине"
+msgstr "In cart"
+
+msgid "В корзину"
+msgstr "Add to cart"
+
+msgid "В наличии"
+msgstr "In stock"
+
+msgid "В обработке"
+msgstr "Processing"
+
+msgid "В обработке (Холд)"
+msgstr "Processing (Held)"
+
+msgid "В ожидании"
+msgstr "Pending"
+
+msgid "В разработке"
+msgstr "Under development"
+
+msgid "В холде"
+msgstr "Held"
+
+msgid "В этом разделе пока нет товаров. Попробуйте изменить поиск."
+msgstr "There are no products in this section yet. Try changing your search query."
+
+msgid "В этом сегменте пока нет клиентов"
+msgstr "No customers in this segment yet"
+
+msgid "ВАЖНО: Продавец в этой локации закажет такси, поэтому вы должны указать её максимально точно!"
+msgstr "IMPORTANT: The seller will order a taxi to this location, so please specify it as accurately as possible!"
+
+msgid "Ваш магазин на модерации. Товары появятся на витрине после проверки."
+msgstr "Your store is under moderation. Products will appear on the storefront after review."
+
+msgid "Ваш отзыв о товаре"
+msgstr "Your product review"
+
+msgid "Ваша карта для приёма оплат"
+msgstr "Your Payment Receiving Card"
+
+msgid "Ваша корзина"
+msgstr "Your cart"
+
+msgid "Ваша корзина пуста!"
+msgstr "Your cart is empty!"
+
+msgid "Ваше имя и фамилия"
+msgstr "Your full name"
+
+msgid "Ваши товары, категории и настройки магазина останутся нетронутыми."
+msgstr "Your products, categories, and store settings will remain untouched."
+
+msgid "Вернуться в каталог"
+msgstr "Return to catalog"
+
+msgid "Витрина + MiniApp"
+msgstr "Storefront + MiniApp"
+
+msgid "Включить автоматический вывод денег при подтверждении доставки заказа"
+msgstr "Enable automatic payout upon order delivery confirmation"
+
+msgid "Владелец карты (ФИО)"
+msgstr "Card holder name"
+
+msgid "Владелец магазина"
+msgstr "Store owner"
+
+msgid "Владелец магазина:"
+msgstr "Store owner:"
+
+msgid "Внимание! Действует льготный период:"
+msgstr "Warning! Grace period is active:"
+
+msgid "Возврат спящих клиентов"
+msgstr "Re-engaging inactive customers"
+
+msgid "Временно на доработке (Скоро)"
+msgstr "Temporarily under maintenance (Soon)"
+
+msgid "Все клиенты"
+msgstr "All Customers"
+
+msgid "Всего заработано (Чистыми)"
+msgstr "Total Net Earnings"
+
+msgid "Всего клиентов"
+msgstr "Total Customers"
+
+msgid "Всем покупателям магазина"
+msgstr "All store buyers"
+
+msgid "Вход для продавцов"
+msgstr "Seller Log In"
+
+msgid "Вы действительно хотите очистить историю магазина?"
+msgstr "Are you sure you want to clear store history?"
+
+msgid "Вы действительно хотите удалить эту точку?"
+msgstr "Are you sure you want to delete this location?"
+
+msgid "Вы еще не добавили ни одного товара."
+msgstr "You have not added any products yet."
+
+msgid "Вы можете выбрать сразу несколько (удерживайте Ctrl/Cmd)"
+msgstr "You can select multiple photos (hold Ctrl/Cmd)"
+
+msgid "Вы получаете 100%"
+msgstr "You receive 100%"
+
+msgid "Вы получаете 100%%"
+msgstr "You receive 100%%"
+
+msgid "Вы уверены, что хотите удалить этот товар навсегда?"
+msgstr "Are you sure you want to permanently delete this product?"
+
+msgid "Выберите готовую цветовую палитру под ваш логотип или укажите свой уникальный цвет:"
+msgstr "Select a ready-made color palette matching your logo or specify your own custom color:"
+
+msgid "Выберите категорию..."
+msgstr "Select category..."
+
+msgid "Выберите одну из готовых премиальных тем или настройте свои фирменные цвета."
+msgstr "Choose one of the ready themes or customize your brand colors."
+
+msgid "Выберите способ оплаты"
+msgstr "Choose payment method"
+
+msgid "Выберите срок продления"
+msgstr "Choose renewal period"
+
+msgid "Выберите, на каком языке вам будут приходить карточки заказов, кнопки и уведомления в Telegram-боте:"
+msgstr "Choose the language in which you will receive order cards, buttons, and notifications in the Telegram bot:"
+
+msgid "Выбрано только 1 фото. Рекомендуется от 2 до 10 фото!"
+msgstr "Only 1 photo selected. 2 to 10 photos recommended!"
+
+msgid "Выбрано фото:"
+msgstr "Selected photos:"
+
+msgid "Вывести баланс сейчас"
+msgstr "Withdraw balance now"
+
+msgid "Выйти"
+msgstr "Log out"
+
+msgid "Выйти из аккаунта"
+msgstr "Log out"
+
+msgid "Выйти на глобальный рынок"
+msgstr "Go to global market"
+
+msgid "Выплачен"
+msgstr "Paid out"
+
+msgid "Выручка"
+msgstr "Revenue"
+
+msgid "Выход"
+msgstr "Logout"
+
+msgid "Геолокация не поддерживается вашим браузером. Напишите адрес текстом."
+msgstr "Geolocation is not supported by your browser. Please type the address."
+
+msgid "Геолокация не поддерживается вашим браузером. Пожалуйста, напишите адрес вручную."
+msgstr "Geolocation is not supported by your browser. Please enter the address manually."
+
+msgid "Геолокация успешно зафиксирована"
+msgstr "Location captured successfully"
+
+msgid "Главная"
+msgstr "Home"
+
+msgid "Главная точка"
+msgstr "Main location"
+
+msgid "Главное фото"
+msgstr "Cover photo"
+
+msgid "Глобальный рынок"
+msgstr "Global market"
+
+msgid "Город, район, улица, дом, квартира, ориентир..."
+msgstr "City, district, street, building, apt, landmark..."
+
+msgid "Готовая онлайн-витрина, умный ИИ-продавец Gemini, CRM для управления складом и мгновенные выплаты на карты Uzcard / Humo."
+msgstr "Ready online storefront, smart Gemini AI seller, warehouse CRM, and instant payouts to Uzcard / Humo cards."
+
+msgid "Готовые палитры от дизайнеров:"
+msgstr "Designer color palettes:"
+
+msgid "ДОБАВИТЬ ТОЧКУ"
+msgstr "ADD LOCATION"
+
+msgid "Далее: Выбор адреса и локации"
+msgstr "Next: Choose address and location"
+
+msgid "Далее: Способ оплаты"
+msgstr "Next: Payment method"
+
+msgid "Данные для доставки такси"
+msgstr "Taxi delivery details"
+
+msgid "Данные магазина и Брендинг"
+msgstr "Store Information & Branding"
+
+msgid "Дата"
+msgstr "Date"
+
+msgid "Дата регистрации"
+msgstr "Registration date"
+
+msgid "Деньги за оплаченные заказы, которые сейчас доставляются курьером"
+msgstr "Funds for paid orders currently being delivered by courier"
+
+msgid "Деньги поступили на карту. Заказ собирается и будет отправлен курьером на указанный адрес."
+msgstr "Funds received. The order is being packed and will be dispatched by courier to your address."
+
+msgid "Деньги сразу на вашей карте. Никаких удержаний платформой"
+msgstr "Money arrives directly on your card. Zero platform deductions"
+
+msgid "Детализация заказов и сплитование комиссии"
+msgstr "Order details and commission breakdown"
+
+msgid "Детализация оплаченных заказов"
+msgstr "Paid Orders Details"
+
+msgid "Диалогов с клиентами:"
+msgstr "Customer chats:"
+
+msgid "Для завершения оформления откройте бота в Telegram или отправьте локацию и контакт боту!"
+msgstr "To complete checkout, open bot in Telegram or send location and contact to the bot!"
+
+msgid "Для каждого цвета загрузите от 2 до 10 фотографий. Добавьте размеры и количество на складе."
+msgstr "Upload 2 to 10 photos for each color. Add sizes and inventory quantity."
+
+msgid "Для каждого цвета загрузите от 2 до 10 фотографий. Укажите общее количество товара на складе."
+msgstr "Upload 2 to 10 photos for each color. Specify total quantity in stock."
+
+msgid "Добавить в корзину"
+msgstr "Add to cart"
+
+msgid "Добавить ещё один цвет"
+msgstr "Add another color"
+
+msgid "Добавить новый товар"
+msgstr "Add New Product"
+
+msgid "Добавить новый филиал на карту"
+msgstr "Add New Branch on Map"
+
+msgid "Добавить товар"
+msgstr "Add Product"
+
+msgid "Добавить филиал"
+msgstr "Add Branch"
+
+msgid "Добавьте номер карты ниже, чтобы клиенты знали, куда переводить деньги за заказы."
+msgstr "Add your card number below so customers know where to transfer money for orders."
+
+msgid "Добавьте товары"
+msgstr "Add products"
+
+msgid "Добавьте товары и филиалы"
+msgstr "Add products and branches"
+
+msgid "Долгота"
+msgstr "Longitude"
+
+msgid "Долгота (Lon)"
+msgstr "Longitude (Lon)"
+
+msgid "Доля продавца (90%)"
+msgstr "Seller share (90%)"
+
+msgid "Доставка:"
+msgstr "Delivery:"
+
+msgid "Доставлен"
+msgstr "Delivered"
+
+msgid "Доступно к выводу"
+msgstr "Available for withdrawal"
+
+msgid "Драйв / Скидки"
+msgstr "Hype / Discounts"
+
+msgid "Ежемесячная подписка BrainMart"
+msgstr "Monthly BrainMart Subscription"
+
+msgid "Ежемесячная подписка CRM & ИИ"
+msgstr "Monthly CRM & AI Subscription"
+
+msgid "Если вы закончили тестирование кассы и витрины и хотите начать продажи с чистого листа, вы можете удалить все тестовые заказы, чеки кассы, смены и движения склада."
+msgstr "If you have finished testing POS and storefront and want to start fresh, you can clear all test orders, receipts, shifts, and warehouse movements."
+
+msgid "Забота / Новинки"
+msgstr "Care / Drops"
+
+msgid "Завершить заказ через Telegram"
+msgstr "Complete order via Telegram"
+
+msgid "Загружаем фото, создаем товар..."
+msgstr "Uploading photos, creating product..."
+
+msgid "Загрузите фото, укажите доступные цвета, размеры и цены за пару минут."
+msgstr "Upload photos, specify colors, sizes, and prices in a few minutes."
+
+msgid "Заказ"
+msgstr "Order"
+
+msgid "Заказ мгновенно поступит продавцу для отправки такси"
+msgstr "The order is instantly sent to the seller for taxi dispatch"
+
+msgid "Заказ передан продавцу магазина «"
+msgstr "Order handed to seller of «"
+
+msgid "Заказ успешно оформлен!"
+msgstr "Order successfully placed!"
+
+msgid "Заказ успешно создан!"
+msgstr "Order created successfully!"
+
+msgid "Заказов пока нет"
+msgstr "No orders yet"
+
+msgid "Заказы"
+msgstr "Orders"
+
+msgid "Заканчиваются на складе"
+msgstr "Low in stock"
+
+msgid "Запустите продажи в Instagram и Telegram с ИИ за 5 минут"
+msgstr "Launch sales in Instagram and Telegram with AI in 5 minutes"
+
+msgid "Зарегистрировать магазин"
+msgstr "Register store"
+
+msgid "Зарегистрировать магазин бесплатно"
+msgstr "Register store for free"
+
+msgid "Зарегистрировать магазин сейчас"
+msgstr "Register store now"
+
+msgid "Зарегистрируйте магазин"
+msgstr "Register your store"
+
+msgid "ИИ думает..."
+msgstr "AI is thinking..."
+
+msgid "ИИ пишет..."
+msgstr "AI is writing..."
+
+msgid "ИИ-Копирайтер рассылок (Gemini AI)"
+msgstr "AI Broadcast Copywriter (Gemini AI)"
+
+msgid "ИИ-Продавец 24/7"
+msgstr "24/7 AI Sales Agent"
+
+msgid "ИИ-Советник по росту продаж (Gemini AI)"
+msgstr "AI Sales Growth Advisor (Gemini AI)"
+
+msgid "Изменить"
+msgstr "Change"
+
+msgid "Изменить точку на карте"
+msgstr "Edit Map Location"
+
+msgid "Инструкция"
+msgstr "Instructions"
+
+msgid "Использовать свои цвета"
+msgstr "Use custom colors"
+
+msgid "История выплат на карты Uzcard / Humo"
+msgstr "Uzcard / Humo card payout history"
+
+msgid "История выплат пуста. Выплаты будут отображаться здесь после вывода средств."
+msgstr "Payout history is empty. Payouts will appear here after withdrawal."
+
+msgid "История оплат подписки"
+msgstr "Subscription payment history"
+
+msgid "История рассылок"
+msgstr "Broadcast History"
+
+msgid "Итого в месяц"
+msgstr "Monthly total"
+
+msgid "Итого к оплате:"
+msgstr "Total payment:"
+
+msgid "Итого:"
+msgstr "Total:"
+
+msgid "К списанию:"
+msgstr "To charge:"
+
+msgid "КАРТА ПРОДАВЦА ДЛЯ ОПЛАТЫ"
+msgstr "SELLER'S CARD FOR PAYMENT"
+
+msgid "Каждый дополнительный филиал (со 2-го по 10-й)"
+msgstr "Each additional branch (from 2nd to 10th)"
+
+msgid "Как клиенты платят за заказы"
+msgstr "How Customers Pay for Orders"
+
+msgid "Как начать продавать за 3 шага?"
+msgstr "How to start selling in 3 steps?"
+
+msgid "Как только кто-то оплатит покупку, она появится здесь."
+msgstr "As soon as someone pays, it will appear here."
+
+msgid "Карта"
+msgstr "Card"
+
+msgid "Карта для приёма оплат от клиентов"
+msgstr "Card for receiving payments from customers"
+
+msgid "Карта для приёма оплат от покупателей (Uzcard / Humo)"
+msgstr "Card for receiving customer payments (Uzcard / Humo)"
+
+msgid "Карта не привязана!"
+msgstr "Card not linked!"
+
+msgid "Категории не созданы"
+msgstr "No categories created"
+
+msgid "Категория товара"
+msgstr "Product Category"
+
+msgid "Клиент"
+msgstr "Customer"
+
+msgid "Клиент переводит деньги прямо на вашу карту Uzcard/Humo"
+msgstr "Customer transfers funds directly to your Uzcard/Humo card"
+
+msgid "Клиент переводит напрямую"
+msgstr "Customer transfers directly"
+
+msgid "Клиент прикладывает подтверждение перевода — вы подтверждаете заказ"
+msgstr "Customer attaches payment proof — you confirm the order"
+
+msgid "Клиент присылает скрин"
+msgstr "Customer sends screenshot"
+
+msgid "Клиенты"
+msgstr "Customers"
+
+msgid "Клиенты выбирают удобный филиал и вызывают такси к вашей точке."
+msgstr "Customers choose a convenient branch and hail a taxi to your store location."
+
+msgid "Клиенты платят через Click или наличными. После подтверждения доставки средства автоматически зачисляются на вашу карту Uzcard или Humo."
+msgstr "Customers pay via Click or cash. Once delivery is confirmed, funds are automatically transferred to your Uzcard or Humo card."
+
+msgid "Кликните на карту в нужном месте или перетащите маркер, чтобы выставить точку."
+msgstr "Click anywhere on the map or drag the marker to set the location pin."
+
+msgid "Книги и канцелярия"
+msgstr "Books & Stationery"
+
+msgid "Количество на складе (шт.)"
+msgstr "Quantity in stock (pcs)"
+
+msgid "Количество товаров:"
+msgstr "Item count:"
+
+msgid "Комиссия brainmart"
+msgstr "brainmart commission"
+
+msgid "Комиссия магазина"
+msgstr "Store commission"
+
+msgid "Комиссия платформы"
+msgstr "Platform commission"
+
+msgid "Комиссия:"
+msgstr "Commission:"
+
+msgid "Кому отправить (Сегмент)"
+msgstr "Target Audience (Segment)"
+
+msgid "Конверсия в заказ:"
+msgstr "Order conversion:"
+
+msgid "Контролируйте остатки по цветам и размерам, управляйте базой клиентов, передавайте заказы курьерам Яндекс.Доставки и отслеживайте аналитику выручки."
+msgstr "Track stock by colors and sizes, manage customer database, assign orders to Yandex Delivery couriers, and track revenue analytics."
+
+msgid "Корзина"
+msgstr "Cart"
+
+msgid "Корзина пуста"
+msgstr "Cart is empty"
+
+msgid "Корзина пуста."
+msgstr "Cart is empty."
+
+msgid "Косметика и парфюмерия"
+msgstr "Cosmetics & Perfumes"
+
+msgid "Купить"
+msgstr "Buy"
+
+msgid "Логотип виден клиентам в вашем каталоге."
+msgstr "The logo is visible to customers in your catalog."
+
+msgid "Локация прикреплена"
+msgstr "Location attached"
+
+msgid "Локация, телефон и оплата подтверждаются в Telegram-боте"
+msgstr "Location, phone and payment are confirmed in Telegram bot"
+
+msgid "Магазин и ИИ-продавец заблокированы!"
+msgstr "Store and AI agent are suspended!"
+
+msgid "Магазин онлайн"
+msgstr "Store Online"
+
+msgid "Магазин:"
+msgstr "Store:"
+
+msgid "Маркетплейс"
+msgstr "Marketplace"
+
+msgid "Маркетплейс одежды"
+msgstr "Fashion Marketplace"
+
+msgid "Мгновенные автовыплаты"
+msgstr "Instant Auto-Payouts"
+
+msgid "Менеджер магазина:"
+msgstr "Store manager:"
+
+msgid "Метод оплаты"
+msgstr "Payment method"
+
+msgid "Модель «База + Филиалы»"
+msgstr "«Base + Branches» Model"
+
+msgid "Мои товары"
+msgstr "My Products"
+
+msgid "Мой бренд"
+msgstr "My brand"
+
+msgid "Моя витрина"
+msgstr "My Storefront"
+
+msgid "Мы берем CRM-абонплату только по себестоимости серверов и AI-токенов. Наша прибыль — это небольшая комиссия от ваших РЕАЛЬНЫХ успешных продаж:"
+msgstr "We only charge CRM subscription at the cost of servers and AI tokens. Our profit comes from a small commission on your REAL successful sales:"
+
+msgid "Мы передали заказ сотрудникам магазина. Вы также можете напрямую связаться с ними в Telegram:"
+msgstr "We forwarded the order to the store team. You can also contact them directly on Telegram:"
+
+msgid "Мы перенаправили заказ и чек сотрудникам магазина «"
+msgstr "We forwarded the order and receipt to «"
+
+msgid "Мы работаем над этим!"
+msgstr "We are working on this!"
+
+msgid "Мы уже уведомили сотрудника в Telegram. Вы также можете напрямую связаться с ним для любых уточнений по доставке:"
+msgstr "We have notified the staff via Telegram. You can also contact them directly for any delivery updates:"
+
+msgid "На балансе"
+msgstr "On balance"
+
+msgid "На проверке"
+msgstr "Under review"
+
+msgid "На свидание"
+msgstr "Date Night"
+
+msgid "Нажмите здесь, чтобы изменить выбор фото"
+msgstr "Click here to change selected photos"
+
+msgid "Нажмите или перетащите фото"
+msgstr "Click or drag photos here"
+
+msgid "Нажмите, чтобы выбрать фото чека"
+msgstr "Tap to choose receipt photo"
+
+msgid "Нажмите, чтобы заменить"
+msgstr "Tap to replace"
+
+msgid "Нажмите, чтобы заменить файл"
+msgstr "Click to change file"
+
+msgid "Нажмите, чтобы прикрепить фото или скан чека"
+msgstr "Click to attach photo or receipt scan"
+
+msgid "Назад к адресу"
+msgstr "Back to address"
+
+msgid "Назад к контактам"
+msgstr "Back to contacts"
+
+msgid "Назад к товарам"
+msgstr "Back to products"
+
+msgid "Название магазина"
+msgstr "Store Name"
+
+msgid "Название товара"
+msgstr "Product Name"
+
+msgid "Название точки"
+msgstr "Location Name"
+
+msgid "Название цвета"
+msgstr "Color name"
+
+msgid "Назначить локацию на карте"
+msgstr "Set Location on Map"
+
+msgid "Найти"
+msgstr "Search"
+
+msgid "Найти худи, кроссовки..."
+msgstr "Search for hoodies, sneakers..."
+
+msgid "Наличными или переводом курьеру"
+msgstr "Cash or transfer to courier"
+
+msgid "Написать в Telegram-поддержку"
+msgstr "Write to Telegram Support"
+
+msgid "Написать менеджеру в Telegram"
+msgstr "Message manager on Telegram"
+
+msgid "Написать основателю в Telegram"
+msgstr "Message the founder on Telegram"
+
+msgid "Написать через ИИ"
+msgstr "Write with AI"
+
+msgid "Напишите краткую идею — ИИ составит цепляющий пост с эмодзи, выгодой и кнопкой!"
+msgstr "Write a brief idea — AI will craft an engaging post with emojis, benefits, and a button!"
+
+msgid "Например: 15"
+msgstr "For example: 15"
+
+msgid "Например: Азиз Каримов"
+msgstr "E.g.: Aziz Karimov"
+
+msgid "Настройки"
+msgstr "Settings"
+
+msgid "Не выбран"
+msgstr "Not selected"
+
+msgid "Не удалось оформить заказ"
+msgstr "Failed to place order"
+
+msgid "Не удалось получить GPS координаты. Пожалуйста, напишите адрес текстом ниже."
+msgstr "Could not get GPS coordinates. Please write your address below."
+
+msgid "Не удалось получить геолокацию. Пожалуйста, введите точный адрес и ориентир."
+msgstr "Failed to get geolocation. Please enter the exact address and landmark."
+
+msgid "Нет в наличии"
+msgstr "Out of stock"
+
+msgid "Нет доступных вариантов"
+msgstr "No variants available"
+
+msgid "Нет продаж — вы ничего не платите за комиссию. Мы зарабатываем только тогда, когда зарабатываете вы!"
+msgstr "No sales — no commission fee. We only earn when you earn!"
+
+msgid "Нет товаров"
+msgstr "No products"
+
+msgid "Ничего не найдено"
+msgstr "Nothing found"
+
+msgid "Новая рассылка"
+msgstr "New Broadcast"
+
+msgid "Новичкам (1 заказ)"
+msgstr "New clients (1 order)"
+
+msgid "Новички"
+msgstr "New Buyers"
+
+msgid "Новый филиал"
+msgstr "New Branch"
+
+msgid "Номер карты (16 цифр)"
+msgstr "Card number (16 digits)"
+
+msgid "Номер телефона (для курьера)"
+msgstr "Phone number (for courier)"
+
+msgid "Номер телефона для курьера"
+msgstr "Phone number for courier"
+
+msgid "Номер транзакции или комментарий (необязательно)"
+msgstr "Transaction ID or comment (optional)"
+
+msgid "Номер чека или последние 4 цифры карты"
+msgstr "Receipt number or last 4 digits of card"
+
+msgid "О товаре"
+msgstr "About product"
+
+msgid "Общий LTV (Выручка)"
+msgstr "Total LTV (Revenue)"
+
+msgid "Общий чистый доход магазина за вычетом комиссии"
+msgstr "Total net revenue of the store after commission deduction"
+
+msgid "Обязательно:"
+msgstr "Required:"
+
+msgid "Одежда и обувь"
+msgstr "Clothing & Shoes"
+
+msgid "Одежда от лучших магазинов"
+msgstr "Clothing from the best stores"
+
+msgid "Одежда, обувь и аксессуары (с выбором размеров)"
+msgstr "Clothes, shoes & accessories (with sizes)"
+
+msgid "Один из товаров в корзине больше не доступен на складе."
+msgstr "One of the items in cart is no longer available in stock."
+
+msgid "Ожидает обработки"
+msgstr "Pending processing"
+
+msgid "Ожидает оплаты"
+msgstr "Awaiting Payment"
+
+msgid "Ожидает перевода на карту"
+msgstr "Awaiting card transfer"
+
+msgid "Онлайн-эквайринг картой (Click/Payme)"
+msgstr "Online card acquiring (Click/Payme)"
+
+msgid "Описание товара"
+msgstr "Product Description"
+
+msgid "Опишите товар: материал, особенности, комплектацию... или нажмите Написать через ИИ"
+msgstr "Describe the product: material, features, contents... or click Write with AI"
+
+msgid "Оплата картой Uzcard / Humo онлайн"
+msgstr "Online payment via Uzcard / Humo card"
+
+msgid "Оплата мгновенно подтверждена! Чек сформирован автоматически, загрузка фото не требуется. Магазин уже собирает заказ и вызывает такси."
+msgstr "Payment instantly confirmed! Receipt generated automatically, no photo required. The store is already packing your order and calling a taxi."
+
+msgid "Оплата подписки BrainMart"
+msgstr "BrainMart Subscription Payment"
+
+msgid "Оплата подтверждена магазином!"
+msgstr "Payment confirmed by store!"
+
+msgid "Оплатить 150 000 сум"
+msgstr "Pay 150,000 UZS"
+
+msgid "Оплатить 150 000 сум с баланса"
+msgstr "Pay 150,000 UZS from balance"
+
+msgid "Оплатить заказ онлайн сразу"
+msgstr "Pay order online now"
+
+msgid "Оплатить переводом"
+msgstr "Pay via Card Transfer"
+
+msgid "Оплачен"
+msgstr "Paid"
+
+msgid "Оплачен (В сборке)"
+msgstr "Paid (Assembling)"
+
+msgid "Оплачено"
+msgstr "Paid"
+
+msgid "Оплачено до:"
+msgstr "Paid until:"
+
+msgid "Оплачено онлайн (Авто-эквайринг)"
+msgstr "Paid online (Auto-acquiring)"
+
+msgid "Определить где я по GPS (Точно)"
+msgstr "Detect my location via GPS (Accurate)"
+
+msgid "Определить моё местоположение"
+msgstr "Detect my location"
+
+msgid "Определяем координаты..."
+msgstr "Getting GPS coordinates..."
+
+msgid "Опубликовать товар"
+msgstr "Publish Product"
+
+msgid "Ориентир для такси (подъезд, этаж, вывеска рядом)"
+msgstr "Taxi landmark (entrance, floor, nearby landmark)"
+
+msgid "Основная информация"
+msgstr "Basic Information"
+
+msgid "Основной"
+msgstr "Primary"
+
+msgid "Основной цвет (Primary)"
+msgstr "Primary color"
+
+msgid "Оставить отзыв"
+msgstr "Leave a review"
+
+msgid "Остаток"
+msgstr "Stock"
+
+msgid "Ответов от ИИ-агента:"
+msgstr "AI responses:"
+
+msgid "Ответственный менеджер магазина"
+msgstr "Responsible store manager"
+
+msgid "Отзывы"
+msgstr "Reviews"
+
+msgid "Отзывы клиентов"
+msgstr "Customer Reviews"
+
+msgid "Отзывы покупателей"
+msgstr "Customer reviews"
+
+msgid "Отклонена"
+msgstr "Rejected"
+
+msgid "Открыть"
+msgstr "Open"
+
+msgid "Открыть магазин"
+msgstr "Open Storefront"
+
+msgid "Открыть на карте"
+msgstr "Open on map"
+
+msgid "Открыть отслеживание заказа"
+msgstr "Open tracking"
+
+msgid "Отлично! Фото готовы к публикации"
+msgstr "Great! Photos are ready to publish"
+
+msgid "Отмена"
+msgstr "Cancel"
+
+msgid "Отправить моё местоположение (GPS)"
+msgstr "Send my location (GPS)"
+
+msgid "Отправить рассылку в Telegram"
+msgstr "Send Broadcast to Telegram"
+
+msgid "Отправить чек продавцу"
+msgstr "Send receipt to seller"
+
+msgid "Отправка чека..."
+msgstr "Sending receipt..."
+
+msgid "Отправляем в бот..."
+msgstr "Sending to bot..."
+
+msgid "Отправляйте акции, скидки и анонсы коллекций напрямую в Telegram своим клиентам"
+msgstr "Send promos, discounts, and collection drops directly to your customers' Telegram"
+
+msgid "Официальная витрина"
+msgstr "Official storefront"
+
+msgid "Оформить"
+msgstr "Checkout"
+
+msgid "Оформить заказ"
+msgstr "Place order"
+
+msgid "Оформляем заказ..."
+msgstr "Processing order..."
+
+msgid "Очистить историю заказов и кассы"
+msgstr "Clear orders and POS history"
+
+msgid "Очистка истории и сброс данных"
+msgstr "Clear history & data reset"
+
+msgid "Ошибка"
+msgstr "Error"
+
+msgid "Ошибка GPS. Введите адрес вручную"
+msgstr "GPS error. Enter address manually"
+
+msgid "Ошибка сети"
+msgstr "Network error"
+
+msgid "Ошибка сети. Попробуйте еще раз."
+msgstr "Network error. Please try again."
+
+msgid "Ошибка соединения с сервером."
+msgstr "Server connection error."
+
+msgid "Панель продавца"
+msgstr "Seller Dashboard"
+
+msgid "Партнёрство с brainmart"
+msgstr "Partnership with brainmart"
+
+msgid "Первая точка: 450 000 сум · Каждая дополнительная: +150 000 сум/мес"
+msgstr "First location: 450,000 UZS · Each extra: +150,000 UZS/month"
+
+msgid "Переведите деньги на карту BrainMart"
+msgstr "Transfer funds to BrainMart card"
+
+msgid "Переведите точную сумму на карту продавца через Payme, Click или банк. Продавец свяжется с вами по телефону для подтверждения отправки такси!"
+msgstr "Transfer the exact amount to seller card via Payme, Click, or bank. The seller will call you to confirm taxi dispatch!"
+
+msgid "Перевод на карту"
+msgstr "Card transfer"
+
+msgid "Перевод на карту продавца (с чеком)"
+msgstr "Direct transfer to seller card (with receipt)"
+
+msgid "Передать курьеру"
+msgstr "Hand to courier"
+
+msgid "Перейти к оформлению"
+msgstr "Proceed to checkout"
+
+msgid "Персонализация дизайна"
+msgstr "Design Customization"
+
+msgid "Персональная ссылка на ваш фирменный магазин с логотипом. Покупатель оформляет заказ за 2 клика прямо в Telegram без скачивания приложений."
+msgstr "Personal link to your branded store with logo. Customers checkout in 2 taps inside Telegram without downloading apps."
+
+msgid "По тарифу курьера"
+msgstr "According to courier rate"
+
+msgid "Повторные заказы"
+msgstr "Repeat Orders"
+
+msgid "Подарок"
+msgstr "Gift"
+
+msgid "Подключенные филиалы и франшизы"
+msgstr "Connected branches and franchises"
+
+msgid "Подключите Telegram и получайте заказы"
+msgstr "Connect Telegram and receive orders"
+
+msgid "Подключите бота и получайте заказы"
+msgstr "Connect the bot and receive orders"
+
+msgid "Подписка CRM & ИИ заканчивается через"
+msgstr "CRM & AI subscription expires in"
+
+msgid "Подписка покрывает работу CRM, ИИ-продавца, витрины и Telegram Mini App. При неуплате действует льготный период 5 дней."
+msgstr "Subscription covers CRM, AI Seller, Web Storefront and Telegram Mini App. 5 days grace period on non-payment."
+
+msgid "Подписка покрывает работу CRM, ИИ-продавца, витрины и Telegram Mini App. При неуплате действует льготный период 6 дней."
+msgstr "The subscription covers CRM, AI sales assistant, storefront, and Telegram Mini App. A 6-day grace period applies if unpaid."
+
+msgid "Подтвердить доставку"
+msgstr "Confirm delivery"
+
+msgid "Подтвердить заказ"
+msgstr "Confirm order"
+
+msgid "Подтвердить оплату на карту"
+msgstr "Confirm card payment"
+
+msgid "Подтверждена"
+msgstr "Approved"
+
+msgid "Подъезд 3, домофон 28, рядом с Korzinka"
+msgstr "Entrance 3, intercom 28, near Korzinka"
+
+msgid "Пожалуйста, введите корректный номер телефона!"
+msgstr "Please enter a valid phone number!"
+
+msgid "Пожалуйста, выберите размер!"
+msgstr "Please select a size!"
+
+msgid "Пожалуйста, загрузите хотя бы 1 фото для цвета"
+msgstr "Please upload at least 1 photo for color"
+
+msgid "Пожалуйста, обязательно выберите фото или скриншот чека перед отправкой!"
+msgstr "Please be sure to select a receipt photo or screenshot before sending!"
+
+msgid "Пожалуйста, оплатите 150 000 сум во избежание остановки ИИ."
+msgstr "Please pay 150,000 UZS to avoid AI suspension."
+
+msgid "Пожалуйста, укажите адрес доставки или нажмите кнопку определения GPS!"
+msgstr "Please specify the delivery address or press the GPS button!"
+
+msgid "Пожалуйста, укажите адрес доставки или нажмите кнопку отправки локации!"
+msgstr "Please enter delivery address or send location!"
+
+msgid "Пожалуйста, укажите ваш номер телефона для связи!"
+msgstr "Please provide your phone number for contact!"
+
+msgid "Пожалуйста, укажите номер телефона для связи."
+msgstr "Please provide a contact phone number."
+
+msgid "Поиск по товарам или стилю (напр: айтишник, на свидание)..."
+msgstr "Search products or style (e.g. tech/IT, date night)..."
+
+msgid "Пока нет оплаченных заказов для сплитования."
+msgstr "No paid orders for commission breakdown yet."
+
+msgid "Пока нет оплаченных заказов."
+msgstr "No paid orders yet."
+
+msgid "Пока нет отзывов"
+msgstr "No reviews yet"
+
+msgid "Покажите эту карту клиентам для оплаты заказов. После получения перевода — подтвердите заказ в разделе «Заказы»."
+msgstr "Show this card to customers for order payments. Once payment is received, confirm it in Orders."
+
+msgid "Показать"
+msgstr "Show"
+
+msgid "Получатель"
+msgstr "Recipient"
+
+msgid "Получатель:"
+msgstr "Recipient:"
+
+msgid "Получить карту продавца и прикрепить чек"
+msgstr "Get seller card & attach receipt"
+
+msgid "Попробуйте выбрать другой сегмент или дождитесь новых заказов через каталог."
+msgstr "Try selecting another segment or wait for new orders from the catalog."
+
+msgid "После отправки чек мгновенно поступает администратору. Подписка продлевается сразу после подтверждения."
+msgstr "After sending, the receipt is instantly delivered to the administrator. The subscription is renewed once approved."
+
+msgid "Посмотреть на карте"
+msgstr "View on map"
+
+msgid "Почему продавцы выбирают brainmart?"
+msgstr "Why do sellers choose brainmart?"
+
+msgid "Премиум / Old Money"
+msgstr "Premium / Old Money"
+
+msgid "При получении"
+msgstr "Upon receipt"
+
+msgid "Прикрепите фото перевода"
+msgstr "Attach payment receipt photo"
+
+msgid "Приход на склад (Остатки)"
+msgstr "Inventory (Stock)"
+
+msgid "Продажи за 7 дней"
+msgstr "7-day Sales"
+
+msgid "Продлить (150 000 сум)"
+msgstr "Renew (150,000 UZS)"
+
+msgid "Просрочка подписки превысила 5 дней. Приём заказов и автоответы ИИ отключены."
+msgstr "Subscription is overdue by more than 5 days. Order intake and AI auto-replies are disabled."
+
+msgid "Простая и прозрачная схема без посредников"
+msgstr "Simple and transparent flow with zero intermediaries"
+
+msgid "Простой товар"
+msgstr "Simple product"
+
+msgid "Прямой перевод на вашу карту (100% вам, 0% комиссии)"
+msgstr "Direct transfer to your card (100% to you, 0% commission)"
+
+msgid "Прямой перевод на вашу карту (100%% вам, 0%% комиссии)"
+msgstr "Direct transfer to your card (100%% to you, 0%% commission)"
+
+msgid "Прямой перевод на карту продавца"
+msgstr "Direct transfer to seller card"
+
+msgid "Размер (S, M, L, 42...)"
+msgstr "Size (S, M, L, 42...)"
+
+msgid "Размер:"
+msgstr "Size:"
+
+msgid "Рассылки"
+msgstr "Broadcasts"
+
+msgid "Реквизиты карты для выплат (Uzcard / Humo)"
+msgstr "Payout card details (Uzcard / Humo)"
+
+msgid "СОХРАНИТЬ ИЗМЕНЕНИЯ"
+msgstr "SAVE CHANGES"
+
+msgid "СОХРАНИТЬ ТОЧКУ"
+msgstr "SAVE LOCATION"
+
+msgid "Сбой"
+msgstr "Failure"
+
+msgid "Сбой оформления заказа"
+msgstr "Failed to place order"
+
+msgid "Сбросить фото"
+msgstr "Reset photos"
+
+msgid "Свой дизайн (Фирменные цвета):"
+msgstr "Custom design (Brand colors):"
+
+msgid "Сгенерировать текст через ИИ"
+msgstr "Generate Copy with AI"
+
+msgid "Сетка размеров и остатки:"
+msgstr "Size grid and stock:"
+
+msgid "Сеть из 10 точек"
+msgstr "Network of 10 stores"
+
+msgid "Сеть из 3 точек"
+msgstr "Network of 3 stores"
+
+msgid "Сеть из 5 точек"
+msgstr "Network of 5 stores"
+
+msgid "Система POS-кассы для оффлайн-точек ещё не закончена. Наша команда активно работает над этим функционалом!"
+msgstr "The offline POS cashier system is not finished yet. Our team is actively working on it!"
+
+msgid "Скан / Фото чека перевода"
+msgstr "Transfer receipt scan / photo"
+
+msgid "Скопировано"
+msgstr "Copied"
+
+msgid "Скопировано!"
+msgstr "Copied!"
+
+msgid "Скопировать"
+msgstr "Copy"
+
+msgid "Скопировать номер карты"
+msgstr "Copy card number"
+
+msgid "Скоро"
+msgstr "Soon"
+
+msgid "Скриншот или квитанция из банковского приложения"
+msgstr "Screenshot or receipt from bank app"
+
+msgid "Скрыт"
+msgstr "Hidden"
+
+msgid "Скрыть"
+msgstr "Hide"
+
+msgid "Следующая дата списания:"
+msgstr "Next billing date:"
+
+msgid "Смотреть чек"
+msgstr "View receipt"
+
+msgid "Сначала прикрепите фото чека"
+msgstr "First attach receipt photo"
+
+msgid "Совет ИИ-Стилиста brainmart"
+msgstr "brainmart AI Stylist Advice"
+
+msgid "Создать рассылку"
+msgstr "Create broadcast"
+
+msgid "Состав заказа:"
+msgstr "Order items:"
+
+msgid "Сохранить карту"
+msgstr "Save Card"
+
+msgid "Сохранить оформление витрины"
+msgstr "Save Storefront Design"
+
+msgid "Сохранить реквизиты"
+msgstr "Save card details"
+
+msgid "Спасибо за покупку! Продавец уже собирает ваш заказ."
+msgstr "Thank you for your purchase! The seller is preparing your order."
+
+msgid "Список ваших точек"
+msgstr "List of Your Locations"
+
+msgid "Спорт"
+msgstr "Sport"
+
+msgid "Способ оплаты"
+msgstr "Payment method"
+
+msgid "Спящие >30 дней"
+msgstr "Sleeping >30 days"
+
+msgid "Спящим клиентам (не заказывали > 30 дней)"
+msgstr "Sleeping clients (no orders > 30 days)"
+
+msgid "Средний чек (AOV)"
+msgstr "Average Order Value (AOV)"
+
+msgid "Средства за доставленные заказы, готовые к выплате на карту"
+msgstr "Funds for delivered orders ready for card payout"
+
+msgid "Срок подписки истёк"
+msgstr "Subscription expired on"
+
+msgid "Срочно / Дедлайн"
+msgstr "Urgent / Deadline"
+
+msgid "Ссылка кнопки"
+msgstr "Button link"
+
+msgid "Ссылка на доставку (Яндекс...)"
+msgstr "Delivery link (Yandex...)"
+
+msgid "Статус"
+msgstr "Status"
+
+msgid "Статус выплаты"
+msgstr "Payout status"
+
+msgid "Статус заказа"
+msgstr "Order status"
+
+msgid "Стать продавцом"
+msgstr "Become a Seller"
+
+msgid "Страна: Узбекистан"
+msgstr "Country: Uzbekistan"
+
+msgid "Сумма"
+msgstr "Amount"
+
+msgid "Сумма заказа"
+msgstr "Order amount"
+
+msgid "Сумма к переводу"
+msgstr "Amount to transfer"
+
+msgid "Тариф BrainMart SaaS:"
+msgstr "BrainMart SaaS Plan:"
+
+msgid "Тариф:"
+msgstr "Plan:"
+
+msgid "Тарифы и Комиссия платформы"
+msgstr "Platform Pricing & Commission"
+
+msgid "Ташкент, ул. Навои, 14, кв. 28"
+msgstr "Tashkent, Navoi st, 14, apt 28"
+
+msgid "Текст кнопки"
+msgstr "Button text"
+
+msgid "Текст сообщения в Telegram"
+msgstr "Telegram message text"
+
+msgid "Телефон (для клиентов)"
+msgstr "Phone (for customers)"
+
+msgid "Телефон:"
+msgstr "Phone:"
+
+msgid "Тема / Название кампании (для вас)"
+msgstr "Topic / Campaign Title (internal)"
+
+msgid "Тип товара (размеры)"
+msgstr "Product type (sizes)"
+
+msgid "Товар"
+msgstr "Product"
+
+msgid "Товар не найден на складе."
+msgstr "Product not found in stock."
+
+msgid "Товары"
+msgstr "Products"
+
+msgid "Товары от лучших магазинов"
+msgstr "Products from the best stores"
+
+msgid "Только VIP (LTV > 500k сум или > 2 заказов)"
+msgstr "VIP Only (LTV > 500k UZS or > 2 orders)"
+
+msgid "Точка ещё не указана на карте"
+msgstr "Location not specified on map yet"
+
+msgid "Точка на карте:"
+msgstr "Map location:"
+
+msgid "Точка:"
+msgstr "Location:"
+
+msgid "Точки и филиалы магазина"
+msgstr "Store Locations & Branches"
+
+msgid "Точки:"
+msgstr "Locations:"
+
+msgid "Точная сумма к переводу:"
+msgstr "Exact transfer amount:"
+
+msgid "Точные координаты получены"
+msgstr "Exact coordinates received"
+
+msgid "Транзакция"
+msgstr "Transaction"
+
+msgid "Трекинг доставки"
+msgstr "Delivery tracking"
+
+msgid "У курьера"
+msgstr "With courier"
+
+msgid "У курьера (В пути)"
+msgstr "With courier (In transit)"
+
+msgid "Удалить"
+msgstr "Delete"
+
+msgid "Удалить товар"
+msgstr "Delete product"
+
+msgid "Удалить этот цвет"
+msgstr "Delete this color"
+
+msgid "Удержанная комиссия платформы за привлечение клиентов и ИИ"
+msgstr "Platform fee retained for customer acquisition and AI services"
+
+msgid "Укажите адрес доставки или отправьте локацию."
+msgstr "Please specify delivery address or send location."
+
+msgid "Укажите название бренда, нишу и контакты в удобной форме."
+msgstr "Enter brand name, niche, and contacts in a simple form."
+
+msgid "Укажите номер транзакции или карту, с которой был сделан перевод. Подписка активируется после проверки."
+msgstr "Specify the transaction number or the card used for the transfer. Subscription activates upon verification."
+
+msgid "Умная CRM и Склад"
+msgstr "Smart CRM & Inventory"
+
+msgid "Управление заказами"
+msgstr "Order Management"
+
+msgid "Управление покупателями, LTV и сегментами для Telegram-рассылок"
+msgstr "Manage buyers, LTV and segments for Telegram broadcasts"
+
+msgid "Управление точками"
+msgstr "Manage Locations"
+
+msgid "Управление точками и филиалами"
+msgstr "Store Branches & Locations Management"
+
+msgid "Управление филиалами"
+msgstr "Manage branches"
+
+msgid "Успешно"
+msgstr "Success"
+
+msgid "Филиалы"
+msgstr "Branches"
+
+msgid "Финансы"
+msgstr "Finance"
+
+msgid "Финансы и Выплаты"
+msgstr "Finance & Payouts"
+
+msgid "Фирменный цвет бренда (Витрина и Панель)"
+msgstr "Brand Identity Color (Storefront & Dashboard)"
+
+msgid "Формируем заказ..."
+msgstr "Processing order..."
+
+msgid "Фотографии этого цвета"
+msgstr "Photos of this color"
+
+msgid "Характеристики"
+msgstr "Specifications"
+
+msgid "Цвет/Размер"
+msgstr "Color/Size"
+
+msgid "Цвет:"
+msgstr "Color:"
+
+msgid "Цвета, фото и остатки"
+msgstr "Colors, photos and stock"
+
+msgid "Цена за 1 шт. (сум)"
+msgstr "Price per item (UZS)"
+
+msgid "Чек выбран!"
+msgstr "Receipt selected!"
+
+msgid "Чек на проверке"
+msgstr "Receipt under review"
+
+msgid "Чек перевода успешно отправлен!"
+msgstr "Transfer receipt sent successfully!"
+
+msgid "Чек прикреплен"
+msgstr "Receipt attached"
+
+msgid "Черный"
+msgstr "Black"
+
+msgid "Честная модель Win-Win"
+msgstr "Fair Win-Win Model"
+
+msgid "Широта"
+msgstr "Latitude"
+
+msgid "Широта (Lat)"
+msgstr "Latitude (Lat)"
+
+msgid "Электроника и гаджеты"
+msgstr "Electronics & Gadgets"
+
+msgid "Электроника, книги, косметика, гигиена и др. (без размеров)"
+msgstr "Electronics, books, cosmetics, hygiene, etc. (without sizes)"
+
+msgid "Эта карта будет показана клиентам при оформлении заказа. Клиент переводит деньги напрямую на неё."
+msgstr "This card will be displayed to customers at checkout. Customers transfer money directly to it."
+
+msgid "Я перевёл, активировать"
+msgstr "I transferred, activate"
+
+msgid "Я перевёл, отправить чек"
+msgstr "I transferred, send receipt"
+
+msgid "Язык уведомлений в Telegram"
+msgstr "Telegram notification language"
+
+msgid "Яндекс"
+msgstr "Yandex Maps"
+
+msgid "вкл. 1-ю точку"
+msgstr "includes 1st location"
+
+msgid "диалогов"
+msgstr "chats"
+
+msgid "дн. до блокировки)"
+msgstr "days until suspension)"
+
+msgid "до"
+msgstr "until"
+
+msgid "доп. точки"
+msgstr "extra locations"
+
+msgid "доп. филиалы: +150 000 сум/мес за каждый"
+msgstr "extra branches: +150,000 UZS/mo each"
+
+msgid "доставлено"
+msgstr "delivered"
+
+msgid "й день (осталось"
+msgstr "th day (remaining"
+
+msgid "комиссии с продаж"
+msgstr "sales commission"
+
+msgid "мес."
+msgstr "mo."
+
+msgid "от 2 до 10 фото"
+msgstr "from 2 to 10 photos"
+
+msgid "отзывов"
+msgstr "reviews"
+
+msgid "подписчиков в боте"
+msgstr "bot subscribers"
+
+msgid "сум"
+msgstr "UZS"
+
+msgid "сум/мес"
+msgstr "UZS/mo"
+
+msgid "сум/месяц"
+msgstr "UZS/month"
+
+msgid "точек"
+msgstr "locations"
+
+msgid "человек купили на этой неделе"
+msgstr "people bought this week"
+
+msgid "чтобы магазин получил ваш заказ и отправил курьера, прикрепите фото или скриншот чека перевода из Payme/Click/банка:"
+msgstr "for the store to receive your order and dispatch courier, attach a photo or screenshot of the transfer receipt from Payme/Click/bank:"
+
+msgid "шт"
+msgstr "pcs"
+
+msgid "шт."
+msgstr "pcs."
+
+msgid "⚙️ Автоматический эквайринг сейчас находится на технической доработке.\n\nПожалуйста, выберите прямой перевод на карту с отправкой фото чека — продавец лично проверит платёж перед отправкой!"
+msgstr "⚙️ Online acquiring is undergoing technical updates.\n\nPlease choose direct card transfer with receipt photo upload — the seller will verify the payment before dispatching!"
+
+msgid "⚙️ Автоматический эквайринг сейчас находится на технической доработке.\\n\\nПожалуйста, выберите прямой перевод на карту с отправкой фото чека — продавец лично проверит платёж перед отправкой!"
+msgstr "⚙️ Online acquiring is undergoing technical updates.\\n\\nPlease choose direct card transfer with receipt photo upload — the seller will verify the payment before dispatching!"
+
+msgid "⚠️ Пожалуйста, обязательно прикрепите фото или скриншот чека об оплате!"
+msgstr "⚠️ Please be sure to attach a photo or screenshot of the payment receipt!"
+
+msgid "✅ Чек успешно передан магазину! Скоро заказ будет доставлен."
+msgstr "✅ Receipt successfully forwarded to store! The order will be delivered soon."
+
+msgid "🔍 Поиск адреса (напр: Чорсу, ЦУМ, Юнусабад...)"
+msgstr "🔍 Search address (e.g. Chorsu, TSUM, Yunusabad...)"
+

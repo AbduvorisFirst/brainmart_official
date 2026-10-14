@@ -1,0 +1,793 @@
+{% load i18n %}
+<style>
+    /* ─── ПЛАВАЮЩАЯ ПЛАШКА КОРЗИНЫ ВНИЗУ ─── */
+    #floating-cart-bar {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%) translateY(120%);
+        width: calc(100% - 32px);
+        max-width: 480px;
+        background: #111827;
+        color: white;
+        padding: 12px 18px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255,255,255,0.1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        z-index: 999;
+        cursor: pointer;
+        transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+        opacity: 0;
+        backdrop-filter: blur(16px);
+    }
+    #floating-cart-bar.visible {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+    .fc-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .fc-icon-wrap {
+        position: relative;
+        background: var(--primary);
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+    .fc-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: #EF4444;
+        color: white;
+        font-size: 10px;
+        font-weight: 800;
+        padding: 2px 6px;
+        border-radius: 10px;
+        border: 2px solid #111827;
+    }
+    .fc-info-title { font-size: 11px; color: #9CA3AF; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .fc-info-total { font-size: 15px; font-weight: 800; color: white; }
+    .fc-btn-action {
+        background: var(--primary);
+        color: white;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 8px 16px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    /* ─── МОДАЛЬНОЕ ОКНО КОРЗИНЫ ─── */
+    #cart-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(8px);
+        z-index: 10000;
+        display: none;
+        align-items: flex-end;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+    }
+    #cart-modal-overlay.open {
+        display: flex;
+        opacity: 1;
+    }
+    #cart-modal {
+        background: var(--surface);
+        color: var(--text-main);
+        width: 100%;
+        max-width: 520px;
+        max-height: 90vh;
+        border-radius: 28px 28px 0 0;
+        padding: 24px 20px 32px;
+        display: flex;
+        flex-direction: column;
+        transform: translateY(100%);
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        overflow-y: auto;
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--border);
+        box-sizing: border-box;
+    }
+    #cart-modal-overlay.open #cart-modal {
+        transform: translateY(0);
+    }
+    @media (min-width: 600px) {
+        #cart-modal-overlay {
+            align-items: center;
+        }
+        #cart-modal {
+            border-radius: 24px;
+            max-height: 85vh;
+            padding: 28px;
+        }
+    }
+
+    /* Элементы списка товаров */
+    .cart-item-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border);
+        gap: 12px;
+    }
+    .cart-item-row:last-child {
+        border-bottom: none;
+    }
+    .cart-item-title { font-size: 14px; font-weight: 700; color: var(--text-main); margin: 0 0 4px; line-height: 1.3; }
+    .cart-item-price { font-size: 14px; font-weight: 800; color: var(--primary); }
+    .qty-control {
+        display: flex;
+        align-items: center;
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 2px;
+    }
+    .qty-btn {
+        width: 28px;
+        height: 28px;
+        border: none;
+        background: var(--surface);
+        border-radius: 8px;
+        font-weight: 800;
+        font-size: 14px;
+        cursor: pointer;
+        color: var(--text-main);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .qty-val {
+        padding: 0 10px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-main);
+    }
+    .btn-del-item {
+        background: rgba(239, 68, 68, 0.15);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #EF4444;
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Поля ввода в чекауте */
+    .checkout-input-group {
+        margin-bottom: 12px;
+    }
+    .checkout-label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-muted);
+        margin-bottom: 5px;
+    }
+    .checkout-input {
+        width: 100%;
+        box-sizing: border-box;
+        background: var(--input-bg);
+        border: 1.5px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 14px;
+        font-size: 14px;
+        color: var(--text-main);
+        outline: none;
+        transition: border-color 0.2s ease;
+    }
+    .checkout-input:focus {
+        border-color: var(--primary);
+    }
+
+    .taxi-warning-banner {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.08) 100%);
+        border: 1.5px solid rgba(245, 158, 11, 0.4);
+        border-radius: 14px;
+        padding: 12px 14px;
+        margin-bottom: 14px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .taxi-warning-text {
+        font-size: 12.5px;
+        font-weight: 700;
+        color: #FBBF24;
+        line-height: 1.4;
+    }
+
+    .btn-checkout-main {
+        width: 100%;
+        background: var(--btn-gradient);
+        color: white;
+        border: none;
+        padding: 16px;
+        border-radius: 16px;
+        font-size: 15px;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 4px 16px rgba(79, 70, 229, 0.35);
+        transition: transform 0.15s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+    .btn-checkout-main:active { transform: scale(0.98); }
+
+    .btn-tg-checkout {
+        width: 100%;
+        background: #2563EB;
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: 16px;
+        font-size: 14px;
+        font-weight: 800;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+    }
+    .btn-tg-checkout:active { transform: scale(0.98); }
+
+    .pay-option-card {
+        background: var(--input-bg);
+        border: 1.5px solid var(--border);
+        border-radius: 14px;
+        padding: 12px 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        transition: all 0.2s ease;
+    }
+    .pay-option-card.active {
+        border-color: #6366F1;
+        background: rgba(99, 102, 241, 0.08);
+        box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.2);
+    }
+</style>
+
+<!-- ─── ПЛАВАЮЩАЯ ПЛАШКА ВНИЗУ ─── -->
+<div id="floating-cart-bar" onclick="openCartModal()">
+    <div class="fc-left">
+        <div class="fc-icon-wrap">
+            🛒
+            <span class="fc-badge" id="fc-badge-count">0</span>
+        </div>
+        <div>
+            <div class="fc-info-title">{% trans "Корзина" %}</div>
+            <div class="fc-info-total"><span id="fc-total-sum">0</span> {% trans "сум" %}</div>
+        </div>
+    </div>
+    <div class="fc-btn-action">
+        {% trans "Открыть" %} ➔
+    </div>
+</div>
+
+<!-- ─── МОДАЛЬНОЕ ОКНО КОРЗИНЫ ─── -->
+<div id="cart-modal-overlay" onclick="closeCartOnOverlay(event)">
+    <div id="cart-modal">
+        <!-- Шапка корзины -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+            <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: var(--text-main);">
+                🛒 {% trans "Ваша корзина" %}
+            </h3>
+            <button onclick="closeCartModal()" style="background: var(--input-bg); border: 1px solid var(--border); width: 32px; height: 32px; border-radius: 50%; font-size: 14px; font-weight: 800; cursor: pointer; color: var(--text-muted);">✕</button>
+        </div>
+
+        <!-- Список товаров -->
+        <div id="cart-items-list" style="flex: 0 0 auto; max-height: 35vh; overflow-y: auto; margin-bottom: 16px;">
+            <!-- Динамически заполняется через JS -->
+        </div>
+
+        <!-- Итоговая плашка -->
+        <div style="background: var(--input-bg); border-radius: 16px; padding: 14px 16px; margin-bottom: 16px; border: 1px solid var(--border);">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px; color: var(--text-muted);">
+                <span>{% trans "Количество товаров:" %}</span>
+                <strong id="cart-summary-qty" style="color: var(--text-main);">0 шт.</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 17px; font-weight: 800; color: var(--text-main); border-top: 1px dashed var(--border); padding-top: 8px;">
+                <span>{% trans "Итого к оплате:" %}</span>
+                <span style="color: var(--primary);" id="cart-summary-total">0 сум</span>
+            </div>
+        </div>
+
+        <!-- БЛОК ДОСТАВКИ И ТАКСИ-КУРЬЕРА -->
+        <div id="checkout-details-section" style="margin-bottom: 16px;">
+            <div style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 12px;">
+                🚚 {% trans "Данные для доставки такси" %}
+            </div>
+
+            <!-- ВАЖНОЕ ПРЕДУПРЕЖДЕНИЕ О ТАКСИ -->
+            <div class="taxi-warning-banner">
+                <span style="font-size: 20px;">⚠️</span>
+                <div class="taxi-warning-text">
+                    {% trans "ВАЖНО: Продавец в этой локации закажет такси, поэтому вы должны указать её максимально точно!" %}
+                </div>
+            </div>
+
+            <div class="checkout-input-group">
+                <label class="checkout-label">{% trans "Ваше имя и фамилия" %}</label>
+                <input type="text" id="web-order-name" class="checkout-input" placeholder="{% trans 'Например: Азиз Каримов' %}">
+            </div>
+
+            <div class="checkout-input-group">
+                <label class="checkout-label">{% trans "Номер телефона для курьера" %}</label>
+                <input type="tel" id="web-order-phone" class="checkout-input" placeholder="+998 90 123 45 67">
+            </div>
+
+            <!-- КНОПКА ГЕОЛОКАЦИИ ПО GPS -->
+            <div style="margin-bottom: 12px;">
+                <button type="button" id="btn-detect-gps" onclick="detectUserLocation()" style="width: 100%; background: rgba(59, 130, 246, 0.15); border: 1.5px solid rgba(59, 130, 246, 0.35); color: #60A5FA; padding: 10px 14px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    📍 <span id="gps-status-text">{% trans "Определить где я по GPS (Точно)" %}</span>
+                </button>
+            </div>
+
+            <div class="checkout-input-group">
+                <label class="checkout-label">{% trans "Адрес доставки (улица, дом / квартира)" %}</label>
+                <input type="text" id="web-order-address" class="checkout-input" placeholder="{% trans 'Ташкент, ул. Навои, 14, кв. 28' %}">
+            </div>
+
+            <div class="checkout-input-group">
+                <label class="checkout-label">{% trans "Ориентир для такси (подъезд, этаж, вывеска рядом)" %}</label>
+                <input type="text" id="web-order-landmark" class="checkout-input" placeholder="{% trans 'Подъезд 3, домофон 28, рядом с Korzinka' %}">
+            </div>
+
+            <div class="checkout-input-group">
+                <label class="checkout-label">{% trans "Способ оплаты" %}</label>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <!-- Способ 1: Прямой перевод на карту продавца (Основной и безопасный способ) -->
+                    <label id="payment-opt-card" class="pay-option-card active" onclick="selectPaymentMethod('card_transfer')">
+                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="radio" name="payment_choice" id="pay-choice-card" value="card_transfer" checked style="margin: 0; cursor: pointer;">
+                                <div>
+                                    <div style="font-size: 13.5px; font-weight: 800; color: var(--text-main);">💳 {% trans "Перевод на карту продавца (с чеком)" %}</div>
+                                    <div style="font-size: 11.5px; color: var(--text-muted);">{% trans "Uzcard / Humo с прикреплением фото чека" %}</div>
+                                </div>
+                            </div>
+                            <span style="font-size: 11px; background: rgba(34, 197, 94, 0.15); color: #22c55e; padding: 3px 8px; border-radius: 8px; font-weight: 700;">{% trans "Основной" %}</span>
+                        </div>
+                    </label>
+
+                    <!-- Способ 2: Автоматический эквайринг (ЗАМОРОЖЕН НА ТЕХНИЧЕСКУЮ ДОРАБОТКУ) -->
+                    <label id="payment-opt-auto" class="pay-option-card" style="opacity: 0.55; cursor: not-allowed; border-style: dashed; background: rgba(255,255,255,0.02);" onclick="showAcquiringUnderDevNotice(event)">
+                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="radio" name="payment_choice" id="pay-choice-auto" value="auto_acquiring" disabled style="margin: 0; cursor: not-allowed;">
+                                <div>
+                                    <div style="font-size: 13px; font-weight: 700; color: var(--text-muted);">🔒 {% trans "Онлайн-эквайринг картой (Click/Payme)" %}</div>
+                                    <div style="font-size: 11px; color: #f59e0b; margin-top: 2px;">⚠️ {% trans "Временно на доработке (Скоро)" %}</div>
+                                </div>
+                            </div>
+                            <span style="font-size: 10.5px; background: rgba(245, 158, 11, 0.15); color: #f59e0b; padding: 2px 7px; border-radius: 6px; font-weight: 700;">{% trans "В разработке" %}</span>
+                        </div>
+                    </label>
+                </div>
+                <input type="hidden" id="web-order-payment" value="card_transfer">
+            </div>
+        </div>
+
+        <!-- Кнопки оформления -->
+        <button class="btn-checkout-main" id="btn-submit-order" onclick="submitDirectWebOrder()">
+            🚀 {% trans "Получить карту продавца и прикрепить чек" %}
+        </button>
+
+        <button class="btn-tg-checkout" id="btn-tg-order" onclick="proceedToBotCheckout()">
+            💬 {% trans "Завершить заказ через Telegram" %}
+        </button>
+        
+        <p style="text-align: center; margin: 12px 0 0; font-size: 11px; color: var(--text-muted);">
+            {% trans "Заказ мгновенно поступит продавцу для отправки такси" %}
+        </p>
+    </div>
+</div>
+
+<script>
+    const I18N_CART = {
+        emptyCart: "{% filter escapejs %}{% trans 'Корзина пуста' %}{% endfilter %}",
+        sum: "{% filter escapejs %}{% trans 'сум' %}{% endfilter %}",
+        pcs: "{% filter escapejs %}{% trans 'шт.' %}{% endfilter %}",
+        deleteItem: "{% filter escapejs %}{% trans 'Удалить' %}{% endfilter %}",
+        geoNotSupported: "{% filter escapejs %}{% trans 'Геолокация не поддерживается вашим браузером. Пожалуйста, напишите адрес вручную.' %}{% endfilter %}",
+        geoDetecting: "{% filter escapejs %}{% trans 'Определяем координаты...' %}{% endfilter %}",
+        geoSuccess: "{% filter escapejs %}{% trans 'Точные координаты получены' %}{% endfilter %}",
+        geoError: "{% filter escapejs %}{% trans 'Ошибка GPS. Введите адрес вручную' %}{% endfilter %}",
+        geoFailedAlert: "{% filter escapejs %}{% trans 'Не удалось получить геолокацию. Пожалуйста, введите точный адрес и ориентир.' %}{% endfilter %}",
+        acquiringNotice: "{% filter escapejs %}{% trans '⚙️ Автоматический эквайринг сейчас находится на технической доработке.\n\nПожалуйста, выберите прямой перевод на карту с отправкой фото чека — продавец лично проверит платёж перед отправкой!' %}{% endfilter %}",
+        btnCardTransfer: "{% filter escapejs %}{% trans 'Получить карту продавца и прикрепить чек' %}{% endfilter %}",
+        btnAutoPay: "{% filter escapejs %}{% trans 'Оплатить заказ онлайн сразу' %}{% endfilter %}",
+        phoneRequired: "{% filter escapejs %}{% trans 'Пожалуйста, укажите ваш номер телефона для связи!' %}{% endfilter %}",
+        addressRequired: "{% filter escapejs %}{% trans 'Пожалуйста, укажите адрес доставки или нажмите кнопку определения GPS!' %}{% endfilter %}",
+        orderProcessing: "{% filter escapejs %}{% trans 'Оформляем заказ...' %}{% endfilter %}",
+        orderSuccess: "{% filter escapejs %}{% trans 'Заказ успешно создан!' %}{% endfilter %}",
+        errorLabel: "{% filter escapejs %}{% trans 'Ошибка' %}{% endfilter %}",
+        orderFailed: "{% filter escapejs %}{% trans 'Не удалось оформить заказ' %}{% endfilter %}",
+        serverError: "{% filter escapejs %}{% trans 'Ошибка соединения с сервером.' %}{% endfilter %}",
+        sendingToBot: "{% filter escapejs %}{% trans 'Отправляем в бот...' %}{% endfilter %}",
+        finishInTg: "{% filter escapejs %}{% trans 'Завершить заказ через Telegram' %}{% endfilter %}",
+        networkError: "{% filter escapejs %}{% trans 'Ошибка сети' %}{% endfilter %}",
+        failure: "{% filter escapejs %}{% trans 'Сбой' %}{% endfilter %}"
+    };
+
+    let userLatitude = null;
+    let userLongitude = null;
+
+    function getCart() {
+        try {
+            return JSON.parse(localStorage.getItem('brainmart_cart') || localStorage.getItem('tg_cart') || '[]');
+        } catch(e) {
+            return [];
+        }
+    }
+
+    function saveCart(cart) {
+        localStorage.setItem('brainmart_cart', JSON.stringify(cart));
+        localStorage.setItem('tg_cart', JSON.stringify(cart));
+        renderGlobalCartBar();
+        window.dispatchEvent(new Event('cartUpdated'));
+    }
+
+    function renderGlobalCartBar() {
+        const cart = getCart();
+        const bar = document.getElementById('floating-cart-bar');
+        const badge = document.getElementById('fc-badge-count');
+        const sum = document.getElementById('fc-total-sum');
+
+        if (!bar || !badge || !sum) return;
+
+        let total = 0;
+        let count = 0;
+        cart.forEach(item => {
+            total += item.price * item.quantity;
+            count += item.quantity;
+        });
+
+        if (count > 0) {
+            badge.innerText = count;
+            sum.innerText = total.toLocaleString();
+            bar.classList.add('visible');
+        } else {
+            bar.classList.remove('visible');
+        }
+    }
+
+    function openCartModal() {
+        renderCartItemsList();
+        const overlay = document.getElementById('cart-modal-overlay');
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+
+        // Авто-заполнение из Telegram WebApp если доступно
+        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
+            const user = window.Telegram.WebApp.initDataUnsafe.user;
+            const nameField = document.getElementById('web-order-name');
+            if (nameField && !nameField.value) {
+                nameField.value = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+            }
+        }
+    }
+
+    function closeCartModal() {
+        const overlay = document.getElementById('cart-modal-overlay');
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    function closeCartOnOverlay(e) {
+        if (e.target.id === 'cart-modal-overlay') {
+            closeCartModal();
+        }
+    }
+
+    function renderCartItemsList() {
+        const cart = getCart();
+        const container = document.getElementById('cart-items-list');
+        if (!container) return;
+
+        if (cart.length === 0) {
+            container.innerHTML = `
+                <div style="text-align:center; padding: 30px 10px; color: var(--text-muted);">
+                    <div style="font-size: 40px; margin-bottom: 8px;">🛒</div>
+                    <div style="font-weight: 700; color: var(--text-main);">${I18N_CART.emptyCart}</div>
+                </div>
+            `;
+            closeCartModal();
+            return;
+        }
+
+        let html = '';
+        let total = 0;
+        let count = 0;
+
+        cart.forEach((item, index) => {
+            total += item.price * item.quantity;
+            count += item.quantity;
+            html += `
+                <div class="cart-item-row">
+                    <div style="flex: 1; padding-right: 8px;">
+                        <div class="cart-item-title">${item.name}</div>
+                        <div class="cart-item-price">${(item.price * item.quantity).toLocaleString()} ${I18N_CART.sum}</div>
+                    </div>
+                    <div class="qty-control">
+                        <button class="qty-btn" onclick="changeItemQty(${index}, -1)">—</button>
+                        <span class="qty-val">${item.quantity}</span>
+                        <button class="qty-btn" onclick="changeItemQty(${index}, 1)">+</button>
+                    </div>
+                    <button class="btn-del-item" onclick="deleteCartItem(${index})" title="${I18N_CART.deleteItem}">🗑</button>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+        document.getElementById('cart-summary-qty').innerText = `${count} ${I18N_CART.pcs}`;
+        document.getElementById('cart-summary-total').innerText = `${total.toLocaleString()} ${I18N_CART.sum}`;
+    }
+
+    function changeItemQty(index, delta) {
+        const cart = getCart();
+        if (!cart[index]) return;
+        cart[index].quantity += delta;
+        if (cart[index].quantity <= 0) {
+            cart.splice(index, 1);
+        }
+        saveCart(cart);
+        renderCartItemsList();
+    }
+
+    function deleteCartItem(index) {
+        const cart = getCart();
+        cart.splice(index, 1);
+        saveCart(cart);
+        renderCartItemsList();
+    }
+
+    function detectUserLocation() {
+        const btnText = document.getElementById('gps-status-text');
+        if (!navigator.geolocation) {
+            alert(I18N_CART.geoNotSupported);
+            return;
+        }
+        btnText.innerText = I18N_CART.geoDetecting;
+        navigator.geolocation.getCurrentPosition(
+            function(pos) {
+                userLatitude = pos.coords.latitude;
+                userLongitude = pos.coords.longitude;
+                btnText.innerText = `✅ ${I18N_CART.geoSuccess} (${userLatitude.toFixed(4)}, ${userLongitude.toFixed(4)})`;
+                const addressInput = document.getElementById('web-order-address');
+                if (addressInput && !addressInput.value) {
+                    addressInput.value = `GPS: ${userLatitude.toFixed(5)}, ${userLongitude.toFixed(5)}`;
+                }
+            },
+            function(err) {
+                btnText.innerText = I18N_CART.geoError;
+                alert(I18N_CART.geoFailedAlert);
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    }
+
+    /* ─── ПРЕДУПРЕЖДЕНИЕ О ДОРАБОТКЕ ЭКВАЙРИНГА ─── */
+    function showAcquiringUnderDevNotice(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        alert(I18N_CART.acquiringNotice);
+        selectPaymentMethod('card_transfer');
+    }
+
+    /* ─── ВЫБОР СПОСОБА ОПЛАТЫ ─── */
+    function selectPaymentMethod(method) {
+        // Автоматический эквайринг заморожен
+        if (method === 'auto_acquiring') {
+            showAcquiringUnderDevNotice();
+            return;
+        }
+
+        const hiddenInput = document.getElementById('web-order-payment');
+        if (hiddenInput) hiddenInput.value = 'card_transfer';
+
+        const optAuto = document.getElementById('payment-opt-auto');
+        const optCard = document.getElementById('payment-opt-card');
+        const radioAuto = document.getElementById('pay-choice-auto');
+        const radioCard = document.getElementById('pay-choice-card');
+        const btn = document.getElementById('btn-submit-order');
+
+        if (optCard) optCard.classList.add('active');
+        if (optAuto) optAuto.classList.remove('active');
+        if (radioCard) radioCard.checked = true;
+        if (radioAuto) radioAuto.checked = false;
+        if (btn) btn.innerHTML = `🚀 ${I18N_CART.btnCardTransfer}`;
+    }
+
+    /* ─── ПРЯМОЙ ЧЕКАУТ НА САЙТЕ ─── */
+    function submitDirectWebOrder() {
+        const cart = getCart();
+        if (cart.length === 0) return;
+
+        const name = document.getElementById('web-order-name').value.trim();
+        const phone = document.getElementById('web-order-phone').value.trim();
+        const address = document.getElementById('web-order-address').value.trim();
+        const landmark = document.getElementById('web-order-landmark').value.trim();
+        const paymentMethod = document.getElementById('web-order-payment').value;
+
+        if (!phone) {
+            alert(I18N_CART.phoneRequired);
+            document.getElementById('web-order-phone').focus();
+            return;
+        }
+
+        if (!address && !userLatitude) {
+            alert(I18N_CART.addressRequired);
+            document.getElementById('web-order-address').focus();
+            return;
+        }
+
+        const btn = document.getElementById('btn-submit-order');
+        btn.disabled = true;
+        btn.innerText = `⏳ ${I18N_CART.orderProcessing}`;
+
+        const isTg = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user;
+        const tgUser = isTg ? window.Telegram.WebApp.initDataUnsafe.user : {};
+
+        fetch("{% url 'create-web-order' %}", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                cart: cart,
+                full_name: name || "Покупатель",
+                phone_number: phone,
+                delivery_address: address,
+                delivery_landmark: landmark,
+                latitude: userLatitude,
+                longitude: userLongitude,
+                payment_method: paymentMethod,
+                chat_id: tgUser.id || null,
+                username: tgUser.username || ""
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                localStorage.removeItem('brainmart_cart');
+                localStorage.removeItem('tg_cart');
+                if (data.payment_method === "click" && data.click_url) {
+                    window.location.href = data.click_url;
+                } else if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    alert(I18N_CART.orderSuccess);
+                    closeCartModal();
+                }
+            } else {
+                btn.disabled = false;
+                const curMethod = document.getElementById('web-order-payment').value;
+                btn.innerHTML = curMethod === 'auto_acquiring' ? `⚡ ${I18N_CART.btnAutoPay}` : `🚀 ${I18N_CART.btnCardTransfer}`;
+                alert(`${I18N_CART.errorLabel}: ` + (data.error || I18N_CART.orderFailed));
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            const curMethod = document.getElementById('web-order-payment').value;
+            btn.innerHTML = curMethod === 'auto_acquiring' ? `⚡ ${I18N_CART.btnAutoPay}` : `🚀 ${I18N_CART.btnCardTransfer}`;
+            alert(I18N_CART.serverError);
+        });
+    }
+
+    /* ─── ОФОРМЛЕНИЕ ЧЕРЕЗ TELEGRAM ─── */
+    function proceedToBotCheckout() {
+        const cart = getCart();
+        if (cart.length === 0) return;
+
+        const isTg = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user;
+        const tg = window.Telegram ? window.Telegram.WebApp : null;
+        const user = isTg ? window.Telegram.WebApp.initDataUnsafe.user : {};
+
+        const btn = document.getElementById('btn-tg-order');
+        btn.disabled = true;
+        btn.innerText = `⏳ ${I18N_CART.sendingToBot}`;
+
+        if (isTg && user.id) {
+            // Если открыто внутри Telegram MiniApp
+            fetch("{% url 'create-telegram-order' %}", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    cart: cart,
+                    chat_id: user.id,
+                    username: user.username || "",
+                    first_name: user.first_name || "",
+                    last_name: user.last_name || ""
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    localStorage.removeItem('brainmart_cart');
+                    localStorage.removeItem('tg_cart');
+                    if (tg) tg.close();
+                } else {
+                    btn.disabled = false;
+                    btn.innerText = `💬 ${I18N_CART.finishInTg}`;
+                    alert(`${I18N_CART.errorLabel}: ` + (data.error || I18N_CART.failure));
+                }
+            })
+            .catch(() => {
+                btn.disabled = false;
+                btn.innerText = `💬 ${I18N_CART.finishInTg}`;
+                alert(I18N_CART.networkError);
+            });
+        } else {
+            // Если открыто в обычном браузере — создаем заказ и открываем бота по ссылке!
+            const name = document.getElementById('web-order-name').value.trim();
+            const phone = document.getElementById('web-order-phone').value.trim() || "+998";
+            const address = document.getElementById('web-order-address').value.trim();
+            const landmark = document.getElementById('web-order-landmark').value.trim();
+
+            fetch("{% url 'create-web-order' %}", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    cart: cart,
+                    full_name: name || "Покупатель",
+                    phone_number: phone,
+                    delivery_address: address || "Адрес через Telegram",
+                    delivery_landmark: landmark,
+                    latitude: userLatitude,
+                    longitude: userLongitude,
+                    payment_method: "click"
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.telegram_url) {
+                    localStorage.removeItem('brainmart_cart');
+                    localStorage.removeItem('tg_cart');
+                    // Перенаправляем прямо в Telegram бот на команду /start order_ID!
+                    window.location.href = data.telegram_url;
+                } else {
+                    btn.disabled = false;
+                    btn.innerText = `💬 ${I18N_CART.finishInTg}`;
+                    if (data.redirect_url) {
+                        window.location.href = data.redirect_url;
+                    }
+                }
+            })
+            .catch(() => {
+                btn.disabled = false;
+                btn.innerText = `💬 ${I18N_CART.finishInTg}`;
+                alert(I18N_CART.networkError);
+            });
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        renderGlobalCartBar();
+    });
+</script>

@@ -1,0 +1,450 @@
+{% load i18n %}
+{# dashboard/base.html #}
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>brainmart — {% trans "Панель продавца" %}</title>
+
+    <!-- PWA & Mobile Web App meta tags -->
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="brainmart CRM">
+    <meta name="theme-color" content="#111827">
+    <style>
+        :root {
+            {% if user.store and user.store.primary_color %}
+                --primary: {{ user.store.primary_color }};
+                --primary-hover: {{ user.store.primary_color }};
+                --accent: {{ user.store.accent_color|default:"#10B981" }};
+            {% else %}
+                --primary: #4F46E5;
+                --primary-hover: #4338CA;
+                --accent: #10B981;
+            {% endif %}
+            --bg: #0F172A; /* slightly richer dark bg */
+            --card-bg: #1E293B;
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --sidebar-w: 260px;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: -apple-system, "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+            margin: 0; background: var(--bg); color: var(--text-main);
+            padding-bottom: 90px;
+        }
+
+        /* ─── МОБИЛЬНАЯ ШАПКА (показывается только на мобилах) ─── */
+        .top-header {
+            position: sticky; top: 0; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border); z-index: 100;
+        }
+        .top-header h3 { margin: 0; font-size: 18px; color: white; display: flex; align-items: center; gap: 8px; font-weight: 800; }
+
+        main { padding: 20px; max-width: 100%; overflow-x: hidden; }
+
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; padding: 24px; margin-bottom: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+
+        /* ─── КНОПКИ И ИНПУТЫ ─── */
+        .btn {
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+            background: var(--primary); color: white; padding: 16px 24px; border-radius: 16px;
+            text-decoration: none; border: none; cursor: pointer; font-size: 16px; font-weight: 700; transition: all 0.2s ease;
+            width: 100%; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn:active { transform: scale(0.97); }
+        .btn-secondary { background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--border); box-shadow: none; }
+
+        input, textarea, select {
+            width: 100%; padding: 16px; background: rgba(15, 23, 42, 0.5); border: 1px solid var(--border); color: white;
+            border-radius: 16px; margin: 8px 0 20px; font-size: 16px; transition: border 0.2s, background 0.2s;
+        }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary); background: rgba(15, 23, 42, 0.8); }
+        label { font-size: 14px; font-weight: 600; color: #CBD5E1; }
+
+        /* ─── НИЖНЕЕ МЕНЮ (Bottom Nav) — только на мобилах ─── */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0; background: rgba(30, 41, 59, 0.9); backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border); display: flex; justify-content: space-around;
+            padding: 12px 0 calc(12px + env(safe-area-inset-bottom)); z-index: 1000;
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            color: var(--text-muted); text-decoration: none; font-size: 11px; font-weight: 600; transition: color 0.2s;
+        }
+        .nav-item.active { color: var(--primary); }
+        .nav-icon { font-size: 24px; transition: transform 0.2s; }
+        .nav-item.active .nav-icon { transform: scale(1.1); }
+
+        .badge { padding: 6px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; display: inline-block; }
+        .badge-active { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .badge-inactive { background: rgba(107, 114, 128, 0.15); color: #9ca3af; }
+        .badge-warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+
+        /* ─────────────────────────────────────────────────────────
+           DESKTOP LAYOUT (>= 900px)
+           Боковой сайдбар + просторная рабочая область
+        ───────────────────────────────────────────────────────── */
+        @media (min-width: 900px) {
+            body { padding-bottom: 0; display: flex; min-height: 100vh; }
+
+            /* Скрываем мобильные элементы */
+            .top-header { display: none; }
+            .bottom-nav { display: none; }
+
+            /* Боковой сайдбар */
+            .desktop-sidebar {
+                width: var(--sidebar-w);
+                min-height: 100vh;
+                background: var(--card-bg);
+                border-right: 1px solid var(--border);
+                display: flex;
+                flex-direction: column;
+                padding: 32px 0;
+                position: fixed;
+                top: 0; left: 0; bottom: 0;
+                z-index: 200;
+            }
+            .desktop-sidebar .sidebar-logo {
+                padding: 0 24px 24px;
+                border-bottom: 1px solid var(--border);
+                margin-bottom: 20px;
+            }
+            .desktop-sidebar .sidebar-logo h2 {
+                margin: 0; font-size: 24px; font-weight: 900; color: white; letter-spacing: -0.5px;
+            }
+            .desktop-sidebar .sidebar-logo h2 span { color: var(--primary); }
+            .desktop-sidebar .sidebar-store {
+                padding: 0 24px 20px;
+                font-size: 13px; color: var(--text-muted); font-weight: 600;
+                border-bottom: 1px solid var(--border); margin-bottom: 12px;
+            }
+            .sidebar-nav-item {
+                display: flex; align-items: center; gap: 14px;
+                padding: 14px 24px; color: var(--text-muted);
+                text-decoration: none; font-size: 15px; font-weight: 600;
+                border-radius: 16px; margin: 4px 12px;
+                transition: all 0.2s ease;
+            }
+            .sidebar-nav-item:hover { background: rgba(255,255,255,0.05); color: white; transform: translateX(4px); }
+            .sidebar-nav-item.active { background: rgba(79, 70, 229, 0.15); color: #818CF8; font-weight: 700; }
+            .sidebar-nav-item .nav-icon { font-size: 22px; }
+            .sidebar-footer {
+                margin-top: auto; padding: 20px 24px 0;
+                border-top: 1px solid var(--border);
+            }
+
+            /* Главная область контента */
+            .desktop-content {
+                margin-left: var(--sidebar-w);
+                flex: 1;
+                padding: 32px 40px;
+                min-width: 0;
+            }
+            main {
+                padding: 0;
+                max-width: 1200px;
+            }
+        }
+
+        /* Переключатель языков в Dashboard */
+        .lang-switcher-dashboard {
+            display: flex; gap: 4px; padding: 10px 20px;
+        }
+        .lang-switcher-dashboard button {
+            all: unset; cursor: pointer;
+            padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 700;
+            background: var(--border); color: var(--text-muted);
+            transition: 0.15s;
+        }
+        .lang-switcher-dashboard button.active {
+            background: var(--primary); color: white;
+        }
+    </style>
+
+</head>
+<body>
+
+    {% if user.is_authenticated and user.store %}
+
+    <!-- ─── ДЕСКТОПНЫЙ САЙДБАР ─── -->
+    <aside class="desktop-sidebar" style="display: none;">
+        <div class="sidebar-logo">
+            <h2>⚡ brain<span>mart</span></h2>
+        </div>
+        <div class="sidebar-store" style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; font-weight: 700;">🏪 {{ user.store.name }}</span>
+                <span style="background: rgba(99,102,241,0.2); border: 1px solid rgba(99,102,241,0.4); color: #818cf8; padding: 2px 7px; border-radius: 6px; font-size: 9.5px; font-weight: 800; letter-spacing: 0.5px; flex-shrink: 0;">SaaS CRM</span>
+            </div>
+            <a href="/{{ CURRENT_LANG|default:'ru' }}/?store_id={{ user.store.id }}" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; font-size: 11.5px; font-weight: 700; text-decoration: none; padding: 6px 10px; border-radius: 8px; transition: all 0.2s ease;">
+                👁️ {% trans "Открыть витрину" %} ↗
+            </a>
+        </div>
+        <!-- Переключатель языков в сайдбаре -->
+        <div class="lang-switcher-dashboard">
+            {% get_current_language as CURRENT_LANG %}
+            {% get_available_languages as LANGUAGES %}
+            {% for lang_code, lang_name in LANGUAGES %}
+                <form action="{% url 'set_language' %}" method="post" style="display:inline">
+                    {% csrf_token %}
+                    <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                    <input name="language" type="hidden" value="{{ lang_code }}">
+                    <button type="submit" class="{% if lang_code == CURRENT_LANG %}active{% endif %}">
+                        {% if lang_code == 'ru' %}RU{% elif lang_code == 'uz' %}UZ{% else %}EN{% endif %}
+                    </button>
+                </form>
+            {% endfor %}
+        </div>
+        <nav>
+            <a href="{% url 'seller-dashboard' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'seller-dashboard' %}active{% endif %}">
+                <span class="nav-icon">📊</span> {% trans "Главная" %}
+            </a>
+            <a href="{% url 'seller-products' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'seller-products' or request.resolver_match.url_name == 'seller-product-add' %}active{% endif %}">
+                <span class="nav-icon">📦</span> {% trans "Товары" %}
+            </a>
+            <a href="javascript:void(0)" onclick="showPosUnderDevModal()" class="sidebar-nav-item" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+                <span><span class="nav-icon">📟</span> {% trans "POS Касса" %}</span>
+                <span style="font-size: 10px; background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); padding: 2px 7px; border-radius: 6px; font-weight: 800;">
+                    {% trans "В разработке" %}
+                </span>
+            </a>
+            <a href="{% url 'seller-orders' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'seller-orders' %}active{% endif %}">
+                <span class="nav-icon">🚚</span> {% trans "Заказы" %}
+            </a>
+            <a href="{% url 'seller-finance' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'seller-finance' %}active{% endif %}">
+                <span class="nav-icon">💰</span> {% trans "Финансы" %}
+            </a>
+            <a href="{% url 'seller-customers' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'seller-customers' %}active{% endif %}">
+                <span class="nav-icon">👥</span> {% trans "Клиенты" %}
+            </a>
+            <a href="{% url 'seller-waitlist' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'seller-waitlist' %}active{% endif %}">
+                <span class="nav-icon">⏳</span> {% trans "Лист ожидания" %}
+            </a>
+            <a href="{% url 'seller-broadcasts' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'seller-broadcasts' %}active{% endif %}">
+                <span class="nav-icon">📢</span> {% trans "Рассылки" %}
+            </a>
+            <a href="{% url 'seller-reviews' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'seller-reviews' %}active{% endif %}">
+                <span class="nav-icon">⭐</span> {% trans "Отзывы" %}
+            </a>
+            <a href="{% url 'seller-branches' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'seller-branches' %}active{% endif %}">
+                <span class="nav-icon">🏢</span> {% trans "Точки/Филиалы" %}
+            </a>
+        <a href="{% url 'seller-settings' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'seller-settings' %}active{% endif %}">
+                <span class="nav-icon">⚙️</span> {% trans "Настройки" %}
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="{% url 'seller-logout' %}" class="sidebar-nav-item" style="color: #ef4444;">
+                <span class="nav-icon">🚪</span> {% trans "Выйти" %}
+            </a>
+        </div>
+    </aside>
+
+    <!-- ─── МОБИЛЬНАЯ ШАПКА ─── -->
+    <div class="top-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <h3 style="margin: 0; font-size: 15px; font-weight: 800;">⚡ {{ user.store.name }}</h3>
+            <span style="background: rgba(99,102,241,0.2); border: 1px solid rgba(99,102,241,0.4); color: #818cf8; padding: 2px 6px; border-radius: 5px; font-size: 9px; font-weight: 800;">SaaS CRM</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <a href="/{{ CURRENT_LANG|default:'ru' }}/?store_id={{ user.store.id }}" target="_blank" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; font-size: 11px; font-weight: 700; text-decoration: none; padding: 4px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">
+                👁️ {% trans "Витрина" %} ↗
+            </a>
+            <!-- Переключатель языков в мобильной шапке -->
+            <div class="lang-switcher-dashboard" style="padding: 0;">
+                {% get_current_language as CURRENT_LANG %}
+                {% get_available_languages as LANGUAGES %}
+                {% for lang_code, lang_name in LANGUAGES %}
+                    <form action="{% url 'set_language' %}" method="post" style="display:inline">
+                        {% csrf_token %}
+                        <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                        <input name="language" type="hidden" value="{{ lang_code }}">
+                        <button type="submit" class="{% if lang_code == CURRENT_LANG %}active{% endif %}" style="padding: 4px 8px; border-radius: 6px; font-size: 10px;">
+                            {% if lang_code == 'ru' %}RU{% elif lang_code == 'uz' %}UZ{% else %}EN{% endif %}
+                        </button>
+                    </form>
+                {% endfor %}
+            </div>
+            <a href="{% url 'seller-logout' %}" style="color: var(--text-muted); text-decoration: none; font-size: 20px;">🚪</a>
+        </div>
+    </div>
+
+
+    <!-- ─── МОБИЛЬНОЕ НИЖНЕЕ МЕНЮ ─── -->
+    <nav class="bottom-nav">
+        <a href="{% url 'seller-dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-dashboard' %}active{% endif %}">
+            <span class="nav-icon">📊</span>
+            <span>{% trans "Главная" %}</span>
+        </a>
+        <a href="{% url 'seller-products' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-products' or request.resolver_match.url_name == 'seller-product-add' %}active{% endif %}">
+            <span class="nav-icon">📦</span>
+            <span>{% trans "Товары" %}</span>
+        </a>
+        <a href="javascript:void(0)" onclick="showPosUnderDevModal()" class="nav-item" style="position: relative; cursor: pointer;">
+            <span class="nav-icon">📟</span>
+            <span>{% trans "POS" %} <small style="color: #fbbf24; font-size: 8.5px; font-weight: 800;">({% trans "Скоро" %})</small></span>
+        </a>
+        <a href="{% url 'seller-orders' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-orders' %}active{% endif %}">
+            <span class="nav-icon">🚚</span>
+            <span>{% trans "Заказы" %}</span>
+        </a>
+        <a href="{% url 'seller-finance' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-finance' %}active{% endif %}">
+            <span class="nav-icon">💰</span>
+            <span>{% trans "Финансы" %}</span>
+        </a>
+        <a href="{% url 'seller-customers' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-customers' %}active{% endif %}">
+            <span class="nav-icon">👥</span>
+            <span>{% trans "Клиенты" %}</span>
+        </a>
+        <a href="{% url 'seller-waitlist' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-waitlist' %}active{% endif %}">
+            <span class="nav-icon">⏳</span>
+            <span>{% trans "Ожидание" %}</span>
+        </a>
+        <a href="{% url 'seller-broadcasts' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-broadcasts' %}active{% endif %}">
+            <span class="nav-icon">📢</span>
+            <span>{% trans "Рассылки" %}</span>
+        </a>
+        <a href="{% url 'seller-reviews' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-reviews' %}active{% endif %}">
+            <span class="nav-icon">⭐</span>
+            <span>{% trans "Отзывы" %}</span>
+        </a>
+        <a href="{% url 'seller-branches' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-branches' %}active{% endif %}">
+            <span class="nav-icon">🏢</span>
+            <span>{% trans "Точки" %}</span>
+        </a>
+        <a href="{% url 'seller-settings' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-settings' %}active{% endif %}">
+            <span class="nav-icon">⚙️</span>
+            <span>{% trans "Настройки" %}</span>
+        </a>
+    </nav>
+
+    {% endif %}
+
+    <!-- Десктопный wrapper: сайдбар + контент -->
+    <div class="desktop-content">
+        <main>
+            {% if user.is_authenticated and user.store %}
+                {% with sub_info=user.store.get_subscription_status_info %}
+                    {% if sub_info.status == 'suspended' %}
+                        <div style="background: #7F1D1D; border: 2px solid #EF4444; color: white; padding: 16px 20px; border-radius: 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span style="font-size: 28px;">🛑</span>
+                                <div>
+                                    <div style="font-weight: 800; font-size: 15px;">{% trans "Магазин и ИИ-продавец заблокированы!" %}</div>
+                                    <div style="font-size: 13px; color: #FCA5A5;">{% trans "Просрочка подписки превысила 5 дней. Приём заказов и автоответы ИИ отключены." %}</div>
+                                </div>
+                            </div>
+                            <a href="{% url 'seller-finance' %}" style="background: #EF4444; color: white; padding: 10px 18px; border-radius: 10px; font-weight: 800; text-decoration: none; font-size: 13px;">
+                                💳 {% trans "Оплатить" %} {{ request.user.store.current_tier_fee|floatformat:"0" }} {% trans "сум" %}
+                            </a>
+                        </div>
+                    {% elif sub_info.status == 'grace_period' %}
+                        <div style="background: #78350F; border: 2px solid #F59E0B; color: white; padding: 14px 18px; border-radius: 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25);">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span style="font-size: 24px;">🚨</span>
+                                <div>
+                                    <div style="font-weight: 800; font-size: 14px;">
+                                        {% trans "Внимание! Действует льготный период:" %} {{ sub_info.overdue }}-{% trans "й день (осталось" %} {{ sub_info.remaining_grace }} {% trans "дн. до блокировки)" %}
+                                    </div>
+                                    <div style="font-size: 12px; color: #FDE68A;">{% trans "Срок подписки истёк" %} {{ user.store.subscription_paid_until|date:"d.m.Y" }}. {% trans "Пожалуйста, оплатите 150 000 сум во избежание остановки ИИ." %}</div>
+                                </div>
+                            </div>
+                            <a href="{% url 'seller-finance' %}" style="background: #F59E0B; color: #1E1B4B; padding: 8px 16px; border-radius: 10px; font-weight: 800; text-decoration: none; font-size: 12px;">
+                                💳 {% trans "Оплатить" %}
+                            </a>
+                        </div>
+                    {% elif sub_info.status == 'expiring' %}
+                        <div style="background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.4); color: white; padding: 12px 16px; border-radius: 14px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px; font-size: 13px;">
+                                <span>📅</span>
+                                <span>{% trans "Подписка CRM & ИИ заканчивается через" %} <strong>{{ sub_info.days }} {% trans "дн." %}</strong> ({{ user.store.subscription_paid_until|date:"d.m.Y" }}).</span>
+                            </div>
+                            <a href="{% url 'seller-finance' %}" style="background: var(--primary); color: white; padding: 6px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 12px;">
+                                {% trans "Продлить" %} ({{ request.user.store.current_tier_fee|floatformat:"0" }} {% trans "сум" %})
+                            </a>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+            {% endif %}
+
+            {% if messages and user.is_authenticated and user.store %}
+                <div style="margin-bottom: 20px;">
+                    {% for message in messages %}
+                        <div style="padding: 12px 18px; border-radius: 12px; margin-bottom: 10px; font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 10px; {% if message.tags == 'error' %}background: rgba(239, 68, 68, 0.15); border: 1.5px solid #EF4444; color: #FCA5A5;{% elif message.tags == 'success' %}background: rgba(16, 185, 129, 0.15); border: 1.5px solid #10B981; color: #6EE7B7;{% else %}background: rgba(59, 130, 246, 0.15); border: 1.5px solid #3B82F6; color: #93C5FD;{% endif %}">
+                            <span style="font-size: 16px;">{% if message.tags == 'error' %}⚠️{% elif message.tags == 'success' %}✅{% else %}ℹ️{% endif %}</span>
+                            <div>{{ message }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+<!-- Modal: POS Касса в разработке -->
+<div id="posUnderDevModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); z-index: 99999; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #111827; border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 24px; max-width: 440px; width: 100%; padding: 28px 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7); text-align: center; position: relative;">
+        <div style="width: 64px; height: 64px; margin: 0 auto 16px; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px;">
+            📟
+        </div>
+        <div style="display: inline-block; background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px;">
+            {% trans "В разработке" %}
+        </div>
+        <h3 style="font-size: 20px; font-weight: 800; color: #ffffff; margin: 0 0 10px;">
+            {% trans "POS Касса скоро будет доступна!" %}
+        </h3>
+        <p style="font-size: 13.5px; color: #94a3b8; line-height: 1.55; margin: 0 0 22px;">
+            {% trans "Мы активно дорабатываем оффлайн-терминал для продавцов и кассиров: сканирование штрихкодов, открытие смен, фискальные чеки и быструю продажу на кассе." %}
+        </p>
+        <button type="button" onclick="closePosUnderDevModal()" style="width: 100%; padding: 13px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #000; font-weight: 800; font-size: 14px; border: none; border-radius: 14px; cursor: pointer; transition: transform 0.15s ease;">
+            {% trans "Понятно" %}
+        </button>
+    </div>
+</div>
+
+<script>
+    function showPosUnderDevModal() {
+        const modal = document.getElementById('posUnderDevModal');
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+    }
+    function closePosUnderDevModal() {
+        const modal = document.getElementById('posUnderDevModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+    // Закрытие по клику вне контента
+    document.addEventListener('click', function(e) {
+        const modal = document.getElementById('posUnderDevModal');
+        if (modal && e.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    // Показываем сайдбар только на десктопе (CSS display:none мешает flex-сайдбару)
+    function handleLayout() {
+        const sidebar = document.querySelector('.desktop-sidebar');
+        if (!sidebar) return;
+        if (window.innerWidth >= 900) {
+            sidebar.style.display = 'flex';
+        } else {
+            sidebar.style.display = 'none';
+        }
+    }
+    handleLayout();
+    window.addEventListener('resize', handleLayout);
+</script>
+</body>
+</html>
