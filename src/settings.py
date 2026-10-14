@@ -240,10 +240,11 @@ CELERY_TASK_ALWAYS_EAGER = os.environ.get('CELERY_TASK_ALWAYS_EAGER', 'True' if 
 # Во время разработки (DEBUG=True) они НЕ мешают работе.
 
 if not DEBUG:
+    is_https = SITE_URL.startswith("https://")
     # Куки сессии передаются ТОЛЬКО через HTTPS — хакер не перехватит в открытом Wi-Fi
-    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = is_https
     # CSRF-куки тоже только через HTTPS
-    CSRF_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = is_https
     # Защита от кражи сессии через JavaScript (XSS)
     SESSION_COOKIE_HTTPONLY = True
     # Браузер не отправит куки на сторонние сайты (защита от CSRF-атак)
@@ -251,12 +252,13 @@ if not DEBUG:
     CSRF_COOKIE_SAMESITE = "Lax"
     # Заголовок X-Content-Type-Options: nosniff — браузер не будет «угадывать» тип файла
     SECURE_CONTENT_TYPE_NOSNIFF = True
-    # Перенаправлять HTTP → HTTPS автоматически
-    SECURE_SSL_REDIRECT = True
-    # HSTS — браузер запомнит, что сайт работает только по HTTPS (на 1 год)
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
+    # Перенаправлять HTTP → HTTPS автоматически только если сайт работает по HTTPS
+    SECURE_SSL_REDIRECT = is_https
+    if is_https:
+        # HSTS — браузер запомнит, что сайт работает только по HTTPS (на 1 год)
+        SECURE_HSTS_SECONDS = 31536000
+        SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+        SECURE_HSTS_PRELOAD = True
     # Для Telegram Mini App и встраивания витрины разрешаем фреймы (полный DENY ломает web.telegram.org)
     X_FRAME_OPTIONS = "SAMEORIGIN"
 
