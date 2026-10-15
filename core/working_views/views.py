@@ -124,14 +124,12 @@ class InstagramWebhookView(APIView):
             instagram_business_id = entry.get("id")
 
             store = Store.objects.filter(
-                instagram_business_id=instagram_business_id, is_active=True
+                instagram_business_id=str(instagram_business_id), is_active=True
             ).first()
             if not store:
-                # Попробуем найти первый активный магазин и автоматически связать его с этим Instagram Business ID
+                store = Store.objects.filter(instagram_username="brainmart_systems", is_active=True).first()
+            if not store:
                 store = Store.objects.filter(is_active=True).first()
-                if store and not store.instagram_business_id:
-                    store.instagram_business_id = str(instagram_business_id)
-                    store.save(update_fields=["instagram_business_id"])
 
             if not store:
                 logger.warning(

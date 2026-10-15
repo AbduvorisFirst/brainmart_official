@@ -326,6 +326,9 @@ def handle_incoming_instagram_message(
         conversation=conversation, sender=Message.Sender.AI_AGENT, text=ai_reply_text
     )
 
+    # Отправляем готовый ответ клиенту в Instagram Direct
+    send_instagram_reply(store, instagram_scoped_id, ai_reply_text)
+
     # Send product image to Instagram DM if we have a match
     if in_stock_matches:
         best_match = in_stock_matches[0]
@@ -615,7 +618,7 @@ def send_instagram_reply(store: Store, instagram_scoped_id: str, text: str) -> N
     # Автоопределение хоста: для токенов IG... используется graph.instagram.com
     if access_token.startswith("IG"):
         base_host = "https://graph.instagram.com"
-        target_id = store.instagram_business_id or "me"
+        target_id = "me"
     else:
         base_host = "https://graph.facebook.com"
         target_id = store.instagram_business_id or "me"
@@ -644,7 +647,7 @@ def send_instagram_image(store: Store, instagram_scoped_id: str, image_url: str)
 
     if access_token.startswith("IG"):
         base_host = "https://graph.instagram.com"
-        target_id = store.instagram_business_id or "me"
+        target_id = "me"
     else:
         base_host = "https://graph.facebook.com"
         target_id = store.instagram_business_id or "me"
@@ -790,6 +793,7 @@ def handle_incoming_instagram_comment(
         store_link = f"https://t.me/{settings.TELEGRAM_BOT_USERNAME}?start=store_{store.id}"
         ai_text += f"\n\n💬 Telegram: {store_link}"
 
+    send_instagram_private_reply(comment_id, ai_text, store)
     send_instagram_reply(store, sender_id, ai_text)
 
 
