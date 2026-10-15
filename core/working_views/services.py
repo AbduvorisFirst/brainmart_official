@@ -21,8 +21,12 @@ from .telegram_bot import build_telegram_deep_link
 
 GEMINI_API_URL = (
     "https://generativelanguage.googleapis.com/v1beta/models/"
-    "gemini-flash-lite-latest:generateContent"
+    "gemini-3.1-flash-lite:generateContent"
 )
+
+_ai_session = requests.Session()
+_ai_session_adapter = requests.adapters.HTTPAdapter(pool_connections=20, pool_maxsize=50, max_retries=1)
+_ai_session.mount("https://", _ai_session_adapter)
 
 import logging
 logger = logging.getLogger(__name__)
@@ -174,13 +178,17 @@ def ask_gemini(
     contents = (history or []) + [{"role": "user", "parts": [{"text": user_content}]}]
 
     try:
-        response = requests.post(
+        response = _ai_session.post(
             f"{GEMINI_API_URL}?key={api_key}",
             json={
                 "system_instruction": {"parts": [{"text": system_instruction}]},
                 "contents": contents,
+                "generationConfig": {
+                    "maxOutputTokens": 280,
+                    "temperature": 0.3,
+                },
             },
-            timeout=10,
+            timeout=8,
         )
         response.raise_for_status()
         data = response.json()

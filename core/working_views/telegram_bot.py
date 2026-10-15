@@ -70,8 +70,25 @@ def _clean_telegram_text(text: str) -> str:
     return re.sub(r'</?(?:b|code|i|u|strong|em|a|pre|s|strike|tg-spoiler)[^>]*>', '', str(text))
 
 
+_tg_session = requests.Session()
+_tg_session_adapter = requests.adapters.HTTPAdapter(pool_connections=20, pool_maxsize=50, max_retries=1)
+_tg_session.mount("https://", _tg_session_adapter)
+
+
+def _send_telegram_chat_action(chat_id, action: str = "typing") -> None:
+    """Мгновенно показывает статус 'печатает...' в чате Telegram."""
+    token = getattr(settings, "TELEGRAM_BOT_TOKEN", None)
+    if not token or not chat_id:
+        return
+    url = f"https://api.telegram.org/bot{token}/sendChatAction"
+    try:
+        _tg_session.post(url, json={"chat_id": chat_id, "action": action}, timeout=3)
+    except Exception:
+        pass
+
+
 def _send_telegram_message(chat_id, text: str, web_app_url: str | None = None, reply_markup: dict | None = None) -> bool:
-    """Низкоуровневая отправка сообщения через Telegram Bot API."""
+    """Низкоуровневая отправка сообщения через Telegram Bot API с пулом соединений."""
     token = settings.TELEGRAM_BOT_TOKEN
     url = f"https://api.telegram.org/bot{token}/sendMessage"
 
@@ -88,7 +105,7 @@ def _send_telegram_message(chat_id, text: str, web_app_url: str | None = None, r
         }
 
     try:
-        response = requests.post(url, json=payload, timeout=10)
+        response = _tg_session.post(url, json=payload, timeout=8)
         if response.status_code != 200:
             logger.warning("Telegram sendMessage вернул ошибку: %s", response.text)
             return False
@@ -121,7 +138,7 @@ def _send_telegram_photo(chat_id, photo_url_or_file, caption: str, reply_markup:
             data = {"chat_id": chat_id, "caption": caption}
             if reply_markup:
                 data["reply_markup"] = json.dumps(reply_markup)
-            res = requests.post(url, data=data, files=files, timeout=20)
+            res = _tg_session.post(url, data=data, files=files, timeout=20)
             return res.status_code == 200
         except Exception as e:
             logger.warning("Не удалось отправить фото из буфера: %s", e)
@@ -135,7 +152,7 @@ def _send_telegram_photo(chat_id, photo_url_or_file, caption: str, reply_markup:
                 if reply_markup:
                     data["reply_markup"] = json.dumps(reply_markup)
                 files = {"photo": ("order.jpg", f, "image/jpeg")}
-                res = requests.post(url, data=data, files=files, timeout=20)
+                res = _tg_session.post(url, data=data, files=files, timeout=20)
                 return res.status_code == 200
         except Exception as e:
             logger.warning("Не удалось отправить локальное фото: %s", e)
@@ -147,7 +164,7 @@ def _send_telegram_photo(chat_id, photo_url_or_file, caption: str, reply_markup:
         if reply_markup:
             payload["reply_markup"] = reply_markup
         try:
-            res = requests.post(url, json=payload, timeout=15)
+            res = _tg_session.post(url, json=payload, timeout=15)
             return res.status_code == 200
         except Exception as e:
             logger.warning("Не удалось отправить фото по URL: %s", e)
@@ -1557,12 +1574,13 @@ class TelegramWebhookView(APIView):
                         ]
                     }
                 }
-                requests.post(f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage", json=payload, timeout=10)
+                _tg_session.post(f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage", json=payload, timeout=8)
 
             except Store.DoesNotExist:
                 # Обычный клиент
                 if text and not text.startswith("/"):
-                    # ИИ-консультант
+                    # Сразу показываем 'печатает...', чтобы клиент видел мгновенную реакцию
+                    _send_telegram_chat_action(chat_id, "typing")
                     from core.tasks import handle_incoming_telegram_message_task
                     tg_from = message.get("from", {})
                     handle_incoming_telegram_message_task.delay(

@@ -54,10 +54,12 @@ def notify_customer_about_delivery_task(order_id):
 def handle_incoming_telegram_message_task(chat_id, message_text, first_name, username):
     """Фоновая задача: обработка сообщений клиента ИИ-ботом в Telegram."""
     from core.working_views.services import handle_incoming_telegram_message
-    from core.working_views.telegram_bot import _send_telegram_photo, _send_telegram_message
+    from core.working_views.telegram_bot import _send_telegram_photo, _send_telegram_message, _send_telegram_chat_action
     from django.conf import settings
     
     try:
+        # Мгновенно показываем клиенту статус 'печатает...', пока ИИ генерирует ответ
+        _send_telegram_chat_action(chat_id, "typing")
         ai_reply, matched_products = handle_incoming_telegram_message(
             chat_id=chat_id,
             message_text=message_text,
