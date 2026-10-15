@@ -189,13 +189,19 @@ def product_add_view(request):
             first_image = color_images[0] if color_images else None
 
             if not main_image_set and first_image:
-                product.main_image = first_image
-                product.save(update_fields=["main_image"])
-                main_image_set = True
+                try:
+                    product.main_image = first_image
+                    product.save(update_fields=["main_image"])
+                    main_image_set = True
+                except Exception as img_err:
+                    logger.warning("Не удалось сохранить главное фото товара: %s", img_err)
 
             # Сохраняем все фото этого цвета в ProductImage
             for img_file in color_images:
-                ProductImage.objects.create(product=product, image=img_file, color=color_name)
+                try:
+                    ProductImage.objects.create(product=product, image=img_file, color=color_name)
+                except Exception as img_err:
+                    logger.warning("Не удалось сохранить фото галереи товара: %s", img_err)
 
             has_variants_grid = product_type in (
                 "clothes", "shoes", "tires", "electronics_variants", "food_groceries"

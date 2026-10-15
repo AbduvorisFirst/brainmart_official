@@ -457,8 +457,69 @@
         addSize: "{% filter escapejs %}{% trans '+ Добавить свой вариант / размер' %}{% endfilter %}",
         quickPick: "{% filter escapejs %}{% trans 'Быстрый выбор:' %}{% endfilter %}",
         uploadingBtn: "{% filter escapejs %}{% trans 'Загружаем фото, создаем товар...' %}{% endfilter %}",
-        atLeastOnePhoto: "{% filter escapejs %}{% trans 'Пожалуйста, загрузите хотя бы 1 фото для варианта' %}{% endfilter %}"
+        atLeastOnePhoto: "{% filter escapejs %}{% trans 'Пожалуйста, загрузите хотя бы 1 фото для варианта' %}{% endfilter %}",
+        pcs: "{% filter escapejs %}{% trans 'шт.' %}{% endfilter %}",
+        optimizing: "{% filter escapejs %}{% trans '⚡ Оптимизация фото...' %}{% endfilter %}",
+        waitOptimizing: "{% filter escapejs %}{% trans 'Пожалуйста, подождите завершения оптимизации фото...' %}{% endfilter %}"
     };
+
+    let isOptimizingPhotos = false;
+
+    function compressImage(file, maxWidth = 1600, maxHeight = 1600, quality = 0.82) {
+        return new Promise((resolve) => {
+            if (!file || !file.type.startsWith('image/')) {
+                resolve(file);
+                return;
+            }
+            // If already small JPEG/WebP under 350KB, keep as is
+            if (file.size <= 350 * 1024 && (file.type === 'image/jpeg' || file.type === 'image/webp')) {
+                resolve(file);
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    let w = img.width;
+                    let h = img.height;
+                    if (w > maxWidth || h > maxHeight) {
+                        if (w > h) {
+                            h = Math.round((h * maxWidth) / w);
+                            w = maxWidth;
+                        } else {
+                            w = Math.round((w * maxHeight) / h);
+                            h = maxHeight;
+                        }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    canvas.toBlob((blob) => {
+                        if (!blob || blob.size >= file.size) {
+                            resolve(file);
+                            return;
+                        }
+                        const cleanName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
+                        const compressedFile = new File([blob], cleanName, {
+                            type: 'image/jpeg',
+                            lastModified: Date.now()
+                        });
+                        resolve(compressedFile);
+                    }, 'image/jpeg', quality);
+                };
+                img.onerror = function() {
+                    resolve(file);
+                };
+                img.src = e.target.result;
+            };
+            reader.onerror = function() {
+                resolve(file);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
 
     function renderChips(idx, chips) {
         const wrap = document.getElementById('chips-container-' + idx);
@@ -581,8 +642,8 @@
         });
     }
 
-    function handlePhotoSelect(input, idx) {
-        const files = Array.from(input.files || []);
+    async function handlePhotoSelect(input, idx) {
+        let rawFiles = Array.from(input.files || []);
         const dropzone = document.getElementById('dropzone-' + idx);
         const grid = document.getElementById('preview-grid-' + idx);
         const banner = document.getElementById('photo-banner-' + idx);
@@ -596,7 +657,7 @@
         activeObjectUrls[idx] = [];
         grid.innerHTML = '';
 
-        if (files.length === 0) {
+        if (rawFiles.length === 0) {
             dropzone.classList.remove('has-files');
             iconWrap.innerHTML = '<span class="file-icon">📸</span>';
             textEl.innerText = I18N.dropzoneDefault;
@@ -604,6 +665,28 @@
             banner.style.display = 'none';
             return;
         }
+
+        // Show optimizing feedback
+        isOptimizingPhotos = true;
+        textEl.innerText = I18N.optimizing;
+        subtextEl.innerText = `${rawFiles.length} ${I18N.pcs}...`;
+
+        // Compress photos concurrently
+        const compressedFiles = await Promise.all(rawFiles.map(f => compressImage(f)));
+        isOptimizingPhotos = false;
+
+        // Try to update input.files via DataTransfer
+        try {
+            if (window.DataTransfer) {
+                const dt = new DataTransfer();
+                compressedFiles.forEach(f => dt.items.add(f));
+                input.files = dt.files;
+            }
+        } catch (e) {
+            console.warn('DataTransfer update failed:', e);
+        }
+
+        const files = Array.from(input.files && input.files.length > 0 ? input.files : compressedFiles);
 
         // Visual feedback on dropzone
         dropzone.classList.add('has-files');
@@ -822,6 +905,12 @@
     }
 
     document.getElementById('productForm').addEventListener('submit', function(e) {
+        if (isOptimizingPhotos) {
+            e.preventDefault();
+            alert(I18N.waitOptimizing);
+            return;
+        }
+
         // Validate that each color block has photos
         const fileInputs = document.querySelectorAll('input[type="file"][name^="color_images_"]');
         for (let inp of fileInputs) {
