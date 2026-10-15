@@ -155,7 +155,7 @@
 <div class="seller-landing">
     <!-- Навигация назад -->
     <div style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-        <a href="/{{ LANGUAGE_CODE }}/" style="text-decoration: none; color: var(--text-muted); font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+        <a href="{% url 'catalog' %}" style="text-decoration: none; color: var(--text-muted); font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
             ← {% trans "Вернуться в каталог" %}
         </a>
         <a href="{% url 'seller-login' %}" style="text-decoration: none; color: var(--primary); font-size: 13px; font-weight: 700;">
