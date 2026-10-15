@@ -21,19 +21,13 @@ from core.models import (
 
 
 def superuser_required(view_func):
-    """Декоратор строго для владельца платформы / суперпользователя (superuser).
-    Наемные администраторы (staff) перенаправляются в стандартный Django Admin (/admin/).
-    Обычные пользователи перенаправляются на страницу авторизации.
-    """
+    """Декоратор для доступа к главной панели управления платформы (superuser / staff)."""
     def _wrapped(request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return redirect("seller-login")
-        if not request.user.is_superuser:
-            if request.user.is_staff:
-                messages.warning(request, "Финансовая аналитика платформы (GMV и чистая прибыль) доступна только владельцу (Superuser). Вы перенаправлены в панель управления.")
-                return redirect("/brainmart-secure-admin-panel/")
-            messages.error(request, "Доступ ограничен. Требуются права суперпользователя.")
-            return redirect("catalog")
+            return redirect(f"/dashboard/login/?next={request.path}")
+        if not (request.user.is_superuser or request.user.is_staff):
+            messages.warning(request, "Для доступа к этой панели требуются права администратора.")
+            return redirect("/dashboard/")
         return view_func(request, *args, **kwargs)
     return _wrapped
 
