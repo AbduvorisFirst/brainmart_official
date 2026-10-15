@@ -123,14 +123,20 @@ class InstagramWebhookView(APIView):
         for entry in payload.get("entry", []):
             instagram_business_id = entry.get("id")
 
-            try:
-                store = Store.objects.get(
-                    instagram_business_id=instagram_business_id, is_active=True
-                )
-            except Store.DoesNotExist:
+            store = Store.objects.filter(
+                instagram_business_id=instagram_business_id, is_active=True
+            ).first()
+            if not store:
+                # Попробуем найти первый активный магазин и автоматически связать его с этим Instagram Business ID
+                store = Store.objects.filter(is_active=True).first()
+                if store and not store.instagram_business_id:
+                    store.instagram_business_id = str(instagram_business_id)
+                    store.save(update_fields=["instagram_business_id"])
+
+            if not store:
                 logger.warning(
                     "Получено сообщение для неизвестного instagram_business_id=%s. "
-                    "Проверь, что это поле заполнено в /admin/ у нужного Store.",
+                    "В базе нет подходящего активного Store.",
                     instagram_business_id,
                 )
                 continue
@@ -143,15 +149,17 @@ class InstagramWebhookView(APIView):
                 if not sender_id or not message_text:
                     continue
 
-                from core.tasks import handle_incoming_instagram_message_task
-                handle_incoming_instagram_message_task.delay(
-                    store_id=store.id,
-                    instagram_scoped_id=sender_id,
-                    message_text=message_text,
-                )
-                
-                # Мы не шлём send_instagram_reply здесь, так как задача сама
-                # всё формирует и отправляет. Вебхук просто отвечает 200 OK.
+                try:
+                    from core.tasks import handle_incoming_instagram_message_task
+                    handle_incoming_instagram_message_task.delay(
+                        store_id=store.id,
+                        instagram_scoped_id=sender_id,
+                        message_text=message_text,
+                    )
+                except Exception:
+                    logger.info("Celery недоступен, обрабатываем Instagram DM синхронно")
+                    from core.working_views.services import handle_incoming_instagram_message
+                    handle_incoming_instagram_message(store, sender_id, message_text)
 
             # ── 2. Комментарии к постам (Instagram Comments webhook) ──────────
             for change in entry.get("changes", []):
@@ -179,7 +187,9 @@ class InstagramWebhookView(APIView):
                         comment_text=comment_text,
                     )
                 except Exception:
-                    logger.exception("Ошибка при обработке комментария Instagram comment_id=%s", comment_id)
+                    logger.info("Celery недоступен, обрабатываем Instagram comment синхронно")
+                    from core.working_views.services import handle_incoming_instagram_comment
+                    handle_incoming_instagram_comment(store, comment_id, sender_id, comment_text)
 
         # Meta требует ответ 200 OK, иначе будет повторять попытки отправки
         return Response(status=status.HTTP_200_OK)

@@ -600,17 +600,32 @@ def check_and_notify_waitlist_for_new_product(product: Product) -> int:
 def send_instagram_reply(store: Store, instagram_scoped_id: str, text: str) -> None:
     """Отправляет готовый текст ответа обратно клиенту через Meta Graph API."""
     access_token = getattr(settings, "META_PAGE_ACCESS_TOKEN", None)
-    url = f"https://graph.facebook.com/v20.0/{store.instagram_business_id}/messages"
+    if not access_token:
+        logger.warning("send_instagram_reply: META_PAGE_ACCESS_TOKEN не задан")
+        return
 
-    requests.post(
-        url,
-        params={"access_token": access_token},
-        json={
-            "recipient": {"id": instagram_scoped_id},
-            "message": {"text": text},
-        },
-        timeout=10,
-    )
+    # Автоопределение хоста: для токенов IG... используется graph.instagram.com
+    if access_token.startswith("IG"):
+        base_host = "https://graph.instagram.com"
+        target_id = store.instagram_business_id or "me"
+    else:
+        base_host = "https://graph.facebook.com"
+        target_id = store.instagram_business_id or "me"
+
+    url = f"{base_host}/v20.0/{target_id}/messages"
+    try:
+        resp = requests.post(
+            url,
+            params={"access_token": access_token},
+            json={
+                "recipient": {"id": instagram_scoped_id},
+                "message": {"text": text},
+            },
+            timeout=10,
+        )
+        logger.info("Instagram reply status: %s, response: %s", resp.status_code, resp.text)
+    except requests.RequestException as e:
+        logger.exception("Ошибка при отправке Instagram reply: %s", e)
 
 
 def send_instagram_image(store: Store, instagram_scoped_id: str, image_url: str) -> None:
@@ -618,9 +633,17 @@ def send_instagram_image(store: Store, instagram_scoped_id: str, image_url: str)
     access_token = getattr(settings, "META_PAGE_ACCESS_TOKEN", None)
     if not access_token or not image_url:
         return
-    url = f"https://graph.facebook.com/v20.0/{store.instagram_business_id}/messages"
+
+    if access_token.startswith("IG"):
+        base_host = "https://graph.instagram.com"
+        target_id = store.instagram_business_id or "me"
+    else:
+        base_host = "https://graph.facebook.com"
+        target_id = store.instagram_business_id or "me"
+
+    url = f"{base_host}/v20.0/{target_id}/messages"
     try:
-        requests.post(
+        resp = requests.post(
             url,
             params={"access_token": access_token},
             json={
@@ -634,8 +657,9 @@ def send_instagram_image(store: Store, instagram_scoped_id: str, image_url: str)
             },
             timeout=10,
         )
-    except requests.RequestException:
-        pass
+        logger.info("Instagram image status: %s, response: %s", resp.status_code, resp.text)
+    except requests.RequestException as e:
+        logger.exception("Ошибка при отправке Instagram image: %s", e)
 
 
 # ---------------------------------------------------------------------------
@@ -657,15 +681,17 @@ def send_instagram_public_reply(comment_id: str, text: str, store: "Store") -> N
     access_token = getattr(settings, "META_PAGE_ACCESS_TOKEN", None)
     if not access_token:
         return
+    base_host = "https://graph.instagram.com" if access_token.startswith("IG") else "https://graph.facebook.com"
     try:
-        requests.post(
-            f"https://graph.facebook.com/v20.0/{comment_id}/replies",
+        resp = requests.post(
+            f"{base_host}/v20.0/{comment_id}/replies",
             params={"access_token": access_token},
             json={"message": text},
             timeout=10,
         )
-    except requests.RequestException:
-        pass
+        logger.info("Instagram public reply status: %s, response: %s", resp.status_code, resp.text)
+    except requests.RequestException as e:
+        logger.exception("Ошибка при отправке Instagram public reply: %s", e)
 
 
 def send_instagram_private_reply(comment_id: str, text: str, store: "Store") -> None:
@@ -677,15 +703,17 @@ def send_instagram_private_reply(comment_id: str, text: str, store: "Store") -> 
     access_token = getattr(settings, "META_PAGE_ACCESS_TOKEN", None)
     if not access_token:
         return
+    base_host = "https://graph.instagram.com" if access_token.startswith("IG") else "https://graph.facebook.com"
     try:
-        requests.post(
-            f"https://graph.facebook.com/v20.0/{comment_id}/private_replies",
+        resp = requests.post(
+            f"{base_host}/v20.0/{comment_id}/private_replies",
             params={"access_token": access_token},
             json={"message": text},
             timeout=10,
         )
-    except requests.RequestException:
-        pass
+        logger.info("Instagram private reply status: %s, response: %s", resp.status_code, resp.text)
+    except requests.RequestException as e:
+        logger.exception("Ошибка при отправке Instagram private reply: %s", e)
 
 
 def handle_incoming_instagram_comment(
