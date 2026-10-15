@@ -62,7 +62,7 @@ class Store(models.Model):
         help_text="На каком языке владелец получает карточки заказов и кнопки в Telegram",
     )
     telegram_link_token = models.CharField(
-        max_length=32, unique=True, default=secrets.token_hex,
+        max_length=64, unique=True, default=secrets.token_hex,
         help_text="Используется для одноразовой безопасной привязки Telegram",
     )
     is_active = models.BooleanField(
@@ -830,7 +830,7 @@ class StoreManager(models.Model):
         help_text="На каком языке менеджер получает уведомления о заказах в Telegram",
     )
     telegram_link_token = models.CharField(
-        max_length=32, unique=True, default=secrets.token_hex,
+        max_length=64, unique=True, default=secrets.token_hex,
         help_text="Одноразовый токен для привязки Telegram менеджера",
     )
     is_active = models.BooleanField(default=True)
@@ -1011,7 +1011,7 @@ class PlatformSettings(models.Model):
         verbose_name="Telegram Username Администратора",
     )
     superadmin_telegram_link_token = models.CharField(
-        max_length=32, unique=True, default=secrets.token_hex,
+        max_length=64, unique=True, default=secrets.token_hex,
         help_text="Токен для безопасной привязки Telegram супер-админа через бота",
     )
     notify_on_new_store = models.BooleanField(
