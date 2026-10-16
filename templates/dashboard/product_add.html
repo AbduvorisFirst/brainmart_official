@@ -305,53 +305,28 @@
         background: rgba(15, 23, 42, 0.5); padding: 20px; border-radius: 16px;
         border: 1px solid rgba(255,255,255,0.05); margin-top: 20px;
     }
-
-    .btn-copy-sizes {
-        background: rgba(16, 185, 129, 0.15);
-        border: 1px solid rgba(16, 185, 129, 0.4);
-        color: #34d399;
-        font-size: 11.5px;
-        font-weight: 700;
-        padding: 5px 12px;
-        border-radius: 8px;
+    .btn-add-color-easy {
+        width: 100%;
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.16) 0%, rgba(16, 185, 129, 0.16) 100%);
+        border: 2px dashed rgba(99, 102, 241, 0.6);
+        border-radius: 16px;
+        padding: 16px 20px;
+        color: white;
         cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        transition: all 0.2s ease;
-    }
-    .btn-copy-sizes:hover {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        color: #ffffff;
-        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
-        transform: translateY(-1px);
-    }
-    .quick-autofill-bar {
         display: flex;
         align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-        background: rgba(0, 0, 0, 0.28);
-        padding: 8px 12px;
-        border-radius: 10px;
-        margin-bottom: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        gap: 14px;
+        transition: all 0.25s ease;
+        margin-top: 14px;
     }
-    .btn-quick-apply {
-        background: rgba(79, 70, 229, 0.22);
-        border: 1px solid rgba(99, 102, 241, 0.45);
-        color: #c7d2fe;
-        font-size: 11.5px;
-        font-weight: 700;
-        padding: 6px 12px;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.2s ease;
+    .btn-add-color-easy:hover {
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.3) 0%, rgba(16, 185, 129, 0.25) 100%);
+        border-color: #818cf8;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(79, 70, 229, 0.25);
     }
-    .btn-quick-apply:hover {
-        background: var(--primary);
-        color: white;
-        box-shadow: 0 2px 8px rgba(79, 70, 229, 0.4);
+    .btn-add-color-easy:active {
+        transform: scale(0.99);
     }
 
     .btn-add-mini {
@@ -450,14 +425,13 @@
 
                 <div id="colors-container"></div>
 
-                <div style="display: grid; grid-template-columns: 1.3fr 1fr; gap: 10px; margin-top: 10px;">
-                    <button type="button" class="btn" style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.25) 0%, rgba(16, 185, 129, 0.25) 100%); border: 1.5px solid #10b981; color: #34d399; padding: 16px; font-weight: 800; font-size: 13.5px; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 16px rgba(16, 185, 129, 0.15);" onclick="addColorBlock(true)">
-                        ⚡ {% trans "Добавить цвет (скопировать размеры)" %}
-                    </button>
-                    <button type="button" class="btn" style="background: rgba(255,255,255,0.04); border: 1.5px dashed var(--border); color: var(--text-muted); padding: 16px; font-weight: 700; font-size: 13.5px; border-radius: 14px;" onclick="addColorBlock(false)">
-                        + {% trans "Пустой цвет" %}
-                    </button>
-                </div>
+                <button type="button" class="btn-add-color-easy" onclick="addColorBlock(true)">
+                    <span style="font-size: 26px; line-height: 1;">🎨</span>
+                    <div style="text-align: left;">
+                        <div style="font-size: 15px; font-weight: 800; color: #ffffff;">+ {% trans "Добавить ещё один цвет" %}</div>
+                        <div style="font-size: 12px; color: #a5b4fc; font-weight: 500;">{% trans "Размеры, цены и количество скопируются автоматически" %}</div>
+                    </div>
+                </button>
             </div>
         </div>
 
@@ -565,12 +539,7 @@
         waitOptimizing: "{% filter escapejs %}{% trans 'Пожалуйста, подождите завершения оптимизации фото...' %}{% endfilter %}",
         makeMainBtn: "{% filter escapejs %}{% trans 'Сделать главным' %}{% endfilter %}",
         clickToMakeMain: "{% filter escapejs %}{% trans 'Нажмите, чтобы сделать это фото главным' %}{% endfilter %}",
-        mainPhotoHint: "{% filter escapejs %}{% trans 'Нажмите на любое фото ниже, чтобы назначить его главной обложкой товара!' %}{% endfilter %}",
-        copyToAllBtn: "{% filter escapejs %}{% trans 'Скопировать размеры во все цвета' %}{% endfilter %}",
-        copyToAllTitle: "{% filter escapejs %}{% trans 'Применить размеры, цены и остатки этого цвета ко всем остальным цветам' %}{% endfilter %}",
-        quickFillLabel: "{% filter escapejs %}{% trans 'Быстрое заполнение' %}{% endfilter %}",
-        quickQtyPlaceholder: "{% filter escapejs %}{% trans 'Шт. (напр: 10)' %}{% endfilter %}",
-        quickFillApply: "{% filter escapejs %}{% trans 'Заполнить все строки' %}{% endfilter %}"
+        copiedNotice: "{% filter escapejs %}{% trans '✅ Размеры, цены и количество скопированы! Укажите цвет и загрузите фото.' %}{% endfilter %}"
     };
 
     let isOptimizingPhotos = false;
@@ -662,72 +631,6 @@
         }, 3000);
     }
 
-    function applyQuickFill(idx) {
-        const qtyVal = document.getElementById('quick-qty-' + idx)?.value.trim();
-        const priceVal = document.getElementById('quick-price-' + idx)?.value.trim();
-
-        if (!qtyVal && !priceVal) {
-            alert('Укажите количество или цену для быстрого заполнения всех строк.');
-            return;
-        }
-
-        const container = document.getElementById('sizes-container-' + idx);
-        if (!container) return;
-
-        const qtyInputs = container.querySelectorAll(`input[name="qty_${idx}[]"]`);
-        const priceInputs = container.querySelectorAll(`input[name="price_${idx}[]"]`);
-
-        if (qtyVal) {
-            qtyInputs.forEach(inp => inp.value = qtyVal);
-        }
-        if (priceVal) {
-            priceInputs.forEach(inp => inp.value = priceVal);
-        }
-
-        showToastNotification(`✅ Успешно заполнено ${qtyInputs.length} строк размеров!`);
-    }
-
-    function copySizesToAllColors(fromIdx) {
-        const sourceBlock = document.getElementById('color-block-' + fromIdx);
-        if (!sourceBlock) return;
-
-        const sizeInputs = sourceBlock.querySelectorAll(`input[name="size_${fromIdx}[]"]`);
-        const qtyInputs = sourceBlock.querySelectorAll(`input[name="qty_${fromIdx}[]"]`);
-        const priceInputs = sourceBlock.querySelectorAll(`input[name="price_${fromIdx}[]"]`);
-        const singleQty = sourceBlock.querySelector(`input[name="color_qty_${fromIdx}"]`)?.value || '';
-
-        const sizes = Array.from(sizeInputs).map(i => i.value);
-        const qtys = Array.from(qtyInputs).map(i => i.value);
-        const prices = Array.from(priceInputs).map(i => i.value);
-
-        let count = 0;
-        document.querySelectorAll('.color-block').forEach(block => {
-            const targetIdx = block.id.replace('color-block-', '');
-            if (targetIdx === String(fromIdx)) return;
-
-            const container = document.getElementById('sizes-container-' + targetIdx);
-            if (container) {
-                container.innerHTML = '';
-                for (let i = 0; i < sizes.length; i++) {
-                    addSizeRow(targetIdx, sizes[i], qtys[i], prices[i]);
-                }
-                count++;
-            }
-
-            const qtyInp = block.querySelector(`input[name="color_qty_${targetIdx}"]`);
-            if (qtyInp && singleQty) {
-                qtyInp.value = singleQty;
-                count++;
-            }
-        });
-
-        if (count > 0) {
-            showToastNotification(`✅ Размеры и остатки скопированы во все ${count} цвета(-ов)!`);
-        } else {
-            alert('Сначала добавьте ещё один цвет кнопкой "+ Добавить цвет (скопировать размеры)" ниже.');
-        }
-    }
-
     function addColorBlock(copyFromPrevious = true) {
         let prevData = null;
         if (copyFromPrevious) {
@@ -761,12 +664,9 @@
         const stockDisplay = cfg.isGrid ? 'none' : 'block';
         const idx = colorIndex;
 
-        const basePriceInput = document.querySelector('input[name="base_price"]');
-        const basePriceVal = (basePriceInput && basePriceInput.value) ? basePriceInput.value : '';
-
         block.innerHTML =
             '<input type="hidden" name="color_indices[]" value="' + idx + '">' +
-            '<button type="button" class="remove-color-btn" onclick="removeColorBlock(' + idx + ')" title="' + I18N.deleteColor + '">&#x2715;</button>' +
+            (colorIndex > 1 ? '<button type="button" class="remove-color-btn" onclick="removeColorBlock(' + idx + ')" title="' + I18N.deleteColor + '">&#x2715;</button>' : '') +
 
             '<div style="margin-bottom:16px;">' +
               '<label id="color-label-' + idx + '">' + cfg.colorLabel + ' <span id="color-hint-' + idx + '" style="color:var(--text-muted);font-weight:400;font-size:12px;">' + cfg.colorHint + '</span></label>' +
@@ -794,22 +694,7 @@
             '</div>' +
 
             '<div class="sizes-wrapper" id="sizes-wrapper-' + idx + '" style="display:' + sizesDisplay + ';">' +
-              '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">' +
-                '<label id="sizes-title-' + idx + '" style="color:white;margin:0;font-weight:700;">&#128208; ' + cfg.sizesTitle + '</label>' +
-                '<button type="button" class="btn-copy-sizes" onclick="copySizesToAllColors(' + idx + ')" title="' + I18N.copyToAllTitle + '">' +
-                  '⚡ ' + I18N.copyToAllBtn +
-                '</button>' +
-              '</div>' +
-
-              '<div class="quick-autofill-bar">' +
-                '<span style="font-size:12px; color:var(--text-muted); font-weight:600;">⚡ ' + I18N.quickFillLabel + ':</span>' +
-                '<input type="number" id="quick-qty-' + idx + '" placeholder="' + I18N.quickQtyPlaceholder + '" min="0" style="width:105px; padding:6px 10px; font-size:12px; border-radius:8px; border:1px solid var(--border); background:rgba(255,255,255,0.05); color:white;">' +
-                '<input type="number" id="quick-price-' + idx + '" placeholder="' + (basePriceVal || '165000') + '" min="0" step="1000" style="width:130px; padding:6px 10px; font-size:12px; border-radius:8px; border:1px solid var(--border); background:rgba(255,255,255,0.05); color:white;">' +
-                '<button type="button" onclick="applyQuickFill(' + idx + ')" class="btn-quick-apply">' +
-                  '✓ ' + I18N.quickFillApply +
-                '</button>' +
-              '</div>' +
-
+              '<label id="sizes-title-' + idx + '" style="color:white;margin-bottom:10px;display:block;font-weight:700;">&#128208; ' + cfg.sizesTitle + '</label>' +
               '<div class="quick-chips-wrapper" id="chips-container-' + idx + '"></div>' +
               '<div id="sizes-container-' + idx + '"></div>' +
               '<button type="button" class="btn-add-mini" onclick="addSizeRow(' + idx + ')">' + I18N.addSize + '</button>' +
@@ -839,11 +724,12 @@
             }
         }
 
-        // Focus color name input
+        // Focus color name input and smooth scroll
         if (colorIndex > 1) {
             block.scrollIntoView({ behavior: 'smooth', block: 'center' });
             const nameInput = document.getElementById('color-name-' + idx);
             if (nameInput) setTimeout(() => nameInput.focus(), 300);
+            showToastNotification(I18N.copiedNotice || '✅ Размеры и цены скопированы!');
         }
     }
 
@@ -1118,16 +1004,11 @@
             }
         }
 
-        // Auto-default qty from quick-qty input or previous row
+        // Auto-default qty from previous row
         if (presetQty === '') {
-            const quickQtyInput = document.getElementById('quick-qty-' + idx);
-            if (quickQtyInput && quickQtyInput.value) {
-                presetQty = quickQtyInput.value;
-            } else {
-                const existingQtys = sizesContainer.querySelectorAll('input[name="qty_' + idx + '[]"]');
-                if (existingQtys.length > 0 && existingQtys[existingQtys.length - 1].value) {
-                    presetQty = existingQtys[existingQtys.length - 1].value;
-                }
+            const existingQtys = sizesContainer.querySelectorAll('input[name="qty_' + idx + '[]"]');
+            if (existingQtys.length > 0 && existingQtys[existingQtys.length - 1].value) {
+                presetQty = existingQtys[existingQtys.length - 1].value;
             }
         }
 
