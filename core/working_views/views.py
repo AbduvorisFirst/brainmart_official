@@ -123,13 +123,14 @@ class InstagramWebhookView(APIView):
         for entry in payload.get("entry", []):
             instagram_business_id = entry.get("id")
 
-            store = Store.objects.filter(
-                instagram_business_id=str(instagram_business_id), is_active=True
-            ).first()
+            store = None
+            if instagram_business_id:
+                store = Store.objects.filter(
+                    instagram_business_id=str(instagram_business_id), is_active=True
+                ).first()
+
             if not store:
-                store = Store.objects.filter(instagram_username="brainmart_systems", is_active=True).first()
-            if not store:
-                store = Store.objects.filter(is_active=True).first()
+                store = Store.objects.filter(is_active=True).order_by("-id").first()
 
             if not store:
                 logger.warning(
@@ -138,6 +139,13 @@ class InstagramWebhookView(APIView):
                     instagram_business_id,
                 )
                 continue
+
+            # Автоматически связываем instagram_business_id с текущим активным магазином
+            if instagram_business_id and store.instagram_business_id != str(instagram_business_id):
+                Store.objects.filter(instagram_business_id=str(instagram_business_id)).exclude(id=store.id).update(instagram_business_id=None)
+                store.instagram_business_id = str(instagram_business_id)
+                store.save(update_fields=["instagram_business_id"])
+                logger.info("Успешно привязан instagram_business_id=%s к магазину '%s'", instagram_business_id, store.name)
 
             # ── 1. Direct-сообщения (Instagram Messaging / DM) ────────────────
             for messaging_event in entry.get("messaging", []):

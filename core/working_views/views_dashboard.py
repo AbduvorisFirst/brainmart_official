@@ -1389,7 +1389,21 @@ def store_settings_view(request):
                 store.phone_number = phone_number
             store.address = address
             if instagram_username:
-                store.instagram_username = instagram_username
+                existing_store = Store.objects.filter(instagram_username__iexact=instagram_username).exclude(id=store.id).first()
+                if existing_store:
+                    # Если старый магазин неактивен или не имеет товаров (тестовый/заглушка)
+                    if not existing_store.is_active or existing_store.products.count() == 0:
+                        existing_store.instagram_username = f"{instagram_username}_old_{existing_store.id}"
+                        existing_store.save(update_fields=["instagram_username"])
+                        store.instagram_username = instagram_username
+                        store.instagram_business_id = None
+                    else:
+                        messages.error(request, f"Ник Instagram @{instagram_username} уже занят другим магазином ('{existing_store.name}'). Пожалуйста, укажите ваш уникальный ник.")
+                        return redirect("seller-settings")
+                else:
+                    if store.instagram_username != instagram_username:
+                        store.instagram_username = instagram_username
+                        store.instagram_business_id = None
             if payout_card:
                 store.payout_card = payout_card
             if payout_card_holder:
