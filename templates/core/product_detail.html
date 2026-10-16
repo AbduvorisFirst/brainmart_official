@@ -340,13 +340,23 @@
         tg.ready();
         let cart = JSON.parse(localStorage.getItem('tg_cart')) || [];
 
+        function cleanText(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&#x27;/g, "'")
+                .replace(/&#39;/g, "'")
+                .replace(/&apos;/g, "'")
+                .replace(/&quot;/g, '"')
+                .replace(/&amp;/g, '&');
+        }
+
         // ЗАГРУЖАЕМ ВАРИАНТЫ (ТЕПЕРЬ С ФОТОГРАФИЯМИ!)
         const variantsData = [
             {% for v in variants %}
             {
                 id: "{{ v.id }}",
-                color: "{{ v.color }}",
-                size: "{{ v.size }}",
+                color: cleanText("{{ v.color|escapejs }}"),
+                size: cleanText("{{ v.size|escapejs }}"),
                 price: parseFloat("{{ v.final_price|stringformat:'f' }}"),
                 in_stock: {{ v.in_stock|yesno:"true,false" }},
                 qty: parseInt("{{ v.stock_quantity }}"),
@@ -395,7 +405,7 @@
 
         function renderColors() {
             colorContainer.innerHTML = '';
-            colorLabel.innerText = selectedColor;
+            colorLabel.innerText = cleanText(selectedColor);
 
             // Обновляем главное фото товара на фото выбранного цвета
             const mainImg = document.getElementById('main-product-image');
@@ -429,7 +439,7 @@
                 } else {
                     // Если фото нет, показываем красивую текстовую заглушку
                     btn.className = `color-btn text-fallback ${c.name === selectedColor ? 'active' : ''}`;
-                    btn.innerText = c.name;
+                    btn.innerText = cleanText(c.name);
                 }
 
                 btn.onclick = () => {
@@ -451,7 +461,7 @@
 
         function renderSizes() {
             sizeContainer.innerHTML = '';
-            sizeLabel.innerText = selectedVariantId ? variantsData.find(v=>v.id === selectedVariantId).size : 'Не выбран';
+            sizeLabel.innerText = selectedVariantId ? cleanText(variantsData.find(v=>v.id === selectedVariantId).size) : 'Не выбран';
 
             let variantsForColor = variantsData.filter(v => v.color === selectedColor);
 
@@ -461,10 +471,10 @@
 
                 if (!variant || !variant.in_stock || variant.qty === 0) {
                     btn.className = 'size-btn disabled';
-                    btn.innerText = sizeStr;
+                    btn.innerText = cleanText(sizeStr);
                 } else {
                     btn.className = `size-btn ${variant.id === selectedVariantId ? 'active' : ''}`;
-                    btn.innerText = sizeStr;
+                    btn.innerText = cleanText(sizeStr);
                     btn.onclick = () => {
                         selectedVariantId = variant.id;
                         selectedVariantPrice = variant.price;
