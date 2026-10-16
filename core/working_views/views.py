@@ -155,17 +155,14 @@ class InstagramWebhookView(APIView):
                 if not sender_id or not message_text:
                     continue
 
-                try:
-                    from core.tasks import handle_incoming_instagram_message_task
-                    handle_incoming_instagram_message_task.delay(
-                        store_id=store.id,
-                        instagram_scoped_id=sender_id,
-                        message_text=message_text,
-                    )
-                except Exception:
-                    logger.info("Celery недоступен, обрабатываем Instagram DM синхронно")
-                    from core.working_views.services import handle_incoming_instagram_message
-                    handle_incoming_instagram_message(store, sender_id, message_text)
+                import threading
+                from core.working_views.services import handle_incoming_instagram_message
+                logger.info("Instagram DM от %s: %s (магазин: %s)", sender_id, message_text, store.name)
+                threading.Thread(
+                    target=handle_incoming_instagram_message,
+                    args=(store, sender_id, message_text),
+                    daemon=True,
+                ).start()
 
             # ── 2. Комментарии к постам (Instagram Comments webhook) ──────────
             for change in entry.get("changes", []):
@@ -184,18 +181,14 @@ class InstagramWebhookView(APIView):
                 if not comment_id or not sender_id:
                     continue
 
-                try:
-                    from core.tasks import handle_incoming_instagram_comment_task
-                    handle_incoming_instagram_comment_task.delay(
-                        store_id=store.id,
-                        comment_id=comment_id,
-                        sender_id=sender_id,
-                        comment_text=comment_text,
-                    )
-                except Exception:
-                    logger.info("Celery недоступен, обрабатываем Instagram comment синхронно")
-                    from core.working_views.services import handle_incoming_instagram_comment
-                    handle_incoming_instagram_comment(store, comment_id, sender_id, comment_text)
+                import threading
+                from core.working_views.services import handle_incoming_instagram_comment
+                logger.info("Instagram comment от %s: %s (магазин: %s)", sender_id, comment_text, store.name)
+                threading.Thread(
+                    target=handle_incoming_instagram_comment,
+                    args=(store, comment_id, sender_id, comment_text),
+                    daemon=True,
+                ).start()
 
         # Meta требует ответ 200 OK, иначе будет повторять попытки отправки
         return Response(status=status.HTTP_200_OK)

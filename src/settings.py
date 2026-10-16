@@ -229,9 +229,8 @@ CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localho
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-# Для локальной разработки (DEBUG=True) выполняем задачи сразу, чтобы не требовался запущенный Redis.
-# На сервере (DEBUG=False) задачи пойдут в Redis и воркеры Celery.
-CELERY_TASK_ALWAYS_EAGER = os.environ.get('CELERY_TASK_ALWAYS_EAGER', 'True' if DEBUG else 'False') == 'True'
+# По умолчанию выполняем задачи сразу, чтобы система работала стабильно без отдельного Celery воркера
+CELERY_TASK_ALWAYS_EAGER = os.environ.get('CELERY_TASK_ALWAYS_EAGER', 'True') == 'True'
 
 
 # ===========================================================================
