@@ -84,15 +84,22 @@
         background: rgba(15, 23, 42, 0.9);
         border: 2px solid rgba(255, 255, 255, 0.12);
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+        cursor: pointer;
+        user-select: none;
         animation: photoPopIn 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards;
         animation-delay: calc(var(--delay, 0) * 0.06s);
         transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     }
     .photo-preview-card:hover {
         transform: translateY(-4px) scale(1.03);
-        border-color: #10b981;
-        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+        border-color: #f59e0b;
+        box-shadow: 0 8px 24px rgba(245, 158, 11, 0.35);
         z-index: 2;
+    }
+    .photo-preview-card.is-main {
+        border: 2.5px solid #f59e0b !important;
+        box-shadow: 0 0 22px rgba(245, 158, 11, 0.6) !important;
+        transform: scale(1.02);
     }
     @keyframes photoPopIn {
         0% {
@@ -121,6 +128,23 @@
         opacity: 1;
     }
 
+    .badge-star {
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: #ffffff;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 900;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        z-index: 3;
+    }
     .badge-num {
         position: absolute;
         top: 6px;
@@ -147,6 +171,29 @@
         padding: 2px 6px;
         border-radius: 6px;
         border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .badge-select-main {
+        position: absolute;
+        bottom: 6px;
+        left: 6px;
+        right: 6px;
+        background: rgba(15, 23, 42, 0.88);
+        backdrop-filter: blur(6px);
+        color: #e2e8f0;
+        font-size: 9.5px;
+        font-weight: 700;
+        text-align: center;
+        padding: 4px 5px;
+        border-radius: 8px;
+        border: 1px dashed rgba(255, 255, 255, 0.3);
+        transition: all 0.2s ease;
+    }
+    .photo-preview-card:hover .badge-select-main {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: #ffffff;
+        border-color: #f59e0b;
+        font-weight: 800;
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.5);
     }
     .badge-main-cover {
         position: absolute;
@@ -290,6 +337,8 @@
 
     <form method="post" enctype="multipart/form-data" id="productForm">
         {% csrf_token %}
+        <input type="hidden" name="main_color_idx" id="mainColorIdx" value="1">
+        <input type="hidden" name="main_photo_idx" id="mainPhotoIdx" value="0">
 
         <div class="desktop-grid">
             <!-- ШАГ 1 -->
@@ -460,7 +509,10 @@
         atLeastOnePhoto: "{% filter escapejs %}{% trans 'Пожалуйста, загрузите хотя бы 1 фото для варианта' %}{% endfilter %}",
         pcs: "{% filter escapejs %}{% trans 'шт.' %}{% endfilter %}",
         optimizing: "{% filter escapejs %}{% trans '⚡ Оптимизация фото...' %}{% endfilter %}",
-        waitOptimizing: "{% filter escapejs %}{% trans 'Пожалуйста, подождите завершения оптимизации фото...' %}{% endfilter %}"
+        waitOptimizing: "{% filter escapejs %}{% trans 'Пожалуйста, подождите завершения оптимизации фото...' %}{% endfilter %}",
+        makeMainBtn: "{% filter escapejs %}{% trans 'Сделать главным' %}{% endfilter %}",
+        clickToMakeMain: "{% filter escapejs %}{% trans 'Нажмите, чтобы сделать это фото главным' %}{% endfilter %}",
+        mainPhotoHint: "{% filter escapejs %}{% trans 'Нажмите на любое фото ниже, чтобы назначить его главной обложкой товара!' %}{% endfilter %}"
     };
 
     let isOptimizingPhotos = false;
@@ -642,27 +694,116 @@
         });
     }
 
-    async function handlePhotoSelect(input, idx) {
-        let rawFiles = Array.from(input.files || []);
-        const dropzone = document.getElementById('dropzone-' + idx);
+    let colorFilesMap = {}; // idx -> Array of File objects
+    let selectedMainColor = 1;
+    let selectedMainIndex = 0;
+
+    function renderPreviews(idx) {
         const grid = document.getElementById('preview-grid-' + idx);
-        const banner = document.getElementById('photo-banner-' + idx);
-        const iconWrap = document.getElementById('file-icon-wrap-' + idx);
-        const textEl = document.getElementById('file-text-' + idx);
-        const subtextEl = document.getElementById('file-subtext-' + idx);
+        if (!grid) return;
+        const files = colorFilesMap[idx] || [];
+        grid.innerHTML = '';
 
         if (activeObjectUrls[idx]) {
             activeObjectUrls[idx].forEach(url => URL.revokeObjectURL(url));
         }
         activeObjectUrls[idx] = [];
-        grid.innerHTML = '';
+
+        files.forEach((file, index) => {
+            const url = URL.createObjectURL(file);
+            activeObjectUrls[idx].push(url);
+
+            const isMain = (String(selectedMainColor) === String(idx) && selectedMainIndex === index);
+
+            const card = document.createElement('div');
+            card.className = 'photo-preview-card' + (isMain ? ' is-main' : '');
+            card.style.setProperty('--delay', index);
+            card.title = isMain ? I18N.coverPhoto : I18N.clickToMakeMain;
+            card.onclick = function() {
+                selectMainPhoto(idx, index);
+            };
+
+            let sizeStr = '';
+            if (file.size > 1024 * 1024) {
+                sizeStr = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+            } else {
+                sizeStr = Math.round(file.size / 1024) + ' KB';
+            }
+
+            let badgeHtml = '';
+            if (isMain) {
+                badgeHtml = `
+                    <div class="badge-star">★</div>
+                    <div class="badge-main-cover">&#9733; ${I18N.coverPhoto}</div>
+                `;
+            } else {
+                badgeHtml = `
+                    <span class="badge-num">#${index + 1}</span>
+                    <div class="badge-select-main">👆 ${I18N.makeMainBtn}</div>
+                `;
+            }
+
+            card.innerHTML = `
+                <img src="${url}" alt="Фото ${index + 1}" class="preview-img" onload="this.classList.add('loaded')">
+                <span class="badge-size">${sizeStr}</span>
+                ${badgeHtml}
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function selectMainPhoto(idx, targetIndex) {
+        selectedMainColor = idx;
+        selectedMainIndex = targetIndex;
+
+        const mainColorInput = document.getElementById('mainColorIdx');
+        const mainPhotoInput = document.getElementById('mainPhotoIdx');
+        if (mainColorInput) mainColorInput.value = idx;
+        if (mainPhotoInput) mainPhotoInput.value = targetIndex;
+
+        // Перемещаем выбранное фото на позицию 0 в массиве и в DataTransfer инпута,
+        // чтобы гарантировать отправку выбранного фото как first_image
+        const files = colorFilesMap[idx] || [];
+        if (files.length > 0 && targetIndex < files.length) {
+            const chosen = files[targetIndex];
+            const reordered = [chosen, ...files.filter((_, i) => i !== targetIndex)];
+            colorFilesMap[idx] = reordered;
+            selectedMainIndex = 0; // Теперь оно гарантированно на 0 позиции
+
+            const input = document.getElementById('file-input-' + idx);
+            if (input && window.DataTransfer) {
+                try {
+                    const dt = new DataTransfer();
+                    reordered.forEach(f => dt.items.add(f));
+                    input.files = dt.files;
+                } catch (e) {
+                    console.warn('DataTransfer reorder failed:', e);
+                }
+            }
+        }
+
+        // Обновляем карточки для всех цветов
+        Object.keys(colorFilesMap).forEach(k => {
+            renderPreviews(k);
+        });
+    }
+
+    async function handlePhotoSelect(input, idx) {
+        let rawFiles = Array.from(input.files || []);
+        const dropzone = document.getElementById('dropzone-' + idx);
+        const banner = document.getElementById('photo-banner-' + idx);
+        const iconWrap = document.getElementById('file-icon-wrap-' + idx);
+        const textEl = document.getElementById('file-text-' + idx);
+        const subtextEl = document.getElementById('file-subtext-' + idx);
 
         if (rawFiles.length === 0) {
+            delete colorFilesMap[idx];
             dropzone.classList.remove('has-files');
             iconWrap.innerHTML = '<span class="file-icon">📸</span>';
             textEl.innerText = I18N.dropzoneDefault;
             subtextEl.innerText = I18N.dropzoneSubDefault;
             banner.style.display = 'none';
+            renderPreviews(idx);
             return;
         }
 
@@ -687,6 +828,17 @@
         }
 
         const files = Array.from(input.files && input.files.length > 0 ? input.files : compressedFiles);
+        colorFilesMap[idx] = files;
+
+        // Если это первый цвет с фото или главное ещё не выбрано — делаем его главным
+        if (!selectedMainColor || !colorFilesMap[selectedMainColor] || colorFilesMap[selectedMainColor].length === 0) {
+            selectedMainColor = idx;
+            selectedMainIndex = 0;
+            const mainColorInput = document.getElementById('mainColorIdx');
+            const mainPhotoInput = document.getElementById('mainPhotoIdx');
+            if (mainColorInput) mainColorInput.value = idx;
+            if (mainPhotoInput) mainPhotoInput.value = 0;
+        }
 
         // Visual feedback on dropzone
         dropzone.classList.add('has-files');
@@ -698,64 +850,51 @@
         textEl.innerHTML = `<span style="color:#10b981; font-weight:800;">✅ ${I18N.selectedPhotos} ${files.length} ${I18N.pcs}</span>`;
         subtextEl.innerText = I18N.changePhotos;
 
-        // Render photo cards with staggered pop-in animation
-        files.forEach((file, index) => {
-            const url = URL.createObjectURL(file);
-            activeObjectUrls[idx].push(url);
+        // Render preview cards
+        renderPreviews(idx);
 
-            const card = document.createElement('div');
-            card.className = 'photo-preview-card';
-            card.style.setProperty('--delay', index);
-
-            let sizeStr = '';
-            if (file.size > 1024 * 1024) {
-                sizeStr = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
-            } else {
-                sizeStr = Math.round(file.size / 1024) + ' KB';
-            }
-
-            let mainBadgeHtml = '';
-            if (index === 0) {
-                mainBadgeHtml = `<div class="badge-main-cover">&#9733; ${I18N.coverPhoto}</div>`;
-            }
-
-            card.innerHTML = `
-                <img src="${url}" alt="Фото ${index + 1}" class="preview-img" onload="this.classList.add('loaded')">
-                <span class="badge-num">#${index + 1}</span>
-                <span class="badge-size">${sizeStr}</span>
-                ${mainBadgeHtml}
-            `;
-            grid.appendChild(card);
-        });
-
-        // Status banner
+        // Status banner with clear tip on how to pick main photo
         banner.style.display = 'flex';
-        if (files.length >= 2) {
-            banner.className = 'photo-status-banner is-success';
-            banner.innerHTML = `
+        banner.style.flexDirection = 'column';
+        banner.style.alignItems = 'stretch';
+        const bannerClass = (files.length >= 2) ? 'photo-status-banner is-success' : 'photo-status-banner is-warning';
+        const bannerNotice = (files.length >= 2) ? `<strong>${I18N.readyNotice}</strong> (${files.length} ${I18N.pcs})` : I18N.singleWarning;
+        const bannerIcon = (files.length >= 2) ? '🎉' : '⚠️';
+
+        banner.className = bannerClass;
+        banner.innerHTML = `
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%;">
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <span style="font-size:18px;">🎉</span>
-                    <span><strong>${I18N.readyNotice}</strong> (${files.length} ${I18N.pcs})</span>
+                    <span style="font-size:18px;">${bannerIcon}</span>
+                    <span>${bannerNotice}</span>
                 </div>
                 <button type="button" class="btn-clear-photos" onclick="clearPhotos(${idx})" title="${I18N.resetPhotos}">✕ ${I18N.resetPhotos}</button>
-            `;
-        } else {
-            banner.className = 'photo-status-banner is-warning';
-            banner.innerHTML = `
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <span style="font-size:18px;">⚠️</span>
-                    <span>${I18N.singleWarning}</span>
-                </div>
-                <button type="button" class="btn-clear-photos" onclick="clearPhotos(${idx})" title="${I18N.resetPhotos}">✕ ${I18N.resetPhotos}</button>
-            `;
-        }
+            </div>
+            <div style="font-size:12px; color:#f59e0b; margin-top:8px; display:flex; align-items:center; gap:6px; background:rgba(245,158,11,0.1); padding:6px 10px; border-radius:8px; border:1px solid rgba(245,158,11,0.25);">
+                <span>💡</span>
+                <span>${I18N.mainPhotoHint}</span>
+            </div>
+        `;
     }
 
     function clearPhotos(idx) {
+        delete colorFilesMap[idx];
         const input = document.getElementById('file-input-' + idx);
         if (input) {
             input.value = '';
             handlePhotoSelect(input, idx);
+        }
+        if (String(selectedMainColor) === String(idx)) {
+            const remaining = Object.keys(colorFilesMap).find(k => colorFilesMap[k] && colorFilesMap[k].length > 0);
+            if (remaining) {
+                selectedMainColor = remaining;
+                selectedMainIndex = 0;
+                const mainColorInput = document.getElementById('mainColorIdx');
+                const mainPhotoInput = document.getElementById('mainPhotoIdx');
+                if (mainColorInput) mainColorInput.value = remaining;
+                if (mainPhotoInput) mainPhotoInput.value = 0;
+                renderPreviews(remaining);
+            }
         }
     }
 

@@ -170,7 +170,7 @@ def product_add_view(request):
                     store.category = category
                     store.save(update_fields=["category"])
 
-        # Создаём продукт (main_image зальём из первого фото первого цвета)
+        # Создаём продукт
         product = Product.objects.create(
             store=store,
             category=category,
@@ -179,22 +179,44 @@ def product_add_view(request):
             base_price=float(base_price),
         )
 
-        main_image_set = False
+        target_main_color = request.POST.get("main_color_idx", "1").strip()
+        target_main_photo_raw = request.POST.get("main_photo_idx", "0").strip()
+        try:
+            target_main_photo_idx = int(target_main_photo_raw)
+        except (ValueError, TypeError):
+            target_main_photo_idx = 0
+
+        # Сначала ищем явно выбранное пользователем главное фото
+        chosen_main_image = None
+        if target_main_color:
+            chosen_color_images = request.FILES.getlist(f"color_images_{target_main_color}")
+            if chosen_color_images:
+                if 0 <= target_main_photo_idx < len(chosen_color_images):
+                    chosen_main_image = chosen_color_images[target_main_photo_idx]
+                else:
+                    chosen_main_image = chosen_color_images[0]
+
+        # Если не найдено, запасной вариант — первое фото первого цвета
+        if not chosen_main_image:
+            for idx in color_indices:
+                imgs = request.FILES.getlist(f"color_images_{idx}")
+                if imgs:
+                    chosen_main_image = imgs[0]
+                    break
+
+        if chosen_main_image:
+            try:
+                product.main_image = chosen_main_image
+                product.save(update_fields=["main_image"])
+            except Exception as img_err:
+                logger.warning("Не удалось сохранить главное фото товара: %s", img_err)
 
         for idx in color_indices:
             color_name   = request.POST.get(f"color_name_{idx}", "").strip()
             color_images = request.FILES.getlist(f"color_images_{idx}")  # список файлов (2-10 шт)
 
-            # Первое фото этого цвета станет превью варианта (и главным фото товара, если ещё не задано)
             first_image = color_images[0] if color_images else None
-
-            if not main_image_set and first_image:
-                try:
-                    product.main_image = first_image
-                    product.save(update_fields=["main_image"])
-                    main_image_set = True
-                except Exception as img_err:
-                    logger.warning("Не удалось сохранить главное фото товара: %s", img_err)
+            variant_preview = chosen_main_image if (str(idx) == str(target_main_color) and chosen_main_image) else first_image
 
             # Сохраняем все фото этого цвета в ProductImage
             for img_file in color_images:
@@ -233,7 +255,7 @@ def product_add_view(request):
                         sku=sku,
                         stock_quantity=int(qty) if str(qty).isdigit() else 0,
                         price_override=price_val,
-                        image=first_image,
+                        image=variant_preview,
                     )
                     created_any = True
 
@@ -247,7 +269,7 @@ def product_add_view(request):
                         size="",
                         sku=sku,
                         stock_quantity=int(qty_raw) if qty_raw.isdigit() else 0,
-                        image=first_image,
+                        image=variant_preview,
                     )
             else:
                 # Для штучных товаров (бытовая техника, книги, парфюмерия, косметика) — один вариант без размера
@@ -259,7 +281,7 @@ def product_add_view(request):
                     size="",
                     sku=sku,
                     stock_quantity=int(qty_raw) if qty_raw.isdigit() else 0,
-                    image=first_image,
+                    image=variant_preview,
                 )
 
         # Сканируем лист ожидания: если клиенты ждали этот товар, оповещаем их автоматически!
@@ -390,45 +412,113 @@ def product_delete_view(request, product_id):
 
 @login_required
 def product_edit_view(request, product_id):
-    """Редактирование базовой информации товара (Название и Цена)."""
+    """
+    Редактирование информации товара и управление его фотографиями:
+    - Изменение названия, цены, описания и категории
+    - Выбор любого фото товара в качестве главного (main_image) в 1 клик
+    - Загрузка новых фотографий в галерею или напрямую в главное фото
+    - Удаление ненужных фотографий из галереи
+    """
     store = _get_store_or_none(request)
     product = get_object_or_404(Product, id=product_id, store=store)
 
     if request.method == "POST":
-        name = request.POST.get("name", "").strip()
-        base_price = request.POST.get("base_price", "").strip()
+        action = request.POST.get("action", "update_info")
 
-        if name and base_price:
+        # 1. Сделать выбранное фото из галереи главным фото товара
+        if action == "set_main_image":
+            image_id = request.POST.get("image_id")
+            if image_id:
+                img_obj = ProductImage.objects.filter(id=image_id, product=product).first()
+                if img_obj and img_obj.image:
+                    product.main_image = img_obj.image
+                    product.save(update_fields=["main_image"])
+                    messages.success(request, "⭐ Главное фото товара успешно обновлено!")
+                    return redirect("seller-product-edit", product_id=product.id)
+
+        # 2. Сделать фото из варианта главным фото товара
+        elif action == "set_main_variant":
+            variant_id = request.POST.get("variant_id")
+            if variant_id:
+                var_obj = ProductVariant.objects.filter(id=variant_id, product=product).first()
+                if var_obj and var_obj.image:
+                    product.main_image = var_obj.image
+                    product.save(update_fields=["main_image"])
+                    messages.success(request, "⭐ Главное фото товара успешно обновлено!")
+                    return redirect("seller-product-edit", product_id=product.id)
+
+        # 3. Загрузить новое главное фото напрямую
+        elif action == "upload_main_image":
+            if "new_main_file" in request.FILES:
+                new_file = request.FILES["new_main_file"]
+                product.main_image = new_file
+                product.save(update_fields=["main_image"])
+                ProductImage.objects.create(product=product, image=new_file)
+                messages.success(request, "⭐ Новое главное фото успешно загружено и установлено!")
+                return redirect("seller-product-edit", product_id=product.id)
+
+        # 4. Добавить новые фотографии в галерею товара
+        elif action == "add_gallery_images":
+            files = request.FILES.getlist("gallery_files")
+            if files:
+                for f in files:
+                    ProductImage.objects.create(product=product, image=f)
+                messages.success(request, f"✅ Добавлено {len(files)} фото в галерею товара.")
+                return redirect("seller-product-edit", product_id=product.id)
+
+        # 5. Удалить фото из галереи
+        elif action == "delete_image":
+            image_id = request.POST.get("image_id")
+            if image_id:
+                img_obj = ProductImage.objects.filter(id=image_id, product=product).first()
+                if img_obj:
+                    img_obj.delete()
+                    messages.success(request, "🗑 Фото успешно удалено из галереи.")
+                    return redirect("seller-product-edit", product_id=product.id)
+
+        # 6. Основное обновление информации: Название, Цена, Описание, Категория
+        elif action == "update_info":
+            name = request.POST.get("name", "").strip()
+            base_price = request.POST.get("base_price", "").strip()
+            description = request.POST.get("description", "").strip()
+            category_id = request.POST.get("category_id")
+
+            if not name or not base_price:
+                messages.error(request, "Ошибка: заполните название и цену товара.")
+                return redirect("seller-product-edit", product_id=product.id)
+
+            try:
+                product.base_price = float(base_price)
+            except (ValueError, TypeError):
+                messages.error(request, "Некорректная цена товара.")
+                return redirect("seller-product-edit", product_id=product.id)
+
             product.name = name
-            product.base_price = float(base_price)
-            product.save(update_fields=["name", "base_price"])
-            messages.success(request, "Название и цена успешно обновлены!")
+            product.description = description
+            if category_id:
+                from core.models import Category
+                cat = Category.objects.filter(id=category_id).first()
+                product.category = cat
+
+            product.save()
+            messages.success(request, "✅ Информация о товаре успешно обновлена!")
             return redirect("seller-products")
-        else:
-            messages.error(request, "Поля не могут быть пустыми.")
 
-    html_form = f"""
-    {{% extends "dashboard/base.html" %}}
-    {{% block content %}}
-    <h2 style="margin-bottom: 24px;">✏️ Редактирование</h2>
-    <div class="card" style="max-width: 500px;">
-        <form method="post">
-            {{% csrf_token %}}
-            <label>Название товара</label>
-            <input type="text" name="name" value="{product.name}" required>
+    from core.models import Category
+    categories = Category.objects.all().order_by("name")
+    gallery_images = product.images.all().order_by("id")
+    variants_with_images = product.variants.filter(image__isnull=False).exclude(image="").order_by("id")
 
-            <label>Базовая цена (сум)</label>
-            <input type="number" name="base_price" value="{int(product.base_price)}" required>
-
-            <button type="submit" class="btn" style="width: 100%; margin-top: 10px;">💾 Сохранить изменения</button>
-            <a href="{{% url 'seller-products' %}}" class="btn btn-secondary" style="width: 100%; margin-top: 10px; text-align: center;">Отмена</a>
-        </form>
-    </div>
-    {{% endblock %}}
-    """
-
-    template = engines['django'].from_string(html_form)
-    return HttpResponse(template.render({"product": product, "request": request}, request))
+    return render(
+        request,
+        "dashboard/product_edit.html",
+        {
+            "product": product,
+            "categories": categories,
+            "gallery_images": gallery_images,
+            "variants_with_images": variants_with_images,
+        },
+    )
 
 
 @login_required
