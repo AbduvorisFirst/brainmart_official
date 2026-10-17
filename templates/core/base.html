@@ -272,14 +272,14 @@
                     break;
                 }
             }
-            if (matched) {
-                // Если путь содержит префикс языка, просто перенаправляем на нужный URL
-                window.location.href = newPath + window.location.search;
-            } else {
-                // Если префикса нет (например, корень /), отправляем POST форму Django
-                document.getElementById('hidden-lang-input').value = langCode;
-                document.getElementById('hidden-lang-form').submit();
+            if (!matched && path.indexOf('/') === 0) {
+                newPath = '/' + langCode + path;
             }
+            const langInput = document.getElementById('hidden-lang-input');
+            const nextInput = document.querySelector('#hidden-lang-form input[name="next"]');
+            if (langInput) langInput.value = langCode;
+            if (nextInput) nextInput.value = newPath + window.location.search;
+            document.getElementById('hidden-lang-form').submit();
         }
     </script>
 

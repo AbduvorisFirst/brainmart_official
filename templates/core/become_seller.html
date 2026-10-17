@@ -2,6 +2,8 @@
 {% load i18n %}
 
 {% block content %}
+{% get_current_language as CURRENT_LANG %}
+
 <style>
     .seller-landing {
         max-width: 860px;
@@ -156,38 +158,90 @@
     <!-- Навигация назад -->
     <div style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
         <a href="{% url 'catalog' %}" style="text-decoration: none; color: var(--text-muted); font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
-            ← {% trans "Вернуться в каталог" %}
+            {% if CURRENT_LANG == 'uz' %}
+                ← Katalogga qaytish
+            {% elif CURRENT_LANG == 'en' %}
+                ← Back to catalog
+            {% else %}
+                ← Вернуться в каталог
+            {% endif %}
         </a>
         <a href="{% url 'seller-login' %}" style="text-decoration: none; color: var(--primary); font-size: 13px; font-weight: 700;">
-            {% trans "Вход для продавцов" %} ➔
+            {% if CURRENT_LANG == 'uz' %}
+                Sotuvchilar uchun kirish ➔
+            {% elif CURRENT_LANG == 'en' %}
+                Seller Login ➔
+            {% else %}
+                Вход для продавцов ➔
+            {% endif %}
         </a>
     </div>
 
-    <!-- ГЛАВНЫЙ БАННЕР -->
+    <!-- ГЛАВНЫЙ БАННЕР (HERO) -->
     <div class="hero-box">
-        <div class="hero-badge">🚀 {% trans "SaaS Платформа brainmart" %}</div>
+        <div class="hero-badge">
+            {% if CURRENT_LANG == 'uz' %}
+                🚀 BRAINMART SAAS PLATFORMASI
+            {% elif CURRENT_LANG == 'en' %}
+                🚀 BRAINMART SAAS PLATFORM
+            {% else %}
+                🚀 SAAS ПЛАТФОРМА BRAINMART
+            {% endif %}
+        </div>
         <h1 class="hero-title">
-            {% trans "Продавайте в Telegram и маркетплейсе с ИИ по честной себестоимости" %}
+            {% if CURRENT_LANG == 'uz' %}
+                Telegram va marketpleysda sun'iy intellekt bilan halol tannarxda soting
+            {% elif CURRENT_LANG == 'en' %}
+                Sell on Telegram & Marketplace with AI at Fair Cost Price
+            {% else %}
+                Продавайте в Telegram и маркетплейсе с ИИ по честной себестоимости
+            {% endif %}
         </h1>
         <p class="hero-subtitle">
-            {% trans "Символический тариф: всего 50 000 сум/мес. 0% комиссии со всех продаж. Выручка от клиентов напрямую зачисляется на вашу карту Uzcard / Humo." %}
+            {% if CURRENT_LANG == 'uz' %}
+                Ramziy tarif: oyiga bor-yo'g'i 50 000 so'm. Barcha savdolardan 0% komissiya. Mijozlar to'lovi to'g'ridan-to'g'ri Uzcard / Humo kartangizga tushadi.
+            {% elif CURRENT_LANG == 'en' %}
+                Fair plan: only 50,000 UZS/month. 0% sales commission. Customer payments go directly to your Uzcard / Humo card.
+            {% else %}
+                Символический тариф: всего 50 000 сум/мес. 0% комиссии со всех продаж. Выручка от клиентов напрямую зачисляется на вашу карту Uzcard / Humo.
+            {% endif %}
         </p>
         <a href="{% url 'seller-register' %}" class="hero-cta-btn">
-            ✨ {% trans "Зарегистрировать магазин" %}
+            {% if CURRENT_LANG == 'uz' %}
+                ✨ Do'konni ro'yxatdan o'tkazish
+            {% elif CURRENT_LANG == 'en' %}
+                ✨ Register Your Store
+            {% else %}
+                ✨ Зарегистрировать магазин
+            {% endif %}
         </a>
     </div>
 
-    <!-- ЧЕСТНЫЙ СТАТУС ИНТЕГРАЦИЙ И СТРАТЕГИЯ -->
+    <!-- ЧЕСТНЫЙ СТАТУС: ФОКУС НА TELEGRAM И ДОРАБОТКА INSTAGRAM DIRECT -->
     <div style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(99, 102, 241, 0.35); border-radius: 18px; padding: 20px 22px; margin-bottom: 26px;">
         <div style="display: flex; align-items: flex-start; gap: 12px;">
             <span style="font-size: 24px; line-height: 1;">⚙️</span>
             <div>
                 <h3 style="margin: 0 0 6px; font-size: 16px; font-weight: 800; color: #FFFFFF;">
-                    {% trans "Честный статус: Фокус на Telegram и разработка Instagram Direct" %}
+                    {% if CURRENT_LANG == 'uz' %}
+                        Halol holat: Asosiy e'tibor Telegramga va Instagram Direct integratsiyasini yakunlash
+                    {% elif CURRENT_LANG == 'en' %}
+                        Honest Status: Focus on Telegram and Finalizing Instagram Direct
+                    {% else %}
+                        Честный статус: Фокус на Telegram и доработка Instagram Direct
+                    {% endif %}
                 </h3>
                 <p style="margin: 0; font-size: 13px; color: #CBD5E1; line-height: 1.55;">
-                    {% trans "Сейчас официальная интеграция Gemini Vision для Instagram Direct проходит согласование политик Meta. Мы активно работаем над ней, и в будущем, ИншаАллах, она выйдет для всех наших магазинов!" %}<br><br>
-                    {% trans "Прямо сейчас BrainMart сфокусирован на главном канале продаж — <strong>Telegram</strong> (Mini App + умный Gemini-бот с поиском по тексту и фото) и <strong>веб-маркетплейсе</strong>. Чтобы поддержать предпринимателей, мы отдаём доступ по чистой себестоимости серверов: <strong>всего 50 000 сум в месяц!</strong>" %}
+                    {% if CURRENT_LANG == 'uz' %}
+                        Biz hozirda Meta kompaniyasining qat'iy talablari va xavfsizlik qoidalariga mos ravishda Instagram Direct bilan rasmiy integratsiyani faol yakunlamoqdamiz. Barcha texnik va rasmiy talablar bajarilishi bilanoq — Instagram Direct barcha do'konlarimiz uchun avtomatik ravishda ishga tushadi!<br><br>
+                        Hozirgi vaqtda BrainMart eng asosiy va eng tez o'sayotgan savdo kanaliga — <strong>Telegram</strong> (Mini App + matn va rasm bo'yicha qidiruvchi aqlli Gemini-bot) hamda <strong>veb-marketpleysga</strong> qaratilgan. Biznes egalarini qo'llab-quvvatlash uchun biz tizimni serverlarning sof tannarxi bo'yicha taqdim etmoqdamiz: <strong>oyiga bor-yo'g'i 50 000 so'm!</strong>
+                    {% elif CURRENT_LANG == 'en' %}
+                        We are currently actively finalizing the official Instagram Direct integration according to Meta's strict policies. As soon as compliance is complete, Instagram Direct will automatically launch for all our connected stores!<br><br>
+                        Right now, BrainMart is 100% focused on the primary sales channel — <strong>Telegram</strong> (Mini App + smart Gemini bot with text & photo catalog search) and our <strong>Web marketplace</strong>. To support merchants, we offer access at pure server cost: <strong>only 50,000 UZS per month!</strong>
+                    {% else %}
+                        Мы активно дорабатываем официальную интеграцию с Instagram Direct под строгие стандарты и требования Meta. Как только технические и регламентные процедуры завершатся — Instagram Direct автоматически станет доступен каждому магазину!<br><br>
+                        Прямо сейчас BrainMart сфокусирован на главном канале продаж — <strong>Telegram</strong> (Mini App + умный Gemini-бот с поиском по тексту и фото) и <strong>веб-маркетплейсе</strong>. Чтобы поддержать предпринимателей, мы отдаём доступ по чистой себестоимости серверов: <strong>всего 50 000 сум в месяц!</strong>
+                    {% endif %}
                 </p>
             </div>
         </div>
@@ -195,39 +249,101 @@
 
     <!-- ПРЕИМУЩЕСТВА СИСТЕМЫ -->
     <h2 style="font-size: 20px; font-weight: 800; color: var(--text-main); margin: 0 0 16px;">
-        🌟 {% trans "Что вы получаете в платформе brainmart?" %}
+        {% if CURRENT_LANG == 'uz' %}
+            🌟 Brainmart platformasida nimalarga ega bo'lasiz?
+        {% elif CURRENT_LANG == 'en' %}
+            🌟 What You Get with Brainmart
+        {% else %}
+            🌟 Что вы получаете в платформе brainmart?
+        {% endif %}
     </h2>
 
     <div class="features-grid">
         <div class="feature-card">
             <div class="feature-icon">🤖</div>
-            <h3 class="feature-title">{% trans "Gemini Vision ИИ-Продавец в Telegram 24/7" %}</h3>
+            <h3 class="feature-title">
+                {% if CURRENT_LANG == 'uz' %}
+                    Telegramda 24/7 Gemini Vision AI sotuvchi
+                {% elif CURRENT_LANG == 'en' %}
+                    24/7 Gemini Vision AI Seller in Telegram
+                {% else %}
+                    Gemini Vision ИИ-Продавец в Telegram 24/7
+                {% endif %}
+            </h3>
             <p class="feature-desc">
-                {% trans "Умный искусственный интеллект консультирует клиентов в Telegram-боте, распознаёт товары по фото, находит размеры и помогает оформить заказ круглосуточно." %}
+                {% if CURRENT_LANG == 'uz' %}
+                    Aqlli sun'iy intellekt Telegram-botda mijozlarga kechayu kunduz maslahat beradi, kiyimlarni rasm orqali taniydi, o'lchamlarni topadi va buyurtmani rasmiylashtiradi.
+                {% elif CURRENT_LANG == 'en' %}
+                    Smart AI assists customers in your Telegram bot 24/7, recognizes clothes from photos, checks sizes, and guides shoppers to checkout.
+                {% else %}
+                    Умный искусственный интеллект консультирует клиентов в Telegram-боте, распознаёт товары по фото, находит размеры и помогает оформить заказ круглосуточно.
+                {% endif %}
             </p>
         </div>
 
         <div class="feature-card">
             <div class="feature-icon">📱</div>
-            <h3 class="feature-title">{% trans "Telegram Mini App + Веб-Витрина" %}</h3>
+            <h3 class="feature-title">
+                {% if CURRENT_LANG == 'uz' %}
+                    Telegram Mini App + Veb-Vitrina
+                {% elif CURRENT_LANG == 'en' %}
+                    Telegram Mini App + Web Storefront
+                {% else %}
+                    Telegram Mini App + Веб-Витрина
+                {% endif %}
+            </h3>
             <p class="feature-desc">
-                {% trans "Персональный фирменный интернет-магазин с каталогом, цветами и размерами. Покупатели заказывают за 2 клика без скачивания сторонних приложений." %}
+                {% if CURRENT_LANG == 'uz' %}
+                    Katalog, ranglar va o'lchamlar bilan shaxsiy brendingizdagi onlayn-do'kon. Xaridorlar ortiqcha ilova o'rnatmasdan 2 bosishda buyurtma berishadi.
+                {% elif CURRENT_LANG == 'en' %}
+                    Branded storefront with full catalog, colors, and sizes. Customers order in 2 clicks right inside Telegram without installing apps.
+                {% else %}
+                    Персональный фирменный интернет-магазин с каталогом, цветами и размерами. Покупатели заказывают за 2 клика без скачивания сторонних приложений.
+                {% endif %}
             </p>
         </div>
 
         <div class="feature-card">
             <div class="feature-icon">🏢</div>
-            <h3 class="feature-title">{% trans "Мульти-филиалы и умная логистика" %}</h3>
+            <h3 class="feature-title">
+                {% if CURRENT_LANG == 'uz' %}
+                    Filiallar tarmog'i va aqlli logistika
+                {% elif CURRENT_LANG == 'en' %}
+                    Multi-Branch & Smart Routing
+                {% else %}
+                    Мульти-филиалы и умная логистика
+                {% endif %}
+            </h3>
             <p class="feature-desc">
-                {% trans "Управляйте сетью торговых точек в одном месте. Заказ автоматически отправляется из ближайшего филиала, экономя время и деньги на доставке такси." %}
+                {% if CURRENT_LANG == 'uz' %}
+                    Barcha savdo nuqtalaringizni bitta joydan boshqaring. Buyurtma mijozga eng yaqin filialdan yuboriladi, bu esa taksi yetkazib berish xarajatlari va vaqtini tejaydi.
+                {% elif CURRENT_LANG == 'en' %}
+                    Manage your store branches in one dashboard. Orders route automatically from the closest branch, saving taxi delivery time and fees.
+                {% else %}
+                    Управляйте сетью торговых точек в одном месте. Заказ автоматически отправляется из ближайшего филиала, экономя время и деньги на доставке такси.
+                {% endif %}
             </p>
         </div>
 
         <div class="feature-card">
             <div class="feature-icon">💳</div>
-            <h3 class="feature-title">{% trans "0% комиссии с продаж" %}</h3>
+            <h3 class="feature-title">
+                {% if CURRENT_LANG == 'uz' %}
+                    Savdolardan 0% komissiya
+                {% elif CURRENT_LANG == 'en' %}
+                    0% Commission on Sales
+                {% else %}
+                    0% комиссии с продаж
+                {% endif %}
+            </h3>
             <p class="feature-desc">
-                {% trans "Все средства от продаж принадлежат вам. Клиент оплачивает — деньги зачисляются на привязанную карту продавца Uzcard / Humo." %}
+                {% if CURRENT_LANG == 'uz' %}
+                    Savdodan tushgan barcha mablag'lar to'liq o'zingizda qoladi. Mijoz to'lov qilganda — mablag' to'g'ridan-to'g'ri sotuvchining Uzcard / Humo kartasiga tushadi.
+                {% elif CURRENT_LANG == 'en' %}
+                    All sales revenue belongs 100% to you. When a customer pays, money goes directly to your linked Uzcard / Humo card.
+                {% else %}
+                    Все средства от продаж принадлежат вам. Клиент оплачивает — деньги зачисляются напрямую на привязанную карту продавца Uzcard / Humo.
+                {% endif %}
             </p>
         </div>
     </div>
@@ -237,21 +353,45 @@
         <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px; border-bottom: 1px dashed var(--border); padding-bottom: 20px; margin-bottom: 20px;">
             <div>
                 <span style="font-size: 11px; font-weight: 900; color: var(--primary); text-transform: uppercase; letter-spacing: 0.8px;">
-                    💎 {% trans "Тариф по себестоимости серверов" %}
+                    {% if CURRENT_LANG == 'uz' %}
+                        💎 SERVERLARNING SOF TANNARXI BO'YICHA TARIF
+                    {% elif CURRENT_LANG == 'en' %}
+                        💎 FAIR COST-PRICE SAAS TIER
+                    {% else %}
+                        💎 ТАРИФ ПО СЕБЕСТОИМОСТИ СЕРВЕРОВ
+                    {% endif %}
                 </span>
                 <h2 style="font-size: 24px; font-weight: 900; color: var(--text-main); margin: 6px 0 6px;">
-                    {% trans "Модель «База + Филиалы»" %}
+                    {% if CURRENT_LANG == 'uz' %}
+                        «Baza + Filiallar» modeli
+                    {% elif CURRENT_LANG == 'en' %}
+                        "Base + Branches" Model
+                    {% else %}
+                        Модель «База + Филиалы»
+                    {% endif %}
                 </h2>
                 <p style="font-size: 13.5px; color: var(--text-muted); margin: 0; line-height: 1.45;">
-                    {% trans "Доступная и кристально честная цена без переплат как для начинающих магазинов, так и для крупных сетей." %}
+                    {% if CURRENT_LANG == 'uz' %}
+                        Boshlang'ich do'konlar uchun ham, yirik savdo tarmoqlari uchun ham ortiqcha to'lovlarsiz adolatli va arzon narx.
+                    {% elif CURRENT_LANG == 'en' %}
+                        Affordable and transparent pricing without hidden fees for both single showrooms and retail networks.
+                    {% else %}
+                        Доступная и честная цена без переплат как для начинающих магазинов, так и для крупных сетей.
+                    {% endif %}
                 </p>
             </div>
             <div style="text-align: right;">
                 <div style="font-size: 28px; font-weight: 900; color: var(--primary);">
-                    50 000 <span style="font-size: 15px; font-weight: 600; color: var(--text-muted);">{% trans "сум/мес" %}</span>
+                    50 000 <span style="font-size: 15px; font-weight: 600; color: var(--text-muted);">{% if CURRENT_LANG == 'uz' %}so'm/oy{% elif CURRENT_LANG == 'en' %}UZS/mo{% else %}сум/мес{% endif %}</span>
                 </div>
                 <div style="font-size: 12px; color: #10B981; font-weight: 800;">
-                    ✓ {% trans "0% комиссии со всех продаж" %}
+                    {% if CURRENT_LANG == 'uz' %}
+                        ✓ Barcha savdolardan 0% komissiya
+                    {% elif CURRENT_LANG == 'en' %}
+                        ✓ 0% commission on all sales
+                    {% else %}
+                        ✓ 0% комиссии со всех продаж
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -259,25 +399,49 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 22px;">
             <div style="background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 14px; padding: 18px;">
                 <div style="font-size: 16px; font-weight: 800; color: var(--primary); margin-bottom: 8px;">
-                    🏪 {% trans "Базовый тариф (1-я точка / Головной магазин)" %}
+                    {% if CURRENT_LANG == 'uz' %}
+                        🏪 Asosiy tarif (1-nuqta / Bosh do'kon)
+                    {% elif CURRENT_LANG == 'en' %}
+                        🏪 Base Tier (1st Location / Main Store)
+                    {% else %}
+                        🏪 Базовый тариф (1-я точка / Головной магазин)
+                    {% endif %}
                 </div>
                 <div style="font-size: 22px; font-weight: 900; color: var(--text-main); margin-bottom: 8px;">
-                    50 000 {% trans "сум/мес" %}
+                    50 000 {% if CURRENT_LANG == 'uz' %}so'm/oy{% elif CURRENT_LANG == 'en' %}UZS/mo{% else %}сум/мес{% endif %}
                 </div>
                 <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.45; margin: 0;">
-                    {% trans "Сюда входит CRM-система, складской учёт, веб-витрина, Telegram Mini App и безлимитный Gemini Vision ИИ в Telegram." %}
+                    {% if CURRENT_LANG == 'uz' %}
+                        Bunga CRM-tizim, ombor hisobi, veb-vitrina, Telegram Mini App va Telegramdagi cheksiz Gemini Vision AI kiradi.
+                    {% elif CURRENT_LANG == 'en' %}
+                        Includes CRM, inventory management, web storefront, Telegram Mini App, and unlimited Gemini Vision AI in Telegram.
+                    {% else %}
+                        Сюда входит CRM-система, складской учёт, веб-витрина, Telegram Mini App и безлимитный Gemini Vision ИИ в Telegram.
+                    {% endif %}
                 </p>
             </div>
 
             <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 14px; padding: 18px;">
                 <div style="font-size: 16px; font-weight: 800; color: #10B981; margin-bottom: 8px;">
-                    🏢 {% trans "Каждый дополнительный филиал (со 2-го по 10-й)" %}
+                    {% if CURRENT_LANG == 'uz' %}
+                        🏢 Har bir qo'shimcha filial (2-dan 10-gacha)
+                    {% elif CURRENT_LANG == 'en' %}
+                        🏢 Each Additional Branch (from 2nd to 10th)
+                    {% else %}
+                        🏢 Каждый дополнительный филиал (со 2-го по 10-й)
+                    {% endif %}
                 </div>
                 <div style="font-size: 22px; font-weight: 900; color: var(--text-main); margin-bottom: 8px;">
-                    +20 000 {% trans "сум/мес за точку" %}
+                    +20 000 {% if CURRENT_LANG == 'uz' %}so'm/oy nuqta uchun{% elif CURRENT_LANG == 'en' %}UZS/mo per branch{% else %}сум/мес за точку{% endif %}
                 </div>
                 <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.45; margin: 0;">
-                    {% trans "Подключайте отдельные филиалы с собственным учётом локаций, остатков и менеджеров для быстрой доставки такси." %}
+                    {% if CURRENT_LANG == 'uz' %}
+                        Taksi yetkazib berish tez va arzon bo'lishi uchun xaritada alohida manzillar, qoldiqlar va menejerlar hisobiga ega filiallarni ulang.
+                    {% elif CURRENT_LANG == 'en' %}
+                        Connect individual branch locations with distinct inventory and managers for quick and cost-effective taxi delivery.
+                    {% else %}
+                        Подключайте отдельные филиалы с собственным учётом локаций, остатков и менеджеров для быстрой доставки такси.
+                    {% endif %}
                 </p>
             </div>
         </div>
@@ -285,100 +449,148 @@
         <!-- НАГЛЯДНЫЕ ПРИМЕРЫ РАСЧЁТА ДЛЯ СЕТЕЙ -->
         <div style="margin-top: 12px;">
             <div style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">
-                📊 {% trans "Примеры расчёта стоимости для сетей:" %}
+                {% if CURRENT_LANG == 'uz' %}
+                    📊 Filiallar tarmog'i uchun hisob-kitob namunalari:
+                {% elif CURRENT_LANG == 'en' %}
+                    📊 Sample Pricing for Multi-Branch Networks:
+                {% else %}
+                    📊 Примеры расчёта стоимости для сетей:
+                {% endif %}
             </div>
             <p style="font-size: 12.5px; color: var(--text-muted); margin: 0 0 12px;">
-                {% trans "Чем больше у вас точек, тем дешевле обходится каждая отдельная точка сети:" %}
+                {% if CURRENT_LANG == 'uz' %}
+                    Nuqtalaringiz qancha ko'p bo'lsa, har bir nuqtaning xizmat ko'rsatish narxi shuncha arzonlashadi:
+                {% elif CURRENT_LANG == 'en' %}
+                    The more branches you connect, the lower the cost per individual store point:
+                {% else %}
+                    Чем больше у вас точек, тем дешевле обходится обслуживание каждой отдельной точки сети:
+                {% endif %}
             </p>
 
             <div class="calc-example-grid">
                 <div class="calc-box">
-                    <div class="calc-box-title">{% trans "1 магазин (База)" %}</div>
-                    <div class="calc-box-price">50 000 сум</div>
-                    <div class="calc-box-sub">50 000 сум/точка</div>
+                    <div class="calc-box-title">{% if CURRENT_LANG == 'uz' %}1 ta do'kon (Baza){% elif CURRENT_LANG == 'en' %}1 Store (Base){% else %}1 магазин (База){% endif %}</div>
+                    <div class="calc-box-price">50 000 {% if CURRENT_LANG == 'uz' %}so'm{% elif CURRENT_LANG == 'en' %}UZS{% else %}сум{% endif %}</div>
+                    <div class="calc-box-sub">50 000 {% if CURRENT_LANG == 'uz' %}so'm/nuqta{% elif CURRENT_LANG == 'en' %}UZS/branch{% else %}сум/точка{% endif %}</div>
                 </div>
 
                 <div class="calc-box">
-                    <div class="calc-box-title">{% trans "Сеть из 3 точек" %}</div>
-                    <div class="calc-box-price">90 000 сум</div>
-                    <div class="calc-box-sub">30 000 сум/точка (-40%)</div>
+                    <div class="calc-box-title">{% if CURRENT_LANG == 'uz' %}3 ta nuqta tarmog'i{% elif CURRENT_LANG == 'en' %}3-Branch Network{% else %}Сеть из 3 точек{% endif %}</div>
+                    <div class="calc-box-price">90 000 {% if CURRENT_LANG == 'uz' %}so'm{% elif CURRENT_LANG == 'en' %}UZS{% else %}сум{% endif %}</div>
+                    <div class="calc-box-sub">30 000 {% if CURRENT_LANG == 'uz' %}so'm/nuqta (-40% tejash){% elif CURRENT_LANG == 'en' %}UZS/branch (-40%){% else %}сум/точка (-40%){% endif %}</div>
                 </div>
 
                 <div class="calc-box">
-                    <div class="calc-box-title">{% trans "Сеть из 5 точек" %}</div>
-                    <div class="calc-box-price">130 000 сум</div>
-                    <div class="calc-box-sub">26 000 сум/точка (-48%)</div>
+                    <div class="calc-box-title">{% if CURRENT_LANG == 'uz' %}5 ta nuqta tarmog'i{% elif CURRENT_LANG == 'en' %}5-Branch Network{% else %}Сеть из 5 точек{% endif %}</div>
+                    <div class="calc-box-price">130 000 {% if CURRENT_LANG == 'uz' %}so'm{% elif CURRENT_LANG == 'en' %}UZS{% else %}сум{% endif %}</div>
+                    <div class="calc-box-sub">26 000 {% if CURRENT_LANG == 'uz' %}so'm/nuqta (-48% tejash){% elif CURRENT_LANG == 'en' %}UZS/branch (-48%){% else %}сум/точка (-48%){% endif %}</div>
                 </div>
 
                 <div class="calc-box">
-                    <div class="calc-box-title">{% trans "Сеть из 10 точек" %}</div>
-                    <div class="calc-box-price">230 000 сум</div>
-                    <div class="calc-box-sub">23 000 сум/точка (-54%)</div>
+                    <div class="calc-box-title">{% if CURRENT_LANG == 'uz' %}10 ta nuqta tarmog'i{% elif CURRENT_LANG == 'en' %}10-Branch Network{% else %}Сеть из 10 точек{% endif %}</div>
+                    <div class="calc-box-price">230 000 {% if CURRENT_LANG == 'uz' %}so'm{% elif CURRENT_LANG == 'en' %}UZS{% else %}сум{% endif %}</div>
+                    <div class="calc-box-sub">23 000 {% if CURRENT_LANG == 'uz' %}so'm/nuqta (-54% tejash){% elif CURRENT_LANG == 'en' %}UZS/branch (-54%){% else %}сум/точка (-54%){% endif %}</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- СТРАТЕГИЯ И ФИЛОСОФИЯ: СИСТЕМА АБДУРРАХМАНА ИБН АУФА -->
+    <!-- ЧИСТАЯ СЕБЕСТОИМОСТЬ И ЧЕСТНОСТЬ БЕЗ СКРЫТЫХ ПЕРЕПЛАТ -->
     <div style="background: linear-gradient(145deg, rgba(17, 24, 39, 0.95), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(16, 185, 129, 0.35); border-radius: 20px; padding: 26px; margin-bottom: 28px;">
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px;">
-            <span style="font-size: 26px;">🌿</span>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+            <span style="font-size: 26px;">💎</span>
             <div>
                 <span style="font-size: 11px; font-weight: 900; color: #34D399; text-transform: uppercase; letter-spacing: 0.8px;">
-                    {% trans "Наша философия и стратегия развития" %}
+                    {% if CURRENT_LANG == 'uz' %}
+                        Halol va shaffof narx siyosati
+                    {% elif CURRENT_LANG == 'en' %}
+                        Honest and Transparent Pricing
+                    {% else %}
+                        Честная и прозрачная ценовая политика
+                    {% endif %}
                 </span>
                 <h3 style="margin: 2px 0 0; font-size: 18px; font-weight: 900; color: #FFFFFF;">
-                    {% trans "Принцип Абдуррахмана ибн Ауфа: честная торговля без высоких подписок" %}
+                    {% if CURRENT_LANG == 'uz' %}
+                        Nega biz sof tannarx bo'yicha ishlaymiz?
+                    {% elif CURRENT_LANG == 'en' %}
+                        Why We Operate Strictly at Pure Cost Price
+                    {% else %}
+                        Почему мы работаем строго по честной себестоимости?
+                    {% endif %}
                 </h3>
             </div>
         </div>
         <p style="font-size: 13px; color: #94A3B8; line-height: 1.55; margin: 0 0 18px;">
-            {% trans "Сподвижник и великий купец Абдуррахман ибн Ауф торговал с минимальной наценкой, кристальной честностью и заботой о людях — и Всевышний давал в этом огромный барокат. BrainMart строится по этому же принципу: мы не обременяем продавцов дорогими тарифами, а развиваем сильную и взаимовыгодную экосистему:" %}
+            {% if CURRENT_LANG == 'uz' %}
+                BrainMart qimmat obuna to'lovlari belgilamaydi va sotuvchilarning savdosidan foiz olmaydi. Bizning maqsadimiz — O'zbekistondagi har bir do'kon va brendga zamonaviy jahon darajasidagi savdo texnologiyalarini moliyaviy xavf-xatarsiz taqdim etishdir:
+            {% elif CURRENT_LANG == 'en' %}
+                BrainMart never burdens merchants with high subscription mark-ups or hidden commission fees. Our mission is to equip local retail brands and showrooms with top-tier AI and e-commerce tech without financial risk:
+            {% else %}
+                BrainMart не устанавливает завышенные тарифы и не удерживает проценты с ваших продаж. Наша цель — дать каждому магазину и шоуруму современные технологии мирового уровня без финансовых рисков:
+            {% endif %}
         </p>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px;">
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px;">
                 <div style="font-size: 13.5px; font-weight: 800; color: #60A5FA; margin-bottom: 6px;">
-                    🚀 {% trans "1. Приоритет в ИИ-выдаче (Featured)" %}
+                    {% if CURRENT_LANG == 'uz' %}
+                        ⚙️ Serverlarning sof tannarxi
+                    {% elif CURRENT_LANG == 'en' %}
+                        ⚙️ Pure Infrastructure Cost
+                    {% else %}
+                        ⚙️ Чистая себестоимость серверов
+                    {% endif %}
                 </div>
                 <div style="font-size: 12px; color: #CBD5E1; line-height: 1.45;">
-                    {% trans "Базовый поиск открыт и честен для всех. Магазины, желающие быть на 1-м месте в рекомендациях Gemini и каталоге, подключают внутреннее честное промо." %}
+                    {% if CURRENT_LANG == 'uz' %}
+                        50 000 so'm/oy — bu faqat real xarajatlar: tezkor bulutli serverlar, xavfsiz ma'lumotlar bazasi va Google Gemini AI so'rovlarini qoplashdir.
+                    {% elif CURRENT_LANG == 'en' %}
+                        50,000 UZS/month strictly covers real infrastructure overhead: high-speed servers, database uptime, and Google Gemini AI API requests.
+                    {% else %}
+                        Тариф 50 000 сум/мес покрывает исключительно технические затраты: аренду быстрых серверов, базу данных и запросы к Google Gemini ИИ.
+                    {% endif %}
                 </div>
             </div>
 
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px;">
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px;">
                 <div style="font-size: 13.5px; font-weight: 800; color: #34D399; margin-bottom: 6px;">
-                    💳 {% trans "2. Финтех и платёжные сервисы" %}
+                    {% if CURRENT_LANG == 'uz' %}
+                        🛡️ 0% komissiya va to'g'ridan-to'g'ri to'lov
+                    {% elif CURRENT_LANG == 'en' %}
+                        🛡️ 0% Fee & Direct Payments
+                    {% else %}
+                        🛡️ 0% комиссий и прямые оплаты
+                    {% endif %}
                 </div>
                 <div style="font-size: 12px; color: #CBD5E1; line-height: 1.45;">
-                    {% trans "Оплата прямо в Telegram через Click, Payme, Uzum и рассрочки. Платформа зарабатывает на микро-бонусах со шлюзов, а не с продавца." %}
+                    {% if CURRENT_LANG == 'uz' %}
+                        Mijozlar to'lagan barcha mablag'lar to'g'ridan-to'g'ri kartangizga tushadi. Biz hech qanday vositachilik foizlari yoki yashirin ushlanmalar olmaymiz.
+                    {% elif CURRENT_LANG == 'en' %}
+                        Customer payments go straight to your personal card or bank account. No middleman hold-ups, no hidden deductions, 100% yours.
+                    {% else %}
+                        Выручка клиентов поступает сразу на вашу карту Uzcard/Humo без задержек, скрытых списаний и комиссионных процентов.
+                    {% endif %}
                 </div>
             </div>
 
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px;">
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px;">
                 <div style="font-size: 13.5px; font-weight: 800; color: #FBBF24; margin-bottom: 6px;">
-                    🚕 {% trans "3. Умная логистика и такси" %}
+                    {% if CURRENT_LANG == 'uz' %}
+                        🚀 Telegram hozir + Instagram ishlab chiqilmoqda
+                    {% elif CURRENT_LANG == 'en' %}
+                        🚀 Telegram Live + Instagram in Progress
+                    {% else %}
+                        🚀 Мощный Telegram сейчас + Instagram в разработке
+                    {% endif %}
                 </div>
                 <div style="font-size: 12px; color: #CBD5E1; line-height: 1.45;">
-                    {% trans "Интеграция с Yandex Delivery: система выбирает ближайший филиал, ускоряя доставку до 15–20 минут и снижая расходы клиента на такси." %}
-                </div>
-            </div>
-
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px;">
-                <div style="font-size: 13.5px; font-weight: 800; color: #C084FC; margin-bottom: 6px;">
-                    📊 {% trans "4. B2B-Аналитика и тренды рынка" %}
-                </div>
-                <div style="font-size: 12px; color: #CBD5E1; line-height: 1.45;">
-                    {% trans "Анализ спроса: какие цвета, размеры и фасоны ищут покупатели. Ценные агрегированные отчёты для крупных брендов, оптовиков и байеров." %}
-                </div>
-            </div>
-
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px;">
-                <div style="font-size: 13.5px; font-weight: 800; color: #F43F5E; margin-bottom: 6px;">
-                    🏭 {% trans "5. Экосистема Micro-SaaS «ИИ Фабрика»" %}
-                </div>
-                <div style="font-size: 12px; color: #CBD5E1; line-height: 1.45;">
-                    {% trans "Специализированные сервисы под брендом BrainMart: генератор лукбуков на ИИ-моделях, авто-посты для Telegram-каналов и рассылки." %}
+                    {% if CURRENT_LANG == 'uz' %}
+                        Bugunning o'zida siz Telegram Mini App va Gemini AI-bot orqali savdoni boshlaysiz. Instagram Direct bilan rasmiy integratsiya esa yakunlanmoqda va yaqinda ishga tushadi!
+                    {% elif CURRENT_LANG == 'en' %}
+                        Sell instantly inside Uzbekistan's top messenger via Telegram Mini App and AI bot. Official Instagram Direct integration is being finalized and will launch in an upcoming release!
+                    {% else %}
+                        Вы получаете продажи в главном мессенджере страны через Telegram Mini App и Gemini Vision бота уже сегодня, а Instagram Direct выйдет сразу после завершения доработки!
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -386,31 +598,85 @@
 
     <!-- 3 ПРОСТЫХ ШАГА ДЛЯ СТАРТА -->
     <h2 style="font-size: 20px; font-weight: 800; color: var(--text-main); margin: 0 0 16px;">
-        🚀 {% trans "Как начать продавать за 3 простых шага?" %}
+        {% if CURRENT_LANG == 'uz' %}
+            🚀 Savdoni boshlash uchun 3 ta oddiy qadam:
+        {% elif CURRENT_LANG == 'en' %}
+            🚀 Start Selling in 3 Simple Steps:
+        {% else %}
+            🚀 Как начать продавать за 3 простых шага?
+        {% endif %}
     </h2>
 
     <div class="steps-container">
         <div class="step-box">
             <div class="step-num">1</div>
             <div>
-                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 700; color: var(--text-main);">{% trans "Зарегистрируйте магазин" %}</h4>
-                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">{% trans "Заполните короткую заявку: название бренда, имя владельца, контакты и соцсети." %}</p>
+                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 700; color: var(--text-main);">
+                    {% if CURRENT_LANG == 'uz' %}
+                        Do'konni ro'yxatdan o'tkazing
+                    {% elif CURRENT_LANG == 'en' %}
+                        Register Your Store
+                    {% else %}
+                        Зарегистрируйте магазин
+                    {% endif %}
+                </h4>
+                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">
+                    {% if CURRENT_LANG == 'uz' %}
+                        Qisqa arizani to'ldiring: brend nomi, egasining ismi, aloqa ma'lumotlari va toifani tanlang.
+                    {% elif CURRENT_LANG == 'en' %}
+                        Fill out a short form: brand name, owner contact details, and category.
+                    {% else %}
+                        Заполните короткую заявку: название бренда, имя владельца, контакты и категорию.
+                    {% endif %}
+                </p>
             </div>
         </div>
 
         <div class="step-box">
             <div class="step-num">2</div>
             <div>
-                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 700; color: var(--text-main);">{% trans "Добавьте товары и филиалы" %}</h4>
-                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">{% trans "Загрузите фото ассортимента, укажите цвета, размеры и добавьте адреса ваших магазинов." %}</p>
+                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 700; color: var(--text-main);">
+                    {% if CURRENT_LANG == 'uz' %}
+                        Mahsulotlar va filiallarni qo'shing
+                    {% elif CURRENT_LANG == 'en' %}
+                        Add Products & Branches
+                    {% else %}
+                        Добавьте товары и филиалы
+                    {% endif %}
+                </h4>
+                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">
+                    {% if CURRENT_LANG == 'uz' %}
+                        Assortiment rasmlarini yuklang, ranglar, o'lchamlar va xaritada do'konlaringiz manzillarini ko'rsating.
+                    {% elif CURRENT_LANG == 'en' %}
+                        Upload photos, specify colors, sizes, and point branch locations on the map.
+                    {% else %}
+                        Загрузите фото ассортимента, укажите цвета, размеры и добавьте адреса ваших магазинов на карте.
+                    {% endif %}
+                </p>
             </div>
         </div>
 
         <div class="step-box">
             <div class="step-num">3</div>
             <div>
-                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 700; color: var(--text-main);">{% trans "Подключите Telegram и получайте заказы" %}</h4>
-                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">{% trans "Привяжите Telegram-бота для приёма оплат, мгновенных уведомлений и работы ИИ-продавца." %}</p>
+                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 700; color: var(--text-main);">
+                    {% if CURRENT_LANG == 'uz' %}
+                        Telegramni ulang va buyurtmalarni qabul qiling
+                    {% elif CURRENT_LANG == 'en' %}
+                        Connect Telegram & Receive Orders
+                    {% else %}
+                        Подключите Telegram и получайте заказы
+                    {% endif %}
+                </h4>
+                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">
+                    {% if CURRENT_LANG == 'uz' %}
+                        To'lovlarni qabul qilish, tezkor buyurtma bildirishnomalari va AI-sotuvchi ishlashi uchun Telegram-botni ulang.
+                    {% elif CURRENT_LANG == 'en' %}
+                        Link our Telegram bot for instant order alerts, payment receipt validation, and 24/7 AI selling.
+                    {% else %}
+                        Привяжите Telegram-бота для приёма оплат, мгновенных уведомлений и работы ИИ-продавца.
+                    {% endif %}
+                </p>
             </div>
         </div>
     </div>
@@ -418,10 +684,22 @@
     <!-- КНОПКИ ДЕЙСТВИЯ ВНИЗУ -->
     <div style="display: flex; flex-direction: column; gap: 10px;">
         <a href="{% url 'seller-register' %}" class="hero-cta-btn" style="text-align: center;">
-            🚀 {% trans "Зарегистрировать магазин сейчас" %}
+            {% if CURRENT_LANG == 'uz' %}
+                🚀 Do'konni hoziroq ro'yxatdan o'tkazish
+            {% elif CURRENT_LANG == 'en' %}
+                🚀 Register Your Store Now
+            {% else %}
+                🚀 Зарегистрировать магазин сейчас
+            {% endif %}
         </a>
         <a href="https://t.me/abdvoris07" target="_blank" style="text-align: center; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-main); padding: 14px; border-radius: 14px; font-size: 14px; font-weight: 700; text-decoration: none;">
-            💬 {% trans "Написать основателю в Telegram" %}
+            {% if CURRENT_LANG == 'uz' %}
+                💬 Telegramda asoschiga yozish
+            {% elif CURRENT_LANG == 'en' %}
+                💬 Message the Founder on Telegram
+            {% else %}
+                💬 Написать основателю в Telegram
+            {% endif %}
         </a>
     </div>
 </div>
