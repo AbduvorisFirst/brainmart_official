@@ -164,7 +164,7 @@ class Store(models.Model):
         verbose_name="Статус подписки"
     )
     subscription_monthly_fee = models.DecimalField(
-        max_digits=10, decimal_places=2, default=450000.00,
+        max_digits=10, decimal_places=2, default=50000.00,
         verbose_name="Ежемесячная абонплата (сум)"
     )
     last_subscription_payment = models.DateTimeField(
@@ -192,8 +192,8 @@ class Store(models.Model):
         if branches_count is None:
             branches_count = self.branches.count() if self.pk else 0
         
-        base_fee = 450000.00
-        extra_branch_fee = 150000.00
+        base_fee = 50000.00
+        extra_branch_fee = 20000.00
         
         # 1-я точка входит в базовый тариф
         if branches_count <= 1:
@@ -375,7 +375,7 @@ class StoreBranch(models.Model):
 class SubscriptionPayment(models.Model):
     """История и заявки на оплату подписки BrainMart."""
     store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name="subscription_payments")
-    amount = models.DecimalField(max_digits=10, decimal_places=2, default=450000.00, verbose_name="Сумма оплаты")
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=50000.00, verbose_name="Сумма оплаты")
     months = models.PositiveIntegerField(default=1, verbose_name="Срок (мес.)")
     paid_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата оплаты")
     period_start = models.DateField(null=True, blank=True, verbose_name="Начало периода")

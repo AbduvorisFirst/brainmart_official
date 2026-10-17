@@ -12,6 +12,7 @@ services.py (обновлённая версия)
 
 import os
 import requests
+import base64
 from django.conf import settings
 from django.core.cache import cache
 
@@ -21,7 +22,7 @@ from .telegram_bot import build_telegram_deep_link
 
 GEMINI_API_URL = (
     "https://generativelanguage.googleapis.com/v1beta/models/"
-    "gemini-3.1-flash-lite:generateContent"
+    "gemini-flash-latest:generateContent"
 )
 
 _ai_session = requests.Session()
@@ -143,18 +144,17 @@ def ask_gemini(
     customer_message: str,
     stock_context: str,
     history: list | None = None,
+    image_base64: str | None = None,
+    image_mime_type: str = "image/jpeg",
 ) -> str:
     """
-    Отправляет запрос в Gemini API — теперь с историей диалога.
+    Отправляет запрос в Gemini API — с поддержкой истории диалога и Gemini Vision (фото).
 
     system_instruction идёт отдельным полем (а не смешивается с текстом
     клиента в одну строку) — это и есть правильный способ задавать
     "характер"/правила модели через официальный Gemini API.
     """
     # --- БЕЗОПАСНОСТЬ: Rate Limiting ---
-    # Ограничиваем количество запросов к Gemini до 30 в минуту,
-    # чтобы спамер или конкурент не исчерпал нашу квоту API и
-    # не сломал ИИ для всех магазинов разом.
     rate_key = "gemini_rate_limit"
     current_count = cache.get(rate_key, 0)
     if current_count >= 30:
@@ -173,9 +173,17 @@ def ask_gemini(
         f"Сообщение клиента: \"{customer_message}\""
     )
 
-    # История прошлых реплик + текущее сообщение клиента в конце —
-    # именно так Gemini понимает, что это продолжение одного разговора
-    contents = (history or []) + [{"role": "user", "parts": [{"text": user_content}]}]
+    user_parts = [{"text": user_content}]
+    if image_base64:
+        user_parts.append({
+            "inline_data": {
+                "mime_type": image_mime_type,
+                "data": image_base64,
+            }
+        })
+
+    # История прошлых реплик + текущее сообщение клиента в конце
+    contents = (history or []) + [{"role": "user", "parts": user_parts}]
 
     try:
         response = _ai_session.post(
@@ -344,11 +352,13 @@ def handle_incoming_instagram_message(
 
 
 def handle_incoming_telegram_message(
-    chat_id: str, message_text: str, first_name: str = "", username: str = ""
+    chat_id: str, message_text: str, first_name: str = "", username: str = "",
+    photo_file_id: str | None = None
 ) -> tuple[str, list]:
     """
-    Точка входа: клиент написал свободное текстовое сообщение в Telegram-боте.
-    Возвращает (ai_reply_text, matched_variants_in_stock) для отправки фото.
+    Точка входа: клиент написал текстовое сообщение или прислал фото товара в Telegram-боте.
+    Использует Gemini Vision для распознавания фото и поиска товаров.
+    Возвращает (ai_reply_text, matched_variants_in_stock) для отправки ответа и карточки товара.
     """
     # 1. Найти или создать Customer по telegram_chat_id
     customer = Customer.objects.filter(telegram_chat_id=str(chat_id)).first()
@@ -362,6 +372,25 @@ def handle_incoming_telegram_message(
         )
 
     cust_lang = getattr(customer, "language", "uz") or "uz"
+
+    # Загружаем фото для Gemini Vision, если клиент прислал картинку
+    image_b64 = None
+    if photo_file_id:
+        try:
+            token = getattr(settings, "TELEGRAM_BOT_TOKEN", None)
+            if token:
+                f_res = requests.get(f"https://api.telegram.org/bot{token}/getFile?file_id={photo_file_id}", timeout=10)
+                if f_res.status_code == 200:
+                    f_path = f_res.json().get("result", {}).get("file_path")
+                    if f_path:
+                        img_dl = requests.get(f"https://api.telegram.org/file/bot{token}/{f_path}", timeout=25)
+                        if img_dl.status_code == 200:
+                            image_b64 = base64.b64encode(img_dl.content).decode("utf-8")
+        except Exception as e:
+            logger.warning("Не удалось скачать фото для Gemini Vision в Telegram: %s", e)
+
+    if not message_text and image_b64:
+        message_text = "Что это за товар на фото? Есть ли у вас похожий в каталоге магазина?" if cust_lang == "ru" else "Bu qanday mahsulot? Do'konda shunga o'xshash tovarlar bormi?"
 
     # 2. Determine store context: use customer's most recent order's store,
     #    or search across all active stores
@@ -413,7 +442,7 @@ def handle_incoming_telegram_message(
     history = build_conversation_history(conversation)
 
     Message.objects.create(
-        conversation=conversation, sender=Message.Sender.CUSTOMER, text=message_text
+        conversation=conversation, sender=Message.Sender.CUSTOMER, text=message_text or "[Фото]"
     )
 
     # Build system instruction adapted for Telegram context and customer's language
@@ -426,12 +455,13 @@ def handle_incoming_telegram_message(
     system_inst += (
         f"\n\nДОПОЛНИТЕЛЬНО: Клиент общается в Telegram. Выбранный язык клиента: {cust_lang} ({lang_name}). "
         f"Отвечай приветливо, экспертно и строго на выбранном клиентом языке ({lang_name}), либо на языке сообщения. "
+        "Если клиент прислал фото — опиши фасон/цвет/модель, определи категорию товара и проверь наличие на складе. "
         "Если клиент хочет купить — предложи перейти по ссылке на товар, которая будет добавлена автоматически. "
         "Не выдумывай ссылки сам."
     )
 
     stock_context = build_stock_context(matches)
-    ai_reply_text = ask_gemini(system_inst, message_text, stock_context, history=history)
+    ai_reply_text = ask_gemini(system_inst, message_text, stock_context, history=history, image_base64=image_b64)
 
     # 7. Append product link with proper language prefix
     in_stock_matches = [v for v in matches if v.in_stock]

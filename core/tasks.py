@@ -51,8 +51,8 @@ def notify_customer_about_delivery_task(order_id):
         pass
 
 @shared_task
-def handle_incoming_telegram_message_task(chat_id, message_text, first_name, username):
-    """Фоновая задача: обработка сообщений клиента ИИ-ботом в Telegram."""
+def handle_incoming_telegram_message_task(chat_id, message_text, first_name, username, photo_file_id=None):
+    """Фоновая задача: обработка сообщений и фото клиента ИИ-ботом в Telegram."""
     from core.working_views.services import handle_incoming_telegram_message
     from core.working_views.telegram_bot import _send_telegram_photo, _send_telegram_message, _send_telegram_chat_action
     from django.conf import settings
@@ -65,6 +65,7 @@ def handle_incoming_telegram_message_task(chat_id, message_text, first_name, use
             message_text=message_text,
             first_name=first_name,
             username=username,
+            photo_file_id=photo_file_id,
         )
         if ai_reply:
             photo_sent = False

@@ -1837,17 +1837,27 @@ class TelegramWebhookView(APIView):
                 _tg_session.post(f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage", json=payload, timeout=8)
 
             except Store.DoesNotExist:
-                # Обычный клиент
-                if text and not text.startswith("/"):
-                    # Сразу показываем 'печатает...', чтобы клиент видел мгновенную реакцию
+                # Обычный клиент: сообщение или фото товара для поиска через Gemini Vision
+                photo_list = message.get("photo") or []
+                photo_file_id = photo_list[-1]["file_id"] if photo_list else None
+                if not photo_file_id and message.get("document"):
+                    doc = message.get("document", {})
+                    if (doc.get("mime_type") or "").startswith("image/"):
+                        photo_file_id = doc.get("file_id")
+
+                user_caption = (message.get("caption") or "").strip()
+                query_text = (text or user_caption).strip()
+
+                if (query_text and not query_text.startswith("/")) or photo_file_id:
                     _send_telegram_chat_action(chat_id, "typing")
                     from core.tasks import handle_incoming_telegram_message_task
                     tg_from = message.get("from", {})
                     handle_incoming_telegram_message_task.delay(
                         chat_id=str(chat_id),
-                        message_text=text,
+                        message_text=query_text,
                         first_name=tg_from.get("first_name", ""),
                         username=tg_from.get("username", ""),
+                        photo_file_id=photo_file_id,
                     )
                 else:
                     # /start без параметра — проверяем, выбирал ли клиент язык

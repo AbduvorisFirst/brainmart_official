@@ -197,7 +197,7 @@
                 🏢 {% trans "Точки:" %} <span style="color: var(--primary);">{{ store.branches.count }}</span>
             </div>
             <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 3px;">
-                {% trans "Первая точка: 450 000 сум · Каждая дополнительная: +150 000 сум/мес" %}
+                {% trans "Первая точка: 50 000 сум · Каждая дополнительная: +20 000 сум/мес" %}
             </div>
         </div>
         <a href="{% url 'seller-branches' %}" class="btn" style="width: auto; background: rgba(99,102,241,0.15); border: 1px solid var(--primary); color: #818cf8; padding: 8px 16px; border-radius: 10px; font-size: 12px; font-weight: 700; text-decoration: none;">
@@ -416,7 +416,7 @@
         copied: "{% filter escapejs %}{% trans 'Скопировано!' %}{% endfilter %}"
     };
 
-    const MONTHLY_FEE = parseFloat("{{ store.current_tier_fee }}") || 450000;
+    const MONTHLY_FEE = parseFloat("{{ store.current_tier_fee }}") || 50000;
 
     function fmt(num) {
         return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");

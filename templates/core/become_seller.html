@@ -167,14 +167,30 @@
     <div class="hero-box">
         <div class="hero-badge">🚀 {% trans "SaaS Платформа brainmart" %}</div>
         <h1 class="hero-title">
-            {% trans "Развивайте продажи с ИИ и управляйте сетью магазинов без комиссии" %}
+            {% trans "Продавайте в Telegram и маркетплейсе с ИИ по честной себестоимости" %}
         </h1>
         <p class="hero-subtitle">
-            {% trans "Мы работаем исключительно по фиксированной подписке. Никаких скрытых процентов и комиссий с ваших продаж. Выручка от клиентов сразу поступает на вашу карту." %}
+            {% trans "Символический тариф: всего 50 000 сум/мес. 0% комиссии со всех продаж. Выручка от клиентов напрямую зачисляется на вашу карту Uzcard / Humo." %}
         </p>
         <a href="{% url 'seller-register' %}" class="hero-cta-btn">
             ✨ {% trans "Зарегистрировать магазин" %}
         </a>
+    </div>
+
+    <!-- ЧЕСТНЫЙ СТАТУС ИНТЕГРАЦИЙ И СТРАТЕГИЯ -->
+    <div style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(99, 102, 241, 0.35); border-radius: 18px; padding: 20px 22px; margin-bottom: 26px;">
+        <div style="display: flex; align-items: flex-start; gap: 12px;">
+            <span style="font-size: 24px; line-height: 1;">⚙️</span>
+            <div>
+                <h3 style="margin: 0 0 6px; font-size: 16px; font-weight: 800; color: #FFFFFF;">
+                    {% trans "Честный статус: Фокус на Telegram и разработка Instagram Direct" %}
+                </h3>
+                <p style="margin: 0; font-size: 13px; color: #CBD5E1; line-height: 1.55;">
+                    {% trans "Сейчас официальная интеграция Gemini Vision для Instagram Direct проходит согласование политик Meta. Мы активно работаем над ней, и в будущем, ИншаАллах, она выйдет для всех наших магазинов!" %}<br><br>
+                    {% trans "Прямо сейчас BrainMart сфокусирован на главном канале продаж — <strong>Telegram</strong> (Mini App + умный Gemini-бот с поиском по тексту и фото) и <strong>веб-маркетплейсе</strong>. Чтобы поддержать предпринимателей, мы отдаём доступ по чистой себестоимости серверов: <strong>всего 50 000 сум в месяц!</strong>" %}
+                </p>
+            </div>
+        </div>
     </div>
 
     <!-- ПРЕИМУЩЕСТВА СИСТЕМЫ -->
@@ -185,9 +201,9 @@
     <div class="features-grid">
         <div class="feature-card">
             <div class="feature-icon">🤖</div>
-            <h3 class="feature-title">{% trans "Gemini Vision ИИ-Продавец 24/7" %}</h3>
+            <h3 class="feature-title">{% trans "Gemini Vision ИИ-Продавец в Telegram 24/7" %}</h3>
             <p class="feature-desc">
-                {% trans "Умный искусственный интеллект консультирует клиентов в Telegram и Instagram Direct, распознаёт товары по фото и помогает оформить заказ круглосуточно." %}
+                {% trans "Умный искусственный интеллект консультирует клиентов в Telegram-боте, распознаёт товары по фото, находит размеры и помогает оформить заказ круглосуточно." %}
             </p>
         </div>
 
@@ -195,15 +211,15 @@
             <div class="feature-icon">📱</div>
             <h3 class="feature-title">{% trans "Telegram Mini App + Веб-Витрина" %}</h3>
             <p class="feature-desc">
-                {% trans "Персональный фирменный интернет-магазин с каталогом, цветами и размерами. Покупатели заказывают за 2 клика без скачивания приложений." %}
+                {% trans "Персональный фирменный интернет-магазин с каталогом, цветами и размерами. Покупатели заказывают за 2 клика без скачивания сторонних приложений." %}
             </p>
         </div>
 
         <div class="feature-card">
             <div class="feature-icon">🏢</div>
-            <h3 class="feature-title">{% trans "Мульти-филиалы и франшиза" %}</h3>
+            <h3 class="feature-title">{% trans "Мульти-филиалы и умная логистика" %}</h3>
             <p class="feature-desc">
-                {% trans "Управляйте сетью из нескольких торговых точек в одном месте. Добавляйте новые филиалы с адресами и GPS-координатами в пару кликов." %}
+                {% trans "Управляйте сетью торговых точек в одном месте. Заказ автоматически отправляется из ближайшего филиала, экономя время и деньги на доставке такси." %}
             </p>
         </div>
 
@@ -221,18 +237,18 @@
         <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px; border-bottom: 1px dashed var(--border); padding-bottom: 20px; margin-bottom: 20px;">
             <div>
                 <span style="font-size: 11px; font-weight: 900; color: var(--primary); text-transform: uppercase; letter-spacing: 0.8px;">
-                    💎 {% trans "Единая прозрачная модель подписки" %}
+                    💎 {% trans "Тариф по себестоимости серверов" %}
                 </span>
                 <h2 style="font-size: 24px; font-weight: 900; color: var(--text-main); margin: 6px 0 6px;">
                     {% trans "Модель «База + Филиалы»" %}
                 </h2>
                 <p style="font-size: 13.5px; color: var(--text-muted); margin: 0; line-height: 1.45;">
-                    {% trans "Честная и понятная ценовая политика как для отдельных магазинов, так и для крупных сетей." %}
+                    {% trans "Доступная и кристально честная цена без переплат как для начинающих магазинов, так и для крупных сетей." %}
                 </p>
             </div>
             <div style="text-align: right;">
                 <div style="font-size: 28px; font-weight: 900; color: var(--primary);">
-                    450 000 <span style="font-size: 15px; font-weight: 600; color: var(--text-muted);">{% trans "сум/мес" %}</span>
+                    50 000 <span style="font-size: 15px; font-weight: 600; color: var(--text-muted);">{% trans "сум/мес" %}</span>
                 </div>
                 <div style="font-size: 12px; color: #10B981; font-weight: 800;">
                     ✓ {% trans "0% комиссии со всех продаж" %}
@@ -246,10 +262,10 @@
                     🏪 {% trans "Базовый тариф (1-я точка / Головной магазин)" %}
                 </div>
                 <div style="font-size: 22px; font-weight: 900; color: var(--text-main); margin-bottom: 8px;">
-                    450 000 {% trans "сум/мес" %}
+                    50 000 {% trans "сум/мес" %}
                 </div>
                 <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.45; margin: 0;">
-                    {% trans "Сюда входит полная CRM-система, складской учёт, интеграция с Telegram Mini App и полный безлимит Gemini Vision ИИ." %}
+                    {% trans "Сюда входит CRM-система, складской учёт, веб-витрина, Telegram Mini App и безлимитный Gemini Vision ИИ в Telegram." %}
                 </p>
             </div>
 
@@ -258,10 +274,10 @@
                     🏢 {% trans "Каждый дополнительный филиал (со 2-го по 10-й)" %}
                 </div>
                 <div style="font-size: 22px; font-weight: 900; color: var(--text-main); margin-bottom: 8px;">
-                    +150 000 {% trans "сум/мес за точку" %}
+                    +20 000 {% trans "сум/мес за точку" %}
                 </div>
                 <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.45; margin: 0;">
-                    {% trans "Идеально для торговых сетей и франшиз. Подключайте отдельные филиалы с собственным учётом локаций и аналитикой." %}
+                    {% trans "Подключайте отдельные филиалы с собственным учётом локаций, остатков и менеджеров для быстрой доставки такси." %}
                 </p>
             </div>
         </div>
@@ -278,26 +294,91 @@
             <div class="calc-example-grid">
                 <div class="calc-box">
                     <div class="calc-box-title">{% trans "1 магазин (База)" %}</div>
-                    <div class="calc-box-price">450 000 сум</div>
-                    <div class="calc-box-sub">450 000 сум/точка</div>
+                    <div class="calc-box-price">50 000 сум</div>
+                    <div class="calc-box-sub">50 000 сум/точка</div>
                 </div>
 
                 <div class="calc-box">
                     <div class="calc-box-title">{% trans "Сеть из 3 точек" %}</div>
-                    <div class="calc-box-price">750 000 сум</div>
-                    <div class="calc-box-sub">250 000 сум/точка (-44%)</div>
+                    <div class="calc-box-price">90 000 сум</div>
+                    <div class="calc-box-sub">30 000 сум/точка (-40%)</div>
                 </div>
 
                 <div class="calc-box">
                     <div class="calc-box-title">{% trans "Сеть из 5 точек" %}</div>
-                    <div class="calc-box-price">1 050 000 сум</div>
-                    <div class="calc-box-sub">210 000 сум/точка (-53%)</div>
+                    <div class="calc-box-price">130 000 сум</div>
+                    <div class="calc-box-sub">26 000 сум/точка (-48%)</div>
                 </div>
 
                 <div class="calc-box">
                     <div class="calc-box-title">{% trans "Сеть из 10 точек" %}</div>
-                    <div class="calc-box-price">1 800 000 сум</div>
-                    <div class="calc-box-sub">180 000 сум/точка (-60%)</div>
+                    <div class="calc-box-price">230 000 сум</div>
+                    <div class="calc-box-sub">23 000 сум/точка (-54%)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- СТРАТЕГИЯ И ФИЛОСОФИЯ: СИСТЕМА АБДУРРАХМАНА ИБН АУФА -->
+    <div style="background: linear-gradient(145deg, rgba(17, 24, 39, 0.95), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(16, 185, 129, 0.35); border-radius: 20px; padding: 26px; margin-bottom: 28px;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px;">
+            <span style="font-size: 26px;">🌿</span>
+            <div>
+                <span style="font-size: 11px; font-weight: 900; color: #34D399; text-transform: uppercase; letter-spacing: 0.8px;">
+                    {% trans "Наша философия и стратегия развития" %}
+                </span>
+                <h3 style="margin: 2px 0 0; font-size: 18px; font-weight: 900; color: #FFFFFF;">
+                    {% trans "Принцип Абдуррахмана ибн Ауфа: честная торговля без высоких подписок" %}
+                </h3>
+            </div>
+        </div>
+        <p style="font-size: 13px; color: #94A3B8; line-height: 1.55; margin: 0 0 18px;">
+            {% trans "Сподвижник и великий купец Абдуррахман ибн Ауф торговал с минимальной наценкой, кристальной честностью и заботой о людях — и Всевышний давал в этом огромный барокат. BrainMart строится по этому же принципу: мы не обременяем продавцов дорогими тарифами, а развиваем сильную и взаимовыгодную экосистему:" %}
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px;">
+                <div style="font-size: 13.5px; font-weight: 800; color: #60A5FA; margin-bottom: 6px;">
+                    🚀 {% trans "1. Приоритет в ИИ-выдаче (Featured)" %}
+                </div>
+                <div style="font-size: 12px; color: #CBD5E1; line-height: 1.45;">
+                    {% trans "Базовый поиск открыт и честен для всех. Магазины, желающие быть на 1-м месте в рекомендациях Gemini и каталоге, подключают внутреннее честное промо." %}
+                </div>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px;">
+                <div style="font-size: 13.5px; font-weight: 800; color: #34D399; margin-bottom: 6px;">
+                    💳 {% trans "2. Финтех и платёжные сервисы" %}
+                </div>
+                <div style="font-size: 12px; color: #CBD5E1; line-height: 1.45;">
+                    {% trans "Оплата прямо в Telegram через Click, Payme, Uzum и рассрочки. Платформа зарабатывает на микро-бонусах со шлюзов, а не с продавца." %}
+                </div>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px;">
+                <div style="font-size: 13.5px; font-weight: 800; color: #FBBF24; margin-bottom: 6px;">
+                    🚕 {% trans "3. Умная логистика и такси" %}
+                </div>
+                <div style="font-size: 12px; color: #CBD5E1; line-height: 1.45;">
+                    {% trans "Интеграция с Yandex Delivery: система выбирает ближайший филиал, ускоряя доставку до 15–20 минут и снижая расходы клиента на такси." %}
+                </div>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px;">
+                <div style="font-size: 13.5px; font-weight: 800; color: #C084FC; margin-bottom: 6px;">
+                    📊 {% trans "4. B2B-Аналитика и тренды рынка" %}
+                </div>
+                <div style="font-size: 12px; color: #CBD5E1; line-height: 1.45;">
+                    {% trans "Анализ спроса: какие цвета, размеры и фасоны ищут покупатели. Ценные агрегированные отчёты для крупных брендов, оптовиков и байеров." %}
+                </div>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px;">
+                <div style="font-size: 13.5px; font-weight: 800; color: #F43F5E; margin-bottom: 6px;">
+                    🏭 {% trans "5. Экосистема Micro-SaaS «ИИ Фабрика»" %}
+                </div>
+                <div style="font-size: 12px; color: #CBD5E1; line-height: 1.45;">
+                    {% trans "Специализированные сервисы под брендом BrainMart: генератор лукбуков на ИИ-моделях, авто-посты для Telegram-каналов и рассылки." %}
                 </div>
             </div>
         </div>

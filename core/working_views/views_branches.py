@@ -124,8 +124,8 @@ def find_nearest_branch(store, delivery_latitude=None, delivery_longitude=None, 
 def seller_branches_view(request):
     """
     Управление точками/филиалами магазина:
-    - Базовая 1 точка входит в тариф (450 000 сум/мес).
-    - Каждая дополнительная точка: +150 000 сум/мес.
+    - Базовая 1 точка входит в тариф (50 000 сум/мес).
+    - Каждая дополнительная точка: +20 000 сум/мес.
     - Выбор точки на карте Google Maps, адрес, редактирование.
     """
     if not hasattr(request.user, "store") or not request.user.store:
@@ -202,8 +202,8 @@ def seller_branches_view(request):
 
     branches = store.branches.all().order_by("id")
     branches_count = branches.count()
-    base_fee = 450000
-    extra_branch_price = 150000
+    base_fee = 50000
+    extra_branch_price = 20000
     extra_count = max(0, branches_count - 1)
     extra_fee = extra_count * extra_branch_price
     total_monthly_fee = base_fee + extra_fee
