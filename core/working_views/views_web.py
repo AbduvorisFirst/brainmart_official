@@ -237,9 +237,6 @@ def create_telegram_order(request):
                     "error": f"К сожалению, товара «{variant.product.name}» ({variant.color or '—'}/{variant.size or '—'}) осталось всего {variant.stock_quantity} шт. Пожалуйста, уменьшите количество."
                 })
 
-            variant.stock_quantity = max(0, variant.stock_quantity - qty)
-            variant.save(update_fields=["stock_quantity"])
-
             OrderItem.objects.create(
                 order=order,
                 variant=variant,
@@ -397,9 +394,6 @@ def create_web_order(request):
                         "stock": variant.stock_quantity
                     }
                 })
-
-            variant.stock_quantity = max(0, variant.stock_quantity - qty)
-            variant.save(update_fields=["stock_quantity"])
 
             OrderItem.objects.create(
                 order=order,

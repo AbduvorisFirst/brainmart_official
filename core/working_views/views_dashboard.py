@@ -380,8 +380,15 @@ def order_confirm_payment_view(request, order_id):
     order = get_object_or_404(Order, id=order_id, store=store)
 
     if request.method == "POST":
-        order.status = Order.Status.PAID
-        order.save(update_fields=["status"])
+        if order.status != Order.Status.PAID:
+            order.status = Order.Status.PAID
+            order.save(update_fields=["status"])
+
+            # Списываем остаток товара на складе в маркетплейсе
+            for item in order.items.select_related("variant").all():
+                if item.variant:
+                    item.variant.stock_quantity = max(0, item.variant.stock_quantity - item.quantity)
+                    item.variant.save(update_fields=["stock_quantity"])
 
         # Уведомляем менеджеров на сборку/такси и клиента об успешной оплате
         try:

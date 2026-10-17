@@ -2097,8 +2097,15 @@ class TelegramWebhookView(APIView):
             order_id = callback_data.replace("confirm_pay_", "")
             try:
                 order = Order.objects.get(id=order_id)
-                order.status = Order.Status.PAID
-                order.save(update_fields=["status"])
+                if order.status != Order.Status.PAID:
+                    order.status = Order.Status.PAID
+                    order.save(update_fields=["status"])
+
+                    # СПИСЫВАЕМ ТОВАР В МАРКЕТПЛЕЙСЕ ТОЛЬКО ПОСЛЕ ПОДТВЕРЖДЕНИЯ ПРОДАВЦОМ В БОТЕ
+                    for item in order.items.select_related("variant").all():
+                        if item.variant:
+                            item.variant.stock_quantity = max(0, item.variant.stock_quantity - item.quantity)
+                            item.variant.save(update_fields=["stock_quantity"])
 
                 caller_lang = "ru"
                 store_obj = Store.objects.filter(telegram_chat_id=str(chat_id)).first()
@@ -2130,14 +2137,16 @@ class TelegramWebhookView(APIView):
             order_id = callback_data.replace("reject_pay_", "")
             try:
                 order = Order.objects.get(id=order_id)
+                was_paid = (order.status == Order.Status.PAID)
                 if order.status != Order.Status.CANCELLED:
                     order.status = Order.Status.CANCELLED
                     order.save(update_fields=["status"])
-                    # Возвращаем зарезервированные остатки на склад
-                    for item in order.items.select_related("variant").all():
-                        if item.variant:
-                            item.variant.stock_quantity += item.quantity
-                            item.variant.save(update_fields=["stock_quantity"])
+                    # Если ранее заказ уже был подтверждён и списан со склада — возвращаем остатки
+                    if was_paid:
+                        for item in order.items.select_related("variant").all():
+                            if item.variant:
+                                item.variant.stock_quantity += item.quantity
+                                item.variant.save(update_fields=["stock_quantity"])
 
                 caller_lang = "ru"
                 store_obj = Store.objects.filter(telegram_chat_id=str(chat_id)).first()
