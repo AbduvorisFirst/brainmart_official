@@ -528,16 +528,21 @@
         cart.forEach((item, index) => {
             total += item.price * item.quantity;
             count += item.quantity;
+            const isMax = (item.max_qty !== undefined && item.quantity >= item.max_qty);
+            const stockNotice = (item.max_qty !== undefined && item.max_qty <= 5) 
+                ? `<div style="font-size: 11px; color: #F59E0B; margin-top: 2px;">⚠️ {% filter escapejs %}{% trans "В наличии:" %}{% endfilter %} ${item.max_qty} {% filter escapejs %}{% trans "шт." %}{% endfilter %}</div>`
+                : '';
             html += `
                 <div class="cart-item-row">
                     <div style="flex: 1; padding-right: 8px;">
                         <div class="cart-item-title">${item.name}</div>
                         <div class="cart-item-price">${(item.price * item.quantity).toLocaleString()} ${I18N_CART.sum}</div>
+                        ${stockNotice}
                     </div>
                     <div class="qty-control">
                         <button class="qty-btn" onclick="changeItemQty(${index}, -1)">—</button>
                         <span class="qty-val">${item.quantity}</span>
-                        <button class="qty-btn" onclick="changeItemQty(${index}, 1)">+</button>
+                        <button class="qty-btn" onclick="changeItemQty(${index}, 1)" ${isMax ? 'style="opacity: 0.35; cursor: not-allowed;" title="{% filter escapejs %}{% trans "Достигнут максимум наличия" %}{% endfilter %}"' : ''}>+</button>
                     </div>
                     <button class="btn-del-item" onclick="deleteCartItem(${index})" title="${I18N_CART.deleteItem}">🗑</button>
                 </div>
@@ -552,6 +557,10 @@
     function changeItemQty(index, delta) {
         const cart = getCart();
         if (!cart[index]) return;
+        if (delta > 0 && cart[index].max_qty !== undefined && cart[index].quantity >= cart[index].max_qty) {
+            alert(`{% filter escapejs %}{% trans "В наличии осталось только" %}{% endfilter %} ${cart[index].max_qty} {% filter escapejs %}{% trans "шт. Больше добавить нельзя." %}{% endfilter %}`);
+            return;
+        }
         cart[index].quantity += delta;
         if (cart[index].quantity <= 0) {
             cart.splice(index, 1);

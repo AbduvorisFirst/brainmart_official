@@ -226,13 +226,24 @@ def create_telegram_order(request):
 
         for item in cart_items:
             try:
-                variant = ProductVariant.objects.get(id=item["variant_id"])
-            except ProductVariant.DoesNotExist:
+                variant = ProductVariant.objects.select_for_update().get(id=item["variant_id"])
+            except (ProductVariant.DoesNotExist, ValueError, KeyError):
                 return JsonResponse({"success": False, "error": f"Товар не найден на складе."})
+
+            qty = max(1, int(item.get("quantity", 1)))
+            if qty > variant.stock_quantity:
+                return JsonResponse({
+                    "success": False,
+                    "error": f"К сожалению, товара «{variant.product.name}» ({variant.color or '—'}/{variant.size or '—'}) осталось всего {variant.stock_quantity} шт. Пожалуйста, уменьшите количество."
+                })
+
+            variant.stock_quantity = max(0, variant.stock_quantity - qty)
+            variant.save(update_fields=["stock_quantity"])
+
             OrderItem.objects.create(
                 order=order,
                 variant=variant,
-                quantity=int(item["quantity"]),
+                quantity=qty,
                 price_at_purchase=variant.final_price
             )
         order.recalculate_total()
@@ -373,11 +384,23 @@ def create_web_order(request):
 
         for item in cart_items:
             try:
-                variant = ProductVariant.objects.get(id=item["variant_id"])
-            except ProductVariant.DoesNotExist:
+                variant = ProductVariant.objects.select_for_update().get(id=item["variant_id"])
+            except (ProductVariant.DoesNotExist, ValueError, KeyError):
                 return JsonResponse({"success": False, "error": _("Товар не найден на складе.")})
 
             qty = max(1, int(item.get("quantity", 1)))
+            if qty > variant.stock_quantity:
+                return JsonResponse({
+                    "success": False,
+                    "error": _("К сожалению, товара «%(name)s» осталось только %(stock)d шт. Пожалуйста, измените количество в корзине.") % {
+                        "name": f"{variant.product.name} ({variant.color or '—'}/{variant.size or '—'})",
+                        "stock": variant.stock_quantity
+                    }
+                })
+
+            variant.stock_quantity = max(0, variant.stock_quantity - qty)
+            variant.save(update_fields=["stock_quantity"])
+
             OrderItem.objects.create(
                 order=order,
                 variant=variant,
@@ -463,7 +486,9 @@ def order_upload_receipt_view(request, order_id):
             logger.warning("Не удалось отправить уведомление о чеке продавцу: %s", e)
 
         messages.success(request, _("✅ Чек успешно передан магазину! Скоро заказ будет доставлен."))
-        return redirect(f"/{lang}/order/{order.id}/success/?receipt_sent=1")
+        bot_username = getattr(settings, "TELEGRAM_BOT_USERNAME", "BrainMart_bot") or "BrainMart_bot"
+        telegram_url = f"https://t.me/{bot_username}?start=order_{order.id}" if bot_username else f"/{lang}/order/{order.id}/success/?receipt_sent=1"
+        return redirect(telegram_url)
 
     return redirect(f"/{lang}/order/{order.id}/success/")
 

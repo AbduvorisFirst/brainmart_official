@@ -160,6 +160,7 @@
         <div class="price-main" id="display-price">{{ product.base_price }} {% trans "сум" %}</div>
         <div class="price-old" id="display-old-price"></div>
     </div>
+    <div id="stock-status-badge" style="display: none; margin: 6px 0 10px; font-size: 13.5px; font-weight: 700;"></div>
 
     <h1 class="product-title">{{ product.name }}</h1>
 
@@ -491,6 +492,25 @@
                 priceMain.innerText = selectedVariantPrice.toLocaleString() + ' сум';
                 priceOld.innerText = (selectedVariantPrice * 1.15).toLocaleString() + ' сум';
             }
+            const stockBadge = document.getElementById('stock-status-badge');
+            if (stockBadge) {
+                let variant = variantsData.find(v => v.id === selectedVariantId);
+                if (variant) {
+                    stockBadge.style.display = 'block';
+                    if (variant.qty <= 0) {
+                        stockBadge.style.color = '#EF4444';
+                        stockBadge.innerText = '❌ {% filter escapejs %}{% trans "Нет в наличии" %}{% endfilter %}';
+                    } else if (variant.qty <= 5) {
+                        stockBadge.style.color = '#F59E0B';
+                        stockBadge.innerText = `⚠️ {% filter escapejs %}{% trans "Осталось всего" %}{% endfilter %} ${variant.qty} {% filter escapejs %}{% trans "шт.!" %}{% endfilter %}`;
+                    } else {
+                        stockBadge.style.color = '#10B981';
+                        stockBadge.innerText = `✅ {% filter escapejs %}{% trans "В наличии:" %}{% endfilter %} ${variant.qty} {% filter escapejs %}{% trans "шт." %}{% endfilter %}`;
+                    }
+                } else {
+                    stockBadge.style.display = 'none';
+                }
+            }
             updateActionUI();
         }
 
@@ -503,8 +523,28 @@
             
             if (!selectedVariantId) {
                 addBtn.style.display = 'block';
+                addBtn.disabled = false;
+                addBtn.innerText = "{% filter escapejs %}{% trans 'В корзину' %}{% endfilter %}";
+                addBtn.style.background = "var(--btn-gradient)";
+                addBtn.style.cursor = "pointer";
                 qtyContainer.style.display = 'none';
                 return;
+            }
+
+            let variant = variantsData.find(v => v.id === selectedVariantId);
+            if (variant && variant.qty <= 0) {
+                addBtn.style.display = 'block';
+                addBtn.disabled = true;
+                addBtn.innerText = "{% filter escapejs %}{% trans 'Нет в наличии' %}{% endfilter %}";
+                addBtn.style.background = "#475569";
+                addBtn.style.cursor = "not-allowed";
+                qtyContainer.style.display = 'none';
+                return;
+            } else {
+                addBtn.disabled = false;
+                addBtn.innerText = "{% filter escapejs %}{% trans 'В корзину' %}{% endfilter %}";
+                addBtn.style.background = "var(--btn-gradient)";
+                addBtn.style.cursor = "pointer";
             }
             
             let cart = getCart();
@@ -569,6 +609,11 @@
                 return;
             }
             let variant = variantsData.find(v => v.id === selectedVariantId);
+            if (!variant || !variant.in_stock || variant.qty <= 0) {
+                alert("{% filter escapejs %}{% trans 'К сожалению, этого товара нет в наличии.' %}{% endfilter %}");
+                return;
+            }
+
             let cart = getCart();
 
             // Проверяем — нет ли в корзине товаров из ДРУГОГО магазина
@@ -582,6 +627,10 @@
 
             let existing = cart.find(i => i.variant_id === variant.id);
             if (existing) {
+                if (existing.quantity >= variant.qty) {
+                    alert(`{% filter escapejs %}{% trans 'В наличии осталось только' %}{% endfilter %} ${variant.qty} {% filter escapejs %}{% trans 'шт. Больше добавить нельзя.' %}{% endfilter %}`);
+                    return;
+                }
                 existing.quantity += 1;
             } else {
                 let displayName = "{{ product.name|escapejs }}";
@@ -593,6 +642,7 @@
                     name: displayName,
                     price: variant.price,
                     quantity: 1,
+                    max_qty: variant.qty,
                     store_id: thisStoreId,
                     image_url: variant.image_url || ""
                 });
@@ -604,9 +654,15 @@
 
         document.getElementById('qty-plus').addEventListener('click', function() {
             if (!selectedVariantId) return;
+            let variant = variantsData.find(v => v.id === selectedVariantId);
             let cart = getCart();
             let index = cart.findIndex(i => i.variant_id === selectedVariantId);
             if (index !== -1) {
+                const maxStock = (variant && variant.qty !== undefined) ? variant.qty : cart[index].max_qty;
+                if (maxStock !== undefined && cart[index].quantity >= maxStock) {
+                    alert(`{% filter escapejs %}{% trans 'В наличии осталось только' %}{% endfilter %} ${maxStock} {% filter escapejs %}{% trans 'шт. Больше добавить нельзя.' %}{% endfilter %}`);
+                    return;
+                }
                 cart[index].quantity += 1;
                 saveCart(cart);
                 if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();

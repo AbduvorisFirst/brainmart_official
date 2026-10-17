@@ -805,7 +805,7 @@ BOT_TEXTS = {
         "notif_receipt_owner": "🔔 НОВЫЙ ЗАКАЗ #{order_id}! (ЧЕК ПРИКРЕПЛЁН)\n\n🏪 Магазин: «{store}»\n💰 Сумма: {total} сум (100% на карту)\n💳 Ваша карта: {card_info}\n👤 Покупатель: {client}\n📱 Телефон: {phone}\n{delivery}\n\n📦 Состав заказа:\n{items}\n\n🧾 Клиент перевёл оплату и прикрепил чек (см. фото). Проверьте поступление и нажмите:",
         "notif_receipt_mgr": "📦 НОВЫЙ ЗАКАЗ #{order_id} НА СБОРКУ! (ЧЕК ПРИКРЕПЛЁН)\n\n🏪 Магазин: «{store}»\n🛍 Состав товаров:\n{items}\n\n💵 Сумма: {total} сум\n👤 Покупатель: {client}\n📱 Телефон: {phone}\n{delivery}\n\n🧾 Клиент перевёл оплату и прикрепил чек (см. фото). Проверьте чек и подтвердите оплату, либо дождитесь подтверждения от владельца.\nКак только оплата подтверждена, отправляйте такси 🚕",
         "notif_paid_owner_has_mgr": "💰 ОПЛАЧЕН новый заказ #{order_id}!\n\n💳 Оплата: {pay_method}\n👨‍💼 Заказ передан в обработку вашему менеджеру:\n👉 {mgr_display} ({mgr_name})\n\n📦 Состав заказа:\n{items}\n\n💵 Сумма: {total} сум (Оплачено ✅)\n👤 Покупатель: {client}\n📱 Телефон: {phone}\n📍 Доставка: {address}\n\nМенеджер уже получил заказ с фото и локацией и занимается отправкой через Яндекс Такси 🚕",
-        "notif_customer_paid": "✅ Оплата успешно получена! Заказ #{order_id} оформлен.\n\n🏬 Магазин: «{store}»\n💵 Сумма оплаты: {total} сум (Оплачено ✅)\n\n📦 Ваш заказ:\n{items}\n\n👨‍💼 Ваш менеджер / продавец: {seller_contact}\n\n🚕 Заказ передан на сборку и доставку. Как только курьер/такси выедет — ссылка на отслеживание придёт сюда!",
+        "notif_customer_paid": "✅ Перевод успешно подтверждён продавцом! Оплата принята.\n\nЗаказ #{order_id} оформлен.\n\n🏬 Магазин: «{store}»\n💵 Сумма оплаты: {total} сум (Оплачено ✅)\n\n📦 Ваш заказ:\n{items}\n\n👨‍💼 Ваш менеджер / продавец: {seller_contact}\n\n🚕 Заказ передан на сборку и доставку. Как только курьер/такси выедет — ссылка на отслеживание или фото доставки придёт сюда!",
         "notif_customer_delivery": "🚕 Ваш заказ #{order_id} из «{store}» передан курьеру и уже в пути!\n\n🔗 Ссылка на отслеживание такси:\n{tracking_url}\n\nВодитель везёт ваш заказ. Ожидайте — скоро будет у вас! 📦",
         "notif_customer_delivery_no_link": "🚕 Ваш заказ #{order_id} из «{store}» передан курьеру!\n\nОжидайте доставку. Продавец отправил ваш заказ! 📦",
         "btn_confirm_pay": "✅ Подтвердить оплату",
@@ -823,7 +823,7 @@ BOT_TEXTS = {
         "delivery_landmark": "🏢 Ориентир для такси: {lm}",
         "delivery_pending": "📍 Адрес уточняется",
         "notif_order_mgr_new": "📦 НОВЫЙ ЗАКАЗ #{order_id} НА СБОРКУ!\n\n🏪 Магазин: «{store}»\n🛍 Состав товаров:\n{items}\n\n💵 Сумма: {total} сум\n👤 Покупатель: {client}\n📱 Телефон: {phone}\n{delivery}\n\n⏳ Внимание: Клиент переводит оплату на карту владельца. Пожалуйста, соберите и упакуйте товары! Как только владелец подтвердит получение денег, вам придёт команда на отправку курьера/такси 🚕",
-        "track_prompt": "🚚 Отправьте ссылку на Яндекс.Доставку для заказа #{order_id} в ответном сообщении 🔗",
+        "track_prompt": "🚚 Отправьте ссылку на Яндекс.Доставку или фото/скриншот отправки (такси, водитель, товар) для заказа #{order_id} в ответном сообщении 🔗📸",
         "track_wait": "Ожидаем ссылку",
         "choose_lang": "🌐 Выберите язык / Tilni tanlang / Choose language:",
         "lang_set": "✅ Язык изменён на Русский",
@@ -873,7 +873,7 @@ BOT_TEXTS = {
         "notif_receipt_owner": "🔔 YANGI BUYURTMA #{order_id}! (CHEK BIRIKTIRILGAN)\n\n🏪 Do'kon: «{store}»\n💰 Summa: {total} so'm (100% sizning kartangizga)\n💳 Sizning kartangiz: {card_info}\n👤 Xaridor: {client}\n📱 Telefon: {phone}\n{delivery}\n\n📦 Buyurtma tarkibi:\n{items}\n\n🧾 Mijoz to'lov qildi va chekni biriktirdi (rasmga qarang). Pul tushumini tekshiring va tugmani bosing:",
         "notif_receipt_mgr": "📦 YIG'ISH UCHUN YANGI BUYURTMA #{order_id}! (CHEK BIRIKTIRILGAN)\n\n🏪 Do'kon: «{store}»\n🛍 Mahsulotlar:\n{items}\n\n💵 Summa: {total} so'm\n👤 Xaridor: {client}\n📱 Telefon: {phone}\n{delivery}\n\n🧾 Mijoz to'lov qildi va chekni biriktirdi (rasmga qarang). Chekni tekshiring va to'lovni tasdiqlang yoki egasining tasdiqini kuting.\nTo'lov tasdiqlangach, taksi yuboring 🚕",
         "notif_paid_owner_has_mgr": "💰 YANGI BUYURTMA #{order_id} TO'LANDI!\n\n💳 To'lov: {pay_method}\n👨‍💼 Buyurtma menejeringizga topshirildi:\n👉 {mgr_display} ({mgr_name})\n\n📦 Buyurtma tarkibi:\n{items}\n\n💵 Summa: {total} so'm (To'landi ✅)\n👤 Xaridor: {client}\n📱 Telefon: {phone}\n📍 Yetkazish: {address}\n\nMenejer buyurtmani rasm va joylashuv bilan oldi va Yandex Taksi orqali jo'natmoqda 🚕",
-        "notif_customer_paid": "✅ To'lov muvaffaqiyatli qabul qilindi! Buyurtma #{order_id} rasmiylashtirildi.\n\n🏬 Do'kon: «{store}»\n💵 To'lov summasi: {total} so'm (To'landi ✅)\n\n📦 Sizning buyurtmangiz:\n{items}\n\n👨‍💼 Sizning menejeringiz / sotuvchingiz: {seller_contact}\n\n🚕 Buyurtma yig'ilmoqda. Kuryer/taksi yo'lga chiqqach — kuzatish havolasi shu yerga keladi!",
+        "notif_customer_paid": "✅ Pul o'tkazmasi sotuvchi tomonidan muvaffaqiyatli tasdiqlandi! To'lov qabul qilindi.\n\nBuyurtma #{order_id} rasmiylashtirildi.\n\n🏬 Do'kon: «{store}»\n💵 To'lov summasi: {total} so'm (To'landi ✅)\n\n📦 Sizning buyurtmangiz:\n{items}\n\n👨‍💼 Sizning menejeringiz / sotuvchingiz: {seller_contact}\n\n🚕 Buyurtma yig'ilmoqda. Kuryer/taksi yo'lga chiqqach — kuzatish havolasi yoki yetkazish fotosi shu yerga keladi!",
         "notif_customer_delivery": "🚕 Sizning buyurtmangiz #{order_id} «{store}» do'konidan kuryerga topshirildi va yo'lda!\n\n🔗 Taksini kuzatish havolasi:\n{tracking_url}\n\nHaydovchi buyurtmangizni olib kelmoqda. Kuting — tez orada yetib boradi! 📦",
         "notif_customer_delivery_no_link": "🚕 Sizning buyurtmangiz #{order_id} «{store}» do'konidan kuryerga topshirildi!\n\nYetkazib berishni kuting. Sotuvchi buyurtmangizni jo'natdi! 📦",
         "btn_confirm_pay": "✅ To'lovni tasdiqlash",
@@ -891,7 +891,7 @@ BOT_TEXTS = {
         "delivery_landmark": "🏢 Taksi uchun mo'ljal: {lm}",
         "delivery_pending": "📍 Manzil aniqlanmoqda",
         "notif_order_mgr_new": "📦 YIG'ISH UCHUN YANGI BUYURTMA #{order_id}!\n\n🏪 Do'kon: «{store}»\n🛍 Mahsulotlar:\n{items}\n\n💵 Summa: {total} so'm\n👤 Xaridor: {client}\n📱 Telefon: {phone}\n{delivery}\n\n⏳ Diqqat: Mijoz to'lovni eganing kartasiga o'tkazmoqda. Mahsulotlarni yig'ing va tayyorlang! Egasi pulni tasdiqlagach, kuryer/taksi yuborish buyrug'i keladi 🚕",
-        "track_prompt": "🚚 #{order_id}-buyurtma uchun Yandex.Yetkazib berish havolasini javob xabarida yuboring 🔗",
+        "track_prompt": "🚚 #{order_id}-buyurtma uchun Yandex.Yetkazib berish havolasini yoki jo'natish fotosuratini (taksi, kuryer, posilka) javob xabarida yuboring 🔗📸",
         "track_wait": "Havola kutilmoqda",
         "choose_lang": "🌐 Выберите язык / Tilni tanlang / Choose language:",
         "lang_set": "✅ Til o'zbekchaga o'zgartirildi",
@@ -941,7 +941,7 @@ BOT_TEXTS = {
         "notif_receipt_owner": "🔔 NEW ORDER #{order_id}! (RECEIPT ATTACHED)\n\n🏪 Store: «{store}»\n💰 Amount: {total} UZS (100% to your card)\n💳 Your card: {card_info}\n👤 Customer: {client}\n📱 Phone: {phone}\n{delivery}\n\n📦 Order contents:\n{items}\n\n🧾 Customer has paid and attached a receipt (see photo). Please verify and confirm:",
         "notif_receipt_mgr": "📦 NEW ORDER #{order_id} FOR FULFILLMENT! (RECEIPT ATTACHED)\n\n🏪 Store: «{store}»\n🛍 Products:\n{items}\n\n💵 Amount: {total} UZS\n👤 Customer: {client}\n📱 Phone: {phone}\n{delivery}\n\n🧾 Customer has paid and attached a receipt (see photo). Verify the receipt and confirm payment, or wait for owner confirmation.\nOnce payment is confirmed, dispatch taxi 🚕",
         "notif_paid_owner_has_mgr": "💰 ORDER #{order_id} PAID!\n\n💳 Payment: {pay_method}\n👨‍💼 Order assigned to your manager:\n👉 {mgr_display} ({mgr_name})\n\n📦 Order contents:\n{items}\n\n💵 Amount: {total} UZS (Paid ✅)\n👤 Customer: {client}\n📱 Phone: {phone}\n📍 Delivery: {address}\n\nManager has received the order with photos and location and is dispatching via Yandex Taxi 🚕",
-        "notif_customer_paid": "✅ Payment received! Order #{order_id} confirmed.\n\n🏬 Store: «{store}»\n💵 Amount paid: {total} UZS (Paid ✅)\n\n📦 Your order:\n{items}\n\n👨‍💼 Your manager / seller: {seller_contact}\n\n🚕 Your order is being prepared. Once the courier/taxi departs — tracking link will appear here!",
+        "notif_customer_paid": "✅ Payment successfully confirmed by seller! Transfer accepted.\n\nOrder #{order_id} confirmed.\n\n🏬 Store: «{store}»\n💵 Amount paid: {total} UZS (Paid ✅)\n\n📦 Your order:\n{items}\n\n👨‍💼 Your manager / seller: {seller_contact}\n\n🚕 Your order is being prepared. Once the courier/taxi departs — tracking link or dispatch photo will appear here!",
         "notif_customer_delivery": "🚕 Your order #{order_id} from «{store}» has been dispatched!\n\n🔗 Tracking link:\n{tracking_url}\n\nThe driver is on the way with your order. Expect delivery soon! 📦",
         "notif_customer_delivery_no_link": "🚕 Your order #{order_id} from «{store}» has been dispatched!\n\nPlease wait for delivery. Your order is on the way! 📦",
         "btn_confirm_pay": "✅ Confirm Payment",
@@ -1375,25 +1375,61 @@ class TelegramWebhookView(APIView):
                 except Order.DoesNotExist:
                     cache.delete(f"tg_state_{chat_id}")
 
-            # Шаг 3 (Продавец): Прислал ссылку на Яндекс.Доставку прямо в чат
-            elif state == "SELLER_WAITING_TRACKING" and text:
-                try:
-                    order = Order.objects.get(id=order_id)
-                    order.tracking_url = text.strip()
-                    order.status = Order.Status.HANDED_TO_COURIER
-                    order.save(update_fields=["tracking_url", "status"])
+            # Шаг 3 (Продавец): Прислал ссылку на Яндекс.Доставку или фото/скриншот отправки прямо в чат
+            elif state == "SELLER_WAITING_TRACKING":
+                photo_list = message.get("photo") or []
+                photo_file_id = photo_list[-1]["file_id"] if photo_list else None
+                if not photo_file_id and message.get("document"):
+                    photo_file_id = message["document"]["file_id"]
 
-                    from core.tasks import notify_customer_about_delivery_task
-                    notify_customer_about_delivery_task.delay(order.id)
-                    cache.delete(f"tg_state_{chat_id}")
+                if text or photo_file_id:
+                    try:
+                        order = Order.objects.get(id=order_id)
+                        if text:
+                            order.tracking_url = text.strip()
+                        order.status = Order.Status.HANDED_TO_COURIER
+                        order.save(update_fields=["tracking_url", "status"])
+                        cache.delete(f"tg_state_{chat_id}")
 
-                    _send_telegram_message(
-                        chat_id,
-                        f"✅ Ссылка на отслеживание для заказа #{order.id} успешно отправлена клиенту в Telegram!\nСтатус заказа: 'У курьера (В пути)' 🚀"
-                    )
-                    return
-                except Order.DoesNotExist:
-                    cache.delete(f"tg_state_{chat_id}")
+                        cust_chat_id = order.customer.telegram_chat_id
+                        cust_lang = getattr(order.customer, "language", "ru") or "ru"
+
+                        if photo_file_id and cust_chat_id:
+                            if cust_lang == "uz":
+                                cap = (
+                                    f"🚕 Sizning #{order.id}-buyurtmangiz «{order.store.name}» do'konidan kuryerga topshirildi va yo'lda! 📦\n\n"
+                                    f"📸 Sotuvchidan yetkazish / kuryer fotosurati"
+                                )
+                            elif cust_lang == "en":
+                                cap = (
+                                    f"🚕 Your order #{order.id} from «{order.store.name}» has been handed to courier and is on the way! 📦\n\n"
+                                    f"📸 Dispatch / courier photo from seller"
+                                )
+                            else:
+                                cap = (
+                                    f"🚕 Ваш заказ #{order.id} из «{order.store.name}» передан курьеру и уже в пути! 📦\n\n"
+                                    f"📸 Фото отправки / курьера от продавца"
+                                )
+                            if order.tracking_url:
+                                cap += f"\n\n🔗 {order.tracking_url}"
+
+                            token = settings.TELEGRAM_BOT_TOKEN
+                            requests.post(
+                                f"https://api.telegram.org/bot{token}/sendPhoto",
+                                json={"chat_id": cust_chat_id, "photo": photo_file_id, "caption": cap},
+                                timeout=10
+                            )
+                        else:
+                            from core.tasks import notify_customer_about_delivery_task
+                            notify_customer_about_delivery_task.delay(order.id)
+
+                        _send_telegram_message(
+                            chat_id,
+                            f"✅ Информация о доставке для заказа #{order.id} успешно отправлена клиенту в Telegram!\nСтатус заказа: 'У курьера (В пути)' 🚀"
+                        )
+                        return
+                    except Order.DoesNotExist:
+                        cache.delete(f"tg_state_{chat_id}")
 
         # Команда /lang — выбор языка
         if text.strip() == "/lang":
@@ -1590,14 +1626,14 @@ class TelegramWebhookView(APIView):
 
                 elif is_receipt_sent:
                     if cust_lang == "uz":
-                        status_badge = "🧾 Chek sotuvchiga tekshirish uchun topshirildi"
-                        footer_msg = "ℹ️ Sotuvchi chek bo'yicha to'lov tushumini tekshirmoqda. To'lov tasdiqlanib taksi chaqirilgach — xabar va kuzatuv havolasi shu yerga keladi!"
+                        status_badge = "⏳ Chek sotuvchida tekshiruvda"
+                        footer_msg = "ℹ️ Biz chekingizni sotuvchiga topshirdik! Sotuvchi pul tushumini tekshirmoqda. To'lov tasdiqlanib taksi chaqirilgach — xabar va kuzatuv havolasi yoki yetkazish fotosi shu yerga keladi ✨"
                     elif cust_lang == "en":
-                        status_badge = "🧾 Receipt submitted to seller for verification"
-                        footer_msg = "ℹ️ The seller is verifying payment by your receipt. Once confirmed and taxi dispatched — live tracking will appear here!"
+                        status_badge = "⏳ Receipt is being verified by seller"
+                        footer_msg = "ℹ️ We handed your receipt to the seller! The seller is verifying payment. Once confirmed and taxi dispatched — live tracking link or delivery photo will appear here ✨"
                     else:
-                        status_badge = "🧾 Чек передан на проверку продавцу"
-                        footer_msg = "ℹ️ Продавец сверяет поступление оплаты по вашему чеку. Как только платёж подтвердится и такси выедет — ссылка на онлайн-отслеживание курьера придёт сюда!"
+                        status_badge = "⏳ Чек на проверке у продавца"
+                        footer_msg = "ℹ️ Мы передали ваш чек продавцу! Продавец сверяет поступление оплаты по вашему чеку. Как только платёж подтвердится и такси выедет — ссылка на онлайн-отслеживание или фото доставки придёт сюда ✨"
 
                 else:
                     # Ожидает перевод и чек
@@ -1628,8 +1664,9 @@ class TelegramWebhookView(APIView):
 
                 # Итоговый текст сообщения клиенту
                 if cust_lang == "uz":
+                    header_line = f"🧾 Biz chekingiz va buyurtmangizni sotuvchiga topshirdik!\n\n📦 #{order.id}-buyurtma" if is_receipt_sent else f"📦 #{order.id}-buyurtma sotuvchiga topshirildi!"
                     msg_text = (
-                        f"📦 #{order.id}-buyurtma sotuvchiga topshirildi!\n\n"
+                        f"{header_line}\n\n"
                         f"🏪 Do'kon: «{store.name}»\n"
                         f"📊 Holati: {status_badge}\n"
                         f"👨‍💼 Sotuvchi / Menejer: {seller_display}\n\n"
@@ -1642,8 +1679,9 @@ class TelegramWebhookView(APIView):
                         f"{footer_msg}"
                     )
                 elif cust_lang == "en":
+                    header_line = f"🧾 We handed your receipt and order to the seller!\n\n📦 Order #{order.id}" if is_receipt_sent else f"📦 Order #{order.id} handed to seller!"
                     msg_text = (
-                        f"📦 Order #{order.id} handed to seller!\n\n"
+                        f"{header_line}\n\n"
                         f"🏪 Store: «{store.name}»\n"
                         f"📊 Status: {status_badge}\n"
                         f"👨‍💼 Seller / Manager: {seller_display}\n\n"
@@ -1656,8 +1694,9 @@ class TelegramWebhookView(APIView):
                         f"{footer_msg}"
                     )
                 else:
+                    header_line = f"🧾 Мы передали ваш чек и заказ продавцу!\n\n📦 Заказ #{order.id}" if is_receipt_sent else f"📦 Заказ #{order.id} передан продавцу!"
                     msg_text = (
-                        f"📦 Заказ #{order.id} передан продавцу!\n\n"
+                        f"{header_line}\n\n"
                         f"🏪 Магазин: «{store.name}»\n"
                         f"📊 Статус: {status_badge}\n"
                         f"👨‍💼 Продавец / Менеджер: {seller_display}\n\n"
@@ -2091,6 +2130,14 @@ class TelegramWebhookView(APIView):
             order_id = callback_data.replace("reject_pay_", "")
             try:
                 order = Order.objects.get(id=order_id)
+                if order.status != Order.Status.CANCELLED:
+                    order.status = Order.Status.CANCELLED
+                    order.save(update_fields=["status"])
+                    # Возвращаем зарезервированные остатки на склад
+                    for item in order.items.select_related("variant").all():
+                        if item.variant:
+                            item.variant.stock_quantity += item.quantity
+                            item.variant.save(update_fields=["stock_quantity"])
 
                 caller_lang = "ru"
                 store_obj = Store.objects.filter(telegram_chat_id=str(chat_id)).first()
