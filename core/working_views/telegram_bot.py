@@ -1443,36 +1443,257 @@ class TelegramWebhookView(APIView):
         if order_match:
             order_id = int(order_match.group(1))
             try:
-                order = Order.objects.get(id=order_id)
-                tg_from = message.get("from", {})
+                order = Order.objects.select_related("store", "customer", "branch", "assigned_manager").get(id=order_id)
+                tg_from = message.get("from", {}) or {}
                 customer = order.customer
-                tg_username = tg_from.get("username", "")
-                if tg_username and not customer.telegram_username:
-                    customer.telegram_username = tg_username
-                if not customer.telegram_chat_id:
-                    customer.telegram_chat_id = str(chat_id)
-                customer.save(update_fields=["telegram_username", "telegram_chat_id"])
+                tg_username = tg_from.get("username", "") or ""
+                first_name = tg_from.get("first_name", "") or ""
+                last_name = tg_from.get("last_name", "") or ""
+                full_name = f"{first_name} {last_name}".strip()
 
-                # Применяем язык клиента из заказа к этому чату
-                cust_lang = getattr(customer, "language", "uz") or "uz"
+                cust_update_fields = []
+                if str(customer.telegram_chat_id) != str(chat_id):
+                    customer.telegram_chat_id = str(chat_id)
+                    cust_update_fields.append("telegram_chat_id")
+                if tg_username and customer.telegram_username != tg_username:
+                    customer.telegram_username = tg_username
+                    cust_update_fields.append("telegram_username")
+                if full_name and (not customer.full_name or customer.full_name in ("Покупатель", "Пользователь Telegram", "Клиент Telegram")):
+                    customer.full_name = full_name
+                    cust_update_fields.append("full_name")
+
+                if cust_update_fields:
+                    customer.save(update_fields=cust_update_fields)
+
+                # Синхронизируем язык клиента из заказа с чатом
+                cust_lang = getattr(customer, "language", None) or _get_customer_lang(chat_id) or "uz"
+                if cust_lang not in ("ru", "uz", "en"):
+                    cust_lang = "uz"
                 Customer.objects.filter(telegram_chat_id=str(chat_id)).update(language=cust_lang)
 
-                cache.set(f"tg_state_{chat_id}", {"state": "WAITING_LOCATION", "order_id": order.id}, timeout=3600)
+                # Проверяем, нужна ли локация по GPS (только если заказ открыт в Telegram без адреса и без чека)
+                is_location_needed = (
+                    not order.delivery_address
+                    or (order.delivery_address in ["Локация по GPS", "Адрес через Telegram"] and not order.delivery_latitude and not order.payment_confirmed_by_customer)
+                )
 
-                payload = {
-                    "chat_id": chat_id,
-                    "text": (
-                        _nt(cust_lang, "order_opened_header", order_id=order.id) +
-                        _nt(cust_lang, "taxi_warning_prompt")
-                    ),
-                    "reply_markup": {
-                        "keyboard": [[{"text": _nt(cust_lang, "btn_send_location"), "request_location": True}]],
-                        "resize_keyboard": True,
-                        "one_time_keyboard": True
+                if is_location_needed:
+                    cache.set(f"tg_state_{chat_id}", {"state": "WAITING_LOCATION", "order_id": order.id}, timeout=3600)
+                    payload = {
+                        "chat_id": chat_id,
+                        "text": (
+                            _nt(cust_lang, "order_opened_header", order_id=order.id) +
+                            _nt(cust_lang, "taxi_warning_prompt")
+                        ),
+                        "reply_markup": {
+                            "keyboard": [[{"text": _nt(cust_lang, "btn_send_location"), "request_location": True}]],
+                            "resize_keyboard": True,
+                            "one_time_keyboard": True
+                        }
                     }
-                }
-                requests.post(f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage", json=payload)
+                    requests.post(f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage", json=payload)
+                    return
+
+                # --- КАРТОЧКА ОТСЛЕЖИВАНИЯ ЗАКАЗА ДЛЯ ПОКУПАТЕЛЯ ИЗ БРАУЗЕРА ---
+                store = order.store
+
+                # Находим контакт менеджера или владельца магазина
+                assigned_mgr = order.assigned_manager
+                if not assigned_mgr:
+                    assigned_mgr = store.managers.filter(is_active=True).exclude(telegram_username="").first()
+                    if not assigned_mgr:
+                        assigned_mgr = store.managers.filter(is_active=True).first()
+                    if assigned_mgr and not order.assigned_manager:
+                        order.assigned_manager = assigned_mgr
+                        order.save(update_fields=["assigned_manager"])
+
+                seller_username = ""
+                seller_name = ""
+                if assigned_mgr and assigned_mgr.telegram_username:
+                    seller_username = assigned_mgr.telegram_username.lstrip("@").strip()
+                    seller_name = assigned_mgr.name or ("Менеджер" if cust_lang == "ru" else "Menejer")
+                elif store.owner_telegram_username:
+                    seller_username = store.owner_telegram_username.lstrip("@").strip()
+                    seller_name = store.name
+                elif store.owner and store.owner.username:
+                    seller_username = store.owner.username.lstrip("@").strip()
+                    seller_name = store.name
+                else:
+                    seller_name = store.name
+
+                if seller_username:
+                    seller_display = f"@{seller_username} ({seller_name})"
+                else:
+                    phone_part = f" (тел: {store.phone_number})" if store.phone_number else ""
+                    seller_display = f"«{store.name}»{phone_part}"
+
+                # Расчёт времени готовности и доставки
+                branch = order.branch
+                dist_km = order.get_dispatch_distance_km()
+                mins = order.get_estimated_taxi_mins()
+                if branch and dist_km is not None:
+                    if cust_lang == "uz":
+                        delivery_time_text = (
+                            f"• Jo'natuvchi eng yaqin filial: «{branch.name}»\n"
+                            f"• Taksi yetkazishi: ~{mins} daqiqa (masofa {dist_km} km)\n"
+                            f"• Buyurtmani qabul qilish vaqti: ~{mins + 15}–{mins + 25} daqiqa ichida"
+                        )
+                    elif cust_lang == "en":
+                        delivery_time_text = (
+                            f"• Nearest dispatch branch: «{branch.name}»\n"
+                            f"• Taxi delivery: ~{mins} mins (distance {dist_km} km)\n"
+                            f"• Estimated arrival: within ~{mins + 15}–{mins + 25} minutes"
+                        )
+                    else:
+                        delivery_time_text = (
+                            f"• Ближайший филиал отгрузки: «{branch.name}»\n"
+                            f"• Поездка такси: ~{mins} мин (расстояние {dist_km} км)\n"
+                            f"• Примерное время получения: в течение ~{mins + 15}–{mins + 25} минут"
+                        )
+                else:
+                    if cust_lang == "uz":
+                        delivery_time_text = (
+                            f"• Yig'ish va qadoqlash: ~10–20 daqiqa\n"
+                            f"• Yetkazish: ~30–60 daqiqa (Toshkent bo'yicha) / 1–2 kun (viloyatlarga)"
+                        )
+                    elif cust_lang == "en":
+                        delivery_time_text = (
+                            f"• Assembly & packing: ~10–20 mins\n"
+                            f"• Delivery: ~30–60 mins (Tashkent) / 1–2 days (regions)"
+                        )
+                    else:
+                        delivery_time_text = (
+                            f"• Сборка и упаковка: ~10–20 минут\n"
+                            f"• Доставка курьером (такси): ~30–60 минут (по Ташкенту) / 1–2 дня (по регионам)"
+                        )
+
+                # Состав заказа и адрес
+                items_text = _build_items_text(order, cust_lang)
+                addr_text = order.delivery_address or ("Manzil aniqlanmoqda" if cust_lang == "uz" else "Адрес уточняется")
+                if order.delivery_landmark:
+                    addr_text += f" (Ориентир: {order.delivery_landmark})"
+                total_formatted = f"{int(order.total_price):,}".replace(",", " ")
+
+                is_paid = (order.status == Order.Status.PAID)
+                is_receipt_sent = bool(order.payment_confirmed_by_customer or order.payment_receipt)
+
+                if is_paid:
+                    if cust_lang == "uz":
+                        status_badge = "✅ To'landi (Sotuvchi jo'natishga tayyorlamoqda)"
+                        footer_msg = "🚕 Buyurtma to'landi! Kuryer/taksi yo'lga chiqqach — taksini onlayn kuzatish havolasi to'g'ridan-to'g'ri shu chatga keladi!"
+                    elif cust_lang == "en":
+                        status_badge = "✅ Paid (Seller is preparing dispatch)"
+                        footer_msg = "🚕 Order paid! As soon as courier/taxi departs — live tracking link will arrive directly in this chat!"
+                    else:
+                        status_badge = "✅ Оплачен (Продавец готовит отправку)"
+                        footer_msg = "🚕 Заказ оплачен! Как только курьер/такси выедет — ссылка на онлайн-отслеживание поездки придёт прямо в этот чат!"
+
+                elif is_receipt_sent:
+                    if cust_lang == "uz":
+                        status_badge = "🧾 Chek sotuvchiga tekshirish uchun topshirildi"
+                        footer_msg = "ℹ️ Sotuvchi chek bo'yicha to'lov tushumini tekshirmoqda. To'lov tasdiqlanib taksi chaqirilgach — xabar va kuzatuv havolasi shu yerga keladi!"
+                    elif cust_lang == "en":
+                        status_badge = "🧾 Receipt submitted to seller for verification"
+                        footer_msg = "ℹ️ The seller is verifying payment by your receipt. Once confirmed and taxi dispatched — live tracking will appear here!"
+                    else:
+                        status_badge = "🧾 Чек передан на проверку продавцу"
+                        footer_msg = "ℹ️ Продавец сверяет поступление оплаты по вашему чеку. Как только платёж подтвердится и такси выедет — ссылка на онлайн-отслеживание курьера придёт сюда!"
+
+                else:
+                    # Ожидает перевод и чек
+                    cache.set(f"tg_state_{chat_id}", {"state": "WAITING_RECEIPT", "order_id": order.id}, timeout=3600 * 48)
+                    card_num = store.payout_card or "8600 0000 0000 0000"
+                    holder_suffix = f" ({store.payout_card_holder})" if store.payout_card_holder else ""
+                    if cust_lang == "uz":
+                        status_badge = "⏳ To'lov va chek kutilmoqda"
+                        footer_msg = (
+                            f"💳 TO'LOV UCHUN KARTA:\n👉 {card_num}{holder_suffix}\n\n"
+                            f"📸 To'lov chekining fotosuratini to'g'ridan-to'g'ri shu chatga yuboring! "
+                            f"Sotuvchi darhol tekshirib, buyurtmangizni taksiga topshiradi ✨"
+                        )
+                    elif cust_lang == "en":
+                        status_badge = "⏳ Awaiting card transfer & receipt"
+                        footer_msg = (
+                            f"💳 PAYMENT CARD:\n👉 {card_num}{holder_suffix}\n\n"
+                            f"📸 Send the receipt screenshot directly in this chat! "
+                            f"The seller will verify payment and dispatch your order ✨"
+                        )
+                    else:
+                        status_badge = "⏳ Ожидает перевода на карту и отправки чека"
+                        footer_msg = (
+                            f"💳 КАРТА ДЛЯ ОПЛАТЫ:\n👉 {card_num}{holder_suffix}\n\n"
+                            f"📸 Отправьте фото или скриншот чека прямо сюда в чат! "
+                            f"Продавец сразу проверит платёж и отправит заказ на такси ✨"
+                        )
+
+                # Итоговый текст сообщения клиенту
+                if cust_lang == "uz":
+                    msg_text = (
+                        f"📦 #{order.id}-buyurtma sotuvchiga topshirildi!\n\n"
+                        f"🏪 Do'kon: «{store.name}»\n"
+                        f"📊 Holati: {status_badge}\n"
+                        f"👨‍💼 Sotuvchi / Menejer: {seller_display}\n\n"
+                        f"⏱ Tayyorlanish va yetkazish vaqti:\n"
+                        f"{delivery_time_text}\n\n"
+                        f"🛍 Buyurtma tarkibi:\n"
+                        f"{items_text}\n\n"
+                        f"💰 To'lov summasi: {total_formatted} so'm\n"
+                        f"📍 Yetkazish manzili: {addr_text}\n\n"
+                        f"{footer_msg}"
+                    )
+                elif cust_lang == "en":
+                    msg_text = (
+                        f"📦 Order #{order.id} handed to seller!\n\n"
+                        f"🏪 Store: «{store.name}»\n"
+                        f"📊 Status: {status_badge}\n"
+                        f"👨‍💼 Seller / Manager: {seller_display}\n\n"
+                        f"⏱ Estimated readiness & delivery time:\n"
+                        f"{delivery_time_text}\n\n"
+                        f"🛍 Order items:\n"
+                        f"{items_text}\n\n"
+                        f"💰 Total price: {total_formatted} UZS\n"
+                        f"📍 Delivery address: {addr_text}\n\n"
+                        f"{footer_msg}"
+                    )
+                else:
+                    msg_text = (
+                        f"📦 Заказ #{order.id} передан продавцу!\n\n"
+                        f"🏪 Магазин: «{store.name}»\n"
+                        f"📊 Статус: {status_badge}\n"
+                        f"👨‍💼 Продавец / Менеджер: {seller_display}\n\n"
+                        f"⏱ Примерное время готовности и доставки:\n"
+                        f"{delivery_time_text}\n\n"
+                        f"🛍 Состав заказа:\n"
+                        f"{items_text}\n\n"
+                        f"💰 Сумма заказа: {total_formatted} сум\n"
+                        f"📍 Адрес доставки: {addr_text}\n\n"
+                        f"{footer_msg}"
+                    )
+
+                # Инлайн-кнопки
+                inline_keyboard = []
+                if seller_username:
+                    contact_btn_label = {
+                        "uz": f"💬 Sotuvchiga yozish (@{seller_username})",
+                        "en": f"💬 Contact seller (@{seller_username})",
+                        "ru": f"💬 Написать продавцу (@{seller_username})",
+                    }.get(cust_lang, f"💬 Написать продавцу (@{seller_username})")
+                    inline_keyboard.append([{"text": contact_btn_label, "url": f"https://t.me/{seller_username}"}])
+
+                site_url = getattr(settings, "SITE_URL", "")
+                if site_url:
+                    store_url = f"{site_url}/{cust_lang}/?store_id={store.id}"
+                    store_btn_label = {
+                        "uz": "🛍 Do'konga o'tish",
+                        "en": "🛍 Open store",
+                        "ru": "🛍 В магазин",
+                    }.get(cust_lang, "🛍 В магазин")
+                    inline_keyboard.append([{"text": store_btn_label, "web_app": {"url": store_url}}])
+
+                reply_markup = {"inline_keyboard": inline_keyboard} if inline_keyboard else None
+                _send_telegram_message(chat_id, msg_text, reply_markup=reply_markup)
                 return
+
             except Order.DoesNotExist:
                 _send_telegram_message(chat_id, "Заказ не найден или уже был обработан.")
                 return

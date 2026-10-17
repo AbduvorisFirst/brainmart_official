@@ -93,6 +93,14 @@
                     </a>
                 </div>
             {% endif %}
+
+            {% if telegram_bot_url %}
+                <div style="margin-top: 12px;">
+                    <a href="{{ telegram_bot_url }}" target="_blank" style="background: linear-gradient(135deg, #2563EB, #1D4ED8); color: white; text-decoration: none; border-radius: 14px; padding: 13px 16px; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);">
+                        <span>📲 {% trans "Отслеживать заказ в Telegram-боте" %}</span>
+                    </a>
+                </div>
+            {% endif %}
         </div>
     {% endif %}
 
@@ -183,6 +191,22 @@
                         </a>
                     {% endif %}
                 </div>
+
+                {% if telegram_bot_url %}
+                    <div style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.25), rgba(99, 102, 241, 0.2)); border: 2px solid #3B82F6; border-radius: 16px; padding: 18px; margin-top: 14px; text-align: center;">
+                        <div style="font-size: 32px; margin-bottom: 6px;">✈️</div>
+                        <strong style="color: #60A5FA; font-size: 16.5px; display: block; margin-bottom: 4px;">
+                            {% trans "Отслеживать статус заказа в Telegram-боте" %}
+                        </strong>
+                        <p style="font-size: 12.5px; color: #DBEAFE; margin: 0 0 14px; line-height: 1.45;">
+                            {% trans "В Telegram-боте вы увидите, когда заказ будет готов, расчётное время приезда курьера, контакт продавца и статус проверки чека!" %}
+                        </p>
+                        <a href="{{ telegram_bot_url }}" target="_blank" class="btn" style="background: linear-gradient(135deg, #2563EB, #1D4ED8); color: white; text-decoration: none; border-radius: 14px; padding: 14px 18px; font-size: 14.5px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 16px rgba(37, 99, 235, 0.4);">
+                            <span>📲 {% trans "Перейти в Telegram-бот" %}</span>
+                            {% if bot_username %}<span style="background: rgba(255,255,255,0.2); border-radius: 8px; padding: 2px 8px; font-size: 12px;">@{{ bot_username }}</span>{% endif %}
+                        </a>
+                    </div>
+                {% endif %}
             </div>
         {% else %}
             <div style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 22px; padding: 22px; margin: 18px 0; text-align: left;">
@@ -219,6 +243,14 @@
                         <span id="submitBtnText">📎 {% trans "Сначала прикрепите фото чека" %}</span>
                     </button>
                 </form>
+
+                {% if telegram_bot_url %}
+                    <div style="margin-top: 14px; text-align: center;">
+                        <a href="{{ telegram_bot_url }}" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(37, 99, 235, 0.15); border: 1.5px solid rgba(59, 130, 246, 0.4); color: #93C5FD; text-decoration: none; border-radius: 14px; padding: 12px 16px; font-size: 13.5px; font-weight: 700;">
+                            <span>✈️ {% trans "Или отправьте чек и отслеживайте в Telegram-боте" %}</span>
+                        </a>
+                    </div>
+                {% endif %}
             </div>
         {% endif %}
     {% endif %}
@@ -317,6 +349,13 @@
             <span style="font-size: 20px; font-weight: 800; color: #34d399;">{{ order.total_price|floatformat:"0" }} {% trans "сум" %}</span>
         </div>
     </div>
+
+    {% if telegram_bot_url %}
+        <a href="{{ telegram_bot_url }}" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-sizing: border-box; background: linear-gradient(135deg, #2563EB, #1D4ED8); color: white; padding: 16px; border-radius: 16px; text-decoration: none; font-size: 15px; font-weight: 800; box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35); margin-bottom: 12px;">
+            <span>📲 {% trans "Отслеживать готовность заказа в Telegram" %}</span>
+            {% if bot_username %}<span style="background: rgba(255,255,255,0.2); border-radius: 8px; padding: 2px 8px; font-size: 12px;">@{{ bot_username }}</span>{% endif %}
+        </a>
+    {% endif %}
 
     <a href="{% url 'catalog' %}" style="display: block; width: 100%; box-sizing: border-box; background: var(--primary); color: white; padding: 16px; border-radius: 16px; text-decoration: none; font-size: 15px; font-weight: 800; box-shadow: 0 4px 16px rgba(79, 70, 229, 0.35);">
         🛍 {% trans "Вернуться в каталог" %}

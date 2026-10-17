@@ -495,6 +495,9 @@ def order_success_view(request, order_id):
     elif store.owner_telegram_username:
         contact_username = store.owner_telegram_username.lstrip("@").strip()
 
+    bot_username = getattr(settings, "TELEGRAM_BOT_USERNAME", "BrainMart_bot") or "BrainMart_bot"
+    telegram_bot_url = f"https://t.me/{bot_username}?start=order_{order.id}" if bot_username else ""
+
     context = {
         "order": order,
         "receipt_sent": receipt_sent,
@@ -502,6 +505,8 @@ def order_success_view(request, order_id):
         "contact_name": contact_name,
         "contact_username": contact_username,
         "store_phone": store.phone_number,
+        "bot_username": bot_username,
+        "telegram_bot_url": telegram_bot_url,
     }
     return render(request, "core/order_success.html", context)
 
