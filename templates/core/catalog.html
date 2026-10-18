@@ -354,14 +354,32 @@
                     <div class="store-logo-placeholder">{{ current_store.name|make_list|first|upper }}</div>
                 {% endif %}
                 <div class="store-text">
-                    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                         <h1>{{ current_store.name }}</h1>
-                        {% if current_store.theme_style == 'kids_playful' %}
-                            <span style="background: rgba(245, 158, 11, 0.2); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.4); padding: 2px 7px; border-radius: 999px; font-size: 10px; font-weight: 800;">🧸 {% trans "Kids Playful" %}</span>
-                        {% elif current_store.theme_style == 'premium_gold' %}
-                            <span style="background: rgba(212, 168, 67, 0.2); color: #D4A843; border: 1px solid rgba(212, 168, 67, 0.4); padding: 2px 7px; border-radius: 999px; font-size: 10px; font-weight: 800;">👑 {% trans "Premium Gold" %}</span>
-                        {% elif current_store.theme_style == 'genz_neon' %}
-                            <span style="background: rgba(168, 85, 247, 0.2); color: #C084FC; border: 1px solid rgba(168, 85, 247, 0.4); padding: 2px 7px; border-radius: 999px; font-size: 10px; font-weight: 800;">⚡ {% trans "Gen-Z Neon" %}</span>
+                        {% if current_store.theme_style == 'kids_playful' or current_store.theme_style == 'fashion_kids' or current_store.niche == 'kids' or 'kids' in current_store.name|lower %}
+                            <span class="store-theme-badge badge-kids">🧸 kids-joyfull</span>
+                        {% elif current_store.theme_style == 'genz_neon' or current_store.theme_style == 'fashion_genz' or 'gen' in current_store.name|lower %}
+                            <span class="store-theme-badge badge-genz">⚡ gen-z</span>
+                        {% elif current_store.theme_style == 'premium_gold' or current_store.theme_style == 'fashion_premium' or 'luxury' in current_store.name|lower or 'premium' in current_store.name|lower %}
+                            <span class="store-theme-badge badge-premium">👑 luxury gold</span>
+                        {% elif current_store.theme_style == 'auto_drive' %}
+                            <span class="store-theme-badge badge-drive">🏎️ sport drive</span>
+                        {% elif current_store.theme_style == 'auto_premium' %}
+                            <span class="store-theme-badge badge-auto-premium">⭐ premium motors</span>
+                        {% elif current_store.theme_style == 'auto_brutal' %}
+                            <span class="store-theme-badge badge-garage">🛠️ brutal garage</span>
+                        {% elif current_store.theme_style == 'auto_tuning' or 'tuning' in current_store.name|lower or 'drift' in current_store.name|lower %}
+                            <span class="store-theme-badge badge-tuning">🔥 drift & tuning</span>
+                        {% elif current_store.theme_style == 'tech_minimal' %}
+                            <span class="store-theme-badge badge-tech-minimal">⚡ cyber minimal</span>
+                        {% elif current_store.theme_style == 'tech_gaming' %}
+                            <span class="store-theme-badge badge-gaming">🎮 rgb gaming</span>
+                        {% elif current_store.theme_style == 'fashion_casual' %}
+                            <span class="store-theme-badge badge-casual">✨ casual fashion</span>
+                        {% elif current_store.theme_style == 'custom' %}
+                            <span class="store-theme-badge badge-custom">🎨 custom brand</span>
+                        {% else %}
+                            <span class="store-theme-badge badge-classic">✦ official brand</span>
                         {% endif %}
                     </div>
                     <p>{% trans "Официальная витрина" %}</p>
