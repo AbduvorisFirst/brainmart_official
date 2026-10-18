@@ -370,12 +370,12 @@
 
                 <label>{% trans "Тип параметров товара" %}</label>
                 <select name="product_type" id="productType" onchange="toggleProductType()" style="background: rgba(255,255,255,0.05); border: 1.5px solid var(--border); color: white; padding: 12px; border-radius: 10px; width: 100%; margin-bottom: 16px; font-weight: 700; font-size: 14px; box-sizing: border-box;">
-                    <option value="clothes" selected>👕 {% trans "Одежда (размеры S, M, L, XL, 42, 44... + цвет)" %}</option>
+                    <option value="clothes" {% if store.niche == 'clothes' or not store.niche %}selected{% endif %}>👕 {% trans "Одежда (размеры S, M, L, XL, 42, 44... + цвет)" %}</option>
                     <option value="shoes">👟 {% trans "Обувь (размеры 36, 37, 38, 39, 40... + цвет)" %}</option>
-                    <option value="tires">🚗 {% trans "Автошины и диски (типоразмер 205/55 R16, 195/65 R15... + сезон/бренд)" %}</option>
-                    <option value="electronics_variants">📱 {% trans "Электроника и гаджеты (память: 128GB, 256GB, 512GB... + цвет корпуса)" %}</option>
+                    <option value="tires" {% if store.niche == 'auto' %}selected{% endif %}>🚗 {% trans "Автошины, диски и автотовары (типоразмер 205/55 R16... + сезон/бренд)" %}</option>
+                    <option value="electronics_variants" {% if store.niche == 'electronics' %}selected{% endif %}>📱 {% trans "Электроника и гаджеты (память: 128GB, 256GB... + цвет корпуса)" %}</option>
                     <option value="food_groceries">🍏 {% trans "Продукты питания и напитки (фасовка/вес: 1 кг, 500 г, 1.5 л... + вкус/сорт)" %}</option>
-                    <option value="electronics">📦 {% trans "Штучный товар / Бытовая техника / Книги (без сетки размеров — поштучно)" %}</option>
+                    <option value="electronics" {% if store.niche == 'books' or store.niche == 'other' or store.niche == 'cosmetics' %}selected{% endif %}>📦 {% trans "Штучный товар / Косметика / Книги (без сетки размеров — поштучно)" %}</option>
                 </select>
 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
@@ -1099,11 +1099,13 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        addColorBlock();
         const catSel = document.getElementById('categorySelect');
         if (catSel && catSel.value) {
             onCategoryChange(catSel);
+        } else {
+            toggleProductType();
         }
+        addColorBlock();
     });
 
     async function generateAIDescription() {

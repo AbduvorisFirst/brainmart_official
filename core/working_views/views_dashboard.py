@@ -304,6 +304,7 @@ def product_add_view(request):
     default_category = store.effective_category
     default_category_id = default_category.id if default_category else None
     return render(request, "dashboard/product_add.html", {
+        "store": store,
         "categories": categories,
         "default_category_id": default_category_id,
         "default_category": default_category,
@@ -1478,6 +1479,10 @@ def store_settings_view(request):
             if payout_card_holder:
                 store.payout_card_holder = payout_card_holder
             store.primary_color = primary_color
+            niche = request.POST.get("niche", "clothes").strip()
+            if niche in dict(Store.Niche.choices):
+                store.niche = niche
+
             store.accent_color = accent_color
             store.theme_style = theme_style
             store.theme_mode = theme_mode
@@ -1490,7 +1495,7 @@ def store_settings_view(request):
             store.save(update_fields=[
                 "name", "phone_number", "address", "instagram_username",
                 "payout_card", "payout_card_holder",
-                "category",
+                "category", "niche",
                 "primary_color", "accent_color", "theme_style", "theme_mode",
                 "telegram_notification_language",
                 "enable_auto_acquiring", "enable_card_transfer"
@@ -1512,10 +1517,12 @@ def store_settings_view(request):
 
     from core.models import Category
     categories = Category.objects.all().order_by("id")
+    site_url = getattr(settings, "SITE_URL", "") or "https://brainmart.uz"
 
     context = {
         "store": store,
         "categories": categories,
+        "niche_choices": Store.Niche.choices,
         "managers": managers,
         "telegram_connected": bool(store.telegram_chat_id),
         "telegram_link": (
@@ -1523,7 +1530,7 @@ def store_settings_view(request):
             else build_seller_link_deep_link(store) if settings.TELEGRAM_BOT_USERNAME
             else None
         ),
-        "store_catalog_url": f"{settings.SITE_URL}/ru/?store_id={store.id}",
+        "store_catalog_url": f"{site_url}/ru/?store_id={store.id}",
         "telegram_bot_url": (
             f"https://t.me/{settings.TELEGRAM_BOT_USERNAME}?start=store_{store.id}"
             if settings.TELEGRAM_BOT_USERNAME else None

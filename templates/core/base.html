@@ -49,7 +49,7 @@
                     --radius-lg: 20px;
                     --radius-md: 14px;
                     --btn-gradient: linear-gradient(135deg, {{ store.primary_color|default:"#4F46E5" }} 0%, {{ store.accent_color|default:"#10B981" }} 100%);
-                {% elif store.theme_style == 'kids_playful' %}
+                {% elif store.theme_style == 'fashion_kids' or store.theme_style == 'kids_playful' %}
                     /* Яркий детский (Kids Playful) — жизнерадостный, теплый, дружелюбный дизайн */
                     --primary: #F59E0B;
                     --accent: #EC4899;
@@ -66,7 +66,7 @@
                     --radius-lg: 26px;
                     --radius-md: 18px;
                     --btn-gradient: linear-gradient(135deg, #F59E0B 0%, #EC4899 100%);
-                {% elif store.theme_style == 'premium_gold' %}
+                {% elif store.theme_style == 'fashion_premium' or store.theme_style == 'premium_gold' %}
                     /* Премиальное золото (Luxury Gold & Dark) */
                     --primary: #D4A843;
                     --accent: #F59E0B;
@@ -83,7 +83,7 @@
                     --radius-lg: 20px;
                     --radius-md: 13px;
                     --btn-gradient: linear-gradient(135deg, #D4A843 0%, #B8860B 100%);
-                {% elif store.theme_style == 'genz_neon' %}
+                {% elif store.theme_style == 'fashion_genz' or store.theme_style == 'genz_neon' %}
                     /* Gen-Z Неон (Cyber Neon Violet & Cyan) */
                     --primary: #A855F7;
                     --accent: #06B6D4;
@@ -100,7 +100,126 @@
                     --radius-lg: 22px;
                     --radius-md: 14px;
                     --btn-gradient: linear-gradient(135deg, #A855F7 0%, #06B6D4 100%);
+                {% elif store.theme_style == 'auto_drive' %}
+                    /* Авто: Универсальный Drive (Спорт-графит и синий электрик) */
+                    --primary: #2563EB;
+                    --accent: #38BDF8;
+                    --bg-app: #080D1A;
+                    --surface: #0F172A;
+                    --surface-card: #131E35;
+                    --text-main: #F8FAFC;
+                    --text-muted: #94A3B8;
+                    --border: rgba(37, 99, 235, 0.28);
+                    --input-bg: #0D1424;
+                    --card-shadow: 0 10px 30px rgba(37, 99, 235, 0.2);
+                    --badge-bg: rgba(15, 23, 42, 0.95);
+                    --header-bg: rgba(8, 13, 26, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #2563EB 0%, #0284C7 100%);
+                {% elif store.theme_style == 'auto_premium' %}
+                    /* Авто: Premium Detailing & Motors (Люкс темный титан и платиновое золото) */
+                    --primary: #D4AF37;
+                    --accent: #F59E0B;
+                    --bg-app: #070709;
+                    --surface: #101014;
+                    --surface-card: #16161C;
+                    --text-main: #FBF8F0;
+                    --text-muted: #A39678;
+                    --border: rgba(212, 175, 55, 0.28);
+                    --input-bg: #0C0C0F;
+                    --card-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
+                    --badge-bg: rgba(16, 16, 20, 0.95);
+                    --header-bg: rgba(7, 7, 9, 0.92);
+                    --radius-lg: 20px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #D4AF37 0%, #AA7C11 100%);
+                {% elif store.theme_style == 'auto_brutal' %}
+                    /* Авто: Brutal Garage (Темная сталь и индустриальный оранжевый) */
+                    --primary: #EA580C;
+                    --accent: #F97316;
+                    --bg-app: #0D0F12;
+                    --surface: #16181F;
+                    --surface-card: #1C2029;
+                    --text-main: #F1F5F9;
+                    --text-muted: #94A3B8;
+                    --border: rgba(234, 88, 12, 0.3);
+                    --input-bg: #111318;
+                    --card-shadow: 0 10px 30px rgba(234, 88, 12, 0.22);
+                    --badge-bg: rgba(22, 24, 31, 0.95);
+                    --header-bg: rgba(13, 15, 18, 0.92);
+                    --radius-lg: 16px;
+                    --radius-md: 10px;
+                    --btn-gradient: linear-gradient(135deg, #EA580C 0%, #C2410C 100%);
+                {% elif store.theme_style == 'auto_tuning' %}
+                    /* Авто: Tuning & Drift Gen-Z (Токсичный неон, кибер-гонки и нитро) */
+                    --primary: #10B981;
+                    --accent: #EF4444;
+                    --bg-app: #06090E;
+                    --surface: #0B131B;
+                    --surface-card: #0F1A24;
+                    --text-main: #F0FDF4;
+                    --text-muted: #7ED4AD;
+                    --border: rgba(16, 185, 129, 0.35);
+                    --input-bg: #090E14;
+                    --card-shadow: 0 10px 30px rgba(16, 185, 129, 0.25);
+                    --badge-bg: rgba(11, 19, 27, 0.95);
+                    --header-bg: rgba(6, 9, 14, 0.92);
+                    --radius-lg: 20px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #10B981 0%, #059669 100%);
+                {% elif store.theme_style == 'tech_minimal' %}
+                    /* Электроника: Cyber Minimal (Светлый кибер-циан и сапфир) */
+                    --primary: #06B6D4;
+                    --accent: #3B82F6;
+                    --bg-app: #0A0F1D;
+                    --surface: #0F172A;
+                    --surface-card: #141F36;
+                    --text-main: #F0FDF4;
+                    --text-muted: #94A3B8;
+                    --border: rgba(6, 182, 212, 0.28);
+                    --input-bg: #0C1222;
+                    --card-shadow: 0 10px 30px rgba(6, 182, 212, 0.2);
+                    --badge-bg: rgba(15, 23, 42, 0.95);
+                    --header-bg: rgba(10, 15, 29, 0.92);
+                    --radius-lg: 20px;
+                    --radius-md: 14px;
+                    --btn-gradient: linear-gradient(135deg, #06B6D4 0%, #2563EB 100%);
+                {% elif store.theme_style == 'tech_gaming' %}
+                    /* Электроника: RGB Gaming (RGB Неон, рубин и ультрафиолет) */
+                    --primary: #DC2626;
+                    --accent: #9333EA;
+                    --bg-app: #08060A;
+                    --surface: #120D17;
+                    --surface-card: #1A1222;
+                    --text-main: #FDF2F8;
+                    --text-muted: #A89AB3;
+                    --border: rgba(220, 38, 38, 0.35);
+                    --input-bg: #0F0A14;
+                    --card-shadow: 0 10px 30px rgba(220, 38, 38, 0.25);
+                    --badge-bg: rgba(18, 13, 23, 0.95);
+                    --header-bg: rgba(8, 6, 10, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #DC2626 0%, #9333EA 100%);
                 {% else %}
+                    /* fashion_casual / default_black — тёмный классический OLED для всех магазинов */
+                    --primary: #4F46E5;
+                    --accent: #10B981;
+                    --bg-app: #0B0E14;
+                    --surface: #141C28;
+                    --surface-card: #161D28;
+                    --text-main: #F8FAFC;
+                    --text-muted: #94A3B8;
+                    --border: rgba(255, 255, 255, 0.09);
+                    --input-bg: #101622;
+                    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+                    --badge-bg: rgba(20, 28, 43, 0.92);
+                    --header-bg: rgba(11, 14, 20, 0.88);
+                    --radius-lg: 20px;
+                    --radius-md: 14px;
+                    --btn-gradient: linear-gradient(135deg, #4F46E5 0%, #10B981 100%);
+                {% endif %}
                     /* default_black — тёмный классический OLED для всех магазинов */
                     --primary: #3B82F6;
                     --accent: #10B981;

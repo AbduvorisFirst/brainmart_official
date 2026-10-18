@@ -124,12 +124,13 @@ class Store(models.Model):
         verbose_name="Прямой перевод на карту продавца (с чеком)",
         help_text="Перевод по номеру карты продавца с прикреплением чека",
     )
-    # Ниша магазина (без процентов и комиссий)
     class Niche(models.TextChoices):
         CLOTHES = "clothes", "Одежда, обувь и аксессуары"
+        AUTO = "auto", "Автотовары, шины и автосервис"
         ELECTRONICS = "electronics", "Электроника и гаджеты"
-        BOOKS = "books", "Книги и канцелярия"
         COSMETICS = "cosmetics", "Косметика и парфюмерия"
+        KIDS = "kids", "Детские товары и игрушки"
+        BOOKS = "books", "Книги и канцелярия"
         OTHER = "other", "Другое"
 
     niche = models.CharField(
@@ -219,20 +220,36 @@ class Store(models.Model):
         verbose_name="Акцентный цвет (Hex)"
     )
     theme_style = models.CharField(
-        max_length=30, default="default_black",
+        max_length=50, default="default_black",
         choices=[
+            # Одежда и обувь (Fashion)
+            ("fashion_casual", "Fashion: Универсальный Casual"),
+            ("fashion_premium", "Fashion: Премиум Old Money"),
+            ("fashion_genz", "Fashion: Streetwear / Gen-Z"),
+            ("fashion_kids", "Fashion: Kids Playful"),
+            # Автотовары и автосервис (Auto)
+            ("auto_drive", "Auto: Универсальный Drive"),
+            ("auto_premium", "Auto: Premium Detailing"),
+            ("auto_brutal", "Auto: Brutal Garage"),
+            ("auto_tuning", "Auto: Tuning & Drift Gen-Z"),
+            # Электроника и гаджеты (Tech)
+            ("tech_minimal", "Tech: Cyber Minimal"),
+            ("tech_gaming", "Tech: RGB Gaming"),
+            # Предыдущие темы для совместимости
             ("default_black", "Default Black (Классический)"),
             ("kids_playful", "Kids Playful (Для детей - Яркий)"),
             ("premium_gold", "Premium Gold (Премиум Золото)"),
             ("genz_neon", "Gen-Z Neon (Подростковый Неон)"),
-            ("custom", "Свой дизайн (Только MAX)"),
+            # Пользовательский дизайн
+            ("custom", "Свой дизайн (Фирменные цвета)"),
         ],
         verbose_name="Стиль темы оформления"
     )
     theme_mode = models.CharField(
         max_length=30, default="dark",
         choices=[
-            ("dark", "Тёмный"),
+            ("dark", "Тёмный (OLED Dark)"),
+            ("light", "Светлый (Clean Light)"),
         ],
         verbose_name="Режим фона и атмосферы витрины"
     )
