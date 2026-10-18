@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "brainmart — AI Commerce & CRM",
   "short_name": "brainmart",
   "description": "AI-платформа электронной коммерции и CRM для магазинов",
@@ -9,13 +9,13 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/static/images/logo.png",
+      "src": "/static/img/android-chrome-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/static/images/logo.png",
+      "src": "/static/img/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
