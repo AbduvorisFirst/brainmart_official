@@ -274,84 +274,180 @@
         /* ─── ОСНОВНОЙ КОНТЕЙНЕР ─── */
         #app-main { padding: 0; }
 
-        /* ─── БЕЙДЖИ ФИРМЕННОГО СТИЛЯ / ДИЗАЙНА ─── */
-        .store-theme-badge {
+        /* ─── ФИРМЕННАЯ ПОДПИСЬ БРЕНДА (ЧИСТАЯ ЭСТЕТИЧНАЯ ТИПОГРАФИКА БЕЗ ОВАЛА) ─── */
+        .store-theme-badge,
+        .store-brand-signature {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            padding: 3px 9px;
-            border-radius: 999px;
-            font-size: 11px;
-            font-weight: 800;
-            letter-spacing: 0.3px;
-            text-transform: uppercase;
-            line-height: 1.25;
+            gap: 5px;
+            padding: 0 !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
             vertical-align: middle;
             flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            line-height: 1.2;
+            cursor: default;
+            user-select: none;
         }
-        .badge-kids {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(236, 72, 153, 0.22) 100%);
-            color: #D97706;
-            border: 1.5px solid rgba(245, 158, 11, 0.55);
-            box-shadow: 0 2px 10px rgba(245, 158, 11, 0.25);
+        .store-brand-signature .sig-icon,
+        .store-theme-badge .sig-icon {
+            font-size: 13px;
+            display: inline-block;
+            filter: none !important;
+            line-height: 1;
+            transform: translateY(-0.5px);
         }
-        .badge-genz {
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.22) 0%, rgba(6, 182, 212, 0.22) 100%);
-            color: #C084FC;
-            border: 1.5px solid rgba(168, 85, 247, 0.55);
-            box-shadow: 0 2px 10px rgba(168, 85, 247, 0.25);
+        .store-brand-signature .sig-text,
+        .store-theme-badge .sig-text {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            line-height: 1.2;
         }
-        .badge-premium {
-            background: linear-gradient(135deg, rgba(212, 168, 67, 0.22) 0%, rgba(245, 158, 11, 0.22) 100%);
-            color: #D4A843;
-            border: 1.5px solid rgba(212, 168, 67, 0.55);
-            box-shadow: 0 2px 10px rgba(212, 168, 67, 0.25);
+
+        /* 1. Kids: Нежный, радостный медово-розовый шрифт с мишкой */
+        .badge-kids .sig-text {
+            background: linear-gradient(135deg, #F59E0B 0%, #EC4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+            letter-spacing: 1px;
+            filter: drop-shadow(0 2px 8px rgba(245, 158, 11, 0.25));
         }
-        .badge-casual {
-            background: linear-gradient(135deg, rgba(79, 70, 229, 0.2) 0%, rgba(16, 185, 129, 0.2) 100%);
-            color: #818CF8;
-            border: 1.5px solid rgba(79, 70, 229, 0.45);
+        .badge-kids .sig-icon {
+            animation: softBounce 2.5s infinite ease-in-out;
         }
-        .badge-drive {
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.22) 0%, rgba(56, 189, 248, 0.22) 100%);
-            color: #38BDF8;
-            border: 1.5px solid rgba(37, 99, 235, 0.5);
+        @keyframes softBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-2px) scale(1.1); }
         }
-        .badge-auto-premium {
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.22) 0%, rgba(245, 158, 11, 0.22) 100%);
-            color: #FCD34D;
-            border: 1.5px solid rgba(212, 175, 55, 0.5);
+
+        /* 2. Gen-Z: Дерзкий кибер-неон, курсив, свечение фиолетово-голубого */
+        .badge-genz .sig-text {
+            background: linear-gradient(135deg, #C084FC 0%, #06B6D4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+            font-style: italic;
+            letter-spacing: 1.8px;
+            filter: drop-shadow(0 0 8px rgba(192, 132, 252, 0.5));
         }
-        .badge-garage {
-            background: linear-gradient(135deg, rgba(234, 88, 12, 0.22) 0%, rgba(249, 115, 22, 0.22) 100%);
-            color: #FB923C;
-            border: 1.5px solid rgba(234, 88, 12, 0.5);
+
+        /* 3. Luxury Old Money: Благородное жидкое золото, высокий трекинг */
+        .badge-premium .sig-text {
+            background: linear-gradient(135deg, #FDE68A 0%, #D4AF37 50%, #B45309 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            letter-spacing: 2.2px;
+            filter: drop-shadow(0 1px 6px rgba(212, 175, 55, 0.4));
         }
-        .badge-tuning {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(239, 68, 68, 0.22) 100%);
-            color: #34D399;
-            border: 1.5px solid rgba(16, 185, 129, 0.5);
+
+        /* 4. Drift & Tuning: Агрессивный неоновый лайм, скорость, нитро */
+        .badge-tuning .sig-text {
+            background: linear-gradient(135deg, #34D399 0%, #10B981 60%, #EF4444 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+            font-style: italic;
+            letter-spacing: 2px;
+            filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.55));
         }
-        .badge-tech-minimal {
-            background: rgba(6, 182, 212, 0.2);
-            color: #38BDF8;
-            border: 1.5px solid rgba(6, 182, 212, 0.5);
+
+        /* 5. Brutal Garage: Индустриальный кованый оранжевый металл */
+        .badge-garage .sig-text {
+            background: linear-gradient(135deg, #FB923C 0%, #EA580C 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+            letter-spacing: 2.2px;
+            filter: drop-shadow(0 1px 8px rgba(234, 88, 12, 0.45));
         }
-        .badge-gaming {
-            background: linear-gradient(135deg, rgba(220, 38, 38, 0.22) 0%, rgba(147, 51, 234, 0.22) 100%);
-            color: #F472B6;
-            border: 1.5px solid rgba(220, 38, 38, 0.5);
+
+        /* 6. Sport Drive: Скоростной электрический синий */
+        .badge-drive .sig-text {
+            background: linear-gradient(135deg, #60A5FA 0%, #38BDF8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+            font-style: italic;
+            letter-spacing: 2px;
+            filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.5));
         }
-        .badge-custom {
-            background: rgba(255, 255, 255, 0.08);
-            color: var(--primary);
-            border: 1.5px solid var(--primary);
+
+        /* 7. Premium Detailing & Motors: Полированный платиновый титан */
+        .badge-auto-premium .sig-text {
+            background: linear-gradient(135deg, #FFFFFF 0%, #D4AF37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            letter-spacing: 2.2px;
+            filter: drop-shadow(0 1px 6px rgba(212, 175, 55, 0.35));
         }
-        .badge-classic {
-            background: rgba(255, 255, 255, 0.06);
+
+        /* 8. Cyber Minimal: Кристальный сапфир и LED-циан */
+        .badge-tech-minimal .sig-text {
+            background: linear-gradient(135deg, #22D3EE 0%, #3B82F6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            letter-spacing: 2px;
+            filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.45));
+        }
+
+        /* 9. RGB Gaming: Киберпанк неон рубин и ультрафиолет */
+        .badge-gaming .sig-text {
+            background: linear-gradient(135deg, #F43F5E 0%, #A855F7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+            letter-spacing: 2px;
+            filter: drop-shadow(0 0 10px rgba(244, 63, 94, 0.55));
+        }
+
+        /* 10. Casual Fashion: Стильный европейский индиго и изумруд */
+        .badge-casual .sig-text {
+            background: linear-gradient(135deg, #818CF8 0%, #34D399 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            letter-spacing: 1.8px;
+            filter: drop-shadow(0 1px 6px rgba(129, 140, 248, 0.35));
+        }
+
+        /* 11. Custom Brand: Персональный градиент фирменных цветов магазина */
+        .badge-custom .sig-text {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            letter-spacing: 2px;
+            filter: drop-shadow(0 1px 6px rgba(0, 0, 0, 0.25));
+        }
+
+        /* Fallback text colors for older browsers or simple tags */
+        .badge-kids { color: #EC4899; }
+        .badge-genz { color: #C084FC; }
+        .badge-premium { color: #D4AF37; }
+        .badge-tuning { color: #10B981; }
+        .badge-garage { color: #FB923C; }
+        .badge-drive { color: #38BDF8; }
+        .badge-auto-premium { color: #FCD34D; }
+        .badge-tech-minimal { color: #22D3EE; }
+        .badge-gaming { color: #F43F5E; }
+        .badge-casual { color: #818CF8; }
+        .badge-custom { color: var(--primary); }
+        .badge-classic { color: var(--text-muted); }
+
+        /* 12. Classic Brand */
+        .badge-classic .sig-text {
             color: var(--text-muted);
-            border: 1px solid var(--border);
+            font-weight: 700;
+            letter-spacing: 1.6px;
         }
 
         .messages { list-style: none; padding: 0 16px; margin: 10px 0; }

@@ -131,27 +131,29 @@
         <div style="display: flex; align-items: center; gap: 6px; overflow: hidden; white-space: nowrap;">
             <span style="font-weight: 800; font-size: 13.5px; color: var(--text-main); overflow: hidden; text-overflow: ellipsis;">{{ product.store.name }}</span>
             {% if product.store.theme_style == 'kids_playful' or product.store.theme_style == 'fashion_kids' or product.store.niche == 'kids' or 'kids' in product.store.name|lower %}
-                <span class="store-theme-badge badge-kids" style="font-size: 9px; padding: 2px 6px;">🧸 kids-joyfull</span>
+                <span class="store-brand-signature badge-kids"><span class="sig-icon">🧸</span><span class="sig-text">kids-joyfull</span></span>
             {% elif product.store.theme_style == 'genz_neon' or product.store.theme_style == 'fashion_genz' or 'gen' in product.store.name|lower %}
-                <span class="store-theme-badge badge-genz" style="font-size: 9px; padding: 2px 6px;">⚡ gen-z</span>
+                <span class="store-brand-signature badge-genz"><span class="sig-icon">⚡</span><span class="sig-text">gen-z</span></span>
             {% elif product.store.theme_style == 'premium_gold' or product.store.theme_style == 'fashion_premium' or 'luxury' in product.store.name|lower or 'premium' in product.store.name|lower %}
-                <span class="store-theme-badge badge-premium" style="font-size: 9px; padding: 2px 6px;">👑 luxury gold</span>
+                <span class="store-brand-signature badge-premium"><span class="sig-icon">👑</span><span class="sig-text">luxury gold</span></span>
             {% elif product.store.theme_style == 'auto_drive' %}
-                <span class="store-theme-badge badge-drive" style="font-size: 9px; padding: 2px 6px;">🏎️ sport drive</span>
+                <span class="store-brand-signature badge-drive"><span class="sig-icon">🏎️</span><span class="sig-text">sport drive</span></span>
             {% elif product.store.theme_style == 'auto_premium' %}
-                <span class="store-theme-badge badge-auto-premium" style="font-size: 9px; padding: 2px 6px;">⭐ premium motors</span>
+                <span class="store-brand-signature badge-auto-premium"><span class="sig-icon">⭐</span><span class="sig-text">premium motors</span></span>
             {% elif product.store.theme_style == 'auto_brutal' %}
-                <span class="store-theme-badge badge-garage" style="font-size: 9px; padding: 2px 6px;">🛠️ brutal garage</span>
+                <span class="store-brand-signature badge-garage"><span class="sig-icon">🛠️</span><span class="sig-text">brutal garage</span></span>
             {% elif product.store.theme_style == 'auto_tuning' or 'tuning' in product.store.name|lower or 'drift' in product.store.name|lower %}
-                <span class="store-theme-badge badge-tuning" style="font-size: 9px; padding: 2px 6px;">🔥 drift & tuning</span>
+                <span class="store-brand-signature badge-tuning"><span class="sig-icon">🔥</span><span class="sig-text">drift & tuning</span></span>
             {% elif product.store.theme_style == 'tech_minimal' %}
-                <span class="store-theme-badge badge-tech-minimal" style="font-size: 9px; padding: 2px 6px;">⚡ cyber minimal</span>
+                <span class="store-brand-signature badge-tech-minimal"><span class="sig-icon">⚡</span><span class="sig-text">cyber minimal</span></span>
             {% elif product.store.theme_style == 'tech_gaming' %}
-                <span class="store-theme-badge badge-gaming" style="font-size: 9px; padding: 2px 6px;">🎮 rgb gaming</span>
+                <span class="store-brand-signature badge-gaming"><span class="sig-icon">🎮</span><span class="sig-text">rgb gaming</span></span>
             {% elif product.store.theme_style == 'fashion_casual' %}
-                <span class="store-theme-badge badge-casual" style="font-size: 9px; padding: 2px 6px;">✨ casual fashion</span>
+                <span class="store-brand-signature badge-casual"><span class="sig-icon">✨</span><span class="sig-text">casual fashion</span></span>
             {% elif product.store.theme_style == 'custom' %}
-                <span class="store-theme-badge badge-custom" style="font-size: 9px; padding: 2px 6px;">🎨 custom brand</span>
+                <span class="store-brand-signature badge-custom"><span class="sig-icon">🎨</span><span class="sig-text">custom brand</span></span>
+            {% else %}
+                <span class="store-brand-signature badge-classic"><span class="sig-icon">✦</span><span class="sig-text">official brand</span></span>
             {% endif %}
         </div>
     </div>
@@ -237,27 +239,29 @@
         <div class="details-content">
             {% trans "Магазин:" %} <strong>{{ product.store.name }}</strong>
             {% if product.store.theme_style == 'kids_playful' or product.store.theme_style == 'fashion_kids' or product.store.niche == 'kids' or 'kids' in product.store.name|lower %}
-                <span class="store-theme-badge badge-kids" style="font-size: 9.5px; padding: 2px 7px;">🧸 kids-joyfull</span>
+                <span class="store-brand-signature badge-kids"><span class="sig-icon">🧸</span><span class="sig-text">kids-joyfull</span></span>
             {% elif product.store.theme_style == 'genz_neon' or product.store.theme_style == 'fashion_genz' or 'gen' in product.store.name|lower %}
-                <span class="store-theme-badge badge-genz" style="font-size: 9.5px; padding: 2px 7px;">⚡ gen-z</span>
+                <span class="store-brand-signature badge-genz"><span class="sig-icon">⚡</span><span class="sig-text">gen-z</span></span>
             {% elif product.store.theme_style == 'premium_gold' or product.store.theme_style == 'fashion_premium' or 'luxury' in product.store.name|lower or 'premium' in product.store.name|lower %}
-                <span class="store-theme-badge badge-premium" style="font-size: 9.5px; padding: 2px 7px;">👑 luxury gold</span>
+                <span class="store-brand-signature badge-premium"><span class="sig-icon">👑</span><span class="sig-text">luxury gold</span></span>
             {% elif product.store.theme_style == 'auto_drive' %}
-                <span class="store-theme-badge badge-drive" style="font-size: 9.5px; padding: 2px 7px;">🏎️ sport drive</span>
+                <span class="store-brand-signature badge-drive"><span class="sig-icon">🏎️</span><span class="sig-text">sport drive</span></span>
             {% elif product.store.theme_style == 'auto_premium' %}
-                <span class="store-theme-badge badge-auto-premium" style="font-size: 9.5px; padding: 2px 7px;">⭐ premium motors</span>
+                <span class="store-brand-signature badge-auto-premium"><span class="sig-icon">⭐</span><span class="sig-text">premium motors</span></span>
             {% elif product.store.theme_style == 'auto_brutal' %}
-                <span class="store-theme-badge badge-garage" style="font-size: 9.5px; padding: 2px 7px;">🛠️ brutal garage</span>
+                <span class="store-brand-signature badge-garage"><span class="sig-icon">🛠️</span><span class="sig-text">brutal garage</span></span>
             {% elif product.store.theme_style == 'auto_tuning' or 'tuning' in product.store.name|lower or 'drift' in product.store.name|lower %}
-                <span class="store-theme-badge badge-tuning" style="font-size: 9.5px; padding: 2px 7px;">🔥 drift & tuning</span>
+                <span class="store-brand-signature badge-tuning"><span class="sig-icon">🔥</span><span class="sig-text">drift & tuning</span></span>
             {% elif product.store.theme_style == 'tech_minimal' %}
-                <span class="store-theme-badge badge-tech-minimal" style="font-size: 9.5px; padding: 2px 7px;">⚡ cyber minimal</span>
+                <span class="store-brand-signature badge-tech-minimal"><span class="sig-icon">⚡</span><span class="sig-text">cyber minimal</span></span>
             {% elif product.store.theme_style == 'tech_gaming' %}
-                <span class="store-theme-badge badge-gaming" style="font-size: 9.5px; padding: 2px 7px;">🎮 rgb gaming</span>
+                <span class="store-brand-signature badge-gaming"><span class="sig-icon">🎮</span><span class="sig-text">rgb gaming</span></span>
             {% elif product.store.theme_style == 'fashion_casual' %}
-                <span class="store-theme-badge badge-casual" style="font-size: 9.5px; padding: 2px 7px;">✨ casual fashion</span>
+                <span class="store-brand-signature badge-casual"><span class="sig-icon">✨</span><span class="sig-text">casual fashion</span></span>
             {% elif product.store.theme_style == 'custom' %}
-                <span class="store-theme-badge badge-custom" style="font-size: 9.5px; padding: 2px 7px;">🎨 custom brand</span>
+                <span class="store-brand-signature badge-custom"><span class="sig-icon">🎨</span><span class="sig-text">custom brand</span></span>
+            {% else %}
+                <span class="store-brand-signature badge-classic"><span class="sig-icon">✦</span><span class="sig-text">official brand</span></span>
             {% endif %}<br>
             {% trans "Страна: Узбекистан" %}<br>
             {% trans "Артикул:" %} {{ product.id }}
