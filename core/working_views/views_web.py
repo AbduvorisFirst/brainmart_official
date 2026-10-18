@@ -47,11 +47,68 @@ def catalog_view(request):
     # Категории для фильтрации (8 главных ниш маркетплейса)
     categories = Category.objects.all().order_by("id")
 
-    # Если включен ИИ-поиск или запрос семантический/контекстный
-    if search_query and (is_ai_search or any(word in search_query.lower() for word in ["айтишник", "образ", "стиль", "свидание", "подарок", "спорт", "лето", "зима", "офис", "вечеринка", "it", "casual", "old money"])):
-        ai_res = semantic_ai_catalog_search(search_query, current_store)
-        variants = ai_res.get("variants", [])
-        ai_advice = ai_res.get("advice")
+    # Интеллектуальный поиск: многословный, по названию, цвету, описанию и ИИ
+    if search_query:
+        import re
+        q_clean = search_query.lower()
+        semantic_keywords = [
+            "premium", "премиум", "качество", "качества", "люкс", "стиль", "образ", 
+            "одежда", "одежды", "айтишник", "свидание", "подарок", "спорт", "лето", 
+            "зима", "офис", "вечеринка", "it", "casual", "old money", "оверсайз", 
+            "мода", "тренды", "вечерний", "хлопок", "зипуха", "куртка", "look"
+        ]
+        is_semantic = is_ai_search or any(word in q_clean for word in semantic_keywords) or len(q_clean.split()) >= 2
+
+        if is_semantic:
+            ai_res = semantic_ai_catalog_search(search_query, current_store)
+            variants = ai_res.get("variants", [])
+            ai_advice = ai_res.get("advice")
+        else:
+            variants = []
+
+        # Если семантический поиск вернул мало или запрос обычный — выполняем точный поиск по базе
+        if not variants:
+            base_qs = ProductVariant.objects.filter(
+                product__is_active=True,
+                product__store__is_active=True,
+                product__store__is_frozen_by_admin=False
+            ).select_related("product", "product__store", "product__category").order_by("product_id", "id")
+
+            if current_store:
+                base_qs = base_qs.filter(product__store=current_store)
+            if category_id:
+                base_qs = base_qs.filter(product__category_id=category_id)
+
+            # 1. Поиск по полной фразе во всех полях
+            full_match = base_qs.filter(
+                Q(product__name__icontains=search_query) |
+                Q(product__description__icontains=search_query) |
+                Q(color__icontains=search_query) |
+                Q(product__category__name__icontains=search_query) |
+                Q(product__store__name__icontains=search_query)
+            )
+
+            if full_match.exists():
+                variants = list(full_match)
+            else:
+                # 2. Поиск по отдельным словам
+                words = [w for w in re.findall(r'\w+', search_query) if len(w) >= 2]
+                word_q = Q()
+                for w in words:
+                    word_q |= Q(product__name__icontains=w)
+                    word_q |= Q(product__description__icontains=w)
+                    word_q |= Q(color__icontains=w)
+                    word_q |= Q(product__category__name__icontains=w)
+
+                word_matches = base_qs.filter(word_q) if words else base_qs.none()
+                if word_matches.exists():
+                    variants = list(word_matches)
+                    ai_advice = f"Найдено по ключевым словам '{search_query}':"
+                else:
+                    # 3. Умная рекомендация, чтобы не оставлять пустой экран
+                    ai_res = semantic_ai_catalog_search(search_query, current_store)
+                    variants = ai_res.get("variants", [])
+                    ai_advice = ai_res.get("advice") or f"По запросу '{search_query}' подобраны похожие качественные товары:"
     else:
         variants = ProductVariant.objects.filter(
             product__is_active=True,
@@ -64,13 +121,6 @@ def catalog_view(request):
 
         if category_id:
             variants = variants.filter(product__category_id=category_id)
-
-        if search_query:
-            variants = variants.filter(
-                Q(product__name__icontains=search_query) |
-                Q(color__icontains=search_query) |
-                Q(product__category__name__icontains=search_query)
-            )
 
     # Группируем по уникальной паре (product_id, color) в Python для SQLite
     seen = set()

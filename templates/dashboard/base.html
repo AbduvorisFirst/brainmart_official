@@ -103,43 +103,69 @@
             /* Боковой сайдбар */
             .desktop-sidebar {
                 width: var(--sidebar-w);
-                min-height: 100vh;
+                height: 100vh;
+                max-height: 100vh;
                 background: var(--card-bg);
                 border-right: 1px solid var(--border);
                 display: flex;
                 flex-direction: column;
-                padding: 32px 0;
+                padding: 20px 0 24px;
                 position: fixed;
                 top: 0; left: 0; bottom: 0;
                 z-index: 200;
+                overflow-y: auto;
+                overflow-x: hidden;
+                scrollbar-width: thin;
+                scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+            }
+            .desktop-sidebar::-webkit-scrollbar {
+                width: 5px;
+            }
+            .desktop-sidebar::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            .desktop-sidebar::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.15);
+                border-radius: 4px;
+            }
+            .desktop-sidebar::-webkit-scrollbar-thumb:hover {
+                background: var(--primary);
             }
             .desktop-sidebar .sidebar-logo {
-                padding: 0 24px 24px;
+                padding: 0 20px 14px;
                 border-bottom: 1px solid var(--border);
-                margin-bottom: 20px;
+                margin-bottom: 12px;
+                flex-shrink: 0;
             }
             .desktop-sidebar .sidebar-logo h2 {
-                margin: 0; font-size: 24px; font-weight: 900; color: white; letter-spacing: -0.5px;
+                margin: 0; font-size: 22px; font-weight: 900; color: white; letter-spacing: -0.5px;
             }
             .desktop-sidebar .sidebar-logo h2 span { color: var(--primary); }
             .desktop-sidebar .sidebar-store {
-                padding: 0 24px 20px;
+                padding: 0 20px 14px;
                 font-size: 13px; color: var(--text-muted); font-weight: 600;
-                border-bottom: 1px solid var(--border); margin-bottom: 12px;
+                border-bottom: 1px solid var(--border); margin-bottom: 8px;
+                flex-shrink: 0;
             }
             .sidebar-nav-item {
-                display: flex; align-items: center; gap: 14px;
-                padding: 14px 24px; color: var(--text-muted);
-                text-decoration: none; font-size: 15px; font-weight: 600;
-                border-radius: 16px; margin: 4px 12px;
+                display: flex; align-items: center; gap: 12px;
+                padding: 10px 18px; color: var(--text-muted);
+                text-decoration: none; font-size: 14px; font-weight: 600;
+                border-radius: 12px; margin: 2px 10px;
                 transition: all 0.2s ease;
             }
             .sidebar-nav-item:hover { background: rgba(255,255,255,0.05); color: white; transform: translateX(4px); }
             .sidebar-nav-item.active { background: rgba(79, 70, 229, 0.15); color: #818CF8; font-weight: 700; }
-            .sidebar-nav-item .nav-icon { font-size: 22px; }
+            .sidebar-nav-item .nav-icon { font-size: 19px; }
+            .desktop-sidebar nav {
+                display: flex;
+                flex-direction: column;
+                flex: 1 1 auto;
+            }
             .sidebar-footer {
-                margin-top: auto; padding: 20px 24px 0;
+                margin-top: auto; padding: 14px 16px 0;
                 border-top: 1px solid var(--border);
+                flex-shrink: 0;
             }
 
             /* Главная область контента */

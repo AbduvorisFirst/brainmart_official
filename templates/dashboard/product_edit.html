@@ -5,11 +5,11 @@
 <style>
     .edit-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1.1fr 1fr;
         gap: 24px;
         align-items: start;
     }
-    @media (max-width: 900px) {
+    @media (max-width: 992px) {
         .edit-grid {
             grid-template-columns: 1fr;
             gap: 20px;
@@ -20,18 +20,18 @@
         background: var(--card-bg);
         border: 1px solid var(--border);
         border-radius: 20px;
-        padding: 24px;
+        padding: 22px;
         box-shadow: 0 8px 24px rgba(0,0,0,0.14);
-        margin-bottom: 24px;
+        margin-bottom: 22px;
     }
     .edit-section-title {
-        font-size: 18px;
+        font-size: 17px;
         font-weight: 800;
         color: white;
-        margin: 0 0 16px;
+        margin: 0 0 14px;
         display: flex;
         align-items: center;
-        gap: 10px;
+        justify-content: space-between;
     }
 
     /* Main Cover Card */
@@ -40,10 +40,10 @@
         border-radius: 18px;
         overflow: hidden;
         border: 2.5px solid #f59e0b;
-        box-shadow: 0 0 24px rgba(245, 158, 11, 0.45);
+        box-shadow: 0 0 24px rgba(245, 158, 11, 0.35);
         background: rgba(15, 23, 42, 0.8);
         aspect-ratio: 1 / 1;
-        max-width: 320px;
+        max-width: 280px;
         margin: 0 auto 16px;
     }
     .main-cover-img {
@@ -54,15 +54,15 @@
     }
     .main-cover-badge {
         position: absolute;
-        bottom: 10px;
-        left: 10px;
-        right: 10px;
+        bottom: 8px;
+        left: 8px;
+        right: 8px;
         background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
         color: #ffffff;
-        font-size: 12px;
+        font-size: 11.5px;
         font-weight: 800;
         text-align: center;
-        padding: 6px 10px;
+        padding: 6px 8px;
         border-radius: 10px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         letter-spacing: 0.3px;
@@ -71,15 +71,9 @@
     /* Gallery Grid */
     .photos-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-        gap: 14px;
-        margin-top: 14px;
-    }
-    @media (max-width: 600px) {
-        .photos-grid {
-            grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
-            gap: 10px;
-        }
+        grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+        gap: 12px;
+        margin-top: 12px;
     }
 
     .gallery-photo-card {
@@ -95,13 +89,12 @@
         flex-direction: column;
     }
     .gallery-photo-card:hover {
-        transform: translateY(-3px) scale(1.02);
+        transform: translateY(-2px);
         border-color: #f59e0b;
-        box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
     }
     .gallery-photo-card.is-active-main {
         border: 2.5px solid #f59e0b !important;
-        box-shadow: 0 0 18px rgba(245, 158, 11, 0.5) !important;
+        box-shadow: 0 0 16px rgba(245, 158, 11, 0.45) !important;
     }
 
     .gallery-card-img {
@@ -113,15 +106,15 @@
 
     .btn-set-main {
         position: absolute;
-        bottom: 6px;
-        left: 6px;
-        right: 6px;
-        background: rgba(15, 23, 42, 0.88);
+        bottom: 5px;
+        left: 5px;
+        right: 5px;
+        background: rgba(15, 23, 42, 0.92);
         backdrop-filter: blur(4px);
         color: #fcd34d;
-        border: 1px solid rgba(245, 158, 11, 0.5);
+        border: 1px solid rgba(245, 158, 11, 0.6);
         border-radius: 8px;
-        padding: 5px 6px;
+        padding: 5px 4px;
         font-size: 10px;
         font-weight: 800;
         cursor: pointer;
@@ -135,101 +128,233 @@
         background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
         color: #ffffff;
         border-color: #f59e0b;
-        box-shadow: 0 2px 10px rgba(245, 158, 11, 0.6);
-        transform: scale(1.02);
     }
 
     .active-main-tag {
         position: absolute;
-        bottom: 6px;
-        left: 6px;
-        right: 6px;
+        bottom: 5px;
+        left: 5px;
+        right: 5px;
         background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
         color: #ffffff;
         border-radius: 8px;
         padding: 4px 6px;
-        font-size: 10px;
+        font-size: 9.5px;
         font-weight: 800;
         text-align: center;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.5);
     }
 
     .btn-delete-photo {
         position: absolute;
-        top: 6px;
-        right: 6px;
-        width: 26px;
-        height: 26px;
+        top: 5px;
+        right: 5px;
+        width: 24px;
+        height: 24px;
         background: rgba(239, 68, 68, 0.85);
         color: white;
         border: none;
-        border-radius: 8px;
+        border-radius: 7px;
         cursor: pointer;
-        font-size: 12px;
+        font-size: 11px;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: transform 0.15s ease, background 0.15s ease;
-    }
-    .btn-delete-photo:hover {
-        background: #ef4444;
-        transform: scale(1.1);
     }
 
-    .upload-mini-box {
-        background: rgba(15, 23, 42, 0.4);
-        border: 2px dashed rgba(255, 255, 255, 0.2);
-        border-radius: 14px;
-        padding: 18px 12px;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        margin-top: 14px;
+    /* Таблица вариантов */
+    .variant-row {
+        display: grid;
+        grid-template-columns: 46px 1fr 1fr 100px 40px;
+        gap: 10px;
+        align-items: center;
+        padding: 10px 12px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        margin-bottom: 8px;
     }
-    .upload-mini-box:hover {
-        border-color: var(--primary);
-        background: rgba(79, 70, 229, 0.1);
+    @media (max-width: 600px) {
+        .variant-row {
+            grid-template-columns: 40px 1fr 1fr 85px 36px;
+            gap: 6px;
+            padding: 8px;
+        }
+    }
+    .variant-row-img {
+        width: 42px;
+        height: 42px;
+        border-radius: 8px;
+        object-fit: cover;
+        background: rgba(0,0,0,0.3);
     }
 </style>
 
-<div style="max-width: 1200px; margin: 0 auto;">
-    <!-- Breadcrumb -->
+<div style="max-width: 1200px; margin: 0 auto; padding-bottom: 40px;">
+    <!-- Breadcrumb & Top Bar -->
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
         <div>
             <a href="{% url 'seller-products' %}" style="color: var(--text-muted); text-decoration: none; font-size: 13.5px; font-weight: 600;">
                 ← {% trans "Назад ко всем товарам" %}
             </a>
-            <h2 style="margin: 6px 0 0; font-size: 24px; font-weight: 800; color: white;">
-                ✏️ {% trans "Редактировать товар" %}: {{ product.name }}
+            <h2 style="margin: 6px 0 0; font-size: 22px; font-weight: 900; color: white;">
+                ✏️ {% trans "Редактировать товар" %}: <span style="color: var(--primary);">{{ product.name }}</span>
             </h2>
         </div>
-        <div style="display: flex; gap: 8px;">
-            <a href="{% url 'seller-product-inventory' product.id %}" class="btn" style="background: rgba(16, 185, 129, 0.15); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.35); text-decoration: none; font-size: 13px; font-weight: 700; border-radius: 12px; padding: 10px 16px;">
-                📦 {% trans "Приход / Остатки на складе" %}
-            </a>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <span style="font-size: 13px; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border);">
+                📦 {% trans "Всего на складе:" %} <strong style="color: #10B981;">{{ total_stock }} {% trans "шт." %}</strong>
+            </span>
         </div>
     </div>
 
     <div class="edit-grid">
-        <!-- ЛЕВАЯ КОЛОНКА: УПРАВЛЕНИЕ ФОТОГРАФИЯМИ И ГЛАВНОЙ ОБЛОЖКОЙ -->
+        <!-- ─── ЛЕВАЯ КОЛОНКА: ОСНОВНЫЕ ПАРАМЕТРЫ И ОСТАТКИ/ВАРИАНТЫ ─── -->
         <div>
-            <!-- ТЕКУЩЕЕ ГЛАВНОЕ ФОТО -->
+            <!-- 1. ПАРАМЕТРЫ ТОВАРА (НАЗВАНИЕ, ЦЕНА, ОПИСАНИЕ) -->
             <div class="edit-section">
-                <h3 class="edit-section-title">
-                    <span>⭐</span> {% trans "Главное фото товара (Обложка)" %}
-                </h3>
-                <p style="font-size: 13px; color: var(--text-muted); margin-top: 0; margin-bottom: 16px;">
-                    {% trans "Это фото показывается первым на витрине магазина, в Telegram-каталоге и отправляется ИИ-ботом клиентам в Direct." %}
+                <div class="edit-section-title">
+                    <span>📝 {% trans "Основные данные товара" %}</span>
+                    <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">ID: {{ product.id }}</span>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="update_info">
+
+                    <label style="font-size: 12.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 5px;">{% trans "Название товара" %} *</label>
+                    <input type="text" name="name" id="productNameInput" value="{{ product.name }}" required placeholder="{% trans 'Например: Худи оверсайз' %}" style="margin-bottom: 14px; width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.04); border: 1.5px solid var(--border); color: white; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 700;">
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                        <div>
+                            <label style="font-size: 12.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 5px;">{% trans "Категория" %}</label>
+                            <select name="category_id" style="background: rgba(255,255,255,0.04); border: 1.5px solid var(--border); color: white; padding: 11px; border-radius: 12px; width: 100%; font-weight: 700; font-size: 13.5px; box-sizing: border-box;">
+                                {% for cat in categories %}
+                                    <option value="{{ cat.id }}" {% if product.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 12.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 5px;">{% trans "Базовая цена (сум)" %} *</label>
+                            <input type="number" name="base_price" value="{{ product.base_price|floatformat:0 }}" required placeholder="350000" style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.04); border: 1.5px solid var(--border); color: white; padding: 11px; border-radius: 12px; font-size: 13.5px; font-weight: 800;">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <label style="font-size: 12.5px; font-weight: 700; color: var(--text-muted); margin: 0;">{% trans "Описание товара" %}</label>
+                        <button type="button" onclick="generateAIDescription()" id="aiDescBtn" style="background: rgba(79,70,229,0.15); border: 1px solid rgba(79,70,229,0.3); color: #818cf8; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                            <span id="aiDescText">✨ {% trans "Написать через Gemini AI" %}</span>
+                            <span id="aiDescSpinner" style="display: none;">⏳ {% trans "ИИ пишет..." %}</span>
+                        </button>
+                    </div>
+                    <textarea name="description" id="productDescTextarea" rows="4" placeholder="{% trans 'Подробное описание: ткань, посадка, сезон, качество...' %}" style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.04); border: 1.5px solid var(--border); color: white; padding: 12px; border-radius: 12px; font-size: 13.5px; margin-bottom: 16px; resize: vertical;">{{ product.description }}</textarea>
+
+                    <button type="submit" class="btn" style="width: 100%; font-size: 14px; font-weight: 800; padding: 12px; background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%); border-radius: 12px; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);">
+                        💾 {% trans "Сохранить параметры товара" %}
+                    </button>
+                </form>
+            </div>
+
+            <!-- 2. ОСТАТКИ И ВАРИАНТЫ ТОВАРА (ЦВЕТ, РАЗМЕР, КОЛИЧЕСТВО) -->
+            <div class="edit-section">
+                <div class="edit-section-title">
+                    <span>📦 {% trans "Остатки на складе и варианты" %}</span>
+                    <span style="font-size: 12px; color: #10B981; font-weight: 800;">{{ all_variants|length }} {% trans "позиций" %}</span>
+                </div>
+                <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 0; margin-bottom: 14px; line-height: 1.45;">
+                    {% trans "Управляйте остатками прямо здесь. Укажите актуальное количество штук для каждого цвета и размера, либо добавьте новый вариант." %}
+                </p>
+
+                {% if all_variants %}
+                    <form method="post" style="margin-bottom: 20px;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="update_stocks">
+
+                        <div style="margin-bottom: 12px;">
+                            {% for var in all_variants %}
+                                <div class="variant-row">
+                                    <div>
+                                        {% if var.image %}
+                                            <img src="{{ var.image.url }}" alt="Фото" class="variant-row-img">
+                                        {% else %}
+                                            <div class="variant-row-img" style="display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text-muted);">
+                                                👕
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div style="font-size: 13.5px; font-weight: 700; color: white;">
+                                        {{ var.color|default:"Стандарт" }}
+                                    </div>
+                                    <div style="font-size: 12.5px; color: #a5b4fc; font-weight: 700;">
+                                        {{ var.size|default:"—" }}
+                                    </div>
+                                    <div>
+                                        <input type="number" name="stock_{{ var.id }}" value="{{ var.stock_quantity }}" min="0" required title="Остаток в штуках" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.3); border: 1.5px solid rgba(16, 185, 129, 0.4); color: #34d399; font-weight: 900; font-size: 14px; padding: 6px 8px; border-radius: 8px; text-align: center;">
+                                    </div>
+                                    <div>
+                                        <button type="submit" formaction="{% url 'seller-product-edit' product.id %}" onclick="if(!confirm('Удалить этот вариант?')) return false; this.form.querySelector('input[name=action]').value='delete_variant'; this.form.appendChild(Object.assign(document.createElement('input'),{type:'hidden',name:'variant_id',value:'{{ var.id }}'}));" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; border-radius: 8px; padding: 6px; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center;" title="{% trans 'Удалить вариант' %}">
+                                            ✕
+                                        </button>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <button type="submit" class="btn" style="width: 100%; font-size: 14px; font-weight: 800; padding: 12px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); border-radius: 12px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);">
+                            💾 {% trans "Сохранить остатки всех вариантов" %}
+                        </button>
+                    </form>
+                {% else %}
+                    <div style="background: rgba(255,255,255,0.03); border: 1px dashed var(--border); border-radius: 12px; padding: 16px; text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">
+                        {% trans "У товара пока нет вариантов с цветом и размером." %}
+                    </div>
+                {% endif %}
+
+                <!-- ФОРМА ДОБАВЛЕНИЯ НОВОГО ВАРИАНТА -->
+                <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 14px; padding: 14px;">
+                    <div style="font-size: 13px; font-weight: 800; color: white; margin-bottom: 10px;">
+                        ➕ {% trans "Добавить новый цвет / размер / остаток" %}
+                    </div>
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="add_variant">
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                            <input type="text" name="variant_color" placeholder="{% trans 'Цвет (Черный, Белый...)' %}" style="background: rgba(0,0,0,0.25); border: 1px solid var(--border); color: white; padding: 9px; border-radius: 10px; font-size: 12.5px;">
+                            <input type="text" name="variant_size" placeholder="{% trans 'Размер (S, M, L, 42...)' %}" style="background: rgba(0,0,0,0.25); border: 1px solid var(--border); color: white; padding: 9px; border-radius: 10px; font-size: 12.5px;">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                            <input type="number" name="variant_stock" value="10" min="0" placeholder="{% trans 'Остаток шт.' %}" style="background: rgba(0,0,0,0.25); border: 1px solid var(--border); color: white; padding: 9px; border-radius: 10px; font-size: 12.5px;">
+                            <input type="file" name="variant_image" accept="image/*" title="{% trans 'Фото варианта (опционально)' %}" style="background: rgba(0,0,0,0.25); border: 1px solid var(--border); color: var(--text-muted); padding: 7px; border-radius: 10px; font-size: 11px;">
+                        </div>
+
+                        <button type="submit" class="btn" style="width: 100%; font-size: 13px; font-weight: 700; padding: 10px; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.5); color: #a5b4fc; border-radius: 10px;">
+                            ➕ {% trans "Добавить позицию на склад" %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── ПРАВАЯ КОЛОНКА: ГЛАВНОЕ ФОТО И ГАЛЕРЕЯ ─── -->
+        <div>
+            <!-- ТЕКУЩЕЕ ГЛАВНОЕ ФОТО (ОБЛОЖКА) -->
+            <div class="edit-section">
+                <div class="edit-section-title">
+                    <span>⭐ {% trans "Главное фото (Обложка)" %}</span>
+                    <span style="font-size: 11px; color: #f59e0b; font-weight: 800;">{% trans "Визитка товара" %}</span>
+                </div>
+                <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 0; margin-bottom: 14px; line-height: 1.45;">
+                    {% trans "Это главное фото отображается на витрине, в результатах поиска и отправляется ИИ-ботом клиентам при консультации." %}
                 </p>
 
                 <div class="main-cover-wrapper">
                     {% if product.main_image %}
                         <img src="{{ product.main_image.url }}" alt="{{ product.name }}" class="main-cover-img">
-                        <div class="main-cover-badge">★ {% trans "Текущее главное фото" %}</div>
+                        <div class="main-cover-badge">★ {% trans "Активная главная обложка" %}</div>
                     {% else %}
                         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-muted);">
                             <span style="font-size: 40px; margin-bottom: 8px;">📷</span>
-                            <span style="font-size: 13px;">{% trans "Главное фото ещё не выбрано" %}</span>
+                            <span style="font-size: 13px;">{% trans "Обложка ещё не установлена" %}</span>
                         </div>
                     {% endif %}
                 </div>
@@ -238,13 +363,13 @@
                 <form method="post" enctype="multipart/form-data" style="margin-top: 14px;">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="upload_main_image">
-                    <label style="font-size: 13px; font-weight: 700; color: white; margin-bottom: 6px; display: block;">
-                        📷 {% trans "Загрузить новое главное фото с устройства" %}:
+                    <label style="font-size: 12.5px; font-weight: 700; color: white; margin-bottom: 6px; display: block;">
+                        📷 {% trans "Загрузить новое фото и сразу сделать главным" %}:
                     </label>
                     <div style="display: flex; gap: 8px;">
-                        <input type="file" name="new_main_file" accept="image/*" required style="font-size: 12px; color: var(--text-muted); padding: 8px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px; flex: 1;">
-                        <button type="submit" class="btn" style="width: auto; padding: 8px 16px; font-size: 12.5px; font-weight: 700; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
-                            ★ {% trans "Загрузить и сделать главным" %}
+                        <input type="file" name="new_main_file" accept="image/*" required style="font-size: 11.5px; color: var(--text-muted); padding: 8px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px; flex: 1;">
+                        <button type="submit" class="btn" style="width: auto; padding: 8px 14px; font-size: 12px; font-weight: 800; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius: 10px;">
+                            ★ {% trans "Установить" %}
                         </button>
                     </div>
                 </form>
@@ -252,124 +377,76 @@
 
             <!-- ВСЕ ФОТОГРАФИИ ТОВАРА (ГАЛЕРЕЯ И ВАРИАНТЫ) -->
             <div class="edit-section">
-                <h3 class="edit-section-title">
-                    <span>🖼️</span> {% trans "Все фотографии товара" %}
-                </h3>
-                <p style="font-size: 13px; color: var(--text-muted); margin-top: 0; margin-bottom: 12px;">
-                    💡 {% trans "Нажмите кнопку «⭐ Сделать главным» на любом фото, чтобы мгновенно назначить его обложкой товара!" %}
+                <div class="edit-section-title">
+                    <span>🖼️ {% trans "Галерея и фото вариантов" %}</span>
+                    <span style="font-size: 11px; color: var(--text-muted);">{% trans "Выбор обложки в 1 клик" %}</span>
+                </div>
+                <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 0; margin-bottom: 12px;">
+                    💡 {% trans "Нажмите «⭐ Сделать главным» на любом фото ниже, чтобы мгновенно назначить его обложкой товара!" %}
                 </p>
 
                 <div class="photos-grid">
                     <!-- 1. Фото из галереи (ProductImage) -->
                     {% for img in gallery_images %}
-                        {% with is_main=(product.main_image and product.main_image.url == img.image.url) %}
-                            <div class="gallery-photo-card {% if is_main %}is-active-main{% endif %}">
-                                <img src="{{ img.image.url }}" alt="Галерея" class="gallery-card-img">
-                                
-                                {% if not is_main %}
-                                    <!-- Кнопка сделать главным -->
-                                    <form method="post" style="margin: 0;">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="action" value="set_main_image">
-                                        <input type="hidden" name="image_id" value="{{ img.id }}">
-                                        <button type="submit" class="btn-set-main" title="{% trans 'Сделать главным фото' %}">
-                                            ⭐ {% trans "Сделать главным" %}
-                                        </button>
-                                    </form>
+                        <div class="gallery-photo-card {% if main_image_url and main_image_url == img.image.url %}is-active-main{% endif %}">
+                            <img src="{{ img.image.url }}" alt="Галерея" class="gallery-card-img">
+                            
+                            {% if main_image_url and main_image_url == img.image.url %}
+                                <div class="active-main-tag">★ {% trans "Главное фото" %}</div>
+                            {% else %}
+                                <form method="post" style="margin: 0;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="set_main_image">
+                                    <input type="hidden" name="image_id" value="{{ img.id }}">
+                                    <button type="submit" class="btn-set-main" title="{% trans 'Сделать главным фото' %}">
+                                        ⭐ {% trans "Сделать главным" %}
+                                    </button>
+                                </form>
 
-                                    <!-- Кнопка удалить из галереи -->
-                                    <form method="post" onsubmit="return confirm('{% trans "Удалить это фото из галереи?" %}');" style="margin: 0;">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="action" value="delete_image">
-                                        <input type="hidden" name="image_id" value="{{ img.id }}">
-                                        <button type="submit" class="btn-delete-photo" title="{% trans 'Удалить' %}">✕</button>
-                                    </form>
-                                {% else %}
-                                    <div class="active-main-tag">★ {% trans "Главное фото" %}</div>
-                                {% endif %}
-                            </div>
-                        {% endwith %}
+                                <form method="post" onsubmit="return confirm('{% trans "Удалить это фото из галереи?" %}');" style="margin: 0;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="delete_image">
+                                    <input type="hidden" name="image_id" value="{{ img.id }}">
+                                    <button type="submit" class="btn-delete-photo" title="{% trans 'Удалить' %}">✕</button>
+                                </form>
+                            {% endif %}
+                        </div>
                     {% endfor %}
 
                     <!-- 2. Фото из вариантов цветов (ProductVariant) -->
                     {% for var in variants_with_images %}
-                        {% with is_main=(product.main_image and product.main_image.url == var.image.url) %}
-                            <div class="gallery-photo-card {% if is_main %}is-active-main{% endif %}">
-                                <img src="{{ var.image.url }}" alt="{{ var.color }}" class="gallery-card-img">
-                                <span style="position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,0.7); font-size: 10px; font-weight: 700; color: #cbd5e1; padding: 2px 6px; border-radius: 6px;">
-                                    🎨 {{ var.color|default:"Цвет" }}
-                                </span>
+                        <div class="gallery-photo-card {% if main_image_url and main_image_url == var.image.url %}is-active-main{% endif %}">
+                            <img src="{{ var.image.url }}" alt="{{ var.color }}" class="gallery-card-img">
+                            <span style="position: absolute; top: 5px; left: 5px; background: rgba(0,0,0,0.75); font-size: 9.5px; font-weight: 700; color: #cbd5e1; padding: 2px 5px; border-radius: 5px;">
+                                🎨 {{ var.color|default:"Цвет" }}
+                            </span>
 
-                                {% if not is_main %}
-                                    <form method="post" style="margin: 0;">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="action" value="set_main_variant">
-                                        <input type="hidden" name="variant_id" value="{{ var.id }}">
-                                        <button type="submit" class="btn-set-main" title="{% trans 'Сделать главным фото' %}">
-                                            ⭐ {% trans "Сделать главным" %}
-                                        </button>
-                                    </form>
-                                {% else %}
-                                    <div class="active-main-tag">★ {% trans "Главное фото" %}</div>
-                                {% endif %}
-                            </div>
-                        {% endwith %}
+                            {% if main_image_url and main_image_url == var.image.url %}
+                                <div class="active-main-tag">★ {% trans "Главное фото" %}</div>
+                            {% else %}
+                                <form method="post" style="margin: 0;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="set_main_variant">
+                                    <input type="hidden" name="variant_id" value="{{ var.id }}">
+                                    <button type="submit" class="btn-set-main" title="{% trans 'Сделать главным фото' %}">
+                                        ⭐ {% trans "Сделать главным" %}
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
                     {% endfor %}
                 </div>
 
-                <!-- Добавить ещё фото в галерею -->
-                <form method="post" enctype="multipart/form-data" style="margin-top: 18px;">
+                <!-- Загрузить еще фото в галерею -->
+                <form method="post" enctype="multipart/form-data" style="margin-top: 14px;">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="add_gallery_images">
-                    <label class="upload-mini-box" style="display: block;">
-                        <span style="font-size: 22px; display: block; margin-bottom: 4px;">➕</span>
-                        <span style="font-size: 13px; font-weight: 700; color: white;">{% trans "Добавить ещё фото в галерею" %}</span>
-                        <span style="font-size: 11.5px; color: var(--text-muted); display: block; margin-top: 2px;">{% trans "Выберите одно или несколько фото" %}</span>
+                    <label style="display: block; background: rgba(15, 23, 42, 0.4); border: 2px dashed rgba(255, 255, 255, 0.18); border-radius: 12px; padding: 14px; text-align: center; cursor: pointer;">
+                        <span style="font-size: 20px; display: block; margin-bottom: 2px;">➕</span>
+                        <span style="font-size: 12.5px; font-weight: 700; color: white;">{% trans "Добавить ещё фото в галерею" %}</span>
+                        <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 2px;">{% trans "Выберите одно или несколько фото" %}</span>
                         <input type="file" name="gallery_files" accept="image/*" multiple onchange="this.form.submit()" style="display: none;">
                     </label>
-                </form>
-            </div>
-        </div>
-
-        <!-- ПРАВАЯ КОЛОНКА: ОСНОВНАЯ ИНФОРМАЦИЯ ТОВАРА -->
-        <div>
-            <div class="edit-section">
-                <h3 class="edit-section-title">
-                    <span>📝</span> {% trans "Параметры и описание товара" %}
-                </h3>
-
-                <form method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="update_info">
-
-                    <label>{% trans "Название товара" %}</label>
-                    <input type="text" name="name" id="productNameInput" value="{{ product.name }}" required placeholder="{% trans 'Например: Худи оверсайз' %}" style="margin-bottom: 16px;">
-
-                    <label>{% trans "Категория товара" %}</label>
-                    <select name="category_id" style="background: rgba(255,255,255,0.05); border: 1.5px solid var(--border); color: white; padding: 12px; border-radius: 10px; width: 100%; margin-bottom: 16px; font-weight: 700; font-size: 14px; box-sizing: border-box;">
-                        {% for cat in categories %}
-                            <option value="{{ cat.id }}" {% if product.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
-                        {% endfor %}
-                    </select>
-
-                    <label>{% trans "Базовая цена товара (сум)" %}</label>
-                    <input type="number" name="base_price" value="{{ product.base_price|floatformat:0 }}" required placeholder="350000" style="margin-bottom: 16px;">
-
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <label style="margin: 0;">{% trans "Описание товара" %}</label>
-                        <button type="button" onclick="generateAIDescription()" id="aiDescBtn" style="background: rgba(79,70,229,0.15); border: 1px solid rgba(79,70,229,0.3); color: #818cf8; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                            <span id="aiDescText">✨ {% trans "Написать через ИИ" %}</span>
-                            <span id="aiDescSpinner" style="display: none;">⏳ {% trans "ИИ пишет..." %}</span>
-                        </button>
-                    </div>
-                    <textarea name="description" id="productDescTextarea" rows="7" placeholder="{% trans 'Опишите товар или нажмите кнопку Написать через ИИ' %}" style="margin-bottom: 24px;">{{ product.description }}</textarea>
-
-                    <button type="submit" class="btn" style="width: 100%; font-size: 15px; font-weight: 800; padding: 14px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);">
-                        💾 {% trans "Сохранить изменения товара" %}
-                    </button>
-                    <a href="{% url 'seller-products' %}" class="btn btn-secondary" style="width: 100%; margin-top: 10px; text-align: center; font-size: 13.5px; font-weight: 700; text-decoration: none; box-sizing: border-box; display: block;">
-                        {% trans "Отмена" %}
-                    </a>
                 </form>
             </div>
         </div>

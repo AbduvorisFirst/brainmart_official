@@ -833,6 +833,7 @@ def semantic_ai_catalog_search(query_text: str, store: Store | None = None) -> d
     Использует Gemini AI для анализа каталога и подбора подходящих товаров с объяснением стилиста.
     """
     import json
+    import re
 
     base_qs = ProductVariant.objects.filter(
         product__is_active=True,
@@ -842,7 +843,7 @@ def semantic_ai_catalog_search(query_text: str, store: Store | None = None) -> d
     if store:
         base_qs = base_qs.filter(product__store=store)
 
-    variants = list(base_qs[:40])
+    variants = list(base_qs[:60])
     if not variants:
         return {"advice": "В каталоге пока нет доступных товаров.", "variants": []}
 
@@ -852,36 +853,59 @@ def semantic_ai_catalog_search(query_text: str, store: Store | None = None) -> d
             "id": v.id,
             "name": v.product.name,
             "category": v.product.category.name if v.product.category else "Товары",
+            "description": (v.product.description or "")[:250],
             "color": v.color or "Базовый",
             "size": v.size or "Универсальный",
             "price": int(v.final_price),
             "store": v.product.store.name,
         })
 
+    def _fallback_search(items, query):
+        words = [w.lower() for w in re.findall(r'\w+', query) if len(w) >= 2]
+        scored = []
+        q_lower = query.lower()
+        for item in items:
+            cat_name = item.product.category.name if item.product.category else ""
+            desc = item.product.description or ""
+            store_name = item.product.store.name if item.product.store else ""
+            haystack = f"{item.product.name} {desc} {item.color} {cat_name} {store_name}".lower()
+
+            score = 0
+            if q_lower in haystack:
+                score += 15
+            for w in words:
+                if w in haystack:
+                    score += 4
+                elif len(w) > 4 and w[:4] in haystack:
+                    score += 1.5
+            if score > 0:
+                scored.append((score, item))
+        scored.sort(key=lambda x: x[0], reverse=True)
+        return [x[1] for x in scored]
+
     api_key = getattr(settings, "GEMINI_API_KEY", "")
     if not api_key:
-        matched = []
-        q_lower = query_text.lower()
-        for v in variants:
-            cat_name = v.product.category.name if v.product.category else ""
-            txt = f"{v.product.name} {v.color} {cat_name}".lower()
-            if any(w in txt for w in q_lower.split()):
-                matched.append(v)
+        matched = _fallback_search(variants, query_text)
         return {
-            "advice": f"Подборка товаров по стилю '{query_text}':",
+            "advice": f"Подборка товаров по запросу '{query_text}':",
             "variants": matched if matched else variants[:8]
         }
 
     system_instruction = (
-        "Ты — персональный ИИ-стилист маркетплейса brainmart.\n"
-        "Пользователь ищет товары по профессии, теме или настроению (например: 'айтишник', 'на свидание', 'олд мани', 'спорт').\n"
-        "Проанализируй список товаров и выбери ID тех, которые лучше всего подходят под этот вайб.\n"
-        "Напиши 1-2 вдохновляющих предложения совета стилиста на русском языке.\n"
-        "Верни СТРОГО JSON:\n"
-        '{"advice": "Для стиля айтишника идеально подойдут свободные худи и практичная обувь...", "matching_ids": [1, 2]}'
+        "Ты — умная поисковая и рекомендательная система маркетплейса brainmart.\n"
+        f"Покупатель ищет товары. Запрос: '{query_text}'.\n"
+        "Запрос может содержать требования к качеству (например 'premium', 'премиум', 'люкс', 'качество ткани'), "
+        "стилю ('олд мани', 'кэжуал', 'офис', 'спорт'), цвету, фасону ('оверсайз') или назначению.\n"
+        "Твоя задача:\n"
+        "1. Внимательно изучить названия, категории, цвета и ОПИСАНИЯ товаров в каталоге.\n"
+        "2. Выбрать ID вариантов (matching_ids), которые лучше всего соответствуют запросу.\n"
+        "3. Если точного совпадения нет, подобрать наиболее близкие качественные товары и объяснить рекомендацию.\n"
+        "4. Написать 1-2 вдохновляющих предложения совета стилиста на языке запроса (русский или узбекский).\n"
+        "Верни СТРОГО валидный JSON:\n"
+        '{"advice": "По вашему запросу подобраны лучшие качественные позиции каталога: ...", "matching_ids": [1, 2, 3]}'
     )
 
-    user_prompt = f"Запрос: '{query_text}'\nКаталог:\n{json.dumps(catalog_summary, ensure_ascii=False)}"
+    user_prompt = f"Запрос покупателя: '{query_text}'\nКаталог товаров:\n{json.dumps(catalog_summary, ensure_ascii=False)}"
 
     try:
         url = f"{GEMINI_API_URL}?key={api_key}"
@@ -890,7 +914,7 @@ def semantic_ai_catalog_search(query_text: str, store: Store | None = None) -> d
             json={
                 "system_instruction": {"parts": [{"text": system_instruction}]},
                 "contents": [{"role": "user", "parts": [{"text": user_prompt}]}],
-                "generationConfig": {"temperature": 0.3, "response_mime_type": "application/json"}
+                "generationConfig": {"temperature": 0.2, "response_mime_type": "application/json"}
             },
             timeout=10
         )
@@ -899,9 +923,12 @@ def semantic_ai_catalog_search(query_text: str, store: Store | None = None) -> d
             raw_text = data["candidates"][0]["content"]["parts"][0]["text"].strip()
             parsed = json.loads(raw_text)
             matching_ids = parsed.get("matching_ids", [])
-            advice = parsed.get("advice", f"Рекомендации по стилю '{query_text}':")
+            advice = parsed.get("advice", f"Рекомендации по запросу '{query_text}':")
 
             matched_variants = [v for v in variants if v.id in matching_ids]
+            if not matched_variants:
+                matched_variants = _fallback_search(variants, query_text)
+
             return {
                 "advice": advice,
                 "variants": matched_variants if matched_variants else variants[:8]
@@ -909,9 +936,10 @@ def semantic_ai_catalog_search(query_text: str, store: Store | None = None) -> d
     except Exception as e:
         logger.warning("Ошибка Gemini AI стилиста: %s", e)
 
+    matched = _fallback_search(variants, query_text)
     return {
-        "advice": f"Подборка товаров по стилю '{query_text}':",
-        "variants": variants[:8]
+        "advice": f"Подборка товаров по запросу '{query_text}':",
+        "variants": matched if matched else variants[:8]
     }
 
 

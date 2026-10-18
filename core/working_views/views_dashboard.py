@@ -509,12 +509,71 @@ def product_edit_view(request, product_id):
 
             product.save()
             messages.success(request, "✅ Информация о товаре успешно обновлена!")
-            return redirect("seller-products")
+            return redirect("seller-product-edit", product_id=product.id)
+
+        # 7. Обновление остатков всех вариантов сразу
+        elif action == "update_stocks":
+            variants = product.variants.all()
+            updated_count = 0
+            for var in variants:
+                val = request.POST.get(f"stock_{var.id}")
+                if val is not None:
+                    try:
+                        new_qty = max(0, int(val))
+                        if var.stock_quantity != new_qty:
+                            var.stock_quantity = new_qty
+                            var.save(update_fields=["stock_quantity"])
+                            updated_count += 1
+                    except (ValueError, TypeError):
+                        pass
+            messages.success(request, f"📦 Остатки обновлены (изменено позиций: {updated_count}).")
+            return redirect("seller-product-edit", product_id=product.id)
+
+        # 8. Добавление нового варианта (цвет, размер, количество, фото)
+        elif action == "add_variant":
+            color = request.POST.get("variant_color", "").strip()
+            size = request.POST.get("variant_size", "").strip()
+            stock_qty = request.POST.get("variant_stock", "0").strip()
+            var_image = request.FILES.get("variant_image")
+
+            try:
+                qty = max(0, int(stock_qty))
+            except (ValueError, TypeError):
+                qty = 0
+
+            new_var = ProductVariant.objects.create(
+                product=product,
+                color=color,
+                size=size,
+                stock_quantity=qty,
+                image=var_image if var_image else None
+            )
+            if var_image:
+                ProductImage.objects.create(product=product, image=var_image)
+
+            messages.success(request, f"✅ Новый вариант '{color} ({size})' успешно добавлен с остатком {qty} шт.")
+            return redirect("seller-product-edit", product_id=product.id)
+
+        # 9. Удаление варианта
+        elif action == "delete_variant":
+            variant_id = request.POST.get("variant_id")
+            if variant_id:
+                var_obj = ProductVariant.objects.filter(id=variant_id, product=product).first()
+                if var_obj:
+                    var_name = f"{var_obj.color} {var_obj.size}".strip() or "вариант"
+                    var_obj.delete()
+                    messages.success(request, f"🗑 Вариант '{var_name}' удалён.")
+            return redirect("seller-product-edit", product_id=product.id)
 
     from core.models import Category
     categories = Category.objects.all().order_by("name")
     gallery_images = product.images.all().order_by("id")
+    all_variants = product.variants.all().order_by("id")
     variants_with_images = product.variants.filter(image__isnull=False).exclude(image="").order_by("id")
+    total_stock = sum(v.stock_quantity for v in all_variants)
+
+    # Список URL изображений для удобной проверки главного фото
+    main_image_url = product.main_image.url if product.main_image else ""
 
     return render(
         request,
@@ -523,7 +582,10 @@ def product_edit_view(request, product_id):
             "product": product,
             "categories": categories,
             "gallery_images": gallery_images,
+            "all_variants": all_variants,
             "variants_with_images": variants_with_images,
+            "total_stock": total_stock,
+            "main_image_url": main_image_url,
         },
     )
 
