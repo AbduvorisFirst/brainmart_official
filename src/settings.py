@@ -33,6 +33,11 @@ elif DEBUG:
 else:
     ALLOWED_HOSTS = ["localhost", "127.0.0.1", "brainmart.uz", "www.brainmart.uz", ".brainmart.uz"]
 
+# Всегда гарантируем поддомены brainmart.uz и локальную разработку, даже если DJANGO_ALLOWED_HOSTS переопределен в .env:
+for _h in [".brainmart.uz", "brainmart.uz", "www.brainmart.uz", ".localhost", "localhost", "127.0.0.1"]:
+    if _h not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(_h)
+
 SITE_DOMAIN = os.environ.get("SITE_DOMAIN", "brainmart.uz")
 
 
@@ -222,6 +227,10 @@ if SITE_URL and SITE_URL.startswith("http"):
 CSRF_TRUSTED_ORIGINS = list(dict.fromkeys([
     "https://brainmart.uz",
     "https://www.brainmart.uz",
+    "https://*.brainmart.uz",
+    "http://brainmart.uz",
+    "http://www.brainmart.uz",
+    "http://*.brainmart.uz",
     "https://recapture-junction-unplowed.ngrok-free.dev",
     *_csrf_origins,
 ]))
