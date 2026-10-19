@@ -531,7 +531,7 @@
                     </a>
                 {% endif %}
 
-                {% if request.user.store %}
+                {% if request.user.store and not current_store or request.user.store and request.user.store == current_store %}
                     <a href="{% url 'seller-dashboard' %}" style="display: inline-flex; align-items: center; gap: 4px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; text-decoration: none; padding: 6px 10px; border-radius: 10px; font-size: 11px; font-weight: 800;">
                         🏪 {% trans "Кабинет" %}
                     </a>
