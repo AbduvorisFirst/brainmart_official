@@ -67,12 +67,107 @@
     </div>
 </div>
 
+<!-- КАРТОЧКА ПЕРСОНАЛЬНОГО TELEGRAM-БОТА -->
+<div class="card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%); border: 1.5px solid {% if custom_bot_active %}rgba(16, 185, 129, 0.45){% else %}rgba(99, 102, 241, 0.35){% endif %}; border-radius: 20px; padding: 22px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 28px;">🤖</span>
+            <div>
+                <h3 style="margin: 0; font-size: 16.5px; font-weight: 800; color: white;">{% trans "Персональный Telegram-бот магазина" %}</h3>
+                <span style="font-size: 12.5px; color: var(--text-muted);">{% trans "Ваш собственный автономный бот в Telegram с вашей аватаркой, каталогом и ИИ-консультантом" %}</span>
+            </div>
+        </div>
+        {% if custom_bot_active %}
+            <span style="display: inline-flex; align-items: center; gap: 6px; background: rgba(16,185,129,0.15); border: 1.5px solid rgba(16,185,129,0.4); color: #34d399; padding: 7px 14px; border-radius: 12px; font-size: 13px; font-weight: 700;">
+                ✅ @{{ custom_bot_username }}
+            </span>
+        {% else %}
+            <span style="display: inline-flex; align-items: center; gap: 6px; background: rgba(148,163,184,0.1); border: 1px solid rgba(148,163,184,0.25); color: #94a3b8; padding: 7px 14px; border-radius: 12px; font-size: 12.5px; font-weight: 600;">
+                ⚪ {% trans "Используется системный бот" %}
+            </span>
+        {% endif %}
+    </div>
+
+    {% if custom_bot_active %}
+        <!-- Информация о подключенном боте -->
+        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 14px; padding: 14px 16px; margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <strong style="color: #6ee7b7; font-size: 14px; display: block; margin-bottom: 4px;">🚀 {% trans "Бот успешно подключен и принимает заказы" %}</strong>
+                    <span style="color: var(--text-muted); font-size: 12.5px; line-height: 1.4; display: block;">
+                        {% trans "Кнопка «Магазин» в боте открывает вашу витрину" %} <b style="color:white;">{{ store_catalog_url }}</b>.<br>
+                        {% trans "Все уведомления о новых заказах и чеках поступают прямо сюда." %}
+                    </span>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <a href="https://t.me/{{ custom_bot_username }}" target="_blank" class="btn" style="width: auto; padding: 9px 16px; font-size: 13px; font-weight: 700; margin: 0; background: linear-gradient(135deg, #059669 0%, #10b981 100%); text-decoration: none;">
+                        💬 {% trans "Открыть бота" %} ↗
+                    </a>
+                    <form method="post" style="margin:0;" onsubmit="return confirm('{% filter escapejs %}{% trans "Отключить персонального бота? Магазин вернется на работу через общий бот платформы." %}{% endfilter %}');">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="disconnect_custom_bot">
+                        <button type="submit" style="background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.35); padding: 9px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer;">
+                            ✕ {% trans "Отключить" %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Форма подключения/обновления токена бота -->
+    <form method="post" style="background: rgba(0,0,0,0.35); border: 1px solid var(--border); border-radius: 14px; padding: 16px;">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="connect_custom_bot">
+        
+        <label style="font-size: 13px; font-weight: 700; color: white; margin-bottom: 6px; display: block;">
+            🔑 {% if custom_bot_active %}{% trans "Обновить токен бота от @BotFather:" %}{% else %}{% trans "Подключить собственного Telegram-бота:" %}{% endif %}
+        </label>
+        
+        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap;">
+            <input type="text" name="telegram_bot_token" placeholder="{% trans "Вставьте токен, напр. 7123456789:AAH..." %}" value="{% if store.telegram_bot_token %}{{ store.telegram_bot_token }}{% endif %}" required style="flex: 1; min-width: 250px; margin: 0; font-family: monospace; font-size: 13px; padding: 10px 14px;">
+            <button type="submit" class="btn" style="width: auto; padding: 10px 18px; font-size: 13px; font-weight: 800; white-space: nowrap; margin: 0; background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);">
+                {% if custom_bot_active %}🔄 {% trans "Обновить бота" %}{% else %}🚀 {% trans "Подключить бота" %}{% endif %}
+            </button>
+        </div>
+
+        <!-- Инструкция в 3 шага -->
+        <details style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 10px 14px; font-size: 12px; color: var(--text-muted);">
+            <summary style="cursor: pointer; font-weight: 700; color: #a5b4fc; outline: none;">
+                📖 {% trans "Как получить токен в @BotFather за 1 минуту (пошагово)" %}
+            </summary>
+            <ol style="margin: 10px 0 0 18px; padding: 0; line-height: 1.6;">
+                <li>{% trans "Откройте Telegram и перейдите к" %} <a href="https://t.me/BotFather" target="_blank" style="color: #60a5fa; font-weight: 700; text-decoration: none;">@BotFather</a></li>
+                <li>{% trans "Отправьте команду" %} <code>/newbot</code></li>
+                <li>{% trans "Введите отображаемое имя магазина (например, «Sultan Wear Store»)" %}</li>
+                <li>{% trans "Придумайте юзернейм на английском, оканчивающийся на <b>bot</b> (например, «sultan_wear_bot»)" %}</li>
+                <li>{% trans "Скопируйте длинный <b>HTTP API token</b> и вставьте в поле выше" %}</li>
+                <li>{% trans "BrainMart автоматически настроит Webhook, кнопку меню WebApp и привяжет каталог к боту!" %}</li>
+            </ol>
+        </details>
+    </form>
+</div>
+
 <div class="card">
     <h4 class="section-title">✏️ {% trans "Данные магазина и Брендинг" %}</h4>
     <form method="post">
         {% csrf_token %}
         <label>{% trans "Название магазина" %}</label>
         <input type="text" name="store_name" value="{{ store.name }}" required>
+
+        <!-- ПОДДОМЕН МАГАЗИНА -->
+        <label style="display: flex; align-items: center; justify-content: space-between;">
+            <span>🌐 {% trans "Персональный поддомен (Адрес витрины)" %}</span>
+            <span style="font-size: 11px; color: #34d399; font-weight: 700; background: rgba(16,185,129,0.15); padding: 2px 7px; border-radius: 5px;">https://{{ store.slug }}.brainmart.uz</span>
+        </label>
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span style="font-weight: 700; color: var(--text-muted); font-size: 13.5px; white-space: nowrap;">https://</span>
+            <input type="text" name="slug" value="{{ store.slug }}" placeholder="sultan-wear" pattern="[a-z0-9\-]+" style="margin: 0; font-weight: 700; color: #a5b4fc; font-family: monospace; font-size: 14px;" required>
+            <span style="font-weight: 700; color: var(--text-muted); font-size: 13.5px; white-space: nowrap;">.brainmart.uz</span>
+        </div>
+        <p style="font-size: 11.5px; color: var(--text-muted); margin: 0 0 16px; line-height: 1.4;">
+            💡 {% trans "Уникальное имя вашего магазина в интернете (латинские буквы, цифры и дефис). По этому адресу покупатели открывают только вашу витрину." %}
+        </p>
         
         <label>{% trans "Телефон (для клиентов)" %}</label>
         <input type="tel" name="phone_number" value="{{ store.phone_number }}" placeholder="+998 90 000 00 00">
@@ -498,7 +593,7 @@
 
         <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
             <button type="submit" class="btn" style="flex: 1; padding: 14px; font-size: 15px; font-weight: 800;">💾 {% trans "Сохранить оформление витрины" %}</button>
-            <a href="/ru/?store_id={{ store.id }}" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; font-weight: 700; font-size: 14px; padding: 12px 18px; border-radius: 12px; text-decoration: none; white-space: nowrap;">
+            <a href="{{ store_catalog_url }}" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; font-weight: 700; font-size: 14px; padding: 12px 18px; border-radius: 12px; text-decoration: none; white-space: nowrap;">
                 👁️ {% trans "Посмотреть витрину" %} ↗
             </a>
         </div>

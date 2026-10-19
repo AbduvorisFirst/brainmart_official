@@ -1407,6 +1407,25 @@ def store_settings_view(request):
             messages.success(request, "Менеджер удален.")
             return redirect("seller-settings")
 
+        elif action == "connect_custom_bot":
+            bot_token = request.POST.get("telegram_bot_token", "").strip()
+            if not bot_token:
+                messages.error(request, "Пожалуйста, введите токен бота от @BotFather.")
+                return redirect("seller-settings")
+            from core.working_views.telegram_bot import setup_store_telegram_bot
+            success, msg = setup_store_telegram_bot(store, bot_token)
+            if success:
+                messages.success(request, f"🎉 Персональный Telegram-бот {msg} успешно подключен и настроен!")
+            else:
+                messages.error(request, f"Не удалось подключить бота: {msg}")
+            return redirect("seller-settings")
+
+        elif action == "disconnect_custom_bot":
+            from core.working_views.telegram_bot import setup_store_telegram_bot
+            setup_store_telegram_bot(store, "")
+            messages.info(request, "Персональный бот отключен. Витрина и уведомления переключены на общий бот платформы.")
+            return redirect("seller-settings")
+
         elif action == "clear_store_history":
             from core.models import CashShift, StockMovement
             orders_count = Order.objects.filter(store=store).count()
@@ -1433,6 +1452,17 @@ def store_settings_view(request):
             store_name = request.POST.get("store_name", "").strip()
             phone_number = request.POST.get("phone_number", "").strip()
             address = request.POST.get("address", "").strip()
+            slug_raw = request.POST.get("slug", "").strip()
+            if slug_raw:
+                new_slug = store.clean_slug(slug_raw)
+                conflict = Store.objects.filter(slug=new_slug).exclude(id=store.id).exists()
+                if conflict:
+                    messages.error(request, f"Адрес (поддомен) '{new_slug}' уже занят другим магазином. Пожалуйста, выберите другой.")
+                    return redirect("seller-settings")
+                store.slug = new_slug
+            elif not store.slug:
+                store.slug = store.clean_slug(store_name or store.name or "store")
+
             instagram_username = request.POST.get("instagram_username", "").strip().lstrip("@")
             payout_card = request.POST.get("payout_card", "").strip().replace(" ", "")
             payout_card_holder = request.POST.get("payout_card_holder", "").strip()
@@ -1501,14 +1531,14 @@ def store_settings_view(request):
             store.enable_card_transfer = True
 
             store.save(update_fields=[
-                "name", "phone_number", "address", "instagram_username",
+                "name", "slug", "phone_number", "address", "instagram_username",
                 "payout_card", "payout_card_holder",
                 "category", "niche",
                 "primary_color", "accent_color", "bg_color", "theme_style", "theme_mode",
                 "telegram_notification_language",
                 "enable_auto_acquiring", "enable_card_transfer"
             ])
-            messages.success(request, "Настройки магазина, ниша, способы оплаты и оформление витрины сохранены!")
+            messages.success(request, "Настройки магазина, адрес витрины, ниша, способы оплаты и оформление сохранены!")
             return redirect("seller-settings")
 
     # Формируем список менеджеров с готовыми ссылками на привязку
@@ -1526,6 +1556,16 @@ def store_settings_view(request):
     from core.models import Category
     categories = Category.objects.all().order_by("id")
     site_url = getattr(settings, "SITE_URL", "") or "https://brainmart.uz"
+    store_catalog_url = store.get_subdomain_url(request)
+    global_market_url = f"{site_url.rstrip('/')}/ru/?global=1"
+
+    # Telegram bot link for showcase:
+    if store.telegram_bot_active and store.telegram_bot_username:
+        bot_showcase_url = f"https://t.me/{store.telegram_bot_username}"
+    elif settings.TELEGRAM_BOT_USERNAME:
+        bot_showcase_url = f"https://t.me/{settings.TELEGRAM_BOT_USERNAME}?start=store_{store.id}"
+    else:
+        bot_showcase_url = None
 
     context = {
         "store": store,
@@ -1538,11 +1578,11 @@ def store_settings_view(request):
             else build_seller_link_deep_link(store) if settings.TELEGRAM_BOT_USERNAME
             else None
         ),
-        "store_catalog_url": f"{site_url}/ru/?store_id={store.id}",
-        "telegram_bot_url": (
-            f"https://t.me/{settings.TELEGRAM_BOT_USERNAME}?start=store_{store.id}"
-            if settings.TELEGRAM_BOT_USERNAME else None
-        ),
+        "store_catalog_url": store_catalog_url,
+        "global_market_url": global_market_url,
+        "telegram_bot_url": bot_showcase_url,
+        "custom_bot_active": bool(store.telegram_bot_active and store.telegram_bot_username),
+        "custom_bot_username": store.telegram_bot_username or "",
     }
     return render(request, "dashboard/settings.html", context)
 

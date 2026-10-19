@@ -75,9 +75,9 @@ _tg_session_adapter = requests.adapters.HTTPAdapter(pool_connections=20, pool_ma
 _tg_session.mount("https://", _tg_session_adapter)
 
 
-def _send_telegram_chat_action(chat_id, action: str = "typing") -> None:
+def _send_telegram_chat_action(chat_id, action: str = "typing", bot_token: str | None = None) -> None:
     """Мгновенно показывает статус 'печатает...' в чате Telegram."""
-    token = getattr(settings, "TELEGRAM_BOT_TOKEN", None)
+    token = bot_token or getattr(settings, "TELEGRAM_BOT_TOKEN", None)
     if not token or not chat_id:
         return
     url = f"https://api.telegram.org/bot{token}/sendChatAction"
@@ -87,9 +87,11 @@ def _send_telegram_chat_action(chat_id, action: str = "typing") -> None:
         pass
 
 
-def _send_telegram_message(chat_id, text: str, web_app_url: str | None = None, reply_markup: dict | None = None) -> bool:
-    """Низкоуровневая отправка сообщения через Telegram Bot API с пулом соединений."""
-    token = settings.TELEGRAM_BOT_TOKEN
+def _send_telegram_message(chat_id, text: str, web_app_url: str | None = None, reply_markup: dict | None = None, bot_token: str | None = None) -> bool:
+    """Низкоуровневая отправка сообщения через Telegram Bot API с пулом соединений (поддерживает личный токен магазина)."""
+    token = bot_token or getattr(settings, "TELEGRAM_BOT_TOKEN", "")
+    if not token or not chat_id:
+        return False
     url = f"https://api.telegram.org/bot{token}/sendMessage"
 
     text = _clean_telegram_text(text)
@@ -108,6 +110,11 @@ def _send_telegram_message(chat_id, text: str, web_app_url: str | None = None, r
         response = _tg_session.post(url, json=payload, timeout=8)
         if response.status_code != 200:
             logger.warning("Telegram sendMessage вернул ошибку: %s", response.text)
+            # Если отправка через персональный бот не удалась, пробуем резервный глобальный бот
+            if bot_token and bot_token != getattr(settings, "TELEGRAM_BOT_TOKEN", ""):
+                fb_token = getattr(settings, "TELEGRAM_BOT_TOKEN", "")
+                if fb_token:
+                    _tg_session.post(f"https://api.telegram.org/bot{fb_token}/sendMessage", json=payload, timeout=8)
             return False
         return True
     except requests.RequestException:
@@ -115,12 +122,14 @@ def _send_telegram_message(chat_id, text: str, web_app_url: str | None = None, r
         return False
 
 
-def _send_telegram_photo(chat_id, photo_url_or_file, caption: str, reply_markup: dict | None = None) -> bool:
-    """Отправка фото товара с подписью и кнопками в Telegram."""
+def _send_telegram_photo(chat_id, photo_url_or_file, caption: str, reply_markup: dict | None = None, bot_token: str | None = None) -> bool:
+    """Отправка фото товара с подписью и кнопками в Telegram (поддерживает личный токен магазина)."""
     import os
     import json
     import io
-    token = settings.TELEGRAM_BOT_TOKEN
+    token = bot_token or getattr(settings, "TELEGRAM_BOT_TOKEN", "")
+    if not token or not chat_id:
+        return False
     url = f"https://api.telegram.org/bot{token}/sendPhoto"
 
     caption = _clean_telegram_text(caption)
@@ -322,11 +331,12 @@ def notify_order_created(order: Order) -> None:
                 ]
             ]
         }
+        store_bot_token = store.telegram_bot_token if (store.telegram_bot_token and store.telegram_bot_active) else None
         sent = False
         if order_photo:
-            sent = _send_telegram_photo(owner_chat_id, order_photo, owner_text, reply_markup=owner_reply_markup)
+            sent = _send_telegram_photo(owner_chat_id, order_photo, owner_text, reply_markup=owner_reply_markup, bot_token=store_bot_token)
         if not sent:
-            _send_telegram_message(owner_chat_id, owner_text, reply_markup=owner_reply_markup)
+            _send_telegram_message(owner_chat_id, owner_text, reply_markup=owner_reply_markup, bot_token=store_bot_token)
 
     # 2. ОТПРАВЛЯЕМ ВСЕМ АКТИВНЫМ МЕНЕДЖЕРАМ
     for mgr in active_managers:
@@ -348,9 +358,9 @@ def notify_order_created(order: Order) -> None:
 
             sent = False
             if order_photo:
-                sent = _send_telegram_photo(mgr.telegram_chat_id, order_photo, mgr_text, reply_markup=reply_markup)
+                sent = _send_telegram_photo(mgr.telegram_chat_id, order_photo, mgr_text, reply_markup=reply_markup, bot_token=store_bot_token)
             if not sent:
-                _send_telegram_message(mgr.telegram_chat_id, mgr_text, reply_markup=reply_markup)
+                _send_telegram_message(mgr.telegram_chat_id, mgr_text, reply_markup=reply_markup, bot_token=store_bot_token)
 
 
 def notify_order_receipt_uploaded(order: Order) -> None:
@@ -412,11 +422,12 @@ def notify_order_receipt_uploaded(order: Order) -> None:
                 ]
             ]
         }
+        store_bot_token = store.telegram_bot_token if (store.telegram_bot_token and store.telegram_bot_active) else None
         sent = False
         if order.payment_receipt:
-            sent = _send_telegram_photo(owner_chat_id, order.payment_receipt, owner_text, reply_markup=owner_reply_markup)
+            sent = _send_telegram_photo(owner_chat_id, order.payment_receipt, owner_text, reply_markup=owner_reply_markup, bot_token=store_bot_token)
         if not sent:
-            _send_telegram_message(owner_chat_id, owner_text, reply_markup=owner_reply_markup)
+            _send_telegram_message(owner_chat_id, owner_text, reply_markup=owner_reply_markup, bot_token=store_bot_token)
 
     # 2. ТЕКСТ ДЛЯ ВСЕХ АКТИВНЫХ МЕНЕДЖЕРОВ (с фото чека и маршрутом такси)
     for mgr in active_managers:
@@ -443,9 +454,9 @@ def notify_order_receipt_uploaded(order: Order) -> None:
 
             sent = False
             if order.payment_receipt:
-                sent = _send_telegram_photo(mgr.telegram_chat_id, order.payment_receipt, mgr_text, reply_markup=mgr_reply_markup)
+                sent = _send_telegram_photo(mgr.telegram_chat_id, order.payment_receipt, mgr_text, reply_markup=mgr_reply_markup, bot_token=store_bot_token)
             if not sent:
-                _send_telegram_message(mgr.telegram_chat_id, mgr_text, reply_markup=mgr_reply_markup)
+                _send_telegram_message(mgr.telegram_chat_id, mgr_text, reply_markup=mgr_reply_markup, bot_token=store_bot_token)
 
 
 def notify_seller_about_order(order: Order) -> None:
@@ -509,6 +520,8 @@ def notify_seller_about_order(order: Order) -> None:
             inline_keyboard.append([{"text": _nt(lang, 'btn_open_map'), "url": order.delivery_map_url}])
         return {"inline_keyboard": inline_keyboard}
 
+    store_bot_token = store.telegram_bot_token if (store.telegram_bot_token and store.telegram_bot_active) else None
+
     def _send_single_card(target_chat_id, lang: str):
         """Отправляет ровно 1 сообщение с фото, описанием и кнопками."""
         card_items = _build_items_text(order, lang)
@@ -529,9 +542,9 @@ def notify_seller_about_order(order: Order) -> None:
         )
         sent = False
         if order_photo:
-            sent = _send_telegram_photo(target_chat_id, order_photo, order_card_text, reply_markup=card_markup)
+            sent = _send_telegram_photo(target_chat_id, order_photo, order_card_text, reply_markup=card_markup, bot_token=store_bot_token)
         if not sent:
-            _send_telegram_message(target_chat_id, order_card_text, reply_markup=card_markup)
+            _send_telegram_message(target_chat_id, order_card_text, reply_markup=card_markup, bot_token=store_bot_token)
 
     # 1. Если у магазина есть менеджер:
     if assigned_mgr and assigned_mgr.telegram_chat_id:
@@ -558,7 +571,7 @@ def notify_seller_about_order(order: Order) -> None:
                 phone=customer.phone_number,
                 address=order.delivery_address or _nt(owner_lang, 'delivery_pending'),
             )
-            _send_telegram_message(store.telegram_chat_id, owner_text)
+            _send_telegram_message(store.telegram_chat_id, owner_text, bot_token=store_bot_token)
     else:
         # Если менеджера нет — владелец получает единую карточку заказа сам
         if store.telegram_chat_id:
@@ -2186,4 +2199,264 @@ class TelegramWebhookView(APIView):
                     )
             except Order.DoesNotExist:
                 pass
+
+
+def setup_store_telegram_bot(store: Store, bot_token: str) -> tuple[bool, str]:
+    """
+    Проверяет токен бота из @BotFather, настраивает webhook и WebApp меню.
+    Возвращает (success: bool, message: str).
+    """
+    bot_token = bot_token.strip()
+    if not bot_token:
+        # Сброс персонального бота и удаление вебхука из Telegram
+        if store.telegram_bot_token:
+            try:
+                requests.post(f"https://api.telegram.org/bot{store.telegram_bot_token}/deleteWebhook", timeout=5)
+            except Exception:
+                pass
+        store.telegram_bot_token = None
+        store.telegram_bot_username = None
+        store.telegram_bot_active = False
+        store.save(update_fields=["telegram_bot_token", "telegram_bot_username", "telegram_bot_active"])
+        return (True, "Персональный бот отключен. Магазин переключен на системный бот платформы.")
+
+    # 1. Проверяем токен через getMe
+    try:
+        me_resp = requests.get(f"https://api.telegram.org/bot{bot_token}/getMe", timeout=10)
+        me_data = me_resp.json()
+        if not me_data.get("ok"):
+            return (False, f"Неверный токен бота: {me_data.get('description', 'Ошибка Telegram')}")
+        bot_user = me_data.get("result", {})
+        bot_username = bot_user.get("username", "").lstrip("@")
+    except Exception as e:
+        return (False, f"Ошибка соединения с Telegram API: {e}")
+
+    # 2. Настраиваем Webhook
+    site_url = getattr(settings, "SITE_URL", "https://brainmart.uz").rstrip("/")
+    webhook_url = f"{site_url}/api/telegram/webhook/store/{store.id}/"
+    secret = getattr(settings, "TELEGRAM_WEBHOOK_SECRET", "")
+
+    set_webhook_payload = {
+        "url": webhook_url,
+        "drop_pending_updates": False,
+        "allowed_updates": ["message", "callback_query"],
+    }
+    if secret:
+        set_webhook_payload["secret_token"] = secret
+
+    try:
+        wh_resp = requests.post(f"https://api.telegram.org/bot{bot_token}/setWebhook", json=set_webhook_payload, timeout=10)
+        wh_data = wh_resp.json()
+        if not wh_data.get("ok"):
+            logger.warning("Не удалось установить вебхук для бота магазина %s: %s", store.name, wh_data)
+    except Exception as e:
+        logger.warning("Исключение при setWebhook для магазина %s: %s", store.name, e)
+
+    # 3. Настраиваем кнопку меню (Menu Button WebApp) на витрину магазина
+    try:
+        store_url = store.get_subdomain_url()
+        menu_payload = {
+            "menu_button": {
+                "type": "web_app",
+                "text": "🛍 Магазин",
+                "web_app": {
+                    "url": store_url
+                }
+            }
+        }
+        requests.post(f"https://api.telegram.org/bot{bot_token}/setChatMenuButton", json=menu_payload, timeout=8)
+    except Exception as e:
+        logger.warning("Исключение при setChatMenuButton для магазина %s: %s", store.name, e)
+
+    # 4. Сохраняем в модели Store
+    store.telegram_bot_token = bot_token
+    store.telegram_bot_username = bot_username
+    store.telegram_bot_active = True
+    store.save(update_fields=["telegram_bot_token", "telegram_bot_username", "telegram_bot_active"])
+
+    return (True, f"@{bot_username}")
+
+
+class StoreCustomTelegramWebhookView(APIView):
+    """
+    Персональный Webhook для личного Telegram-бота продавца.
+    URL: /api/telegram/webhook/store/<int:store_id>/
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, store_id):
+        webhook_secret = getattr(settings, "TELEGRAM_WEBHOOK_SECRET", "")
+        if webhook_secret:
+            incoming_secret = request.META.get("HTTP_X_TELEGRAM_BOT_API_SECRET_TOKEN", "")
+            if incoming_secret and incoming_secret != webhook_secret:
+                return Response(status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            store = Store.objects.filter(id=store_id).first()
+            if not store:
+                return Response(status=status.HTTP_200_OK)
+            self._handle_store_bot(request.data, store)
+        except Exception:
+            logger.exception("Ошибка при обработке персонального Telegram webhook магазина %s", store_id)
+
+        return Response(status=status.HTTP_200_OK)
+
+    def _handle_store_bot(self, data, store: Store):
+        bot_token = store.telegram_bot_token
+        if not bot_token:
+            return
+
+        callback = data.get("callback_query")
+        if callback:
+            cb_id = callback.get("id")
+            cb_data = callback.get("data") or ""
+            if cb_data.startswith("confirm_pay_") or cb_data.startswith("reject_pay_"):
+                v = TelegramWebhookView()
+                v._handle_callback(callback)
+            try:
+                requests.post(f"https://api.telegram.org/bot{bot_token}/answerCallbackQuery", json={"callback_query_id": cb_id}, timeout=3)
+            except Exception:
+                pass
+            return
+
+        message = data.get("message", {}) or {}
+        chat_id = message.get("chat", {}).get("id")
+        text = (message.get("text") or "").strip()
+
+        if not chat_id:
+            return
+
+        # Проверяем, ждем ли мы от клиента геопозицию / контакт / чек
+        state_data = cache.get(f"tg_state_{chat_id}")
+        if state_data:
+            v = TelegramWebhookView()
+            v._handle(type("Req", (), {"data": data})())
+            return
+
+        store_url = store.get_subdomain_url()
+        owner_chat_id = store.telegram_chat_id
+
+        # 1. Если пишет ВЛАДЕЛЕЦ магазина
+        if owner_chat_id and str(chat_id) == str(owner_chat_id):
+            if text.startswith("/start"):
+                site_url = getattr(settings, "SITE_URL", "https://brainmart.uz")
+                kb = {
+                    "inline_keyboard": [
+                        [{"text": "📊 Панель управления (Dashboard)", "web_app": {"url": f"{site_url}/dashboard/"}}],
+                        [{"text": f"🛍 Моя витрина ({store.name})", "web_app": {"url": store_url}}],
+                        [{"text": "➕ Добавить новый товар", "web_app": {"url": f"{site_url}/dashboard/products/add/"}}],
+                    ]
+                }
+                _send_telegram_message(
+                    chat_id,
+                    f"👋 Здравствуйте, владелец магазина «{store.name}»!\n\n"
+                    f"Это ваш персональный бот. Сюда будут мгновенно приходить заказы от покупателей с чеками об оплате, а также консультации от вашего ИИ.\n\n"
+                    f"Выберите действие ниже:",
+                    reply_markup=kb,
+                    bot_token=bot_token
+                )
+                return
+
+        # 2. Проверка: deep links (/start mgr_... или /start link_...)
+        manager_match = re.match(r"^/start\s+mgr_([a-f0-9]+)", text)
+        if manager_match:
+            v = TelegramWebhookView()
+            v._handle(type("Req", (), {"data": data})())
+            return
+
+        link_match = re.match(r"^/start\s+link_([a-f0-9]+)", text)
+        if link_match:
+            v = TelegramWebhookView()
+            v._handle(type("Req", (), {"data": data})())
+            return
+
+        # 3. Если ПОКУПАТЕЛЬ написал /start
+        if text.startswith("/start"):
+            order_match = re.match(r"^/start\s+order_(\d+)", text)
+            if order_match:
+                v = TelegramWebhookView()
+                v._handle(type("Req", (), {"data": data})())
+                return
+
+            cust = Customer.objects.filter(telegram_chat_id=str(chat_id)).first()
+            cust_lang = getattr(cust, "language", "uz") or "uz"
+
+            welcome_msg = {
+                "uz": (
+                    f"Assalomu alaykum! «{store.name}» rasmiy Telegram-botiga xush kelibsiz! ✨\n\n"
+                    f"Katalogimizdagi barcha tovarlarni ko'rish va buyurtma berish uchun quyidagi tugmani bosing.\n"
+                    f"Shuningdek, menga xohlagan savolingizni yozishingiz yoki tovar rasmini yuborishingiz mumkin — sun'iy intellekt darhol yordam beradi!"
+                ),
+                "ru": (
+                    f"Здравствуйте! Добро пожаловать в официальный Telegram-бот магазина «{store.name}»! ✨\n\n"
+                    f"Нажмите кнопку ниже, чтобы открыть наш каталог и оформить заказ онлайн.\n"
+                    f"Вы также можете написать мне любой вопрос или отправить фото нужного товара — наш ИИ-консультант поможет подобрать размер и оформить покупку!"
+                ),
+                "en": (
+                    f"Hello! Welcome to «{store.name}» official Telegram bot! ✨\n\n"
+                    f"Tap the button below to browse our online catalog and place an order.\n"
+                    f"Feel free to ask any questions or send a photo of what you're looking for — our AI assistant will help you 24/7!"
+                ),
+            }.get(cust_lang, f"Добро пожаловать в «{store.name}»!")
+
+            btn_label = {
+                "uz": f"🛍 {store.name} katalogini ochish",
+                "en": f"🛍 Open {store.name} store",
+                "ru": f"🛍 Открыть витрину «{store.name}»",
+            }.get(cust_lang, f"🛍 Открыть витрину «{store.name}»")
+
+            kb = {
+                "inline_keyboard": [
+                    [{"text": btn_label, "web_app": {"url": store_url}}]
+                ]
+            }
+            _send_telegram_message(chat_id, welcome_msg, reply_markup=kb, bot_token=bot_token)
+            return
+
+        # 4. ПОКУПАТЕЛЬ написал текст или прислал фото — отвечает Gemini AI по каталогу этого магазина
+        photo_list = message.get("photo") or []
+        photo_file_id = photo_list[-1]["file_id"] if photo_list else None
+        if not photo_file_id and message.get("document"):
+            doc = message.get("document", {})
+            if (doc.get("mime_type") or "").startswith("image/"):
+                photo_file_id = doc.get("file_id")
+
+        user_caption = (message.get("caption") or "").strip()
+        query_text = (text or user_caption).strip()
+
+        if query_text or photo_file_id:
+            _send_telegram_chat_action(chat_id, "typing", bot_token=bot_token)
+            tg_from = message.get("from", {}) or {}
+            from core.working_views.services import handle_incoming_telegram_message
+            ai_reply, matched_products = handle_incoming_telegram_message(
+                chat_id=str(chat_id),
+                message_text=query_text,
+                first_name=tg_from.get("first_name", ""),
+                username=tg_from.get("username", ""),
+                photo_file_id=photo_file_id,
+                store=store,
+                bot_token=bot_token
+            )
+            if ai_reply:
+                photo_sent = False
+                if matched_products:
+                    best = matched_products[0]
+                    photo = best.image or best.product.main_image
+                    if photo:
+                        site_url = getattr(settings, "SITE_URL", "")
+                        product_url = f"{site_url}/ru/product/{best.product.id}/" if site_url else store_url
+                        reply_markup = {
+                            "inline_keyboard": [
+                                [{"text": "🛒 Открыть товар", "web_app": {"url": product_url}}],
+                                [{"text": f"🛍 Вся витрина «{store.name}»", "web_app": {"url": store_url}}],
+                            ]
+                        }
+                        photo_sent = _send_telegram_photo(chat_id, photo, ai_reply, reply_markup=reply_markup, bot_token=bot_token)
+                if not photo_sent:
+                    kb = {
+                        "inline_keyboard": [
+                            [{"text": f"🛍 Открыть витрину «{store.name}»", "web_app": {"url": store_url}}]
+                        ]
+                    }
+                    _send_telegram_message(chat_id, ai_reply, reply_markup=kb, bot_token=bot_token)
 

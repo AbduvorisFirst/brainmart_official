@@ -22,22 +22,58 @@ from django.utils.translation import gettext as _
 from core.models import Product, ProductVariant, Customer, Order, OrderItem, Store, Category, ProductReview
 
 
+def resolve_store_from_request(request):
+    """
+    Определяет магазин по поддомену хоста (например, sultan.brainmart.uz),
+    по GET-параметрам (?store_id=... или ?store=...) либо возвращает None (глобальный маркетплейс).
+    """
+    # 1. Если передан параметр ?global=1 — это принудительный выход на глобальный рынок
+    if request.GET.get("global") == "1":
+        return None
+
+    host = request.get_host().split(":")[0].lower()
+    system_subdomains = {"www", "admin", "api", "platform", "bot", "static", "media", "app", "dashboard", "mail", "dev"}
+
+    # 2. Проверяем поддомен: <subdomain>.brainmart.uz или <subdomain>.localhost
+    subdomain = None
+    if host.endswith(".brainmart.uz"):
+        subdomain = host[:-len(".brainmart.uz")]
+    elif host.endswith(".localhost"):
+        subdomain = host[:-len(".localhost")]
+
+    if subdomain and subdomain not in system_subdomains:
+        store = Store.objects.filter(slug__iexact=subdomain).first()
+        if not store:
+            store = Store.objects.filter(instagram_username__iexact=subdomain).first()
+        if store:
+            return store
+
+    # 3. Проверяем query-параметры ?store_id=... или ?store=...
+    store_id = request.GET.get("store_id")
+    if store_id:
+        try:
+            return Store.objects.filter(id=int(store_id)).first()
+        except (ValueError, TypeError):
+            pass
+
+    store_slug = request.GET.get("store")
+    if store_slug:
+        store = Store.objects.filter(slug__iexact=store_slug).first()
+        if not store:
+            store = Store.objects.filter(instagram_username__iexact=store_slug).first()
+        if store:
+            return store
+
+    return None
+
+
 @xframe_options_exempt
 def catalog_view(request):
     """Каталог с фильтрацией по конкретному магазину, категориям, текстовым поиском и ИИ-Стилистом."""
     from django.db.models import Q
     from core.working_views.services import semantic_ai_catalog_search
 
-    store_id = request.GET.get("store_id")
-    current_store = None
-    if store_id:
-        current_store = get_object_or_404(Store, id=store_id)
-    elif request.GET.get("global") != "1":
-        # Если продавец авторизован или на платформе один активный магазин — применяем его витрину и тему оформления
-        if request.user.is_authenticated and hasattr(request.user, "store") and request.user.store:
-            current_store = request.user.store
-        elif Store.objects.filter(is_active=True).count() == 1:
-            current_store = Store.objects.filter(is_active=True).first()
+    current_store = resolve_store_from_request(request)
 
     category_id = request.GET.get("category")
     search_query = request.GET.get("q", "").strip()
@@ -141,6 +177,7 @@ def catalog_view(request):
                 "reviews_count": v.product.reviews_count,
             })
 
+    effective_bot = current_store.telegram_bot_username if (current_store and current_store.telegram_bot_username and current_store.telegram_bot_active) else settings.TELEGRAM_BOT_USERNAME
     context = {
         "products": cards,
         "categories": categories,
@@ -148,9 +185,10 @@ def catalog_view(request):
         "search_query": search_query,
         "is_ai_search": is_ai_search,
         "ai_advice": ai_advice,
-        "current_store_id": store_id,
+        "current_store_id": current_store.id if current_store else None,
         "current_store": current_store,
-        "bot_username": settings.TELEGRAM_BOT_USERNAME,
+        "bot_username": effective_bot,
+        "global_market_url": getattr(settings, "SITE_URL", "https://brainmart.uz") + "/ru/?global=1",
     }
     return render(request, "core/catalog.html", context)
 
@@ -167,6 +205,7 @@ def product_detail_view(request, product_id):
         store__is_frozen_by_admin=False
     )
     reviews = product.reviews.filter(is_visible=True).order_by("-created_at")
+    effective_bot = product.store.telegram_bot_username if (product.store.telegram_bot_username and product.store.telegram_bot_active) else settings.TELEGRAM_BOT_USERNAME
     context = {
         "product": product,
         "current_store": product.store,
@@ -174,7 +213,8 @@ def product_detail_view(request, product_id):
         "reviews": reviews,
         "reviews_count": reviews.count(),
         "average_rating": product.average_rating,
-        "bot_username": settings.TELEGRAM_BOT_USERNAME,
+        "bot_username": effective_bot,
+        "global_market_url": getattr(settings, "SITE_URL", "https://brainmart.uz") + "/ru/?global=1",
     }
     return render(request, "core/product_detail.html", context)
 

@@ -353,11 +353,13 @@ def handle_incoming_instagram_message(
 
 def handle_incoming_telegram_message(
     chat_id: str, message_text: str, first_name: str = "", username: str = "",
-    photo_file_id: str | None = None
+    photo_file_id: str | None = None, store: Store | None = None,
+    bot_token: str | None = None
 ) -> tuple[str, list]:
     """
     Точка входа: клиент написал текстовое сообщение или прислал фото товара в Telegram-боте.
     Использует Gemini Vision для распознавания фото и поиска товаров.
+    Поддерживает как глобального бота, так и персонального бота конкретного магазина (store).
     Возвращает (ai_reply_text, matched_variants_in_stock) для отправки ответа и карточки товара.
     """
     # 1. Найти или создать Customer по telegram_chat_id
@@ -377,7 +379,7 @@ def handle_incoming_telegram_message(
     image_b64 = None
     if photo_file_id:
         try:
-            token = getattr(settings, "TELEGRAM_BOT_TOKEN", None)
+            token = bot_token or getattr(settings, "TELEGRAM_BOT_TOKEN", None)
             if token:
                 f_res = requests.get(f"https://api.telegram.org/bot{token}/getFile?file_id={photo_file_id}", timeout=10)
                 if f_res.status_code == 200:
@@ -392,11 +394,11 @@ def handle_incoming_telegram_message(
     if not message_text and image_b64:
         message_text = "Что это за товар на фото? Есть ли у вас похожий в каталоге магазина?" if cust_lang == "ru" else "Bu qanday mahsulot? Do'konda shunga o'xshash tovarlar bormi?"
 
-    # 2. Determine store context: use customer's most recent order's store,
-    #    or search across all active stores
-    from core.models import Order
-    last_order = Order.objects.filter(customer=customer).order_by("-created_at").first()
-    store = last_order.store if last_order else None
+    # 2. Determine store context: если передан явно — используем его
+    if not store:
+        from core.models import Order
+        last_order = Order.objects.filter(customer=customer).order_by("-created_at").first()
+        store = last_order.store if last_order else None
 
     # 3. Search for matching products
     if store:

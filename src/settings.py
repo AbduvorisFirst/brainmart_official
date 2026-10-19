@@ -31,7 +31,9 @@ if _allowed_hosts_env:
 elif DEBUG:
     ALLOWED_HOSTS = ["*"]
 else:
-    ALLOWED_HOSTS = ["localhost", "127.0.0.1", "brainmart.uz", "www.brainmart.uz"]
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1", "brainmart.uz", "www.brainmart.uz", ".brainmart.uz"]
+
+SITE_DOMAIN = os.environ.get("SITE_DOMAIN", "brainmart.uz")
 
 
 

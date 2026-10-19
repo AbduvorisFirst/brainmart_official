@@ -298,6 +298,14 @@
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         max-width: calc(100% - 16px);
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        z-index: 3;
+        transition: all 0.2s ease;
+    }
+    .store-badge:hover {
+        background: var(--primary);
+        color: #ffffff;
+        border-color: var(--primary);
+        transform: translateY(-1px) scale(1.03);
     }
 
     .product-info {
@@ -342,7 +350,7 @@
         <!-- Если мы внутри конкретного магазина -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <div class="globix-watermark">⚡️ brainmart</div>
-            <a href="{% url 'catalog' %}?global=1" class="btn-global-mini" title="{% trans 'Выйти на глобальный рынок' %}">🌍</a>
+            <a href="{{ global_market_url|default:'https://brainmart.uz/' }}" class="btn-global-mini" title="{% trans 'Выйти на глобальный рынок' %}">🌍</a>
         </div>
 
         <div class="store-header">
@@ -554,7 +562,9 @@
                         {% endif %}
                         <!-- Показываем бейджик магазина ТОЛЬКО если мы на глобальном рынке -->
                         {% if not current_store %}
-                            <div class="store-badge">{{ product.store.name }}</div>
+                            <div class="store-badge" role="button" tabindex="0" onclick="event.preventDefault(); event.stopPropagation(); window.location.href='{{ product.store.get_subdomain_url }}';" title="{% trans 'Перейти в магазин' %} {{ product.store.name }}" style="cursor: pointer;">
+                                🏪 {{ product.store.name }} ↗
+                            </div>
                         {% endif %}
                     </div>
                     <div class="product-info">

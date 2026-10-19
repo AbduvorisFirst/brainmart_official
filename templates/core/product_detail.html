@@ -127,9 +127,11 @@
 
 <div class="app-header" style="align-items: center; justify-content: space-between;">
     <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
-        <a href="{% url 'catalog' %}?store_id={{ product.store.id }}" class="back-btn" style="flex-shrink: 0;">←</a>
+        <a href="{{ product.store.get_subdomain_url }}" class="back-btn" style="flex-shrink: 0;" title="{% trans 'В магазин' %}">←</a>
         <div style="display: flex; align-items: center; gap: 6px; overflow: hidden; white-space: nowrap;">
-            <span style="font-weight: 800; font-size: 13.5px; color: var(--text-main); overflow: hidden; text-overflow: ellipsis;">{{ product.store.name }}</span>
+            <a href="{{ product.store.get_subdomain_url }}" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; overflow: hidden; text-overflow: ellipsis;">
+                <span style="font-weight: 800; font-size: 13.5px; color: var(--text-main); overflow: hidden; text-overflow: ellipsis;">{{ product.store.name }}</span>
+            </a>
             {% if product.store.theme_style == 'kids_playful' or product.store.theme_style == 'fashion_kids' or product.store.niche == 'kids' or 'kids' in product.store.name|lower %}
                 <span class="store-brand-signature badge-kids"><span class="sig-icon">🧸</span><span class="sig-text">kids-joyfull</span></span>
             {% elif product.store.theme_style == 'genz_neon' or product.store.theme_style == 'fashion_genz' or 'gen' in product.store.name|lower %}

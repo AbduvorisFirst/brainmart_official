@@ -53,6 +53,33 @@ class Store(models.Model):
     # Telegram продавца — куда слать уведомления о новых оплаченных заказах.
     # Заполняется автоматически, когда продавец переходит по персональной
     # ссылке из кабинета и жмёт /start в боте (см. telegram_bot.py)
+    slug = models.SlugField(
+        max_length=100,
+        unique=True,
+        blank=True,
+        null=True,
+        verbose_name="Поддомен магазина (Slug)",
+        help_text="Адрес витрины: https://<slug>.brainmart.uz (только латинские буквы, цифры и дефис)",
+    )
+    telegram_bot_token = models.CharField(
+        max_length=128,
+        blank=True,
+        null=True,
+        verbose_name="Токен личного Telegram-бота (BotFather)",
+        help_text="Токен вида 123456789:ABCdef-GHIjkl... из @BotFather",
+    )
+    telegram_bot_username = models.CharField(
+        max_length=128,
+        blank=True,
+        null=True,
+        verbose_name="Юзернейм личного Telegram-бота",
+        help_text="Имя бота без @, например sultan_shop_bot",
+    )
+    telegram_bot_active = models.BooleanField(
+        default=False,
+        verbose_name="Личный бот активирован",
+        help_text="Установлен ли вебхук на личного бота магазина",
+    )
     telegram_chat_id = models.CharField(max_length=64, blank=True, null=True)
     telegram_notification_language = models.CharField(
         max_length=5,
@@ -367,7 +394,56 @@ class Store(models.Model):
         )
         return new_end_date
 
+    def clean_slug(self, raw_value: str = None) -> str:
+        """Формирует или очищает уникальный slug для поддомена магазина."""
+        import re
+        candidate = raw_value if (raw_value is not None and str(raw_value).strip()) else (self.slug or self.instagram_username or self.name or f"store-{self.pk or secrets.token_hex(4)}")
+        base = str(candidate).strip().lower()
+
+        # Транслитерация кириллицы и узбекских символов
+        translit_map = {
+            'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'yo',
+            'ж': 'zh', 'з': 'z', 'и': 'i', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm',
+            'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u',
+            'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'shch',
+            'ъ': '', 'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu', 'я': 'ya',
+            'ў': 'o', 'ғ': 'g', 'қ': 'q', 'ҳ': 'h'
+        }
+        for ru_char, lat_char in translit_map.items():
+            base = base.replace(ru_char, lat_char)
+
+        # Разрешаем только латинские буквы, цифры и дефис
+        cleaned = re.sub(r'[^a-z0-9]+', '-', base).strip('-')
+        if not cleaned:
+            cleaned = f"store-{secrets.token_hex(3)}"
+        # Резервированные системные поддомены платформы
+        reserved = {"www", "admin", "api", "platform", "bot", "static", "media", "app", "dashboard", "mail", "dev"}
+        if cleaned in reserved:
+            cleaned = f"{cleaned}-shop"
+        return cleaned
+
+    def get_subdomain_url(self, request=None) -> str:
+        """
+        Возвращает персональный URL онлайн-витрины магазина на поддомене:
+        https://<slug>.brainmart.uz/
+        В dev-окружении: http://<slug>.localhost:8000/
+        """
+        from django.conf import settings
+        slug_val = self.slug or self.clean_slug()
+        base_domain = getattr(settings, "SITE_DOMAIN", "brainmart.uz")
+
+        if request:
+            host_header = request.get_host().split(":")[0]
+            port = f":{request.get_port()}" if request.get_port() not in ("80", "443", 80, 443) else ""
+            if "localhost" in host_header or "127.0.0.1" in host_header:
+                return f"{request.scheme}://{slug_val}.localhost{port}/"
+            return f"{request.scheme}://{slug_val}.{base_domain}{port}/"
+
+        return f"https://{slug_val}.{base_domain}/"
+
     def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = self.clean_slug()
         if not self.pk:
             if not self.subscription_paid_until:
                 import datetime
