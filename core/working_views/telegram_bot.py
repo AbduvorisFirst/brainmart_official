@@ -110,11 +110,6 @@ def _send_telegram_message(chat_id, text: str, web_app_url: str | None = None, r
         response = _tg_session.post(url, json=payload, timeout=8)
         if response.status_code != 200:
             logger.warning("Telegram sendMessage вернул ошибку: %s", response.text)
-            # Если отправка через персональный бот не удалась, пробуем резервный глобальный бот
-            if bot_token and bot_token != getattr(settings, "TELEGRAM_BOT_TOKEN", ""):
-                fb_token = getattr(settings, "TELEGRAM_BOT_TOKEN", "")
-                if fb_token:
-                    _tg_session.post(f"https://api.telegram.org/bot{fb_token}/sendMessage", json=payload, timeout=8)
             return False
         return True
     except requests.RequestException:
@@ -628,7 +623,8 @@ def notify_customer_about_payment(order: Order) -> None:
         else:
             text += f"\n\n📍 *Ближайший филиал:* «{order.branch.name}»{dist_s}\nЗаказ собирается в этом филиале для максимально быстрой доставки! 🚀"
 
-    _send_telegram_message(chat_id, text)
+    store_bot_token = store.telegram_bot_token if (store.telegram_bot_token and store.telegram_bot_active) else None
+    _send_telegram_message(chat_id, text, bot_token=store_bot_token)
 
 
 def notify_customer_about_delivery(order: Order) -> None:
@@ -674,7 +670,8 @@ def notify_customer_about_delivery(order: Order) -> None:
         else:
             text += f"\n\n🏢 Отправлено из филиала: «{order.branch.name}»{dist_s}"
 
-    _send_telegram_message(chat_id, text, reply_markup=reply_markup)
+    store_bot_token = store.telegram_bot_token if (store.telegram_bot_token and store.telegram_bot_active) else None
+    _send_telegram_message(chat_id, text, reply_markup=reply_markup, bot_token=store_bot_token)
 
 
 def notify_superadmin_about_new_store(store: Store) -> None:
@@ -1151,13 +1148,13 @@ class TelegramWebhookView(APIView):
 
         return Response(status=status.HTTP_200_OK)
 
-    def _handle(self, request):
+    def _handle(self, request, bot_token=None):
         data = request.data
 
         # Обработка callback_query (нажатие инлайн-кнопок)
         callback = data.get("callback_query")
         if callback:
-            self._handle_callback(callback)
+            self._handle_callback(callback, bot_token=bot_token)
             return
 
         message = data.get("message", {}) or {}
@@ -1176,10 +1173,19 @@ class TelegramWebhookView(APIView):
             state = state_data.get("state")
             order_id = state_data.get("order_id")
 
+            order_obj = None
+            if order_id:
+                order_obj = Order.objects.select_related("store").filter(id=order_id).first()
+            curr_token = bot_token
+            if not curr_token and order_obj and order_obj.store.telegram_bot_token and order_obj.store.telegram_bot_active:
+                curr_token = order_obj.store.telegram_bot_token
+            if not curr_token:
+                curr_token = getattr(settings, "TELEGRAM_BOT_TOKEN", None)
+
             # Шаг 1: Клиент прислал локацию
             if state == "WAITING_LOCATION" and location:
                 try:
-                    order = Order.objects.get(id=order_id)
+                    order = order_obj or Order.objects.get(id=order_id)
                 except Order.DoesNotExist:
                     return
 
@@ -1226,13 +1232,14 @@ class TelegramWebhookView(APIView):
                         "remove_keyboard": True
                     }
                 }
-                requests.post(f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage", json=payload)
+                if curr_token:
+                    requests.post(f"https://api.telegram.org/bot{curr_token}/sendMessage", json=payload)
                 return
 
             # Шаг 1.5: Клиент прислал текстовый ориентир для такси (подъезд, этаж, ориентир)
             elif state == "WAITING_LANDMARK" and text:
                 try:
-                    order = Order.objects.get(id=order_id)
+                    order = order_obj or Order.objects.get(id=order_id)
                     order.delivery_landmark = text.strip()
                     order.save(update_fields=["delivery_landmark"])
                 except Order.DoesNotExist:
@@ -1250,13 +1257,14 @@ class TelegramWebhookView(APIView):
                         "one_time_keyboard": True
                     }
                 }
-                requests.post(f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage", json=payload)
+                if curr_token:
+                    requests.post(f"https://api.telegram.org/bot{curr_token}/sendMessage", json=payload)
                 return
 
             # Шаг 2: Клиент прислал контакт
             elif state == "WAITING_CONTACT" and contact:
                 try:
-                    order = Order.objects.get(id=order_id)
+                    order = order_obj or Order.objects.get(id=order_id)
                 except Order.DoesNotExist:
                     cache.delete(f"tg_state_{chat_id}")
                     return
@@ -1322,7 +1330,8 @@ class TelegramWebhookView(APIView):
                         "remove_keyboard": True
                     }
                 }
-                requests.post(f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage", json=payload)
+                if curr_token:
+                    requests.post(f"https://api.telegram.org/bot{curr_token}/sendMessage", json=payload)
 
                 # Магазин и менеджеров НЕ беспокоим, пока клиент не переведет оплату и не прикрепит фото чека!
                 return
@@ -1334,12 +1343,13 @@ class TelegramWebhookView(APIView):
                     # Если клиент просто отправил текст вместо фото чека
                     _send_telegram_message(
                         chat_id,
-                        _t(chat_id, "receipt_photo_required", order_id=order_id)
+                        _t(chat_id, "receipt_photo_required", order_id=order_id),
+                        bot_token=curr_token
                     )
                     return
 
                 try:
-                    order = Order.objects.get(id=order_id)
+                    order = order_obj or Order.objects.get(id=order_id)
                     store = order.store
                     cache.delete(f"tg_state_{chat_id}")
 
@@ -1350,18 +1360,17 @@ class TelegramWebhookView(APIView):
                     elif message.get("document"):
                         photo_id = message["document"]["file_id"]
 
-                    if photo_id:
+                    if photo_id and curr_token:
                         try:
-                            token = settings.TELEGRAM_BOT_TOKEN
                             file_info_resp = requests.get(
-                                f"https://api.telegram.org/bot{token}/getFile?file_id={photo_id}",
+                                f"https://api.telegram.org/bot{curr_token}/getFile?file_id={photo_id}",
                                 timeout=10
                             )
                             if file_info_resp.status_code == 200:
                                 file_path = file_info_resp.json().get("result", {}).get("file_path")
                                 if file_path:
                                     dl_resp = requests.get(
-                                        f"https://api.telegram.org/file/bot{token}/{file_path}",
+                                        f"https://api.telegram.org/file/bot{curr_token}/{file_path}",
                                         timeout=25
                                     )
                                     if dl_resp.status_code == 200:
@@ -1379,7 +1388,8 @@ class TelegramWebhookView(APIView):
 
                     _send_telegram_message(
                         chat_id,
-                        _t(chat_id, "receipt_received_customer", order_id=order.id, store=store.name)
+                        _t(chat_id, "receipt_received_customer", order_id=order.id, store=store.name),
+                        bot_token=curr_token
                     )
 
                     # Только СЕЙЧАС отправляем полное уведомление с фото чека и кнопками владельцу и менеджерам!
@@ -1397,7 +1407,7 @@ class TelegramWebhookView(APIView):
 
                 if text or photo_file_id:
                     try:
-                        order = Order.objects.get(id=order_id)
+                        order = order_obj or Order.objects.get(id=order_id)
                         if text:
                             order.tracking_url = text.strip()
                         order.status = Order.Status.HANDED_TO_COURIER
@@ -1426,19 +1436,20 @@ class TelegramWebhookView(APIView):
                             if order.tracking_url:
                                 cap += f"\n\n🔗 {order.tracking_url}"
 
-                            token = settings.TELEGRAM_BOT_TOKEN
-                            requests.post(
-                                f"https://api.telegram.org/bot{token}/sendPhoto",
-                                json={"chat_id": cust_chat_id, "photo": photo_file_id, "caption": cap},
-                                timeout=10
-                            )
+                            if curr_token:
+                                requests.post(
+                                    f"https://api.telegram.org/bot{curr_token}/sendPhoto",
+                                    json={"chat_id": cust_chat_id, "photo": photo_file_id, "caption": cap},
+                                    timeout=10
+                                )
                         else:
                             from core.tasks import notify_customer_about_delivery_task
                             notify_customer_about_delivery_task.delay(order.id)
 
                         _send_telegram_message(
                             chat_id,
-                            f"✅ Информация о доставке для заказа #{order.id} успешно отправлена клиенту в Telegram!\nСтатус заказа: 'У курьера (В пути)' 🚀"
+                            f"✅ Информация о доставке для заказа #{order.id} успешно отправлена клиенту в Telegram!\nСтатус заказа: 'У курьера (В пути)' 🚀",
+                            bot_token=curr_token
                         )
                         return
                     except Order.DoesNotExist:
@@ -1459,7 +1470,9 @@ class TelegramWebhookView(APIView):
                     ]
                 }
             }
-            requests.post(f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage", json=payload)
+            lang_token = bot_token or getattr(settings, "TELEGRAM_BOT_TOKEN", None)
+            if lang_token:
+                requests.post(f"https://api.telegram.org/bot{lang_token}/sendMessage", json=payload)
             return
 
         # Команда /otp или /code — получение текущего одноразового кода
@@ -1493,6 +1506,7 @@ class TelegramWebhookView(APIView):
             order_id = int(order_match.group(1))
             try:
                 order = Order.objects.select_related("store", "customer", "branch", "assigned_manager").get(id=order_id)
+                order_token = bot_token or (order.store.telegram_bot_token if (order.store.telegram_bot_token and order.store.telegram_bot_active) else getattr(settings, "TELEGRAM_BOT_TOKEN", None))
                 tg_from = message.get("from", {}) or {}
                 customer = order.customer
                 tg_username = tg_from.get("username", "") or ""
@@ -1540,7 +1554,8 @@ class TelegramWebhookView(APIView):
                             "one_time_keyboard": True
                         }
                     }
-                    requests.post(f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage", json=payload)
+                    if order_token:
+                        requests.post(f"https://api.telegram.org/bot{order_token}/sendMessage", json=payload)
                     return
 
                 # --- КАРТОЧКА ОТСЛЕЖИВАНИЯ ЗАКАЗА ДЛЯ ПОКУПАТЕЛЯ ИЗ БРАУЗЕРА ---
@@ -1743,7 +1758,7 @@ class TelegramWebhookView(APIView):
                     inline_keyboard.append([{"text": store_btn_label, "web_app": {"url": store_url}}])
 
                 reply_markup = {"inline_keyboard": inline_keyboard} if inline_keyboard else None
-                _send_telegram_message(chat_id, msg_text, reply_markup=reply_markup)
+                _send_telegram_message(chat_id, msg_text, reply_markup=reply_markup, bot_token=order_token)
                 return
 
             except Order.DoesNotExist:
@@ -1899,7 +1914,7 @@ class TelegramWebhookView(APIView):
                             _t(chat_id, "welcome_buyer"),
                             web_app_url=web_app_url,
                         )
-    def _handle_callback(self, callback):
+    def _handle_callback(self, callback, bot_token=None):
         """Обрабатывает нажатие инлайн-кнопок (выбор языка)."""
         chat_id = callback.get("message", {}).get("chat", {}).get("id")
         callback_data = callback.get("data", "")
@@ -1928,12 +1943,14 @@ class TelegramWebhookView(APIView):
 
                 # Подтверждаем выбор языка
                 lang_text = BOT_TEXTS[lang]["lang_set"]
-                requests.post(
-                    f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/answerCallbackQuery",
-                    json={"callback_query_id": callback_query_id, "text": lang_text},
-                    timeout=5,
-                )
-                _send_telegram_message(chat_id, lang_text)
+                ans_token = bot_token or getattr(settings, "TELEGRAM_BOT_TOKEN", None)
+                if ans_token:
+                    requests.post(
+                        f"https://api.telegram.org/bot{ans_token}/answerCallbackQuery",
+                        json={"callback_query_id": callback_query_id, "text": lang_text},
+                        timeout=5,
+                    )
+                _send_telegram_message(chat_id, lang_text, bot_token=ans_token)
 
                 # Показываем приветствие на новом языке
                 store_check = Store.objects.filter(telegram_chat_id=str(chat_id)).first()
@@ -1947,16 +1964,21 @@ class TelegramWebhookView(APIView):
                                 [{"text": _t(chat_id, "btn_storefront"), "web_app": {"url": f"{settings.SITE_URL}/{lang}/?store_id={store_check.id}"}}]
                             ]
                         },
+                        bot_token=ans_token
                     )
                 else:
                     web_app_url = f"{settings.SITE_URL}/{lang}/"
-                    _send_telegram_message(chat_id, _t(chat_id, "welcome_buyer"), web_app_url=web_app_url)
+                    _send_telegram_message(chat_id, _t(chat_id, "welcome_buyer"), web_app_url=web_app_url, bot_token=ans_token)
 
         elif callback_data.startswith("track_"):
             order_id = callback_data.replace("track_", "")
             cache.set(f"tg_state_{chat_id}", {"state": "SELLER_WAITING_TRACKING", "order_id": order_id}, timeout=3600)
             caller_lang = "ru"
             store_obj = Store.objects.filter(telegram_chat_id=str(chat_id)).first()
+            if not store_obj:
+                order_check = Order.objects.filter(id=order_id).select_related("store").first()
+                if order_check:
+                    store_obj = order_check.store
             if store_obj:
                 caller_lang = _get_store_lang(store_obj)
             else:
@@ -1966,44 +1988,42 @@ class TelegramWebhookView(APIView):
                 else:
                     caller_lang = _get_customer_lang(chat_id)
 
-            requests.post(
-                f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/answerCallbackQuery",
-                json={"callback_query_id": callback_query_id, "text": _nt(caller_lang, 'track_wait')},
-                timeout=5,
-            )
+            curr_token = bot_token or (store_obj.telegram_bot_token if (store_obj and store_obj.telegram_bot_token and store_obj.telegram_bot_active) else getattr(settings, "TELEGRAM_BOT_TOKEN", None))
+            if curr_token:
+                requests.post(
+                    f"https://api.telegram.org/bot{curr_token}/answerCallbackQuery",
+                    json={"callback_query_id": callback_query_id, "text": _nt(caller_lang, 'track_wait')},
+                    timeout=5,
+                )
             _send_telegram_message(
                 chat_id,
-                _nt(caller_lang, 'track_prompt', order_id=order_id)
+                _nt(caller_lang, 'track_prompt', order_id=order_id),
+                bot_token=curr_token
             )
 
         elif callback_data.startswith("delivered_"):
             order_id = callback_data.replace("delivered_", "")
             try:
-                order = Order.objects.get(id=order_id)
+                order = Order.objects.select_related("store").get(id=order_id)
                 order.status = Order.Status.DELIVERED
                 order.save(update_fields=["status"])
                 from core.payments.payout_service import release_order_funds_and_auto_payout
                 release_order_funds_and_auto_payout(order)
 
-                caller_lang = "ru"
-                store_obj = Store.objects.filter(telegram_chat_id=str(chat_id)).first()
-                if store_obj:
-                    caller_lang = _get_store_lang(store_obj)
-                else:
-                    mgr_obj = StoreManager.objects.filter(telegram_chat_id=str(chat_id)).first()
-                    if mgr_obj:
-                        caller_lang = _get_mgr_lang(mgr_obj)
-                    else:
-                        caller_lang = _get_customer_lang(chat_id)
+                store_obj = order.store
+                caller_lang = _get_store_lang(store_obj) if store_obj else "ru"
 
-                requests.post(
-                    f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/answerCallbackQuery",
-                    json={"callback_query_id": callback_query_id, "text": _nt(caller_lang, 'btn_mark_delivered')},
-                    timeout=5,
-                )
+                curr_token = bot_token or (store_obj.telegram_bot_token if (store_obj and store_obj.telegram_bot_token and store_obj.telegram_bot_active) else getattr(settings, "TELEGRAM_BOT_TOKEN", None))
+                if curr_token:
+                    requests.post(
+                        f"https://api.telegram.org/bot{curr_token}/answerCallbackQuery",
+                        json={"callback_query_id": callback_query_id, "text": _nt(caller_lang, 'btn_mark_delivered')},
+                        timeout=5,
+                    )
                 _send_telegram_message(
                     chat_id,
-                    f"{_nt(caller_lang, 'btn_mark_delivered')} (#{order_id})!"
+                    f"{_nt(caller_lang, 'btn_mark_delivered')} (#{order_id})!",
+                    bot_token=curr_token
                 )
             except Order.DoesNotExist:
                 pass
@@ -2119,7 +2139,7 @@ class TelegramWebhookView(APIView):
         elif callback_data.startswith("confirm_pay_"):
             order_id = callback_data.replace("confirm_pay_", "")
             try:
-                order = Order.objects.get(id=order_id)
+                order = Order.objects.select_related("store", "customer").get(id=order_id)
                 if order.status != Order.Status.PAID:
                     order.status = Order.Status.PAID
                     order.save(update_fields=["status"])
@@ -2130,25 +2150,20 @@ class TelegramWebhookView(APIView):
                             item.variant.stock_quantity = max(0, item.variant.stock_quantity - item.quantity)
                             item.variant.save(update_fields=["stock_quantity"])
 
-                caller_lang = "ru"
-                store_obj = Store.objects.filter(telegram_chat_id=str(chat_id)).first()
-                if store_obj:
-                    caller_lang = _get_store_lang(store_obj)
-                else:
-                    mgr_obj = StoreManager.objects.filter(telegram_chat_id=str(chat_id)).first()
-                    if mgr_obj:
-                        caller_lang = _get_mgr_lang(mgr_obj)
-                    else:
-                        caller_lang = _get_customer_lang(chat_id)
+                store_obj = order.store
+                caller_lang = _get_store_lang(store_obj) if store_obj else "ru"
+                curr_token = bot_token or (store_obj.telegram_bot_token if (store_obj and store_obj.telegram_bot_token and store_obj.telegram_bot_active) else getattr(settings, "TELEGRAM_BOT_TOKEN", None))
 
-                requests.post(
-                    f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/answerCallbackQuery",
-                    json={"callback_query_id": callback_query_id, "text": _nt(caller_lang, 'pay_confirmed_toast', order_id=order_id)},
-                    timeout=5,
-                )
+                if curr_token:
+                    requests.post(
+                        f"https://api.telegram.org/bot{curr_token}/answerCallbackQuery",
+                        json={"callback_query_id": callback_query_id, "text": _nt(caller_lang, 'pay_confirmed_toast', order_id=order_id)},
+                        timeout=5,
+                    )
                 _send_telegram_message(
                     chat_id,
-                    _nt(caller_lang, 'pay_confirmed_seller_msg', order_id=order_id)
+                    _nt(caller_lang, 'pay_confirmed_seller_msg', order_id=order_id),
+                    bot_token=curr_token
                 )
 
                 # Уведомляем менеджеров на сборку/такси и отправляем подтверждение клиенту
@@ -2159,7 +2174,7 @@ class TelegramWebhookView(APIView):
         elif callback_data.startswith("reject_pay_"):
             order_id = callback_data.replace("reject_pay_", "")
             try:
-                order = Order.objects.get(id=order_id)
+                order = Order.objects.select_related("store", "customer").get(id=order_id)
                 was_paid = (order.status == Order.Status.PAID)
                 if order.status != Order.Status.CANCELLED:
                     order.status = Order.Status.CANCELLED
@@ -2171,31 +2186,27 @@ class TelegramWebhookView(APIView):
                                 item.variant.stock_quantity += item.quantity
                                 item.variant.save(update_fields=["stock_quantity"])
 
-                caller_lang = "ru"
-                store_obj = Store.objects.filter(telegram_chat_id=str(chat_id)).first()
-                if store_obj:
-                    caller_lang = _get_store_lang(store_obj)
-                else:
-                    mgr_obj = StoreManager.objects.filter(telegram_chat_id=str(chat_id)).first()
-                    if mgr_obj:
-                        caller_lang = _get_mgr_lang(mgr_obj)
-                    else:
-                        caller_lang = _get_customer_lang(chat_id)
+                store_obj = order.store
+                caller_lang = _get_store_lang(store_obj) if store_obj else "ru"
+                curr_token = bot_token or (store_obj.telegram_bot_token if (store_obj and store_obj.telegram_bot_token and store_obj.telegram_bot_active) else getattr(settings, "TELEGRAM_BOT_TOKEN", None))
 
-                requests.post(
-                    f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/answerCallbackQuery",
-                    json={"callback_query_id": callback_query_id, "text": _nt(caller_lang, 'pay_rejected_toast', order_id=order_id)},
-                    timeout=5,
-                )
+                if curr_token:
+                    requests.post(
+                        f"https://api.telegram.org/bot{curr_token}/answerCallbackQuery",
+                        json={"callback_query_id": callback_query_id, "text": _nt(caller_lang, 'pay_rejected_toast', order_id=order_id)},
+                        timeout=5,
+                    )
                 _send_telegram_message(
                     chat_id,
-                    _nt(caller_lang, 'pay_rejected_seller_msg', order_id=order_id)
+                    _nt(caller_lang, 'pay_rejected_seller_msg', order_id=order_id),
+                    bot_token=curr_token
                 )
                 if order.customer.telegram_chat_id:
                     cust_lang = getattr(order.customer, "language", "ru") or "ru"
                     _send_telegram_message(
                         order.customer.telegram_chat_id,
-                        _nt(cust_lang, 'pay_rejected_customer_msg', store=order.store.name, order_id=order_id, phone=order.store.phone_number or "")
+                        _nt(cust_lang, 'pay_rejected_customer_msg', store=order.store.name, order_id=order_id, phone=order.store.phone_number or ""),
+                        bot_token=curr_token
                     )
             except Order.DoesNotExist:
                 pass
@@ -2309,10 +2320,8 @@ class StoreCustomTelegramWebhookView(APIView):
         callback = data.get("callback_query")
         if callback:
             cb_id = callback.get("id")
-            cb_data = callback.get("data") or ""
-            if cb_data.startswith("confirm_pay_") or cb_data.startswith("reject_pay_"):
-                v = TelegramWebhookView()
-                v._handle_callback(callback)
+            v = TelegramWebhookView()
+            v._handle_callback(callback, bot_token=bot_token)
             try:
                 requests.post(f"https://api.telegram.org/bot{bot_token}/answerCallbackQuery", json={"callback_query_id": cb_id}, timeout=3)
             except Exception:
@@ -2330,7 +2339,7 @@ class StoreCustomTelegramWebhookView(APIView):
         state_data = cache.get(f"tg_state_{chat_id}")
         if state_data:
             v = TelegramWebhookView()
-            v._handle(type("Req", (), {"data": data})())
+            v._handle(type("Req", (), {"data": data})(), bot_token=bot_token)
             return
 
         store_url = store.get_subdomain_url()
@@ -2361,13 +2370,13 @@ class StoreCustomTelegramWebhookView(APIView):
         manager_match = re.match(r"^/start\s+mgr_([a-f0-9]+)", text)
         if manager_match:
             v = TelegramWebhookView()
-            v._handle(type("Req", (), {"data": data})())
+            v._handle(type("Req", (), {"data": data})(), bot_token=bot_token)
             return
 
         link_match = re.match(r"^/start\s+link_([a-f0-9]+)", text)
         if link_match:
             v = TelegramWebhookView()
-            v._handle(type("Req", (), {"data": data})())
+            v._handle(type("Req", (), {"data": data})(), bot_token=bot_token)
             return
 
         # 3. Если ПОКУПАТЕЛЬ написал /start
@@ -2375,7 +2384,7 @@ class StoreCustomTelegramWebhookView(APIView):
             order_match = re.match(r"^/start\s+order_(\d+)", text)
             if order_match:
                 v = TelegramWebhookView()
-                v._handle(type("Req", (), {"data": data})())
+                v._handle(type("Req", (), {"data": data})(), bot_token=bot_token)
                 return
 
             cust = Customer.objects.filter(telegram_chat_id=str(chat_id)).first()

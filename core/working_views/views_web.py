@@ -547,7 +547,11 @@ def create_web_order(request):
         order.recalculate_total()
 
     # Магазин не беспокоим, пока покупатель не перевел деньги и не прикрепил фото чека!
-    telegram_url = f"https://t.me/{settings.TELEGRAM_BOT_USERNAME}?start=order_{order.id}" if settings.TELEGRAM_BOT_USERNAME else ""
+    if target_store.telegram_bot_username and target_store.telegram_bot_active:
+        target_bot = target_store.telegram_bot_username
+    else:
+        target_bot = getattr(settings, "TELEGRAM_BOT_USERNAME", "")
+    telegram_url = f"https://t.me/{target_bot}?start=order_{order.id}" if target_bot else ""
     lang = getattr(request, "LANGUAGE_CODE", "uz") or "uz"
 
     # Авто-эквайринг заморожен на доработку: покупатель всегда перенаправляется на перевод с чеком
@@ -613,16 +617,20 @@ def order_upload_receipt_view(request, order_id):
             from core.working_views.telegram_bot import notify_order_receipt_uploaded, _send_telegram_message, _nt
             notify_order_receipt_uploaded(order)
 
-            # Отправляем подтверждение покупателю в Telegram, если у него привязан чат
+            # Отправляем подтверждение покупателю в Telegram, если у него привязан чат (через личный бот магазина)
             if order.customer and order.customer.telegram_chat_id:
                 cust_lang = order.customer.language or lang or "uz"
                 cust_text = _nt(cust_lang, "receipt_received_customer", order_id=order.id, store=order.store.name)
-                _send_telegram_message(order.customer.telegram_chat_id, cust_text)
+                store_bot_token = order.store.telegram_bot_token if (order.store.telegram_bot_token and order.store.telegram_bot_active) else None
+                _send_telegram_message(order.customer.telegram_chat_id, cust_text, bot_token=store_bot_token)
         except Exception as e:
             logger.warning("Не удалось отправить уведомление о чеке продавцу: %s", e)
 
         messages.success(request, _("✅ Чек успешно передан магазину! Скоро заказ будет доставлен."))
-        bot_username = getattr(settings, "TELEGRAM_BOT_USERNAME", "BrainMart_bot") or "BrainMart_bot"
+        if order.store.telegram_bot_username and order.store.telegram_bot_active:
+            bot_username = order.store.telegram_bot_username
+        else:
+            bot_username = getattr(settings, "TELEGRAM_BOT_USERNAME", "BrainMart_bot") or "BrainMart_bot"
         telegram_url = f"https://t.me/{bot_username}?start=order_{order.id}" if bot_username else f"/{lang}/order/{order.id}/success/?receipt_sent=1"
         return redirect(telegram_url)
 
@@ -656,7 +664,10 @@ def order_success_view(request, order_id):
     elif store.owner_telegram_username:
         contact_username = store.owner_telegram_username.lstrip("@").strip()
 
-    bot_username = getattr(settings, "TELEGRAM_BOT_USERNAME", "BrainMart_bot") or "BrainMart_bot"
+    if store.telegram_bot_username and store.telegram_bot_active:
+        bot_username = store.telegram_bot_username
+    else:
+        bot_username = getattr(settings, "TELEGRAM_BOT_USERNAME", "BrainMart_bot") or "BrainMart_bot"
     telegram_bot_url = f"https://t.me/{bot_username}?start=order_{order.id}" if bot_username else ""
 
     context = {
