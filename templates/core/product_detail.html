@@ -160,15 +160,32 @@
         </div>
     </div>
     
-    <!-- Языковой переключатель в стиле iOS -->
-    <div class="segmented-control" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); border-radius: 10px; padding: 2px; flex-shrink: 0;">
-        {% get_current_language as CURRENT_LANG %}
-        {% get_available_languages as LANGUAGES %}
-        {% for lang_code, lang_name in LANGUAGES %}
-            <button type="button" class="{% if lang_code == CURRENT_LANG %}active{% endif %}" onclick="changeLang('{{ lang_code }}')" style="font-size: 11px;">
-                {% if lang_code == 'ru' %}RU{% elif lang_code == 'uz' %}UZ{% else %}EN{% endif %}
-            </button>
-        {% endfor %}
+    <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+        {% if request.user.is_authenticated and request.user.store %}
+            {% if request.user.store == product.store %}
+                <a href="{% url 'seller-product-edit' product.id %}" style="display: inline-flex; align-items: center; gap: 4px; background: rgba(79, 70, 229, 0.9); backdrop-filter: blur(8px); color: white; text-decoration: none; padding: 5px 9px; border-radius: 8px; font-size: 11px; font-weight: 800; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
+                    ✏️ {% trans "Редактировать" %}
+                </a>
+            {% endif %}
+            <a href="{% url 'seller-dashboard' %}" style="display: inline-flex; align-items: center; gap: 4px; background: rgba(16, 185, 129, 0.9); backdrop-filter: blur(8px); color: white; text-decoration: none; padding: 5px 9px; border-radius: 8px; font-size: 11px; font-weight: 800; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
+                🏪 {% trans "Кабинет" %}
+            </a>
+        {% else %}
+            <a href="{% url 'seller-login' %}" style="display: inline-flex; align-items: center; gap: 4px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); color: var(--text-main); text-decoration: none; padding: 5px 9px; border-radius: 8px; font-size: 11px; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
+                🔑 {% trans "Вход" %}
+            </a>
+        {% endif %}
+
+        <!-- Языковой переключатель в стиле iOS -->
+        <div class="segmented-control" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); border-radius: 10px; padding: 2px; flex-shrink: 0;">
+            {% get_current_language as CURRENT_LANG %}
+            {% get_available_languages as LANGUAGES %}
+            {% for lang_code, lang_name in LANGUAGES %}
+                <button type="button" class="{% if lang_code == CURRENT_LANG %}active{% endif %}" onclick="changeLang('{{ lang_code }}')" style="font-size: 11px;">
+                    {% if lang_code == 'ru' %}RU{% elif lang_code == 'uz' %}UZ{% else %}EN{% endif %}
+                </button>
+            {% endfor %}
+        </div>
     </div>
 </div>
 

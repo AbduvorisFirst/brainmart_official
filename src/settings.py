@@ -274,6 +274,12 @@ if not DEBUG:
     # Для Telegram Mini App и встраивания витрины разрешаем фреймы (полный DENY ломает web.telegram.org)
     X_FRAME_OPTIONS = "SAMEORIGIN"
 
+    # Единая сессия на всех поддоменах: продавец входит один раз и видит свой кабинет на любом поддомене *.brainmart.uz
+    site_domain = os.getenv("SITE_DOMAIN", "brainmart.uz").strip().lower()
+    if site_domain and not site_domain.startswith("localhost") and not site_domain.startswith("127.0.0.1"):
+        SESSION_COOKIE_DOMAIN = f".{site_domain}"
+        CSRF_COOKIE_DOMAIN = f".{site_domain}"
+
     # --- REST Framework: отключаем browsable API на проде ---
     REST_FRAMEWORK = {
         'DEFAULT_RENDERER_CLASSES': [
