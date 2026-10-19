@@ -36,17 +36,51 @@ def resolve_store_from_request(request):
 
     # 2. Проверяем поддомен: <subdomain>.brainmart.uz или <subdomain>.localhost
     subdomain = None
-    if host.endswith(".brainmart.uz"):
-        subdomain = host[:-len(".brainmart.uz")]
+    base_domain = getattr(settings, "SITE_DOMAIN", "brainmart.uz").lower()
+    if host.endswith(f".{base_domain}"):
+        subdomain = host[:-len(f".{base_domain}")]
     elif host.endswith(".localhost"):
         subdomain = host[:-len(".localhost")]
 
     if subdomain and subdomain not in system_subdomains:
+        # 1. Поиск по slug
         store = Store.objects.filter(slug__iexact=subdomain).first()
-        if not store:
-            store = Store.objects.filter(instagram_username__iexact=subdomain).first()
         if store:
             return store
+
+        # 2. Поиск по instagram_username с вариациями дефиса и подчеркивания
+        sub_variations = [
+            subdomain,
+            subdomain.replace("-", "_"),
+            subdomain.replace("_", "-"),
+            subdomain.replace("-", ""),
+            subdomain.replace("_", ""),
+        ]
+        for var in sub_variations:
+            store = Store.objects.filter(instagram_username__iexact=var).first()
+            if store:
+                if not store.slug:
+                    store.slug = subdomain
+                    store.save(update_fields=["slug"])
+                return store
+
+        # 3. Умный поиск по имени магазина
+        for s in Store.objects.all():
+            s_slug = s.clean_slug()
+            s_name_slug = s.clean_slug(s.name) if s.name else ""
+            s_insta_slug = s.clean_slug(s.instagram_username) if s.instagram_username else ""
+            sub_compact = subdomain.replace("-", "").replace("_", "")
+            name_compact = s.name.lower().replace(" ", "").replace("-", "").replace("_", "") if s.name else ""
+            insta_compact = s.instagram_username.lower().replace("_", "").replace("-", "") if s.instagram_username else ""
+
+            if subdomain in (s_slug, s_name_slug, s_insta_slug) or \
+               (s.slug and s.slug.lower() == subdomain) or \
+               (name_compact and name_compact == sub_compact) or \
+               (insta_compact and insta_compact == sub_compact):
+                if not s.slug:
+                    s.slug = subdomain
+                    s.save(update_fields=["slug"])
+                return s
 
     # 3. Проверяем query-параметры ?store_id=... или ?store=...
     store_id = request.GET.get("store_id")
@@ -71,9 +105,23 @@ def resolve_store_from_request(request):
 def catalog_view(request):
     """Каталог с фильтрацией по конкретному магазину, категориям, текстовым поиском и ИИ-Стилистом."""
     from django.db.models import Q
+    from django.utils import translation
     from core.working_views.services import semantic_ai_catalog_search
 
+    base_domain = getattr(settings, "SITE_DOMAIN", "brainmart.uz").lower()
+    host = request.get_host().split(":")[0].lower()
+    is_subdomain = host.endswith(f".{base_domain}") and host != base_domain and host != f"www.{base_domain}"
+    current_lang = translation.get_language() or "ru"
+
+    # Если на поддомене нажат 🌍 "Глобальный рынок" (?global=1) — перенаправляем на brainmart.uz
+    if is_subdomain and request.GET.get("global") == "1":
+        return redirect(f"https://{base_domain}/{current_lang}/")
+
     current_store = resolve_store_from_request(request)
+
+    # Если адрес с поддоменом, но магазин не найден — редиректим на общий brainmart.uz
+    if is_subdomain and not current_store:
+        return redirect(f"https://{base_domain}/{current_lang}/")
 
     category_id = request.GET.get("category")
     search_query = request.GET.get("q", "").strip()
@@ -188,7 +236,7 @@ def catalog_view(request):
         "current_store_id": current_store.id if current_store else None,
         "current_store": current_store,
         "bot_username": effective_bot,
-        "global_market_url": getattr(settings, "SITE_URL", "https://brainmart.uz") + "/ru/?global=1",
+        "global_market_url": f"https://{base_domain}/{current_lang}/",
     }
     return render(request, "core/catalog.html", context)
 
@@ -197,6 +245,10 @@ def catalog_view(request):
 @xframe_options_exempt
 def product_detail_view(request, product_id):
     """Страница товара с вариантами и отзывами."""
+    from django.utils import translation
+    base_domain = getattr(settings, "SITE_DOMAIN", "brainmart.uz").lower()
+    current_lang = translation.get_language() or "ru"
+
     product = get_object_or_404(
         Product,
         id=product_id,
@@ -214,7 +266,7 @@ def product_detail_view(request, product_id):
         "reviews_count": reviews.count(),
         "average_rating": product.average_rating,
         "bot_username": effective_bot,
-        "global_market_url": getattr(settings, "SITE_URL", "https://brainmart.uz") + "/ru/?global=1",
+        "global_market_url": f"https://{base_domain}/{current_lang}/",
     }
     return render(request, "core/product_detail.html", context)
 
