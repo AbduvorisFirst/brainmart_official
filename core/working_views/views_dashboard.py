@@ -108,6 +108,7 @@ def dashboard_home(request):
         "pending_orders_count": orders.filter(status=Order.Status.PENDING_PAYMENT).count(),
         "products_count": Product.objects.filter(store=store, is_active=True).count(),
         "low_stock_variants": low_stock_variants,
+        "store_catalog_url": store.get_subdomain_url(request),
         "telegram_connected": bool(store.telegram_chat_id),
         "telegram_link": (
             None if store.telegram_chat_id
@@ -1251,7 +1252,9 @@ def seller_register_view(request):
         username = request.POST.get("username", "").strip()
         password = request.POST.get("password", "").strip()
         store_name = request.POST.get("store_name", "").strip()
-        instagram_username = request.POST.get("instagram_username", "").strip().lstrip("@")
+        slug_raw = request.POST.get("slug", "").strip()
+        instagram_raw = request.POST.get("instagram_username", "").strip().lstrip("@")
+        telegram_bot_token = request.POST.get("telegram_bot_token", "").strip()
         phone_number = request.POST.get("phone_number", "").strip()
         owner_telegram_username = request.POST.get("owner_telegram_username", "").strip().lstrip("@")
         niche = request.POST.get("niche", "clothes").strip()
@@ -1267,9 +1270,9 @@ def seller_register_view(request):
             from core.models import Category
             initial_category = Category.objects.filter(id=category_id).first()
 
-        # 1. Валидация заполнения всех обязательных полей
-        if not all([username, password, store_name, instagram_username, phone_number]):
-            messages.error(request, "Пожалуйста, заполните все обязательные поля формы.")
+        # 1. Валидация только основных полей (Instagram теперь опционален)
+        if not all([username, password, store_name, phone_number]):
+            messages.error(request, "Пожалуйста, заполните логин, пароль, название магазина и номер телефона.")
             from core.models import Category
             return render(request, "dashboard/register.html", {
                 "form_data": form_data,
@@ -1294,14 +1297,22 @@ def seller_register_view(request):
                 "categories": Category.objects.all().order_by("id"),
             })
 
-        # 4. Предварительная проверка уникальности Instagram
-        if Store.objects.filter(instagram_username__iexact=instagram_username).exists():
-            messages.error(request, f"Магазин с Instagram @{instagram_username} уже зарегистрирован.")
-            from core.models import Category
-            return render(request, "dashboard/register.html", {
-                "form_data": form_data,
-                "categories": Category.objects.all().order_by("id"),
-            })
+        # 4. Формирование уникального slug (поддомена) и псевдонима магазина
+        dummy_store = Store()
+        candidate_slug = dummy_store.clean_slug(slug_raw or instagram_raw or store_name)
+        final_slug = candidate_slug
+        counter = 1
+        while Store.objects.filter(slug__iexact=final_slug).exists():
+            final_slug = f"{candidate_slug}-{counter}"
+            counter += 1
+
+        # Псевдоним Instagram: если не указан, берем сгенерированный slug
+        if instagram_raw:
+            final_instagram = instagram_raw
+            if Store.objects.filter(instagram_username__iexact=final_instagram).exists():
+                final_instagram = f"{final_instagram}_{secrets.token_hex(2)}"
+        else:
+            final_instagram = final_slug.replace("-", "_")
 
         try:
             with transaction.atomic():
@@ -1317,7 +1328,8 @@ def seller_register_view(request):
                 store = Store.objects.create(
                     owner=user,
                     name=store_name,
-                    instagram_username=instagram_username,
+                    slug=final_slug,
+                    instagram_username=final_instagram,
                     owner_telegram_username=owner_telegram_username,
                     niche=niche,
                     category=initial_category,
@@ -1341,6 +1353,15 @@ def seller_register_view(request):
                     longitude=lon_d,
                     is_active=True,
                 )
+
+                # Автоматическая настройка персонального Telegram-бота, если токен передан
+                if telegram_bot_token:
+                    from core.working_views.telegram_bot import setup_store_telegram_bot
+                    bot_ok, bot_res = setup_store_telegram_bot(store, telegram_bot_token)
+                    if bot_ok:
+                        messages.info(request, f"🤖 Персональный Telegram-бот {bot_res} успешно привязан к вашей витрине!")
+                    else:
+                        messages.warning(request, f"⚠️ Токен бота сохранен, но не удалось подключить ({bot_res}). Вы сможете настроить бота в Настройках.")
         except Exception as e:
             messages.error(request, f"Не удалось завершить регистрацию: {e}")
             from core.models import Category
@@ -1363,12 +1384,12 @@ def seller_register_view(request):
         # Автоматическая авторизация нового продавца
         login(request, user)
 
+        store_subdomain_url = store.get_subdomain_url(request)
         messages.success(
             request,
-            f"🎉 Заявка на открытие магазина «{store_name}» успешно отправлена на проверку основателю (@abdvoris07)! "
-            "После проверки магазин будет автоматически активирован. "
-            "Команда BrainMart внимательно изучит вашу анкету. "
-            "Вы уже можете добавлять товары и настраивать магазин — витрина станет доступна покупателям сразу после одобрения ✨"
+            f"🎉 Магазин «{store_name}» успешно зарегистрирован! "
+            f"Адрес вашей персональной витрины: {store_subdomain_url} "
+            "Заявка отправлена на проверку. Вы уже можете добавлять товары и настраивать магазин ✨"
         )
         return redirect("seller-dashboard")
 

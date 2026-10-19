@@ -79,14 +79,30 @@
 
         <!-- БЛОК 2: МАГАЗИН -->
         <div class="section-divider">
-            🏪 {% trans "2. Данные магазина и ниша" %}
+            🏪 {% trans "2. Данные магазина и адрес витрины" %}
         </div>
 
         <label>{% trans "Название магазина" %} <span style="color: #EF4444;">*</span></label>
-        <input type="text" name="store_name" value="{{ form_data.store_name|default:'' }}" required placeholder="Sultan Wear">
+        <input type="text" name="store_name" id="regStoreName" value="{{ form_data.store_name|default:'' }}" required placeholder="Sultan Wear" oninput="onStoreNameInput(this.value)">
 
-        <label>{% trans "Instagram магазина (без @)" %} <span style="color: #EF4444;">*</span></label>
-        <input type="text" name="instagram_username" value="{{ form_data.instagram_username|default:'' }}" required placeholder="sultan_wear">
+        <label style="display: flex; align-items: center; justify-content: space-between;">
+            <span>🌐 {% trans "Адрес интернет-магазина (поддомен)" %} <span style="color: #EF4444;">*</span></span>
+            <span id="subdomainPreviewBadge" style="font-size: 11px; color: #34d399; font-weight: 700; background: rgba(16,185,129,0.15); padding: 2px 7px; border-radius: 5px;">https://{{ form_data.slug|default:'vash-magazin' }}.brainmart.uz</span>
+        </label>
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span style="font-weight: 700; color: var(--text-muted); font-size: 13.5px; white-space: nowrap;">https://</span>
+            <input type="text" name="slug" id="regStoreSlug" value="{{ form_data.slug|default:'' }}" placeholder="sultan-wear" pattern="[a-z0-9\-]+" style="margin: 0; font-weight: 700; color: #a5b4fc; font-family: monospace; font-size: 14px;" required oninput="updateSubdomainPreview(this.value, true)">
+            <span style="font-weight: 700; color: var(--text-muted); font-size: 13.5px; white-space: nowrap;">.brainmart.uz</span>
+        </div>
+        <div class="field-hint">
+            💡 {% trans "Генерируется автоматически из названия магазина! По этому адресу покупатели будут открывать только вашу витрину." %}
+        </div>
+
+        <label>{% trans "Instagram аккаунт или псевдоним (без @)" %} <span style="color: #94A3B8; font-size: 11px; font-weight: normal;">({% trans "необязательно" %})</span></label>
+        <input type="text" name="instagram_username" id="regInstagram" value="{{ form_data.instagram_username|default:'' }}" placeholder="sultan_wear" oninput="onInstaInput(this.value)">
+        <div class="field-hint">
+            💡 {% trans "Если у вас нет Instagram — не переживайте! Можете написать любое имя/псевдоним или оставить пустым — мы создадим его автоматически." %}
+        </div>
 
         <label>{% trans "Номер телефона для заказов" %} <span style="color: #EF4444;">*</span></label>
         <input type="tel" name="phone_number" value="{{ form_data.phone_number|default:'' }}" required placeholder="+998 90 123 45 67">
@@ -99,6 +115,25 @@
                 <option value="">👕 {% trans "Одежда и обувь" %}</option>
             {% endfor %}
         </select>
+
+        <!-- БЛОК 3: ПЕРСОНАЛЬНЫЙ TELEGRAM-БОТ -->
+        <div class="section-divider">
+            🤖 {% trans "3. Персональный Telegram-бот магазина" %}
+        </div>
+
+        <label style="display: flex; align-items: center; justify-content: space-between;">
+            <span>{% trans "Токен бота (HTTP API Token от @BotFather)" %}</span>
+            <span style="font-size: 11px; color: #818cf8; font-weight: 700; background: rgba(99,102,241,0.15); padding: 2px 7px; border-radius: 5px;">@BotFather</span>
+        </label>
+        <input type="text" name="telegram_bot_token" value="{{ form_data.telegram_bot_token|default:'' }}" placeholder="1234567890:ABCdefGHIjklMNO..." style="font-family: monospace; font-size: 13px;">
+
+        <div style="background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.25); border-radius: 12px; padding: 12px 14px; margin: -10px 0 16px; font-size: 12px; color: var(--text-muted); line-height: 1.5;">
+            <strong style="color: #a5b4fc; display: block; margin-bottom: 4px;">📖 Как получить токен бота за 1 минуту:</strong>
+            1. Откройте в Telegram официального бота <a href="https://t.me/BotFather" target="_blank" style="color:#60a5fa;font-weight:700;text-decoration:none;">@BotFather</a>.<br>
+            2. Отправьте команду <code>/newbot</code>, укажите название магазина и юзернейм (например, <code>sultan_wear_bot</code>).<br>
+            3. Скопируйте полученный <b>HTTP API Token</b> и вставьте в поле выше.<br>
+            <span style="color: #94a3b8; font-size: 11px;">💡 Если у вас ещё нет бота, можете оставить поле пустым и подключить бота позже в настройках.</span>
+        </div>
 
         <!-- БЛОК 3: ЛОКАЦИЯ И ТОЧКА НА КАРТЕ -->
         <div class="section-divider">
@@ -231,6 +266,75 @@ function detectRegGPS() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', initRegMap);
+document.addEventListener('DOMContentLoaded', function() {
+    initRegMap();
+    var slugVal = document.getElementById('regStoreSlug') ? document.getElementById('regStoreSlug').value : '';
+    if (slugVal) {
+        updateSubdomainPreview(slugVal, false);
+    }
+});
+
+var manualSlugEdit = false;
+var manualInstaEdit = false;
+
+function transliterate(str) {
+    if (!str) return '';
+    var cyr = {
+        'а':'a', 'б':'b', 'в':'v', 'г':'g', 'д':'d', 'е':'e', 'ё':'yo', 'ж':'zh',
+        'з':'z', 'и':'i', 'й':'y', 'к':'k', 'л':'l', 'м':'m', 'н':'n', 'о':'o',
+        'п':'p', 'р':'r', 'с':'s', 'т':'t', 'у':'u', 'ф':'f', 'х':'kh', 'ц':'ts',
+        'ч':'ch', 'ш':'sh', 'щ':'shch', 'ъ':'', 'ы':'y', 'ь':'', 'э':'e', 'ю':'yu',
+        'я':'ya', 'ў':'o', 'ғ':'g', 'ҳ':'h', 'қ':'q'
+    };
+    var s = String(str).toLowerCase().trim();
+    var res = '';
+    for (var i = 0; i < s.length; i++) {
+        var ch = s[i];
+        if (cyr[ch] !== undefined) {
+            res += cyr[ch];
+        } else if (/[a-z0-9]/.test(ch)) {
+            res += ch;
+        } else {
+            res += '-';
+        }
+    }
+    return res.replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+function onStoreNameInput(name) {
+    var slug = transliterate(name);
+    var slugInput = document.getElementById('regStoreSlug');
+    var badge = document.getElementById('subdomainPreviewBadge');
+    var instaInput = document.getElementById('regInstagram');
+
+    if (!manualSlugEdit && slugInput) {
+        slugInput.value = slug;
+        if (badge) {
+            badge.textContent = 'https://' + (slug || 'vash-magazin') + '.brainmart.uz';
+        }
+    }
+    if (!manualInstaEdit && instaInput) {
+        instaInput.value = slug.replace(/-/g, '_');
+    }
+}
+
+function updateSubdomainPreview(val, isManual) {
+    if (isManual) {
+        manualSlugEdit = true;
+    }
+    var clean = String(val).toLowerCase().replace(/[^a-z0-9\-]/g, '');
+    var slugInput = document.getElementById('regStoreSlug');
+    if (slugInput && isManual) {
+        slugInput.value = clean;
+    }
+    var badge = document.getElementById('subdomainPreviewBadge');
+    if (badge) {
+        badge.textContent = 'https://' + (clean || 'vash-magazin') + '.brainmart.uz';
+    }
+}
+
+function onInstaInput(val) {
+    manualInstaEdit = true;
+}
 </script>
 {% endblock %}

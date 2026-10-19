@@ -41,11 +41,41 @@
 
     <!-- СТАТУС МАГАЗИНА -->
     {% if not store.is_active %}
-        <div class="card" style="background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3); color: #fbbf24; padding: 12px 16px; display: flex; gap: 10px; align-items: center;">
+        <div class="card" style="background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3); color: #fbbf24; padding: 12px 16px; display: flex; gap: 10px; align-items: center; margin-bottom: 16px;">
             <span style="font-size: 24px;">⏳</span>
             <span style="font-size: 13px; font-weight: 500; line-height: 1.4;">{% trans "Ваш магазин на модерации. Товары появятся на витрине после проверки." %}</span>
         </div>
     {% endif %}
+
+    <!-- ВИТРИНА МАГАЗИНА (ПОДДОМЕН И БОТ) -->
+    <div class="card" style="background: linear-gradient(135deg, rgba(79,70,229,0.16) 0%, rgba(16,185,129,0.1) 100%); border: 1.5px solid rgba(79,70,229,0.4); border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.25);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 26px;">🌐</span>
+                <div>
+                    <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: white;">{% trans "Ваша персональная витрина" %}</h3>
+                    <span style="font-size: 12px; color: var(--text-muted);">{% trans "Прямая ссылка для покупателей и рекламы" %}</span>
+                </div>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                {% if store.telegram_bot_username and store.telegram_bot_active %}
+                    <a href="https://t.me/{{ store.telegram_bot_username }}" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(59,130,246,0.18); border: 1px solid rgba(59,130,246,0.4); color: #60a5fa; padding: 8px 14px; border-radius: 12px; font-size: 12.5px; font-weight: 700; text-decoration: none;">
+                        🤖 @{{ store.telegram_bot_username }} ↗
+                    </a>
+                {% endif %}
+                <a href="{{ store_catalog_url }}" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(16,185,129,0.2); border: 1.5px solid rgba(16,185,129,0.4); color: #34d399; padding: 8px 16px; border-radius: 12px; font-size: 13px; font-weight: 700; text-decoration: none;">
+                    👁️ {% trans "Открыть" %} ↗
+                </a>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 8px; align-items: center; background: rgba(0,0,0,0.5); border: 1.5px solid var(--border); border-radius: 14px; padding: 6px 6px 6px 14px;">
+            <input type="text" id="homeStoreUrlInput" readonly value="{{ store_catalog_url }}" style="background: transparent; border: none; color: #a5b4fc; font-family: monospace; font-size: 13.5px; font-weight: 700; margin: 0; padding: 0; outline: none; width: 100%;" onclick="this.select()">
+            <button type="button" class="btn" onclick="copyHomeShowcaseLink(this)" style="width: auto; padding: 10px 18px; font-size: 13px; font-weight: 800; white-space: nowrap; margin: 0; border-radius: 10px; background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);">
+                📋 {% trans "Копировать" %}
+            </button>
+        </div>
+    </div>
 
     <!-- БЛОК ЗАГРУЗКИ ЛОГОТИПА -->
     <div class="card" style="display: flex; align-items: center; gap: 16px; padding: 16px;">
@@ -241,5 +271,22 @@
                 }
             });
         });
+
+        function copyHomeShowcaseLink(btn) {
+            var inp = document.getElementById('homeStoreUrlInput');
+            if (!inp) return;
+            navigator.clipboard.writeText(inp.value).then(function() {
+                var old = btn.innerHTML;
+                btn.innerHTML = '✅ {% filter escapejs %}{% trans "Скопировано!" %}{% endfilter %}';
+                btn.style.background = '#10B981';
+                setTimeout(function() {
+                    btn.innerHTML = old;
+                    btn.style.background = '';
+                }, 2200);
+            }).catch(function() {
+                inp.select();
+                document.execCommand('copy');
+            });
+        }
     </script>
 {% endblock %}
