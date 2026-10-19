@@ -1438,6 +1438,13 @@ def store_settings_view(request):
             payout_card_holder = request.POST.get("payout_card_holder", "").strip()
             primary_color = request.POST.get("primary_color", "").strip() or "#4F46E5"
             accent_color = request.POST.get("accent_color", "").strip() or "#10B981"
+            bg_color_raw = request.POST.get("bg_color", "").strip()
+            bg_color_clear = request.POST.get("bg_color_clear", "").strip()
+            # If "reset to default" was clicked, clear the custom bg
+            if bg_color_clear == "1":
+                bg_color = ""
+            else:
+                bg_color = bg_color_raw if bg_color_raw.startswith("#") else ""
             theme_style = request.POST.get("theme_style", "default_black")
             theme_mode = request.POST.get("theme_mode", "dark")
             telegram_notification_language = request.POST.get("telegram_notification_language", "uz")
@@ -1484,6 +1491,7 @@ def store_settings_view(request):
                 store.niche = niche
 
             store.accent_color = accent_color
+            store.bg_color = bg_color
             store.theme_style = theme_style
             store.theme_mode = theme_mode
             store.telegram_notification_language = telegram_notification_language
@@ -1496,7 +1504,7 @@ def store_settings_view(request):
                 "name", "phone_number", "address", "instagram_username",
                 "payout_card", "payout_card_holder",
                 "category", "niche",
-                "primary_color", "accent_color", "theme_style", "theme_mode",
+                "primary_color", "accent_color", "bg_color", "theme_style", "theme_mode",
                 "telegram_notification_language",
                 "enable_auto_acquiring", "enable_card_transfer"
             ])

@@ -219,6 +219,12 @@ class Store(models.Model):
         max_length=20, default="#10B981",
         verbose_name="Акцентный цвет (Hex)"
     )
+    bg_color = models.CharField(
+        max_length=20, default="",
+        blank=True,
+        verbose_name="Цвет фона витрины (Hex)",
+        help_text="Применяется только в режиме 'Свой дизайн'. Оставьте пустым — будет стандартный тёмный фон."
+    )
     theme_style = models.CharField(
         max_length=50, default="default_black",
         choices=[

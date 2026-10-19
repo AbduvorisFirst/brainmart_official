@@ -33,9 +33,15 @@
                     --primary: {{ store.primary_color|default:"#4F46E5" }};
                     --accent: {{ store.accent_color|default:"#10B981" }};
                     {% if store.theme_mode == 'light' %}
+                        {% if store.bg_color %}
+                        --bg-app: {{ store.bg_color }};
+                        --surface: {{ store.bg_color }};
+                        --surface-card: {{ store.bg_color }};
+                        {% else %}
                         --bg-app: #F8FAFC;
                         --surface: #FFFFFF;
                         --surface-card: #FFFFFF;
+                        {% endif %}
                         --text-main: #0F172A;
                         --text-muted: #64748B;
                         --border: rgba(15, 23, 42, 0.08);
@@ -44,9 +50,15 @@
                         --badge-bg: rgba(255, 255, 255, 0.95);
                         --header-bg: rgba(248, 250, 252, 0.92);
                     {% else %}
+                        {% if store.bg_color %}
+                        --bg-app: {{ store.bg_color }};
+                        --surface: {{ store.bg_color }};
+                        --surface-card: {{ store.bg_color }};
+                        {% else %}
                         --bg-app: #0B0E14;
                         --surface: #141C28;
                         --surface-card: #161D28;
+                        {% endif %}
                         --text-main: #F8FAFC;
                         --text-muted: #94A3B8;
                         --border: rgba(255, 255, 255, 0.09);
