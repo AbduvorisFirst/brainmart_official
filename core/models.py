@@ -286,11 +286,97 @@ class Store(models.Model):
         ],
         verbose_name="Режим фона и атмосферы витрины"
     )
+    brand_signature_text = models.CharField(
+        max_length=60,
+        blank=True,
+        default="",
+        verbose_name="Фирменная подпись бренда (бейдж)",
+        help_text="Особая надпись на бейдже рядом с названием магазина (например: 'kids-joyfull', 'luxury gold', 'baby boutique'). Оставьте пустым — будет автоматически по нише/теме."
+    )
+    brand_signature_icon = models.CharField(
+        max_length=15,
+        blank=True,
+        default="",
+        verbose_name="Иконка / эмодзи подписи",
+        help_text="Эмодзи или символ бейджа (например: 🧸, 👑, ⚡, 🏎️, 🔥, ✦). Оставьте пустым — подставится автоматически."
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = "Магазин"
         verbose_name_plural = "Магазины"
+
+    def get_brand_signature(self) -> dict:
+        """
+        Возвращает иконку, текст и CSS-класс для фирменной подписи/бейджа магазина.
+        Если продавец задал свой текст или иконку в Dashboard — использует их.
+        Иначе возвращает стандартную нейтральную подпись в зависимости от темы/ниши.
+        """
+        theme = (self.theme_style or "").lower()
+        niche = (self.niche or "").lower()
+        sname = (self.name or "").lower()
+
+        # 1. Базовый бейдж, иконка и текст по нише/стилю оформления
+        if theme in ("kids_playful", "fashion_kids") or niche == "kids" or "kids" in sname:
+            badge_class = "badge-kids"
+            def_icon = "🧸"
+            def_text = "kids-joyfull"
+        elif theme in ("genz_neon", "fashion_genz") or "gen" in sname:
+            badge_class = "badge-genz"
+            def_icon = "⚡"
+            def_text = "gen-z"
+        elif theme in ("premium_gold", "fashion_premium") or "luxury" in sname or "premium" in sname:
+            badge_class = "badge-premium"
+            def_icon = "👑"
+            def_text = "luxury gold"
+        elif theme == "auto_drive":
+            badge_class = "badge-drive"
+            def_icon = "🏎️"
+            def_text = "sport drive"
+        elif theme == "auto_premium":
+            badge_class = "badge-auto-premium"
+            def_icon = "⭐"
+            def_text = "premium motors"
+        elif theme == "auto_brutal":
+            badge_class = "badge-garage"
+            def_icon = "🛠️"
+            def_text = "brutal garage"
+        elif theme == "auto_tuning" or "tuning" in sname or "drift" in sname:
+            badge_class = "badge-tuning"
+            def_icon = "🔥"
+            def_text = "drift & tuning"
+        elif theme == "tech_minimal":
+            badge_class = "badge-tech-minimal"
+            def_icon = "⚡"
+            def_text = "cyber minimal"
+        elif theme == "tech_gaming":
+            badge_class = "badge-gaming"
+            def_icon = "🎮"
+            def_text = "rgb gaming"
+        elif theme == "fashion_casual":
+            badge_class = "badge-casual"
+            def_icon = "✨"
+            def_text = "casual fashion"
+        elif theme == "custom":
+            badge_class = "badge-custom"
+            def_icon = "🎨"
+            def_text = "custom brand"
+        else:
+            badge_class = "badge-classic"
+            def_icon = "✦"
+            def_text = "official brand"
+
+        icon = (self.brand_signature_icon or "").strip() or def_icon
+        text = (self.brand_signature_text or "").strip() or def_text
+
+        return {
+            "badge_class": badge_class,
+            "icon": icon,
+            "text": text,
+            "is_custom": bool((self.brand_signature_text or "").strip() or (self.brand_signature_icon or "").strip()),
+            "default_text": def_text,
+            "default_icon": def_icon,
+        }
 
     @property
     def effective_category(self):

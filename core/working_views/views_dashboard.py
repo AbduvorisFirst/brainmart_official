@@ -1547,6 +1547,11 @@ def store_settings_view(request):
             store.theme_mode = theme_mode
             store.telegram_notification_language = telegram_notification_language
 
+            brand_signature_text = request.POST.get("brand_signature_text", "").strip()
+            brand_signature_icon = request.POST.get("brand_signature_icon", "").strip()
+            store.brand_signature_text = brand_signature_text
+            store.brand_signature_icon = brand_signature_icon
+
             # Авто-эквайринг временно заморожен на техническую доработку
             store.enable_auto_acquiring = False
             store.enable_card_transfer = True
@@ -1556,6 +1561,7 @@ def store_settings_view(request):
                 "payout_card", "payout_card_holder",
                 "category", "niche",
                 "primary_color", "accent_color", "bg_color", "theme_style", "theme_mode",
+                "brand_signature_text", "brand_signature_icon",
                 "telegram_notification_language",
                 "enable_auto_acquiring", "enable_card_transfer"
             ])

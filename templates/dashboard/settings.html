@@ -11,6 +11,76 @@
     .copy-btn { background: rgba(79,70,229,0.15); color: var(--primary); border: 1px solid rgba(79,70,229,0.3); padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
     .tg-connected { display: inline-flex; align-items: center; gap: 6px; background: rgba(16,185,129,0.1); color: #34d399; padding: 6px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; }
     .tg-disconnected { display: inline-flex; align-items: center; gap: 6px; background: rgba(245,158,11,0.1); color: #fbbf24; padding: 6px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; }
+
+    /* ─── ФИРМЕННАЯ ПОДПИСЬ БРЕНДА ─── */
+    .store-brand-signature {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 0 !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        vertical-align: middle;
+        flex-shrink: 0;
+        line-height: 1.2;
+    }
+    .store-brand-signature .sig-icon { font-size: 14px; line-height: 1; }
+    .store-brand-signature .sig-text {
+        font-size: 11px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; line-height: 1.2;
+    }
+    .badge-kids .sig-text {
+        background: linear-gradient(135deg, #F59E0B 0%, #EC4899 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        font-weight: 900; letter-spacing: 1px;
+    }
+    .badge-genz .sig-text {
+        background: linear-gradient(135deg, #C084FC 0%, #06B6D4 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        font-weight: 900; font-style: italic;
+    }
+    .badge-premium .sig-text {
+        background: linear-gradient(135deg, #FDE68A 0%, #D4AF37 50%, #B45309 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        font-weight: 800; letter-spacing: 2px;
+    }
+    .badge-tuning .sig-text {
+        background: linear-gradient(135deg, #34D399 0%, #10B981 60%, #EF4444 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        font-weight: 900; font-style: italic;
+    }
+    .badge-garage .sig-text {
+        background: linear-gradient(135deg, #FB923C 0%, #EA580C 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900;
+    }
+    .badge-drive .sig-text {
+        background: linear-gradient(135deg, #60A5FA 0%, #38BDF8 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900;
+    }
+    .badge-auto-premium .sig-text {
+        background: linear-gradient(135deg, #FFFFFF 0%, #D4AF37 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;
+    }
+    .badge-tech-minimal .sig-text {
+        background: linear-gradient(135deg, #22D3EE 0%, #3B82F6 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;
+    }
+    .badge-gaming .sig-text {
+        background: linear-gradient(135deg, #F43F5E 0%, #A855F7 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900;
+    }
+    .badge-casual .sig-text {
+        background: linear-gradient(135deg, #818CF8 0%, #34D399 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;
+    }
+    .badge-custom .sig-text {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;
+    }
+    .badge-classic .sig-text {
+        background: linear-gradient(135deg, #94A3B8 0%, #CBD5E1 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;
+    }
 </style>
 
 {% if messages %}
@@ -154,6 +224,30 @@
         {% csrf_token %}
         <label>{% trans "Название магазина" %}</label>
         <input type="text" name="store_name" value="{{ store.name }}" required>
+
+        <!-- ФИРМЕННЫЙ БЕЙДЖ / ПОДПИСЬ БРЕНДА РЯДОМ С НАЗВАНИЕМ -->
+        {% with sig=store.get_brand_signature %}
+        <label style="display: flex; align-items: center; justify-content: space-between; margin-top: 14px;">
+            <span>🏷️ {% trans "Фирменная подпись бренда (бейдж рядом с названием)" %}</span>
+            <span style="font-size: 11px; color: #f59e0b; font-weight: 700; background: rgba(245,158,11,0.15); padding: 2px 7px; border-radius: 5px;">{% trans "ЭСТЕТИКА ВИТРИНЫ" %}</span>
+        </label>
+        <div style="display: flex; gap: 8px; margin-bottom: 6px; align-items: center;">
+            <input type="text" name="brand_signature_icon" id="brandSignatureIconInput" value="{{ store.brand_signature_icon|default:'' }}" placeholder="{{ sig.default_icon }}" maxlength="15" style="width: 70px; text-align: center; font-size: 18px; padding: 10px; margin: 0;" title="{% trans 'Иконка или эмодзи' %}" oninput="updateSignaturePreview();">
+            <input type="text" name="brand_signature_text" id="brandSignatureTextInput" value="{{ store.brand_signature_text|default:'' }}" placeholder="{{ sig.default_text }}" maxlength="60" style="flex: 1; margin: 0; font-weight: 700; font-size: 14px;" oninput="updateSignaturePreview();">
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+            <p style="font-size: 11.5px; color: var(--text-muted); margin: 0; line-height: 1.4; flex: 1; min-width: 220px;">
+                💡 {% trans "По умолчанию стоит нейтральный бейдж вашей ниши (напр. 🧸 kids-joyfull, 👑 luxury gold, 🏎️ sport drive). Если хотите собственное название или слоган бренда — напишите его здесь, либо оставьте пустым для стандарта." %}
+            </p>
+            <div style="display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: rgba(0,0,0,0.35); border-radius: 10px; border: 1px solid var(--border);">
+                <span style="font-size: 11px; color: var(--text-muted);">{% trans "Превью:" %}</span>
+                <span class="store-brand-signature {{ sig.badge_class }}" id="signatureBadgePreview">
+                    <span class="sig-icon" id="sigPreviewIcon">{{ sig.icon }}</span>
+                    <span class="sig-text" id="sigPreviewText">{{ sig.text }}</span>
+                </span>
+            </div>
+        </div>
+        {% endwith %}
 
         <!-- ПОДДОМЕН МАГАЗИНА -->
         <label style="display: flex; align-items: center; justify-content: space-between;">
@@ -717,6 +811,68 @@ function copyShowcaseLink(btn) {
     });
 }
 
+var NICHE_SIG_MAP = {
+    'kids': { icon: '🧸', text: 'kids-joyfull', cls: 'badge-kids' },
+    'auto': { icon: '🏎️', text: 'sport drive', cls: 'badge-drive' },
+    'electronics': { icon: '⚡', text: 'cyber minimal', cls: 'badge-tech-minimal' },
+    'clothes': { icon: '✨', text: 'casual fashion', cls: 'badge-casual' },
+    'cosmetics': { icon: '👑', text: 'luxury gold', cls: 'badge-premium' },
+    'books': { icon: '✦', text: 'official brand', cls: 'badge-classic' },
+    'other': { icon: '✦', text: 'official brand', cls: 'badge-classic' }
+};
+
+var THEME_SIG_MAP = {
+    'fashion_kids': { icon: '🧸', text: 'kids-joyfull', cls: 'badge-kids' },
+    'kids_playful': { icon: '🧸', text: 'kids-joyfull', cls: 'badge-kids' },
+    'fashion_genz': { icon: '⚡', text: 'gen-z', cls: 'badge-genz' },
+    'genz_neon': { icon: '⚡', text: 'gen-z', cls: 'badge-genz' },
+    'fashion_premium': { icon: '👑', text: 'luxury gold', cls: 'badge-premium' },
+    'premium_gold': { icon: '👑', text: 'luxury gold', cls: 'badge-premium' },
+    'auto_drive': { icon: '🏎️', text: 'sport drive', cls: 'badge-drive' },
+    'auto_premium': { icon: '⭐', text: 'premium motors', cls: 'badge-auto-premium' },
+    'auto_brutal': { icon: '🛠️', text: 'brutal garage', cls: 'badge-garage' },
+    'auto_tuning': { icon: '🔥', text: 'drift & tuning', cls: 'badge-tuning' },
+    'tech_minimal': { icon: '⚡', text: 'cyber minimal', cls: 'badge-tech-minimal' },
+    'tech_gaming': { icon: '🎮', text: 'rgb gaming', cls: 'badge-gaming' },
+    'fashion_casual': { icon: '✨', text: 'casual fashion', cls: 'badge-casual' },
+    'custom': { icon: '🎨', text: 'custom brand', cls: 'badge-custom' },
+    'default_black': { icon: '✦', text: 'official brand', cls: 'badge-classic' }
+};
+
+function updateSignaturePreview() {
+    var textInput = document.getElementById('brandSignatureTextInput');
+    var iconInput = document.getElementById('brandSignatureIconInput');
+    var previewIcon = document.getElementById('sigPreviewIcon');
+    var previewText = document.getElementById('sigPreviewText');
+    var badgePreview = document.getElementById('signatureBadgePreview');
+
+    var checkedThemeRadio = document.querySelector('input[name="theme_style"]:checked');
+    var checkedTheme = checkedThemeRadio ? checkedThemeRadio.value : '';
+    var nicheSelect = document.getElementById('storeNicheSelect');
+    var nicheVal = nicheSelect ? nicheSelect.value : '';
+
+    var defInfo = (checkedTheme && THEME_SIG_MAP[checkedTheme]) || (nicheVal && NICHE_SIG_MAP[nicheVal]) || { icon: '✦', text: 'official brand', cls: 'badge-classic' };
+
+    if (textInput) {
+        textInput.setAttribute('placeholder', defInfo.text);
+    }
+    if (iconInput) {
+        iconInput.setAttribute('placeholder', defInfo.icon);
+    }
+
+    if (previewText && textInput) {
+        var val = textInput.value.trim();
+        previewText.textContent = val ? val : defInfo.text;
+    }
+    if (previewIcon && iconInput) {
+        var ival = iconInput.value.trim();
+        previewIcon.textContent = ival ? ival : defInfo.icon;
+    }
+    if (badgePreview) {
+        badgePreview.className = 'store-brand-signature ' + defInfo.cls;
+    }
+}
+
 function onNicheChange(nicheVal) {
     var groups = document.querySelectorAll('.niche-theme-group');
     groups.forEach(function(g) { g.style.display = 'none'; });
@@ -729,6 +885,7 @@ function onNicheChange(nicheVal) {
     if (target) {
         target.style.display = 'block';
     }
+    updateSignaturePreview();
 }
 
 function updateLivePreview() {
@@ -783,6 +940,7 @@ document.addEventListener('DOMContentLoaded', function() {
         onNicheChange(nicheSelect.value);
     }
     updateLivePreview();
+    updateSignaturePreview();
 
     // Highlight active preset card border on radio selection
     var presetCards = document.querySelectorAll('.theme-preset-card');
@@ -794,6 +952,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (radio.checked) {
                     card.style.borderColor = '#8B5CF6';
                 }
+                updateSignaturePreview();
             });
         }
     });
