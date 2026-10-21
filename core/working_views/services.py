@@ -86,6 +86,27 @@ def build_system_instruction(store: Store) -> str:
             + "\n".join(branch_lines)
             + f"\nЕсли клиент интересуется адресом магазина, самовывозом или локацией — перечисли филиалы и поясни, что доставка на такси отправляется из ближайшей к нему точки!"
         )
+
+    niche = getattr(store, "niche", "clothes")
+    if niche == "clothes":
+        instruction += (
+            f"\n\nСПЕЦИАЛИЗАЦИЯ: МАГАЗИН ОДЕЖДЫ И ОБУВИ '{store.name}'.\n"
+            f"- Ты выступаешь как вежливый персональный стилист-консультант.\n"
+            f"- Отлично ориентируешься в размерах (XS, S, M, L, XL, XXL, oversize), помогай подобрать размер по росту и телосложению.\n"
+            f"- Консультируй по тканям (хлопок, лен, трикотаж, деним, шелк) и комфорту.\n"
+            f"- Подсказывай, с чем стильно сочетать вещь.\n"
+            f"- Аккуратно переводи покупателя к быстрой покупке в Telegram-боте продавца, где можно выбрать размер, прикрепить чек и оформить доставку."
+        )
+    elif niche == "auto":
+        instruction += (
+            f"\n\nСПЕЦИАЛИЗАЦИЯ: АВТОТОВАРЫ '{store.name}'.\n"
+            f"- Помогай с подбором автотоваров и запчастей по марке, модели и году авто."
+        )
+    elif niche == "electronics":
+        instruction += (
+            f"\n\nСПЕЦИАЛИЗАЦИЯ: ЭЛЕКТРОНИКА '{store.name}'.\n"
+            f"- Консультируй по характеристикам, памяти, гарантии и оригинальности."
+        )
     return instruction
 
 
@@ -310,10 +331,13 @@ def handle_incoming_instagram_message(
     in_stock_matches = [v for v in matches if v.in_stock]
     if in_stock_matches:
         best_match = in_stock_matches[0]
-        if settings.TELEGRAM_BOT_USERNAME:
+        if store.telegram_bot_username:
+            link = f"https://t.me/{store.telegram_bot_username}?start=product_{best_match.product.id}"
+        elif getattr(settings, "TELEGRAM_BOT_USERNAME", ""):
             link = build_telegram_deep_link(best_match.product.id)
         else:
-            link = f"{settings.SITE_URL}/ru/product/{best_match.product.id}/"
+            site_url = getattr(settings, 'SITE_URL', '')
+            link = f"{site_url}/ru/product/{best_match.product.id}/"
         ai_reply_text = f"{ai_reply_text}\n\n🛒 {link}"
     else:
         # Товара нет в наличии или это новый товар -> регистрируем в лист ожидания (Waitlist)
@@ -325,8 +349,11 @@ def handle_incoming_instagram_message(
             language=getattr(customer, "language", "uz") or "uz",
         )
     
-    # Always add Telegram bot store link for this specific store
-    if getattr(settings, 'TELEGRAM_BOT_USERNAME', ''):
+    # Always add Telegram bot store link for this specific store (personal bot or platform bot)
+    if store.telegram_bot_username:
+        store_bot_link = f"https://t.me/{store.telegram_bot_username}?start=store_{store.id}"
+        ai_reply_text += f"\n\n💬 Telegram-бот магазина: {store_bot_link}"
+    elif getattr(settings, 'TELEGRAM_BOT_USERNAME', ''):
         store_bot_link = f"https://t.me/{settings.TELEGRAM_BOT_USERNAME}?start=store_{store.id}"
         ai_reply_text += f"\n\n💬 Telegram: {store_bot_link}"
 
@@ -642,9 +669,9 @@ def check_and_notify_waitlist_for_new_product(product: Product) -> int:
 
 def send_instagram_reply(store: Store, instagram_scoped_id: str, text: str) -> None:
     """Отправляет готовый текст ответа обратно клиенту через Meta Graph API."""
-    access_token = getattr(settings, "META_PAGE_ACCESS_TOKEN", None)
+    access_token = (store.meta_access_token if store and store.meta_access_token else None) or getattr(settings, "META_PAGE_ACCESS_TOKEN", None)
     if not access_token:
-        logger.warning("send_instagram_reply: META_PAGE_ACCESS_TOKEN не задан")
+        logger.warning("send_instagram_reply: META_PAGE_ACCESS_TOKEN не задан ни в Store '%s', ни в настройках", getattr(store, 'name', 'Unknown'))
         return
 
     # Автоопределение хоста: для токенов IG... используется graph.instagram.com
@@ -673,7 +700,7 @@ def send_instagram_reply(store: Store, instagram_scoped_id: str, text: str) -> N
 
 def send_instagram_image(store: Store, instagram_scoped_id: str, image_url: str) -> None:
     """Отправляет фото товара клиенту в Instagram Direct через Meta Graph API."""
-    access_token = getattr(settings, "META_PAGE_ACCESS_TOKEN", None)
+    access_token = (store.meta_access_token if store and store.meta_access_token else None) or getattr(settings, "META_PAGE_ACCESS_TOKEN", None)
     if not access_token or not image_url:
         return
 
@@ -721,7 +748,7 @@ def send_instagram_public_reply(comment_id: str, text: str, store: "Store") -> N
     Отвечает публично на комментарий Instagram (reply под самим коментом).
     Endpoint: POST /v20.0/{comment-id}/replies
     """
-    access_token = getattr(settings, "META_PAGE_ACCESS_TOKEN", None)
+    access_token = (store.meta_access_token if store and store.meta_access_token else None) or getattr(settings, "META_PAGE_ACCESS_TOKEN", None)
     if not access_token:
         return
     base_host = "https://graph.instagram.com" if access_token.startswith("IG") else "https://graph.facebook.com"
@@ -743,7 +770,7 @@ def send_instagram_private_reply(comment_id: str, text: str, store: "Store") -> 
     Meta сама откроет DM-диалог с автором комментария.
     Endpoint: POST /v20.0/{comment-id}/private_replies
     """
-    access_token = getattr(settings, "META_PAGE_ACCESS_TOKEN", None)
+    access_token = (store.meta_access_token if store and store.meta_access_token else None) or getattr(settings, "META_PAGE_ACCESS_TOKEN", None)
     if not access_token:
         return
     base_host = "https://graph.instagram.com" if access_token.startswith("IG") else "https://graph.facebook.com"
@@ -799,12 +826,15 @@ def handle_incoming_instagram_comment(
     # 3. Добавляем ссылку на Telegram-бота или на сайт
     in_stock_matches = [v for v in matches if v.in_stock]
     if in_stock_matches:
-        from .telegram_bot import build_telegram_deep_link
         best = in_stock_matches[0]
-        if getattr(settings, "TELEGRAM_BOT_USERNAME", ""):
+        if store.telegram_bot_username:
+            link = f"https://t.me/{store.telegram_bot_username}?start=product_{best.product.id}"
+        elif getattr(settings, "TELEGRAM_BOT_USERNAME", ""):
+            from .telegram_bot import build_telegram_deep_link
             link = build_telegram_deep_link(best.product.id)
         else:
-            link = f"{settings.SITE_URL}/ru/product/{best.product.id}/"
+            site_url = getattr(settings, 'SITE_URL', '')
+            link = f"{site_url}/ru/product/{best.product.id}/"
         ai_text = f"{ai_text}\n\n🛒 {link}"
     else:
         # Регистрируем автора комментария в лист ожидания
@@ -820,8 +850,11 @@ def handle_incoming_instagram_comment(
             language=getattr(comment_cust, "language", "uz") or "uz",
         )
 
-    # Always add Telegram bot link for the store
-    if getattr(settings, "TELEGRAM_BOT_USERNAME", ""):
+    # Always add Telegram bot link for the store (personal or platform)
+    if store.telegram_bot_username:
+        store_link = f"https://t.me/{store.telegram_bot_username}?start=store_{store.id}"
+        ai_text += f"\n\n💬 Telegram-бот: {store_link}"
+    elif getattr(settings, "TELEGRAM_BOT_USERNAME", ""):
         store_link = f"https://t.me/{settings.TELEGRAM_BOT_USERNAME}?start=store_{store.id}"
         ai_text += f"\n\n💬 Telegram: {store_link}"
 

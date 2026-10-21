@@ -23,7 +23,9 @@ core/urls.py — маршруты приложения core.
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from core.working_views.views import ProductViewSet, OrderViewSet, InstagramWebhookView
+from core.working_views.views import (
+    ProductViewSet, OrderViewSet, InstagramWebhookView, StoreCustomInstagramWebhookView
+)
 from core.working_views.telegram_bot import TelegramWebhookView, StoreCustomTelegramWebhookView
 
 router = DefaultRouter()
@@ -32,12 +34,22 @@ router.register("orders", OrderViewSet, basename="order")
 
 urlpatterns = [
     path("", include(router.urls)),
-    # Этот полный адрес (https://твой-домен/api/instagram/webhook/)
-    # нужно указать в Meta Developer Console как "Callback URL"
+    # Глобальный вебхук платформы
     path(
         "instagram/webhook/",
         InstagramWebhookView.as_view(),
         name="instagram-webhook",
+    ),
+    # Персональный вебхук верифицированного приложения Meta конкретного магазина
+    path(
+        "instagram/webhook/store/<slug:store_slug>/",
+        StoreCustomInstagramWebhookView.as_view(),
+        name="store-instagram-webhook-slug",
+    ),
+    path(
+        "instagram/webhook/store/<int:store_slug>/",
+        StoreCustomInstagramWebhookView.as_view(),
+        name="store-instagram-webhook-id",
     ),
     # Главный системный бот платформы (@brainmart_bot)
     path(

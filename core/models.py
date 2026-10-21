@@ -92,6 +92,32 @@ class Store(models.Model):
         max_length=64, unique=True, default=secrets.token_hex,
         help_text="Используется для одноразовой безопасной привязки Telegram",
     )
+    # Meta / Instagram Direct официальная интеграция продавца (Custom Meta App & Verification)
+    meta_access_token = models.TextField(
+        blank=True,
+        default="",
+        verbose_name="Meta Page Access Token",
+        help_text="Долгосрочный Page Access Token от верифицированного приложения Meta",
+    )
+    meta_app_secret = models.CharField(
+        max_length=128,
+        blank=True,
+        default="",
+        verbose_name="Meta App Secret",
+        help_text="Секретный ключ приложения Meta для проверки вебхука X-Hub-Signature-256",
+    )
+    meta_verify_token = models.CharField(
+        max_length=128,
+        blank=True,
+        default="",
+        verbose_name="Meta Webhook Verify Token",
+        help_text="Секретная строка для подтверждения вебхука в Meta Console",
+    )
+    meta_is_active = models.BooleanField(
+        default=False,
+        verbose_name="Meta Instagram AI активен",
+        help_text="Включен ли персональный ИИ-ассистент Instagram Direct для этого магазина",
+    )
     is_active = models.BooleanField(
         default=True,
         help_text="Если False — магазин временно не принимает заказы",
@@ -385,6 +411,15 @@ class Store(models.Model):
             return self.category
         last_product = self.products.filter(category__isnull=False).order_by("-id").first()
         return last_product.category if last_product else None
+
+    def get_meta_verify_token(self) -> str:
+        """Возвращает или генерирует уникальный Verify Token для проверки вебхука Meta."""
+        if not self.meta_verify_token:
+            token = f"bm_verify_{self.slug or self.id}_{secrets.token_hex(6)}"
+            self.meta_verify_token = token
+            if self.pk:
+                self.save(update_fields=["meta_verify_token"])
+        return self.meta_verify_token
 
     def __str__(self):
         return self.name

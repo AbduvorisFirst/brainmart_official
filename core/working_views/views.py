@@ -90,32 +90,45 @@ class InstagramWebhookView(APIView):
         verify_token = request.query_params.get("hub.verify_token")
         challenge = request.query_params.get("hub.challenge")
 
-        if verify_token == settings.META_WEBHOOK_VERIFY_TOKEN:
+        if verify_token == getattr(settings, "META_WEBHOOK_VERIFY_TOKEN", ""):
             return HttpResponse(challenge)
+
+        # Проверяем, не принадлежит ли токен какому-либо магазину
+        if verify_token and Store.objects.filter(meta_verify_token=verify_token).exists():
+            return HttpResponse(challenge)
+
         return HttpResponse("Неверный verify_token", status=403)
 
     def post(self, request):
         # --- БЕЗОПАСНОСТЬ: Проверяем подпись Meta (X-Hub-Signature-256) ---
-        # Meta подписывает каждый webhook HMAC-SHA256 с App Secret.
-        # Если подпись не совпадает — запрос поддельный, отклоняем.
         app_secret = getattr(settings, "META_APP_SECRET", "")
-        if app_secret:
+        signature_header = request.META.get("HTTP_X_HUB_SIGNATURE_256", "")
+
+        # Если задан глобальный секрет или подпись передана
+        if app_secret and signature_header.startswith("sha256="):
             import hashlib, hmac
-            signature_header = request.META.get("HTTP_X_HUB_SIGNATURE_256", "")
-            if signature_header.startswith("sha256="):
-                expected_sig = signature_header[7:]
-                body = request.body
-                computed_sig = hmac.new(
-                    app_secret.encode("utf-8"),
-                    body,
-                    hashlib.sha256,
-                ).hexdigest()
-                if not hmac.compare_digest(computed_sig, expected_sig):
+            expected_sig = signature_header[7:]
+            body = request.body
+            computed_sig = hmac.new(
+                app_secret.encode("utf-8"),
+                body,
+                hashlib.sha256,
+            ).hexdigest()
+            # Если глобальный секрет не совпал, проверяем секреты магазинов
+            if not hmac.compare_digest(computed_sig, expected_sig):
+                matched = False
+                for s in Store.objects.filter(meta_app_secret__isnull=False).exclude(meta_app_secret=""):
+                    s_computed = hmac.new(
+                        s.meta_app_secret.encode("utf-8"),
+                        body,
+                        hashlib.sha256,
+                    ).hexdigest()
+                    if hmac.compare_digest(s_computed, expected_sig):
+                        matched = True
+                        break
+                if not matched:
                     logger.warning("Instagram webhook: неверная подпись X-Hub-Signature-256 — запрос отклонён")
                     return Response(status=status.HTTP_403_FORBIDDEN)
-            else:
-                logger.warning("Instagram webhook: отсутствует X-Hub-Signature-256 — запрос отклонён")
-                return Response(status=status.HTTP_403_FORBIDDEN)
 
         payload = request.data
         logger.info("Instagram webhook payload: %s", payload)
@@ -191,4 +204,112 @@ class InstagramWebhookView(APIView):
                 ).start()
 
         # Meta требует ответ 200 OK, иначе будет повторять попытки отправки
+        return Response(status=status.HTTP_200_OK)
+
+
+class StoreCustomInstagramWebhookView(APIView):
+    """
+    Персональный endpoint для верифицированного приложения Meta конкретного магазина.
+    Каждый продавец может использовать собственный верифицированный Meta Business Manager
+    и настроить Webhook на этот персональный адрес:
+    https://brainmart.uz/api/instagram/webhook/store/<store_slug>/
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def _get_store(self, store_slug):
+        store = Store.objects.filter(slug=store_slug).first()
+        if not store and str(store_slug).isdigit():
+            store = Store.objects.filter(id=int(store_slug)).first()
+        return store
+
+    def get(self, request, store_slug):
+        """Проверка вебхука при настройке в Meta Developer Console."""
+        store = self._get_store(store_slug)
+        if not store:
+            return HttpResponse("Store not found", status=404)
+
+        verify_token = request.query_params.get("hub.verify_token")
+        challenge = request.query_params.get("hub.challenge")
+
+        valid_tokens = [
+            store.meta_verify_token,
+            store.get_meta_verify_token(),
+            getattr(settings, "META_WEBHOOK_VERIFY_TOKEN", ""),
+        ]
+
+        if verify_token and verify_token in valid_tokens:
+            logger.info("Успешная верификация персонального Meta Webhook для магазина '%s'", store.name)
+            return HttpResponse(challenge)
+
+        logger.warning(
+            "Неверный verify_token '%s' для магазина '%s' (ожидался '%s')",
+            verify_token, store.name, store.meta_verify_token
+        )
+        return HttpResponse("Неверный verify_token", status=403)
+
+    def post(self, request, store_slug):
+        """Приём событий (DM и комментарии) от верифицированного приложения продавца."""
+        store = self._get_store(store_slug)
+        if not store:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        # Проверка HMAC подписи с Meta App Secret продавца
+        app_secret = store.meta_app_secret or getattr(settings, "META_APP_SECRET", "")
+        if app_secret:
+            import hashlib, hmac
+            signature_header = request.META.get("HTTP_X_HUB_SIGNATURE_256", "")
+            if signature_header.startswith("sha256="):
+                expected_sig = signature_header[7:]
+                computed_sig = hmac.new(
+                    app_secret.encode("utf-8"),
+                    request.body,
+                    hashlib.sha256,
+                ).hexdigest()
+                if not hmac.compare_digest(computed_sig, expected_sig):
+                    logger.warning("Персональный Instagram Webhook: неверная подпись для '%s'", store.name)
+                    return Response(status=status.HTTP_403_FORBIDDEN)
+
+        payload = request.data
+        logger.info("Персональный Instagram webhook [%s]: %s", store.name, payload)
+
+        for entry in payload.get("entry", []):
+            # 1. Direct-сообщения
+            for messaging_event in entry.get("messaging", []):
+                sender_id = messaging_event.get("sender", {}).get("id")
+                message_text = messaging_event.get("message", {}).get("text")
+                if not sender_id or not message_text:
+                    continue
+
+                import threading
+                from core.working_views.services import handle_incoming_instagram_message
+                logger.info("Персональный Instagram DM [%s] от %s: %s", store.name, sender_id, message_text)
+                threading.Thread(
+                    target=handle_incoming_instagram_message,
+                    args=(store, sender_id, message_text),
+                    daemon=True,
+                ).start()
+
+            # 2. Комментарии
+            for change in entry.get("changes", []):
+                if change.get("field") != "comments":
+                    continue
+                value = change.get("value", {})
+                comment_id = value.get("id")
+                comment_text = value.get("text", "")
+                sender_id = value.get("from", {}).get("id")
+
+                if store.instagram_business_id and str(sender_id) == str(store.instagram_business_id):
+                    continue
+                if not comment_id or not sender_id:
+                    continue
+
+                import threading
+                from core.working_views.services import handle_incoming_instagram_comment
+                logger.info("Персональный Instagram comment [%s] от %s: %s", store.name, sender_id, comment_text)
+                threading.Thread(
+                    target=handle_incoming_instagram_comment,
+                    args=(store, comment_id, sender_id, comment_text),
+                    daemon=True,
+                ).start()
+
         return Response(status=status.HTTP_200_OK)
