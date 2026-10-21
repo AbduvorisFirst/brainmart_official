@@ -118,6 +118,19 @@ class Store(models.Model):
         verbose_name="Meta Instagram AI активен",
         help_text="Включен ли персональный ИИ-ассистент Instagram Direct для этого магазина",
     )
+    # Код быстрого входа через Telegram / SMS (сохраняется в БД для общей доступности всем воркерам)
+    login_otp = models.CharField(
+        max_length=16,
+        blank=True,
+        default="",
+        verbose_name="Код быстрого входа 2FA",
+        help_text="Одноразовый 6-значный код для входа в кабинет",
+    )
+    login_otp_expires_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Срок действия кода входа",
+    )
     is_active = models.BooleanField(
         default=True,
         help_text="Если False — магазин временно не принимает заказы",
@@ -420,6 +433,35 @@ class Store(models.Model):
             if self.pk:
                 self.save(update_fields=["meta_verify_token"])
         return self.meta_verify_token
+
+    def generate_login_otp(self) -> str:
+        """Генерирует и сохраняет в БД надёжный 6-значный код входа, доступный всем воркерам."""
+        from django.utils import timezone
+        import datetime, secrets
+        code = f"{secrets.randbelow(900000) + 100000}"
+        self.login_otp = code
+        self.login_otp_expires_at = timezone.now() + datetime.timedelta(minutes=15)
+        if self.pk:
+            self.save(update_fields=["login_otp", "login_otp_expires_at"])
+        return code
+
+    def verify_login_otp(self, code: str) -> bool:
+        """Проверяет совпадение кода и его срок действия."""
+        from django.utils import timezone
+        if not self.login_otp or not code:
+            return False
+        clean_code = str(code).replace(" ", "").strip()
+        if self.login_otp == clean_code:
+            if not self.login_otp_expires_at or self.login_otp_expires_at >= timezone.now():
+                return True
+        return False
+
+    def clear_login_otp(self):
+        """Очищает использованный код."""
+        self.login_otp = ""
+        self.login_otp_expires_at = None
+        if self.pk:
+            self.save(update_fields=["login_otp", "login_otp_expires_at"])
 
     def __str__(self):
         return self.name

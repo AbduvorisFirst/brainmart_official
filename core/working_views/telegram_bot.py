@@ -1475,24 +1475,41 @@ class TelegramWebhookView(APIView):
                 requests.post(f"https://api.telegram.org/bot{lang_token}/sendMessage", json=payload)
             return
 
-        # Команда /otp или /code — получение текущего одноразового кода
-        if text.strip().lower() in ["/otp", "/code", "код", "отп"]:
-            try:
-                store = Store.objects.filter(telegram_chat_id=str(chat_id)).first()
-                if not store:
-                    raise Store.DoesNotExist
+        # Команда /otp, /code, /login — получение или генерация текущего одноразового кода для входа
+        if text.strip().lower() in ["/otp", "/code", "/login", "код", "отп", "пароль", "логин"]:
+            tg_username = (message.get("from", {}) or {}).get("username", "")
+            store = Store.objects.filter(telegram_chat_id=str(chat_id)).first()
+            if not store and tg_username:
+                store = Store.objects.filter(owner_telegram_username__iexact=tg_username.lstrip("@")).first()
+                if store and not store.telegram_chat_id:
+                    store.telegram_chat_id = str(chat_id)
+                    store.save(update_fields=["telegram_chat_id"])
+
+            if store:
                 pending_otp = cache.get(f"store_pending_otp_{store.id}")
-                if pending_otp:
-                    _send_telegram_message(
-                        chat_id,
-                        f"🔐 ВАШ КОД ПОДТВЕРЖДЕНИЯ (2FA):\n\n"
-                        f"👉 {pending_otp} 👈\n\n"
-                        f"⏱ Код действует 5 минут."
-                    )
-                else:
-                    _send_telegram_message(chat_id, "ℹ️ Сейчас нет активного запроса на вход. Войдите на сайте через логин и пароль.")
-            except Store.DoesNotExist:
-                _send_telegram_message(chat_id, "Магазин не привязан к данному аккаунту Telegram.")
+                if not pending_otp:
+                    pending_otp = f"{secrets.randbelow(900000) + 100000}"
+                    cache.set(f"store_pending_otp_{store.id}", pending_otp, timeout=600)
+                    cache.set(f"user_login_otp_{store.owner.id}", pending_otp, timeout=600)
+                    cache.set(f"username_pending_otp_{store.owner.username.lower()}", pending_otp, timeout=600)
+                    if store.slug:
+                        cache.set(f"username_pending_otp_{store.slug.lower()}", pending_otp, timeout=600)
+
+                _send_telegram_message(
+                    chat_id,
+                    f"🔐 ВАШ КОД ВХОДА В ПАНЕЛЬ BRAINMART:\n\n"
+                    f"👉 {pending_otp} 👈\n\n"
+                    f"👤 Ваш логин: {store.owner.username}\n"
+                    f"🏪 Магазин: «{store.name}»\n"
+                    f"⏱ Код действует 10 минут.\n\n"
+                    f"💡 Введите этот 6-значный код и ваш логин на странице входа для мгновенного доступа в кабинет!"
+                )
+            else:
+                _send_telegram_message(
+                    chat_id,
+                    "⚠️ Магазин не привязан к данному аккаунту Telegram.\n"
+                    "Для привязки перейдите по персональной ссылке из настроек магазина или зарегистрируйте магазин на сайте."
+                )
             return
 
         order_match = re.match(r"^/start\s+order_(\d+)", text)

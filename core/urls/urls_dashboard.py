@@ -22,6 +22,8 @@ urlpatterns = [
     path("login/verify-otp/", views_dashboard.seller_verify_otp_view, name="seller-verify-otp"),
     path("login/resend-otp/", views_dashboard.seller_resend_otp_view, name="seller-resend-otp"),
     path("login/check-tg-status/", views_dashboard.seller_check_tg_status_api, name="seller-check-tg-status"),
+    path("verify-otp/", views_dashboard.seller_verify_otp_view),
+    path("resend-otp/", views_dashboard.seller_resend_otp_view),
     path("forgot-password/", views_dashboard.seller_forgot_password_view, name="seller-forgot-password"),
     path("forgot-password/verify/", views_dashboard.seller_reset_password_verify_view, name="seller-reset-password-verify"),
     path("forgot-password/resend-otp/", views_dashboard.seller_reset_password_resend_otp_view, name="seller-reset-password-resend-otp"),

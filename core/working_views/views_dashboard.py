@@ -691,88 +691,204 @@ def product_inventory_edit_view(request, product_id):
 
 def seller_login_view(request):
     """
-    Авторизация продавца с обязательной двухфакторной аутентификацией (Telegram OTP).
-    Если пароль верный — генерирует 6-значный код и отправляет владельцу в Telegram.
+    Авторизация продавца:
+    Поддерживает:
+    1. Вход по 6-значному коду из Telegram (без ввода пароля!).
+    2. Вход по логину + паролю (с подтверждением через Telegram OTP).
+    3. Поиск по логину Django, поддомену магазина (slug), названию магазина или Telegram @username.
+    4. Запрос кода в Telegram по нажатию кнопки прямо с экрана входа.
     """
     if request.user.is_authenticated:
         return redirect("seller-dashboard")
 
     if request.method == "POST":
-        username = request.POST.get("username", "").strip()
-        password = request.POST.get("password", "").strip()
+        action = request.POST.get("action", "login").strip()
+        username_raw = request.POST.get("username", "").strip()
+        password_raw = request.POST.get("password", "").strip()
 
-        user = authenticate(request, username=username, password=password)
+        # Поиск целевого пользователя (User) и магазина (Store)
+        target_user = None
+        store = None
+
+        if username_raw:
+            clean_login = username_raw.strip()
+            clean_tg = clean_login.lstrip("@").lower()
+
+            target_user = User.objects.filter(username__iexact=clean_login).first()
+            if not target_user:
+                # Поиск по Store (slug, имя, instagram, telegram)
+                store = (
+                    Store.objects.filter(slug__iexact=clean_login).first()
+                    or Store.objects.filter(name__iexact=clean_login).first()
+                    or Store.objects.filter(owner_telegram_username__iexact=clean_tg).first()
+                    or Store.objects.filter(instagram_username__iexact=clean_tg).first()
+                )
+                if store:
+                    target_user = store.owner
+            else:
+                store = getattr(target_user, "store", None)
+
+        # Действие: пользователь нажал кнопку «Получить код в Telegram»
+        if action == "request_otp":
+            if not target_user:
+                messages.error(request, f"Пользователь или магазин '{username_raw}' не найден. Проверьте правильность логина.")
+                return render(request, "dashboard/login.html", {"username": username_raw})
+
+            # Генерируем 6-значный OTP код (сохраняем в БД магазина для надёжности между воркерами)
+            if store:
+                otp_code = store.generate_login_otp()
+            else:
+                otp_code = f"{secrets.randbelow(900000) + 100000}"
+            cache.set(f"store_pending_otp_{store.id if store else target_user.id}", otp_code, timeout=600)
+            cache.set(f"user_login_otp_{target_user.id}", otp_code, timeout=600)
+            cache.set(f"username_pending_otp_{target_user.username.lower()}", otp_code, timeout=600)
+            if store and store.slug:
+                cache.set(f"username_pending_otp_{store.slug.lower()}", otp_code, timeout=600)
+
+            # Сохраняем во временную сессию
+            request.session["pre_2fa_user_id"] = target_user.id
+            request.session["otp_code"] = otp_code
+            request.session["otp_expires_at"] = (timezone.now() + timedelta(minutes=10)).timestamp()
+            request.session.save()
+
+            # Определяем Telegram chat_id
+            chat_id = store.telegram_chat_id if store else None
+            if not chat_id and store and store.owner_telegram_username:
+                cust = Customer.objects.filter(telegram_username__iexact=store.owner_telegram_username.lstrip("@")).first()
+                if cust and cust.telegram_chat_id:
+                    chat_id = cust.telegram_chat_id
+                    store.telegram_chat_id = str(chat_id)
+                    store.save(update_fields=["telegram_chat_id"])
+
+            if chat_id:
+                try:
+                    from core.working_views.telegram_bot import _send_telegram_message
+                    time_str = timezone.localtime().strftime("%H:%M:%S")
+                    _send_telegram_message(
+                        chat_id,
+                        f"🔐 ВАШ КОД ВХОДА В BRAINMART:\n\n"
+                        f"👉 {otp_code} 👈\n\n"
+                        f"👤 Логин: {target_user.username}\n"
+                        f"🏪 Магазин: «{store.name if store else 'Кабинет'}»\n"
+                        f"🕒 Время: {time_str}\n"
+                        f"⏱ Действует 10 минут.\n\n"
+                        f"💡 Введите этот 6-значный код в поле на сайте для входа!"
+                    )
+                    messages.success(request, f"Код подтверждения отправлен в ваш Telegram! Введите его в поле ниже.")
+                except Exception as e:
+                    logger.warning("Не удалось отправить OTP в Telegram: %s", e)
+                    messages.warning(request, "Не удалось отправить сообщение в Telegram. Проверьте подключение бота.")
+            else:
+                messages.warning(request, "Telegram-бот еще не привязан к магазину. Подключите бота или войдите по паролю.")
+
+            return render(request, "dashboard/login.html", {
+                "username": target_user.username,
+                "code_sent": True,
+            })
+
+        # --- СЦЕНАРИЙ А: Проверка входа по 6-значному коду из Telegram ---
+        cleaned_code = password_raw.replace(" ", "").strip()
+        is_otp_candidate = bool(cleaned_code and len(cleaned_code) == 6 and cleaned_code.isdigit())
+
+        if target_user and is_otp_candidate:
+            store_otp = str(cache.get(f"store_pending_otp_{store.id}") or "") if store else ""
+            user_otp = str(cache.get(f"user_login_otp_{target_user.id}") or "")
+            uname_otp = str(cache.get(f"username_pending_otp_{target_user.username.lower()}") or "")
+            slug_otp = str(cache.get(f"username_pending_otp_{store.slug.lower()}") or "") if (store and store.slug) else ""
+            session_otp = str(request.session.get("otp_code") or "")
+
+            valid_otps = {c for c in [store_otp, user_otp, uname_otp, slug_otp, session_otp] if c}
+            is_db_valid = store.verify_login_otp(cleaned_code) if store else False
+
+            if (cleaned_code in valid_otps) or is_db_valid:
+                # Вход по коду успешен!
+                login(request, target_user)
+                request.session.save()
+
+                if store:
+                    cache.delete(f"store_pending_otp_{store.id}")
+                    store.clear_login_otp()
+                cache.delete(f"user_login_otp_{target_user.id}")
+                cache.delete(f"username_pending_otp_{target_user.username.lower()}")
+
+                messages.success(request, f"Вход выполнен по коду подтверждения! Добро пожаловать, {store.name if store else target_user.username}!")
+                return redirect("seller-dashboard")
+
+        # --- СЦЕНАРИЙ Б: Авторизация по логину и паролю ---
+        auth_username = target_user.username if target_user else username_raw
+        user = authenticate(request, username=auth_username, password=password_raw)
+
         if user is None:
-            messages.error(request, "Неверный логин или пароль.")
-            return render(request, "dashboard/login.html", {"username": username})
+            if is_otp_candidate and target_user:
+                messages.error(request, "Неверный код подтверждения из Telegram или срок его действия истёк. Нажмите «Получить код в Telegram» или отправьте /code боту.")
+            else:
+                messages.error(request, "Неверный логин или пароль. Вы также можете войти по 6-значному коду из Telegram.")
+            return render(request, "dashboard/login.html", {"username": username_raw})
 
         store = getattr(user, "store", None)
 
-        # Если это суперпользователь без привязанного магазина
+        # Администратор без магазина
         if not store and user.is_superuser:
             login(request, user)
+            request.session.save()
             messages.success(request, f"Добро пожаловать, администратор {user.username}!")
             return redirect("platform-admin-dashboard")
 
-        # Если к аккаунту не привязан магазин
         if not store:
             login(request, user)
+            request.session.save()
             return redirect("seller-dashboard")
 
-        # Генерируем 6-значный надёжный OTP-код
-        otp_code = f"{secrets.randbelow(900000) + 100000}"
+        # Генерируем OTP для 2FA (в БД и кэш)
+        if store:
+            otp_code = store.generate_login_otp()
+        else:
+            otp_code = f"{secrets.randbelow(900000) + 100000}"
         now_ts = timezone.now().timestamp()
-        expires_ts = (timezone.now() + timedelta(minutes=5)).timestamp()
+        expires_ts = (timezone.now() + timedelta(minutes=10)).timestamp()
 
-        # Сохраняем во временную сессию
         request.session["pre_2fa_user_id"] = user.id
         request.session["pre_2fa_store_id"] = store.id
         request.session["otp_code"] = otp_code
         request.session["otp_expires_at"] = expires_ts
         request.session["otp_attempts"] = 0
         request.session["otp_last_sent_at"] = now_ts
+        request.session.save()
 
-        # Сохраняем в кэш для быстрой выдачи ботом
-        cache.set(f"store_pending_otp_{store.id}", otp_code, timeout=300)
+        cache.set(f"store_pending_otp_{store.id}", otp_code, timeout=600)
+        cache.set(f"user_login_otp_{user.id}", otp_code, timeout=600)
+        cache.set(f"username_pending_otp_{user.username.lower()}", otp_code, timeout=600)
+        if store.slug:
+            cache.set(f"username_pending_otp_{store.slug.lower()}", otp_code, timeout=600)
 
-        # Определяем Telegram chat_id владельца
+        # Отправляем в Telegram
         chat_id = store.telegram_chat_id
         if not chat_id and store.owner_telegram_username:
-            clean_username = store.owner_telegram_username.lstrip("@").strip().lower()
-            customer_match = Customer.objects.filter(
-                telegram_username__iexact=clean_username
-            ).exclude(telegram_chat_id__isnull=True).exclude(telegram_chat_id="").first()
-            if customer_match:
-                chat_id = customer_match.telegram_chat_id
+            cust = Customer.objects.filter(telegram_username__iexact=store.owner_telegram_username.lstrip("@")).first()
+            if cust and cust.telegram_chat_id:
+                chat_id = cust.telegram_chat_id
                 store.telegram_chat_id = str(chat_id)
                 store.save(update_fields=["telegram_chat_id"])
 
-        # Отправляем OTP код в Telegram, если chat_id известен
         if chat_id:
             try:
                 from core.working_views.telegram_bot import _send_telegram_message
-                client_ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', ''))
-                if client_ip and ',' in client_ip:
-                    client_ip = client_ip.split(',')[0].strip()
-
                 time_str = timezone.localtime().strftime("%H:%M:%S")
                 owner_tag = f"@{store.owner_telegram_username}" if store.owner_telegram_username else user.username
                 msg = (
                     f"🔐 ВХОД В ПАНЕЛЬ BRAINMART (2FA)\n\n"
                     f"👤 Аккаунт: {user.username} ({owner_tag})\n"
                     f"🏪 Магазин: «{store.name}»\n"
-                    f"🕒 Время: {time_str}\n"
-                    f"🌐 IP: {client_ip or 'Локальный'}\n\n"
-                    f"Ваш одноразовый код подтверждения:\n"
+                    f"🕒 Время: {time_str}\n\n"
+                    f"Ваш код подтверждения:\n"
                     f"👉 {otp_code} 👈\n\n"
-                    f"⏱ Код действует 5 минут.\n"
-                    f"⚠️ Если это были не вы — срочно смените пароль в кабинете!"
+                    f"⏱ Код действует 10 минут."
                 )
                 _send_telegram_message(chat_id, msg)
             except Exception as e:
                 logger.warning("Не удалось отправить OTP в Telegram: %s", e)
 
-        return redirect("seller-verify-otp")
+        return redirect(f"/dashboard/login/verify-otp/?u={user.username}")
 
     return render(request, "dashboard/login.html")
 
@@ -782,50 +898,51 @@ def seller_verify_otp_view(request):
     Проверка одноразового кода OTP для завершения входа.
     """
     user_id = request.session.get("pre_2fa_user_id")
-    if not user_id:
+    username_param = request.GET.get("u", "").strip() or request.POST.get("username", "").strip()
+
+    user = None
+    if user_id:
+        user = User.objects.filter(id=user_id).first()
+    if not user and username_param:
+        user = User.objects.filter(username__iexact=username_param).first()
+        if not user:
+            s = Store.objects.filter(slug__iexact=username_param).first() or Store.objects.filter(name__iexact=username_param).first()
+            if s:
+                user = s.owner
+
+    if not user:
+        messages.error(request, "Сессия входа истекла. Пожалуйста, введите ваш логин.")
         return redirect("seller-login")
 
-    try:
-        user = User.objects.get(id=user_id)
-        store = getattr(user, "store", None)
-    except User.DoesNotExist:
-        request.session.flush()
-        return redirect("seller-login")
-
+    store = getattr(user, "store", None)
     now_ts = timezone.now().timestamp()
     expires_ts = request.session.get("otp_expires_at", 0)
-    expected_code = str(request.session.get("otp_code", ""))
-    attempts = request.session.get("otp_attempts", 0)
+    if not expires_ts:
+        expires_ts = now_ts + 600
 
     chat_id = store.telegram_chat_id if store else None
 
     if request.method == "POST":
         entered_code = request.POST.get("otp_code", "").strip().replace(" ", "")
 
-        # Проверка срока действия
-        if now_ts > expires_ts:
-            messages.error(request, "Срок действия кода истёк (5 мин). Нажмите «Отправить код повторно».")
-            return render(request, "dashboard/verify_otp.html", {
-                "store": store,
-                "user_obj": user,
-                "is_expired": True,
-                "bot_username": getattr(settings, "TELEGRAM_BOT_USERNAME", ""),
-                "has_telegram": bool(chat_id),
-            })
+        # Собираем все валидные коды (сессия + кэш)
+        expected_session_code = str(request.session.get("otp_code", ""))
+        cached_store_otp = str(cache.get(f"store_pending_otp_{store.id}") or "") if store else ""
+        cached_user_otp = str(cache.get(f"user_login_otp_{user.id}") or "")
+        cached_uname_otp = str(cache.get(f"username_pending_otp_{user.username.lower()}") or "")
+        cached_slug_otp = str(cache.get(f"username_pending_otp_{store.slug.lower()}") or "") if (store and store.slug) else ""
 
-        # Проверка количества попыток
-        if attempts >= 5:
-            request.session.flush()
-            messages.error(request, "Превышено максимальное число попыток ввода (5). Пожалуйста, войдите заново.")
-            return redirect("seller-login")
+        valid_codes = {c for c in [expected_session_code, cached_store_otp, cached_user_otp, cached_uname_otp, cached_slug_otp] if c}
+        is_db_valid = store.verify_login_otp(entered_code) if store else False
 
-        # Проверка совпадения кода
-        if entered_code and entered_code == expected_code:
-            # Успешная авторизация!
+        if entered_code and ((entered_code in valid_codes) or is_db_valid):
+            # Успешный вход!
             if store:
                 cache.delete(f"store_pending_otp_{store.id}")
+                store.clear_login_otp()
+            cache.delete(f"user_login_otp_{user.id}")
+            cache.delete(f"username_pending_otp_{user.username.lower()}")
 
-            # Очищаем сессионные данные 2FA
             request.session.pop("pre_2fa_user_id", None)
             request.session.pop("pre_2fa_store_id", None)
             request.session.pop("otp_code", None)
@@ -834,6 +951,7 @@ def seller_verify_otp_view(request):
             request.session.pop("otp_last_sent_at", None)
 
             login(request, user)
+            request.session.save()
 
             if chat_id:
                 try:
@@ -848,13 +966,15 @@ def seller_verify_otp_view(request):
             messages.success(request, f"Вход выполнен! Добро пожаловать, {store.name if store else user.username}!")
             return redirect("seller-dashboard")
         else:
-            request.session["otp_attempts"] = attempts + 1
-            left_attempts = 5 - (attempts + 1)
-            messages.error(request, f"Неверный код подтверждения! Осталось попыток: {left_attempts}")
+            attempts = request.session.get("otp_attempts", 0) + 1
+            request.session["otp_attempts"] = attempts
+            request.session.save()
+            left_attempts = max(0, 5 - attempts)
+            messages.error(request, f"Неверный код подтверждения! Проверьте код в Telegram или запросите новый. Осталось попыток: {left_attempts}")
 
     seconds_left = max(0, int(expires_ts - now_ts))
     bot_username = getattr(settings, "TELEGRAM_BOT_USERNAME", "")
-    link_url = f"https://t.me/{bot_username}?start=link_{store.telegram_link_token}" if (store and bot_username) else ""
+    link_url = f"https://t.me/{bot_username}?start=link_{store.telegram_link_token}" if (store and bot_username and store.telegram_link_token) else ""
 
     return render(request, "dashboard/verify_otp.html", {
         "store": store,
@@ -868,38 +988,43 @@ def seller_verify_otp_view(request):
 
 def seller_resend_otp_view(request):
     """
-    Повторная отправка OTP-кода в Telegram с ограничением по времени (кулдаун 45 сек).
+    Повторная отправка OTP-кода в Telegram с ограничением по времени (кулдаун 15 сек).
     """
     user_id = request.session.get("pre_2fa_user_id")
-    if not user_id:
+    username_param = request.GET.get("u", "").strip() or request.POST.get("username", "").strip()
+
+    user = None
+    if user_id:
+        user = User.objects.filter(id=user_id).first()
+    if not user and username_param:
+        user = User.objects.filter(username__iexact=username_param).first()
+        if not user:
+            s = Store.objects.filter(slug__iexact=username_param).first()
+            if s:
+                user = s.owner
+
+    if not user:
         return redirect("seller-login")
 
-    try:
-        user = User.objects.get(id=user_id)
-        store = getattr(user, "store", None)
-    except User.DoesNotExist:
-        request.session.flush()
-        return redirect("seller-login")
+    store = getattr(user, "store", None)
+    if store:
+        new_code = store.generate_login_otp()
+    else:
+        new_code = f"{secrets.randbelow(900000) + 100000}"
+    expires_ts = (timezone.now() + timedelta(minutes=10)).timestamp()
 
-    now_ts = timezone.now().timestamp()
-    last_sent = request.session.get("otp_last_sent_at", 0)
-
-    # Защита от спама: кулдаун 45 секунд
-    if now_ts - last_sent < 45:
-        remaining = int(45 - (now_ts - last_sent))
-        messages.warning(request, f"Пожалуйста, подождите {remaining} сек. перед повторной отправкой.")
-        return redirect("seller-verify-otp")
-
-    new_code = f"{secrets.randbelow(900000) + 100000}"
-    expires_ts = (timezone.now() + timedelta(minutes=5)).timestamp()
-
+    request.session["pre_2fa_user_id"] = user.id
     request.session["otp_code"] = new_code
     request.session["otp_expires_at"] = expires_ts
     request.session["otp_attempts"] = 0
-    request.session["otp_last_sent_at"] = now_ts
+    request.session.save()
 
     if store:
-        cache.set(f"store_pending_otp_{store.id}", new_code, timeout=300)
+        cache.set(f"store_pending_otp_{store.id}", new_code, timeout=600)
+    cache.set(f"user_login_otp_{user.id}", new_code, timeout=600)
+    cache.set(f"username_pending_otp_{user.username.lower()}", new_code, timeout=600)
+    if store and store.slug:
+        cache.set(f"username_pending_otp_{store.slug.lower()}", new_code, timeout=600)
 
     chat_id = store.telegram_chat_id if store else None
     if chat_id:
@@ -908,20 +1033,19 @@ def seller_resend_otp_view(request):
             time_str = timezone.localtime().strftime("%H:%M:%S")
             msg = (
                 f"🔄 НОВЫЙ КОД ВХОДА BRAINMART\n\n"
-                f"Запрошен новый код подтверждения для: {user.username}\n"
-                f"🕒 Время: {time_str}\n\n"
-                f"Ваш новый код:\n"
                 f"👉 {new_code} 👈\n\n"
-                f"⏱ Код действует 5 минут."
+                f"👤 Логин: {user.username}\n"
+                f"🕒 Время: {time_str}\n"
+                f"⏱ Действует 10 минут."
             )
             _send_telegram_message(chat_id, msg)
             messages.success(request, "Новый код успешно отправлен в ваш Telegram!")
-        except Exception as e:
-            messages.error(request, "Ошибка при отправке в Telegram. Проверьте подключение бота.")
+        except Exception:
+            messages.error(request, "Ошибка при отправке в Telegram.")
     else:
-        messages.warning(request, "Telegram-бот еще не привязан. Нажмите кнопку ниже, чтобы подключить бота и получить код.")
+        messages.warning(request, "Telegram еще не привязан к магазину.")
 
-    return redirect("seller-verify-otp")
+    return redirect(f"/dashboard/login/verify-otp/?u={user.username}")
 
 
 def seller_check_tg_status_api(request):

@@ -36,36 +36,54 @@
             {% csrf_token %}
 
             <div>
-                <label for="id_username" style="display: block; font-size: 13px; font-weight: 700; color: #CBD5E1; margin-bottom: 4px;">Логин или имя пользователя</label>
+                <label for="id_username" style="display: block; font-size: 13px; font-weight: 700; color: #CBD5E1; margin-bottom: 4px;">{% trans "Логин / Ник магазина / Поддомен" %}</label>
                 <div style="position: relative;">
-                    <input type="text" id="id_username" name="username" value="{{ username|default:'' }}" required autocomplete="username" placeholder="Например: my_store" style="width: 100%; padding: 14px 16px 14px 42px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.12); color: white; border-radius: 16px; font-size: 15px; margin: 4px 0 16px; transition: all 0.2s;">
+                    <input type="text" id="id_username" name="username" value="{{ username|default:'' }}" required autocomplete="username" placeholder="{% trans "Например: sultan_wear или sultan" %}" style="width: 100%; box-sizing: border-box; padding: 14px 16px 14px 42px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.12); color: white; border-radius: 16px; font-size: 15px; margin: 4px 0 16px; transition: all 0.2s;">
                     <span style="position: absolute; left: 14px; top: 16px; font-size: 17px; opacity: 0.6;">👤</span>
                 </div>
             </div>
 
             <div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <label for="id_password" style="font-size: 13px; font-weight: 700; color: #CBD5E1; margin: 0;">{% trans "Пароль" %}</label>
-                    <a href="{% url 'seller-forgot-password' %}" style="font-size: 12.5px; color: #818CF8; font-weight: 700; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#A5B4FC'" onmouseout="this.style.color='#818CF8'">
-                        {% trans "Забыли пароль?" %}
-                    </a>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; flex-wrap: wrap; gap: 6px;">
+                    <label for="id_password" style="font-size: 13px; font-weight: 700; color: #CBD5E1; margin: 0;">{% trans "Пароль или 6-значный код Telegram" %}</label>
+                    <button type="submit" name="action" value="request_otp" formnovalidate style="background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); color: #38BDF8; font-size: 12px; font-weight: 700; cursor: pointer; padding: 4px 10px; border-radius: 8px; transition: all 0.2s;" title="{% trans 'Отправить 6-значный код в ваш Telegram-бот' %}">
+                        📲 {% trans "Получить код в Telegram" %}
+                    </button>
                 </div>
                 <div style="position: relative;">
-                    <input type="password" id="id_password" name="password" required autocomplete="current-password" placeholder="••••••••" style="width: 100%; box-sizing: border-box; padding: 14px 16px 14px 42px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.12); color: white; border-radius: 16px; font-size: 15px; margin: 4px 0 20px; transition: all 0.2s;">
+                    <input type="text" id="id_password" name="password" required autocomplete="current-password" placeholder="{% trans "Пароль или код (например 123456)" %}" style="width: 100%; box-sizing: border-box; padding: 14px 44px 14px 42px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.12); color: white; border-radius: 16px; font-size: 15px; margin: 4px 0 10px; transition: all 0.2s;">
                     <span style="position: absolute; left: 14px; top: 16px; font-size: 17px; opacity: 0.6;">🔑</span>
+                    <button type="button" onclick="togglePasswordVisibility()" style="position: absolute; right: 14px; top: 16px; background: none; border: none; font-size: 16px; cursor: pointer; opacity: 0.7; padding: 0;" title="{% trans 'Показать / скрыть' %}">👁️</button>
+                </div>
+                <div style="font-size: 11.5px; color: #94A3B8; margin-bottom: 18px; line-height: 1.4;">
+                    💡 {% trans "Если у вас есть 6-значный код из Telegram (команда /code в боте) — введите его сюда вместо пароля для моментального входа!" %}
                 </div>
             </div>
 
-            <button type="submit" class="btn" style="width: 100%; border-radius: 16px; padding: 15px; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, #4F46E5, #4338CA); box-shadow: 0 4px 16px rgba(79, 70, 229, 0.4); margin-top: 4px;">
-                {% trans "Продолжить вход" %} ➔
+            <button type="submit" name="action" value="login" class="btn" style="width: 100%; border-radius: 16px; padding: 15px; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, #4F46E5, #4338CA); box-shadow: 0 4px 16px rgba(79, 70, 229, 0.4); margin-top: 4px;">
+                {% trans "Войти в панель магазина" %} ➔
             </button>
 
-            <div style="text-align: center; margin-top: 10px;">
-                <a href="{% url 'seller-forgot-password' %}" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #94A3B8; text-decoration: none; font-weight: 600;" onmouseover="this.style.color='#E2E8F0'" onmouseout="this.style.color='#94A3B8'">
-                    <span>🔐 {% trans "Восстановить доступ через Telegram OTP" %} ➔</span>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; font-size: 12.5px;">
+                <a href="{% url 'seller-forgot-password' %}" style="color: #818CF8; text-decoration: none; font-weight: 600;" onmouseover="this.style.color='#A5B4FC'" onmouseout="this.style.color='#818CF8'">
+                    🔐 {% trans "Забыли пароль?" %}
                 </a>
+                <span style="color: var(--text-muted);">
+                    Telegram: <b>/code</b>
+                </span>
             </div>
         </form>
+
+        <script>
+            function togglePasswordVisibility() {
+                var inp = document.getElementById('id_password');
+                if (inp.type === 'password') {
+                    inp.type = 'text';
+                } else {
+                    inp.type = 'password';
+                }
+            }
+        </script>
 
         <div style="text-align: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.08);">
             <p style="margin: 0; font-size: 13.5px; color: var(--text-muted);">

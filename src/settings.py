@@ -271,14 +271,22 @@ if not DEBUG:
         SECURE_HSTS_SECONDS = 31536000
         SECURE_HSTS_INCLUDE_SUBDOMAINS = True
         SECURE_HSTS_PRELOAD = True
+    # Доверяем заголовку X-Forwarded-Proto от Nginx для работы HTTPS за прокси
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     # Для Telegram Mini App и встраивания витрины разрешаем фреймы (полный DENY ломает web.telegram.org)
     X_FRAME_OPTIONS = "SAMEORIGIN"
 
     # Единая сессия на всех поддоменах: продавец входит один раз и видит свой кабинет на любом поддомене *.brainmart.uz
-    site_domain = os.getenv("SITE_DOMAIN", "brainmart.uz").strip().lower()
-    if site_domain and not site_domain.startswith("localhost") and not site_domain.startswith("127.0.0.1"):
+    site_domain = os.getenv("SITE_DOMAIN", "").strip().lower()
+    if not site_domain and "brainmart.uz" in SITE_URL:
+        site_domain = "brainmart.uz"
+
+    if site_domain and "." in site_domain and not site_domain.replace(".", "").isdigit():
         SESSION_COOKIE_DOMAIN = f".{site_domain}"
         CSRF_COOKIE_DOMAIN = f".{site_domain}"
+    else:
+        SESSION_COOKIE_DOMAIN = None
+        CSRF_COOKIE_DOMAIN = None
 
     # --- REST Framework: отключаем browsable API на проде ---
     REST_FRAMEWORK = {

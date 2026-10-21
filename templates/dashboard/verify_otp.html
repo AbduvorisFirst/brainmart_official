@@ -76,8 +76,9 @@
         {% endif %}
 
         <!-- Форма ввода 6-значного OTP -->
-        <form method="post" action="{% url 'seller-verify-otp' %}" id="otp-form" style="margin-top: 10px;">
+        <form method="post" action="{% url 'seller-verify-otp' %}?u={{ user_obj.username }}" id="otp-form" style="margin-top: 10px;">
             {% csrf_token %}
+            <input type="hidden" name="username" value="{{ user_obj.username }}">
             
             <label for="otp_code_input" style="display: block; font-size: 13px; font-weight: 700; color: #CBD5E1; margin-bottom: 10px; text-align: center;">
                 Введите 6-значный код безопасности
@@ -113,8 +114,9 @@
 
         <!-- Кнопка повторной отправки кода -->
         <div style="margin-top: 20px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 12px; align-items: center;">
-            <form method="post" action="{% url 'seller-resend-otp' %}" style="width: 100%;">
+            <form method="post" action="{% url 'seller-resend-otp' %}?u={{ user_obj.username }}" style="width: 100%;">
                 {% csrf_token %}
+                <input type="hidden" name="username" value="{{ user_obj.username }}">
                 <button type="submit" id="resend-btn" class="btn btn-secondary" style="width: 100%; border-radius: 14px; padding: 12px; font-size: 13.5px; font-weight: 600;">
                     🔄 Отправить код повторно
                 </button>
