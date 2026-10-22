@@ -1571,67 +1571,6 @@ def store_settings_view(request):
             messages.info(request, "Персональный бот отключен. Витрина и уведомления переключены на общий бот платформы.")
             return redirect("seller-settings")
 
-        elif action == "connect_meta_api":
-            meta_access_token = request.POST.get("meta_access_token", "").strip()
-            instagram_business_id = request.POST.get("instagram_business_id", "").strip()
-            meta_app_secret = request.POST.get("meta_app_secret", "").strip()
-            meta_verify_token = request.POST.get("meta_verify_token", "").strip()
-
-            if not meta_access_token:
-                messages.error(request, "Пожалуйста, введите Page Access Token верифицированного приложения Meta.")
-                return redirect("seller-settings")
-
-            account_name = ""
-            try:
-                import requests
-                headers = {"Authorization": f"Bearer {meta_access_token}"}
-                test_resp = requests.get(
-                    "https://graph.facebook.com/v20.0/me?fields=id,name",
-                    headers=headers,
-                    timeout=7,
-                )
-                if test_resp.status_code == 200:
-                    me_data = test_resp.json()
-                    account_name = me_data.get("name") or me_data.get("id")
-                else:
-                    ig_resp = requests.get(
-                        "https://graph.instagram.com/me?fields=id,username",
-                        params={"access_token": meta_access_token},
-                        timeout=7,
-                    )
-                    if ig_resp.status_code == 200:
-                        ig_data = ig_resp.json()
-                        account_name = ig_data.get("username") or ig_data.get("id")
-            except Exception as e:
-                logger.warning("Ошибка проверки токена Meta: %s", e)
-
-            store.meta_access_token = meta_access_token
-            if instagram_business_id:
-                Store.objects.filter(instagram_business_id=instagram_business_id).exclude(id=store.id).update(instagram_business_id=None)
-                store.instagram_business_id = instagram_business_id
-            if meta_app_secret:
-                store.meta_app_secret = meta_app_secret
-            if meta_verify_token:
-                store.meta_verify_token = meta_verify_token
-            else:
-                store.get_meta_verify_token()
-            store.meta_is_active = True
-            store.save(update_fields=[
-                "meta_access_token", "instagram_business_id", "meta_app_secret", "meta_verify_token", "meta_is_active"
-            ])
-
-            status_msg = f" ({account_name})" if account_name else ""
-            messages.success(request, f"🎉 Официальное приложение Meta & Instagram Direct успешно подключено{status_msg}! ИИ-ассистент магазина активен.")
-            return redirect("seller-settings")
-
-        elif action == "disconnect_meta_api":
-            store.meta_access_token = ""
-            store.meta_app_secret = ""
-            store.meta_is_active = False
-            store.save(update_fields=["meta_access_token", "meta_app_secret", "meta_is_active"])
-            messages.info(request, "Интеграция с Meta Instagram Direct отключена.")
-            return redirect("seller-settings")
-
         elif action == "clear_store_history":
             from core.models import CashShift, StockMovement
             orders_count = Order.objects.filter(store=store).count()
@@ -1795,9 +1734,6 @@ def store_settings_view(request):
         "telegram_bot_url": bot_showcase_url,
         "custom_bot_active": bool(store.telegram_bot_active and store.telegram_bot_username),
         "custom_bot_username": store.telegram_bot_username or "",
-        "meta_webhook_url": f"{site_url.rstrip('/')}/api/instagram/webhook/store/{store.slug or store.id}/",
-        "meta_verify_token": store.get_meta_verify_token(),
-        "custom_meta_active": bool(store.meta_is_active and store.meta_access_token),
     }
     return render(request, "dashboard/settings.html", context)
 
