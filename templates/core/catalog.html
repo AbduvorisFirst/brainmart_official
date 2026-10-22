@@ -67,17 +67,6 @@
     }
     .store-text p { margin: 2px 0 0; font-size: 11.5px; font-weight: 600; color: var(--text-muted); }
 
-    /* Кнопка на глобальный рынок */
-    .btn-global-mini {
-        width: 36px; height: 36px; background: var(--surface);
-        border: 1.5px solid var(--border); border-radius: 11px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 16px; text-decoration: none; transition: 0.15s ease;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-        flex-shrink: 0;
-    }
-    .btn-global-mini:active { transform: scale(0.92); border-color: var(--primary); }
-
     /* Компактная кнопка 'Стать продавцом' / 'Панель продавца' */
     .btn-become-seller {
         display: inline-flex;
@@ -350,7 +339,6 @@
         <!-- Если мы внутри конкретного магазина -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <div class="globix-watermark">⚡️ brainmart</div>
-            <a href="{{ global_market_url|default:'https://brainmart.uz/' }}" class="btn-global-mini" title="{% trans 'Выйти на глобальный рынок' %}">🌍</a>
         </div>
 
         <div class="store-header">
