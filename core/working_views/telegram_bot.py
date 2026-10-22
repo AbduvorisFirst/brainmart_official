@@ -853,6 +853,8 @@ BOT_TEXTS = {
         "pay_method_auto": "⚡ Авто-эквайринг (Оплачено онлайн)",
         "pay_method_card": "💳 Перевод на карту продавца (Чек проверен)",
         "btn_open_map": "📍 Открыть на карте",
+        "btn_global_market": "🌍 Глобальный маркет BrainMart",
+        "btn_catalog": "🛍 Каталог товаров",
     },
     "uz": {
         "welcome_buyer": "Xush kelibsiz! Bu yerda katalogni ko'rib, buyurtma berish mumkin:",
@@ -921,6 +923,8 @@ BOT_TEXTS = {
         "pay_method_auto": "⚡ Avto-ekvayring (Onlayn to'langan)",
         "pay_method_card": "💳 Sotuvchi kartasiga o'tkazma (Chek tekshirildi)",
         "btn_open_map": "📍 Xaritada ochish",
+        "btn_global_market": "🌍 BrainMart Global Bozori",
+        "btn_catalog": "🛍 Tovarlar katalogi",
     },
     "en": {
         "welcome_buyer": "Welcome! Browse the catalog and place your order here:",
@@ -989,6 +993,8 @@ BOT_TEXTS = {
         "pay_method_auto": "⚡ Auto-acquiring (Paid online)",
         "pay_method_card": "💳 Card transfer (Receipt verified)",
         "btn_open_map": "📍 Open on map",
+        "btn_global_market": "🌍 BrainMart Global Market",
+        "btn_catalog": "🛍 Product catalog",
     },
 }
 
@@ -1773,6 +1779,10 @@ class TelegramWebhookView(APIView):
                         "ru": "🛍 В магазин",
                     }.get(cust_lang, "🛍 В магазин")
                     inline_keyboard.append([{"text": store_btn_label, "web_app": {"url": store_url}}])
+                    if not order_token or order_token == getattr(settings, "TELEGRAM_BOT_TOKEN", None):
+                        inline_keyboard.append([
+                            {"text": _nt(cust_lang, "btn_global_market"), "web_app": {"url": f"{site_url}/{cust_lang}/?global=1"}}
+                        ])
 
                 reply_markup = {"inline_keyboard": inline_keyboard} if inline_keyboard else None
                 _send_telegram_message(chat_id, msg_text, reply_markup=reply_markup, bot_token=order_token)
@@ -1784,20 +1794,49 @@ class TelegramWebhookView(APIView):
 
         elif product_match:
             product_id = product_match.group(1)
-            web_app_url = f"{settings.SITE_URL}/ru/product/{product_id}/"
+            cust_lang = _get_customer_lang(chat_id) or "ru"
+            site_url = getattr(settings, "SITE_URL", "")
+            web_app_url = f"{site_url}/{cust_lang}/product/{product_id}/"
+            inline_keyboard = [
+                [{"text": "🛒 Оформить товар", "web_app": {"url": web_app_url}}]
+            ]
+            if not bot_token or bot_token == getattr(settings, "TELEGRAM_BOT_TOKEN", None):
+                inline_keyboard.append([
+                    {"text": _nt(cust_lang, "btn_global_market"), "web_app": {"url": f"{site_url}/{cust_lang}/?global=1"}}
+                ])
             _send_telegram_message(
                 chat_id,
                 _t(chat_id, "product_intro"),
-                web_app_url=web_app_url,
+                reply_markup={"inline_keyboard": inline_keyboard},
+                bot_token=bot_token,
             )
 
         elif store_match:
             store_id = store_match.group(1)
-            web_app_url = f"{settings.SITE_URL}/ru/?store_id={store_id}"
+            target_store = Store.objects.filter(id=store_id).first()
+            cust_lang = _get_customer_lang(chat_id) or "uz"
+            site_url = getattr(settings, "SITE_URL", "")
+            web_app_url = f"{site_url}/{cust_lang}/?store_id={store_id}"
+            store_name = target_store.name if target_store else "Магазин"
+            store_btn_label = {
+                "uz": f"🛍 «{store_name}» do'koniga kirish",
+                "en": f"🛍 Open «{store_name}»",
+                "ru": f"🛍 В магазин «{store_name}»",
+            }.get(cust_lang, f"🛍 В магазин «{store_name}»")
+            
+            inline_keyboard = [
+                [{"text": store_btn_label, "web_app": {"url": web_app_url}}]
+            ]
+            if not bot_token or bot_token == getattr(settings, "TELEGRAM_BOT_TOKEN", None):
+                inline_keyboard.append([
+                    {"text": _nt(cust_lang, "btn_global_market"), "web_app": {"url": f"{site_url}/{cust_lang}/?global=1"}}
+                ])
+
             _send_telegram_message(
                 chat_id,
                 _t(chat_id, "store_intro"),
-                web_app_url=web_app_url,
+                reply_markup={"inline_keyboard": inline_keyboard},
+                bot_token=bot_token,
             )
 
         elif link_match:
@@ -1869,14 +1908,19 @@ class TelegramWebhookView(APIView):
                 if not store:
                     raise Store.DoesNotExist
                 store_lang = getattr(store, "telegram_notification_language", "uz") or "uz"
+                inline_kb = [
+                    [{"text": _t(chat_id, "btn_dashboard"), "web_app": {"url": f"{settings.SITE_URL}/dashboard/"}}],
+                    [{"text": _t(chat_id, "btn_storefront"), "web_app": {"url": f"{settings.SITE_URL}/{store_lang}/?store_id={store.id}"}}],
+                ]
+                if not bot_token or bot_token == getattr(settings, "TELEGRAM_BOT_TOKEN", None):
+                    inline_kb.append([
+                        {"text": _nt(store_lang, "btn_global_market"), "web_app": {"url": f"{settings.SITE_URL}/{store_lang}/?global=1"}}
+                    ])
                 payload = {
                     "chat_id": chat_id,
                     "text": _t(chat_id, "welcome_seller", name=store.name),
                     "reply_markup": {
-                        "inline_keyboard": [
-                            [{"text": _t(chat_id, "btn_dashboard"), "web_app": {"url": f"{settings.SITE_URL}/dashboard/"}}],
-                            [{"text": _t(chat_id, "btn_storefront"), "web_app": {"url": f"{settings.SITE_URL}/{store_lang}/?store_id={store.id}"}}]
-                        ]
+                        "inline_keyboard": inline_kb
                     }
                 }
                 _tg_session.post(f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage", json=payload, timeout=8)
@@ -1925,6 +1969,10 @@ class TelegramWebhookView(APIView):
                             site_url = getattr(settings, "SITE_URL", "https://brainmart.uz")
                             cust = Customer.objects.filter(telegram_chat_id=str(chat_id)).first()
                             cust_lang = getattr(cust, "language", "uz") or "uz"
+                            global_kb = None
+                            if not bot_token or bot_token == getattr(settings, "TELEGRAM_BOT_TOKEN", None):
+                                global_kb = {"inline_keyboard": [[{"text": _nt(cust_lang, "btn_global_market"), "web_app": {"url": f"{site_url}/{cust_lang}/?global=1"}}]]}
+
                             if matched_products:
                                 for v in matched_products[:3]:
                                     photo = v.image or v.product.main_image
@@ -1939,9 +1987,9 @@ class TelegramWebhookView(APIView):
                                         _send_telegram_photo(chat_id, photo, caption=caption, reply_markup=kb, bot_token=bot_token)
                                     else:
                                         _send_telegram_message(chat_id, caption, reply_markup=kb, bot_token=bot_token)
-                                _send_telegram_message(chat_id, ai_reply, bot_token=bot_token)
+                                _send_telegram_message(chat_id, ai_reply, reply_markup=global_kb, bot_token=bot_token)
                             else:
-                                _send_telegram_message(chat_id, ai_reply, bot_token=bot_token)
+                                _send_telegram_message(chat_id, ai_reply, reply_markup=global_kb, bot_token=bot_token)
                 else:
                     # /start без параметра — проверяем, выбирал ли клиент язык
                     existing = Customer.objects.filter(telegram_chat_id=str(chat_id)).order_by("-id").first()
@@ -1961,13 +2009,21 @@ class TelegramWebhookView(APIView):
                             },
                         )
                     else:
-                        # Существующий клиент — показываем каталог
+                        # Существующий клиент — показываем каталог и кнопку глобального маркета
                         client_lang = getattr(existing, 'language', 'uz') or 'uz'
                         web_app_url = f"{settings.SITE_URL}/{client_lang}/"
+                        inline_kb = [
+                            [{"text": _nt(client_lang, "btn_catalog"), "web_app": {"url": web_app_url}}],
+                        ]
+                        if not bot_token or bot_token == getattr(settings, "TELEGRAM_BOT_TOKEN", None):
+                            inline_kb.append([
+                                {"text": _nt(client_lang, "btn_global_market"), "web_app": {"url": f"{settings.SITE_URL}/{client_lang}/?global=1"}}
+                            ])
                         _send_telegram_message(
                             chat_id,
                             _t(chat_id, "welcome_buyer"),
-                            web_app_url=web_app_url,
+                            reply_markup={"inline_keyboard": inline_kb},
+                            bot_token=bot_token,
                         )
     def _handle_callback(self, callback, bot_token=None):
         """Обрабатывает нажатие инлайн-кнопок (выбор языка)."""
@@ -2010,20 +2066,35 @@ class TelegramWebhookView(APIView):
                 # Показываем приветствие на новом языке
                 store_check = Store.objects.filter(telegram_chat_id=str(chat_id)).first()
                 if store_check:
+                    inline_kb = [
+                        [{"text": _nt(lang, "btn_dashboard"), "web_app": {"url": f"{settings.SITE_URL}/dashboard/"}}],
+                        [{"text": _nt(lang, "btn_storefront"), "web_app": {"url": f"{settings.SITE_URL}/{lang}/?store_id={store_check.id}"}}],
+                    ]
+                    if not ans_token or ans_token == getattr(settings, "TELEGRAM_BOT_TOKEN", None):
+                        inline_kb.append([
+                            {"text": _nt(lang, "btn_global_market"), "web_app": {"url": f"{settings.SITE_URL}/{lang}/?global=1"}}
+                        ])
                     _send_telegram_message(
                         chat_id,
                         _t(chat_id, "welcome_seller", name=store_check.name),
-                        reply_markup={
-                            "inline_keyboard": [
-                                [{"text": _t(chat_id, "btn_dashboard"), "web_app": {"url": f"{settings.SITE_URL}/dashboard/"}}],
-                                [{"text": _t(chat_id, "btn_storefront"), "web_app": {"url": f"{settings.SITE_URL}/{lang}/?store_id={store_check.id}"}}]
-                            ]
-                        },
+                        reply_markup={"inline_keyboard": inline_kb},
                         bot_token=ans_token
                     )
                 else:
                     web_app_url = f"{settings.SITE_URL}/{lang}/"
-                    _send_telegram_message(chat_id, _t(chat_id, "welcome_buyer"), web_app_url=web_app_url, bot_token=ans_token)
+                    inline_kb = [
+                        [{"text": _nt(lang, "btn_catalog"), "web_app": {"url": web_app_url}}],
+                    ]
+                    if not ans_token or ans_token == getattr(settings, "TELEGRAM_BOT_TOKEN", None):
+                        inline_kb.append([
+                            {"text": _nt(lang, "btn_global_market"), "web_app": {"url": f"{settings.SITE_URL}/{lang}/?global=1"}}
+                        ])
+                    _send_telegram_message(
+                        chat_id,
+                        _t(chat_id, "welcome_buyer"),
+                        reply_markup={"inline_keyboard": inline_kb},
+                        bot_token=ans_token
+                    )
 
         elif callback_data.startswith("track_"):
             order_id = callback_data.replace("track_", "")

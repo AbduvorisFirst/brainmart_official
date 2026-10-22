@@ -78,6 +78,15 @@ def handle_incoming_telegram_message_task(
             cust = Customer.objects.filter(telegram_chat_id=str(chat_id)).first()
             cust_lang = getattr(cust, "language", "uz") or "uz"
 
+            global_kb = None
+            if not bot_token or bot_token == getattr(settings, "TELEGRAM_BOT_TOKEN", None):
+                global_label = {
+                    "uz": "🌍 BrainMart Global Bozori",
+                    "en": "🌍 BrainMart Global Market",
+                    "ru": "🌍 Глобальный маркет BrainMart",
+                }.get(cust_lang, "🌍 Глобальный маркет BrainMart")
+                global_kb = {"inline_keyboard": [[{"text": global_label, "web_app": {"url": f"{site_url}/{cust_lang}/?global=1"}}]]}
+
             if matched_products:
                 for v in matched_products[:3]:
                     photo = v.image or v.product.main_image
@@ -96,9 +105,9 @@ def handle_incoming_telegram_message_task(
                         _send_telegram_photo(chat_id, photo, caption=caption, reply_markup=kb, bot_token=bot_token)
                     else:
                         _send_telegram_message(chat_id, caption, reply_markup=kb, bot_token=bot_token)
-                _send_telegram_message(chat_id, ai_reply, bot_token=bot_token)
+                _send_telegram_message(chat_id, ai_reply, reply_markup=global_kb, bot_token=bot_token)
             else:
-                _send_telegram_message(chat_id, ai_reply, bot_token=bot_token)
+                _send_telegram_message(chat_id, ai_reply, reply_markup=global_kb, bot_token=bot_token)
     except Exception as e:
         logger.exception("Ошибка при обработке ИИ-сообщения в Telegram: %s", e)
 

@@ -272,6 +272,21 @@
         <label>{% trans "Instagram аккаунт (без @)" %}</label>
         <input type="text" name="instagram_username" value="{{ store.instagram_username }}" placeholder="sultan_wear">
 
+        <!-- НАСТРОЙКА КНОПКИ ГЛОБАЛЬНОГО РЫНКА (🌍) -->
+        <div style="background: rgba(255,255,255,0.03); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px 16px; margin: 16px 0; display: flex; align-items: center; justify-content: space-between; gap: 14px;">
+            <div style="flex: 1;">
+                <label for="showGlobalBtnCheckbox" style="font-size: 13.5px; font-weight: 700; color: white; display: flex; align-items: center; gap: 6px; margin: 0 0 3px; cursor: pointer;">
+                    🌍 {% trans "Кнопка выхода на глобальный маркет (🌍)" %}
+                </label>
+                <span style="font-size: 11.5px; color: var(--text-muted); line-height: 1.4; display: block;">
+                    {% trans "По умолчанию включена (нейтрально). Если выключить — на вашей витрине не будет кнопки выхода на общий рынок, и покупатели останутся только в вашем магазине." %}
+                </span>
+            </div>
+            <div>
+                <input type="checkbox" name="show_global_market_button" id="showGlobalBtnCheckbox" {% if store.show_global_market_button %}checked{% endif %} style="width: 20px; height: 20px; accent-color: #10B981; cursor: pointer; margin: 0;">
+            </div>
+        </div>
+
         <!-- ВЫБОР ОСНОВНОЙ НИШИ БИЗНЕСА -->
         <label style="display: flex; align-items: center; justify-content: space-between;">
             <span>🏷️ {% trans "Ниша вашего бизнеса" %}</span>

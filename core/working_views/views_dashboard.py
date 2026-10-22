@@ -1679,6 +1679,7 @@ def store_settings_view(request):
             # Авто-эквайринг временно заморожен на техническую доработку
             store.enable_auto_acquiring = False
             store.enable_card_transfer = True
+            store.show_global_market_button = (request.POST.get("show_global_market_button") == "on")
 
             store.save(update_fields=[
                 "name", "slug", "phone_number", "address", "instagram_username",
@@ -1687,7 +1688,8 @@ def store_settings_view(request):
                 "primary_color", "accent_color", "bg_color", "theme_style", "theme_mode",
                 "brand_signature_text", "brand_signature_icon",
                 "telegram_notification_language",
-                "enable_auto_acquiring", "enable_card_transfer"
+                "enable_auto_acquiring", "enable_card_transfer",
+                "show_global_market_button"
             ])
             messages.success(request, "Настройки магазина, адрес витрины, ниша, способы оплаты и оформление сохранены!")
             return redirect("seller-settings")
