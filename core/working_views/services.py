@@ -134,6 +134,35 @@ def build_stock_context(matches: list) -> str:
 
 
 
+def build_full_store_catalog_context(store: Store, max_items: int = 25) -> str:
+    """
+    Формирует для ИИ компактный обзор ассортимента магазина в наличии.
+    Позволяет ИИ подбирать одежду по запросам «какие есть одежды», по фото и по голосу.
+    """
+    if not store:
+        return "Магазин не определен."
+    variants = ProductVariant.objects.filter(
+        product__store=store,
+        product__is_active=True,
+        stock_quantity__gt=0
+    ).select_related("product").order_by("-product__id")[:max_items]
+
+    if not variants:
+        return "В магазине пока нет товаров в наличии."
+
+    lines = []
+    for v in variants:
+        desc = f"[ID:{v.id}] {v.product.name}"
+        details = []
+        if v.color:
+            details.append(f"цвет: {v.color}")
+        if v.size:
+            details.append(f"размер: {v.size}")
+        details.append(f"цена: {int(v.final_price):,} сум")
+        lines.append(f"- {desc} ({', '.join(details)})")
+    return "\n".join(lines)
+
+
 def build_conversation_history(conversation: Conversation, limit: int = 10) -> list:
     """
     Собирает последние N сообщений диалога в формате, который понимает
@@ -154,8 +183,6 @@ def build_conversation_history(conversation: Conversation, limit: int = 10) -> l
             history.append({"role": "user", "parts": [{"text": msg.text}]})
         elif msg.sender == Message.Sender.AI_AGENT:
             history.append({"role": "model", "parts": [{"text": msg.text}]})
-        # сообщения от MANAGER в историю для ИИ не включаем — это уже
-        # не разговор с ИИ, а вмешательство человека
 
     return history
 
@@ -167,19 +194,19 @@ def ask_gemini(
     history: list | None = None,
     image_base64: str | None = None,
     image_mime_type: str = "image/jpeg",
+    audio_base64: str | None = None,
+    audio_mime_type: str = "audio/ogg",
 ) -> str:
     """
-    Отправляет запрос в Gemini API — с поддержкой истории диалога и Gemini Vision (фото).
-
-    system_instruction идёт отдельным полем (а не смешивается с текстом
-    клиента в одну строку) — это и есть правильный способ задавать
-    "характер"/правила модели через официальный Gemini API.
+    Отправляет запрос в Gemini API — с поддержкой истории диалога, Gemini Vision (фото)
+    и Gemini Audio (голосовые сообщения клиентов).
+    Включает авто-переключение моделей (fallback) для максимальной надёжности.
     """
     # --- БЕЗОПАСНОСТЬ: Rate Limiting ---
     rate_key = "gemini_rate_limit"
     current_count = cache.get(rate_key, 0)
-    if current_count >= 30:
-        logger.warning("Rate limit Gemini API: превышен лимит 30 req/min")
+    if current_count >= 60:
+        logger.warning("Rate limit Gemini API: превышен лимит 60 req/min")
         return (
             "Сейчас много запросов, менеджер скоро подключится. / "
             "Hozir ko'p so'rovlar bor, menejer tez orada javob beradi. / "
@@ -202,34 +229,51 @@ def ask_gemini(
                 "data": image_base64,
             }
         })
+    if audio_base64:
+        user_parts.append({
+            "inline_data": {
+                "mime_type": audio_mime_type,
+                "data": audio_base64,
+            }
+        })
 
     # История прошлых реплик + текущее сообщение клиента в конце
     contents = (history or []) + [{"role": "user", "parts": user_parts}]
 
-    try:
-        response = _ai_session.post(
-            f"{GEMINI_API_URL}?key={api_key}",
-            json={
-                "system_instruction": {"parts": [{"text": system_instruction}]},
-                "contents": contents,
-                "generationConfig": {
-                    "maxOutputTokens": 280,
-                    "temperature": 0.3,
+    models_to_try = [
+        "gemini-1.5-flash",
+        "gemini-flash-latest",
+        "gemini-2.0-flash",
+    ]
+
+    for model_name in models_to_try:
+        try:
+            response = _ai_session.post(
+                f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}",
+                json={
+                    "system_instruction": {"parts": [{"text": system_instruction}]},
+                    "contents": contents,
+                    "generationConfig": {
+                        "maxOutputTokens": 600,
+                        "temperature": 0.35,
+                    },
                 },
-            },
-            timeout=8,
-        )
-        response.raise_for_status()
-        data = response.json()
-        return data["candidates"][0]["content"]["parts"][0]["text"].strip()
-    except (requests.RequestException, KeyError, IndexError):
-        # Запасной ответ на трёх языках сразу — на случай, если Gemini недоступен,
-        # клиент всё равно поймёт хотя бы одну строку.
-        return (
-            "Здравствуйте! Уточняю информацию, менеджер скоро подключится. / "
-            "Salom! Ma'lumotni aniqlashtiryapman, menejer tez orada javob beradi. / "
-            "Hello! Checking the details, a manager will join shortly."
-        )
+                timeout=25,
+            )
+            if response.status_code == 200:
+                data = response.json()
+                return data["candidates"][0]["content"]["parts"][0]["text"].strip()
+            else:
+                logger.warning("Gemini model %s вернул статус %s: %s", model_name, response.status_code, response.text[:200])
+        except Exception as e:
+            logger.warning("Ошибка запроса к Gemini model %s: %s", model_name, e)
+
+    # Запасной ответ на трёх языках сразу
+    return (
+        "Здравствуйте! Уточняю информацию, менеджер скоро подключится. / "
+        "Salom! Ma'lumotni aniqlashtiryapman, menejer tez orada javob beradi. / "
+        "Hello! Checking the details, a manager will join shortly."
+    )
 
 
 def register_waitlist_entry(
@@ -379,16 +423,18 @@ def handle_incoming_instagram_message(
 
 
 def handle_incoming_telegram_message(
-    chat_id: str, message_text: str, first_name: str = "", username: str = "",
-    photo_file_id: str | None = None, store: Store | None = None,
-    bot_token: str | None = None
+    chat_id: str, message_text: str = "", first_name: str = "", username: str = "",
+    photo_file_id: str | None = None, voice_file_id: str | None = None,
+    store: Store | None = None, bot_token: str | None = None
 ) -> tuple[str, list]:
     """
-    Точка входа: клиент написал текстовое сообщение или прислал фото товара в Telegram-боте.
-    Использует Gemini Vision для распознавания фото и поиска товаров.
+    Точка входа: клиент написал текстовое сообщение, отправил фото одежды или записал голосовое в Telegram-боте.
+    Использует Gemini Multimodal (Vision + Audio) для распознавания фото и голоса.
     Поддерживает как глобального бота, так и персонального бота конкретного магазина (store).
-    Возвращает (ai_reply_text, matched_variants_in_stock) для отправки ответа и карточки товара.
+    Возвращает (ai_reply_text, matched_variants_in_stock) для отправки ответа и карточек товаров с реальными фото.
     """
+    import re
+
     # 1. Найти или создать Customer по telegram_chat_id
     customer = Customer.objects.filter(telegram_chat_id=str(chat_id)).first()
     if not customer:
@@ -418,38 +464,42 @@ def handle_incoming_telegram_message(
         except Exception as e:
             logger.warning("Не удалось скачать фото для Gemini Vision в Telegram: %s", e)
 
-    if not message_text and image_b64:
-        message_text = "Что это за товар на фото? Есть ли у вас похожий в каталоге магазина?" if cust_lang == "ru" else "Bu qanday mahsulot? Do'konda shunga o'xshash tovarlar bormi?"
+    # Загружаем аудио/голосовое для Gemini Audio, если клиент записал войс
+    audio_b64 = None
+    if voice_file_id:
+        try:
+            token = bot_token or getattr(settings, "TELEGRAM_BOT_TOKEN", None)
+            if token:
+                f_res = requests.get(f"https://api.telegram.org/bot{token}/getFile?file_id={voice_file_id}", timeout=10)
+                if f_res.status_code == 200:
+                    f_path = f_res.json().get("result", {}).get("file_path")
+                    if f_path:
+                        aud_dl = requests.get(f"https://api.telegram.org/file/bot{token}/{f_path}", timeout=25)
+                        if aud_dl.status_code == 200:
+                            audio_b64 = base64.b64encode(aud_dl.content).decode("utf-8")
+        except Exception as e:
+            logger.warning("Не удалось скачать голосовое для Gemini Audio в Telegram: %s", e)
 
-    # 2. Determine store context: если передан явно — используем его
+    if not message_text:
+        if audio_b64:
+            message_text = (
+                "Клиент отправил голосовое сообщение. Внимательно прослушай его аудиозапись и ответь на вопрос."
+                if cust_lang == "ru" else
+                "Mijoz ovozli xabar yubordi. Iltimos, audioni diqqat bilan tinglab, mijozga to'liq javob bering."
+            )
+        elif image_b64:
+            message_text = (
+                "Клиент прислал фото одежды. Определи, что за вещь на фото, и найди похожие товары на складе магазина."
+                if cust_lang == "ru" else
+                "Mijoz kiyim rasmini yubordi. Bu qanday kiyim ekanligini aniqlang va do'kondan shunga o'xshash tovarlarni topib bering."
+            )
+
+    # 2. Определение магазина (store context): если передан явно — используем его
     if not store:
         from core.models import Order
         last_order = Order.objects.filter(customer=customer).order_by("-created_at").first()
         store = last_order.store if last_order else None
 
-    # 3. Search for matching products
-    if store:
-        matches = find_matching_variants(store, message_text)
-    else:
-        # Search across ALL active stores
-        query_lower = message_text.lower()
-        all_variants = ProductVariant.objects.filter(
-            product__is_active=True,
-            product__store__is_active=True,
-            product__store__is_frozen_by_admin=False,
-        ).select_related("product", "product__store")
-        matches = []
-        for v in all_variants:
-            haystack = f"{v.product.name} {v.color} {v.size}".lower()
-            if any(word in haystack for word in query_lower.split()):
-                matches.append(v)
-            if len(matches) >= 10:
-                break
-        # Use first match's store for conversation context
-        if matches:
-            store = matches[0].product.store
-
-    # 4. If no store context at all, pick the first active store for a general response
     if not store:
         store = Store.objects.filter(is_active=True, is_frozen_by_admin=False).first()
     if not store:
@@ -459,7 +509,24 @@ def handle_incoming_telegram_message(
     if not store.is_subscription_active:
         return ("Salom! Do'kon vaqtincha xizmat ko'rsatishni to'xtatdi. / Здравствуйте! Магазин временно приостановил онлайн-обслуживание.", [])
 
-    # 5. Get or create Conversation
+    # 3. Поиск товаров на складе магазина
+    query_lower = (message_text or "").lower()
+    clothing_keywords = [
+        "одежд", "вещ", "товар", "каталог", "ассортимент", "новинк", "что есть", "какие есть", "покажи",
+        "худи", "футболк", "куртк", "джинс", "штаны", "брюк", "плать", "кроссовк", "обув", "рубашк", "толстовк", "свитшот", "костюм", "спорт",
+        "kiyim", "nima bor", "nimalar", "katalog", "qanday", "tovar", "futbolka", "kofta", "shim", "koylak", "kurtka", "oyoq kiyim"
+    ]
+    is_clothing_query = any(kw in query_lower for kw in clothing_keywords) or bool(image_b64 or audio_b64)
+
+    matches = find_matching_variants(store, message_text)
+    if not matches and is_clothing_query:
+        matches = list(ProductVariant.objects.filter(
+            product__store=store,
+            product__is_active=True,
+            stock_quantity__gt=0
+        ).select_related("product")[:6])
+
+    # 4. Диалог и история переписки
     conversation, _ = Conversation.objects.get_or_create(
         store=store, customer=customer
     )
@@ -467,14 +534,19 @@ def handle_incoming_telegram_message(
     if not conversation.is_handled_by_ai:
         return ("", [])
 
-    # 6. Build AI response with conversation history
     history = build_conversation_history(conversation)
 
+    msg_saved_text = message_text
+    if voice_file_id:
+        msg_saved_text = f"🎤 [Голосовое]: {message_text}"
+    elif photo_file_id:
+        msg_saved_text = f"📷 [Фото]: {message_text}"
+
     Message.objects.create(
-        conversation=conversation, sender=Message.Sender.CUSTOMER, text=message_text or "[Фото]"
+        conversation=conversation, sender=Message.Sender.CUSTOMER, text=msg_saved_text
     )
 
-    # Build system instruction adapted for Telegram context and customer's language
+    # 5. Системные инструкции для Telegram
     system_inst = build_system_instruction(store)
     system_inst = system_inst.replace(
         "в Instagram Direct",
@@ -482,17 +554,47 @@ def handle_incoming_telegram_message(
     )
     lang_name = "o'zbek" if cust_lang == "uz" else "ingliz" if cust_lang == "en" else "русском"
     system_inst += (
-        f"\n\nДОПОЛНИТЕЛЬНО: Клиент общается в Telegram. Выбранный язык клиента: {cust_lang} ({lang_name}). "
-        f"Отвечай приветливо, экспертно и строго на выбранном клиентом языке ({lang_name}), либо на языке сообщения. "
-        "Если клиент прислал фото — опиши фасон/цвет/модель, определи категорию товара и проверь наличие на складе. "
-        "Если клиент хочет купить — предложи перейти по ссылке на товар, которая будет добавлена автоматически. "
-        "Не выдумывай ссылки сам."
+        f"\n\nДОПОЛНИТЕЛЬНО ДЛЯ TELEGRAM:\n"
+        f"- Выбранный язык клиента: {cust_lang} ({lang_name}). Отвечай со вкусом, экспертно и строго на языке клиента ({lang_name}), либо на языке его сообщения.\n"
+        f"- Если клиент прислал ФОТО одежды: определи фасон, цвет, стиль. Сравни с каталогом товаров склада ниже. Подбери похожие модели из наличия и порекомендуй их.\n"
+        f"- Если клиент записал ГОЛОСОВОЕ сообщение: внимательно прослушай его аудиозапись, пойми вопрос и ответь по делу.\n"
+        f"- Если клиент спрашивает, какие есть одежды или ты рекомендуешь товары — ОБЯЗАТЕЛЬНО укажи в самом конце ответа тег: [MATCH_ID: <id1>, <id2>], "
+        f"где id1, id2 — это ID подходящих товаров из склада (например: [MATCH_ID: 15]). Наш бот автоматически отправит покупателю фотографии этих вещей и кнопку моментального заказа!\n"
     )
 
     stock_context = build_stock_context(matches)
-    ai_reply_text = ask_gemini(system_inst, message_text, stock_context, history=history, image_base64=image_b64)
+    catalog_summary = build_full_store_catalog_context(store, max_items=25)
+    stock_context = f"{stock_context}\n\nПолный каталог магазина в наличии:\n{catalog_summary}"
 
-    # 7. Append product link with proper language prefix
+    ai_reply_text = ask_gemini(
+        system_instruction=system_inst,
+        customer_message=message_text,
+        stock_context=stock_context,
+        history=history,
+        image_base64=image_b64,
+        audio_base64=audio_b64,
+    )
+
+    # 6. Парсинг тегов [MATCH_ID: ...] из ответа Gemini
+    match_ids = []
+    tags = re.findall(r"\[MATCH_ID:\s*([\d\s,]+)\]", ai_reply_text, re.IGNORECASE)
+    for t in tags:
+        for part in re.split(r"[,\s]+", t):
+            if part.isdigit():
+                match_ids.append(int(part))
+
+    # Удаляем служебный тег перед отправкой клиенту
+    ai_reply_text = re.sub(r"\[MATCH_ID:\s*[\d\s,]+\]", "", ai_reply_text, flags=re.IGNORECASE).strip()
+
+    if match_ids:
+        found_variants = list(ProductVariant.objects.filter(
+            id__in=match_ids,
+            product__store=store
+        ).select_related("product"))
+        if found_variants:
+            matches = found_variants + [v for v in matches if v.id not in match_ids]
+
+    # 7. Добавляем ссылку на товар
     in_stock_matches = [v for v in matches if v.in_stock]
     if in_stock_matches:
         best = in_stock_matches[0]
@@ -503,7 +605,7 @@ def handle_incoming_telegram_message(
             link = build_telegram_deep_link(best.product.id)
         ai_reply_text = f"{ai_reply_text}\n\n🛒 {link}"
     else:
-        # Товара нет в наличии или это новый товар -> регистрируем в лист ожидания (Waitlist)
+        # Регистрируем в лист ожидания
         register_waitlist_entry(
             store=store,
             customer=customer,
@@ -516,7 +618,7 @@ def handle_incoming_telegram_message(
         conversation=conversation, sender=Message.Sender.AI_AGENT, text=ai_reply_text
     )
 
-    return (ai_reply_text, in_stock_matches[:3])
+    return (ai_reply_text, in_stock_matches[:4])
 
 
 def check_and_notify_waitlist_for_new_product(product: Product) -> int:

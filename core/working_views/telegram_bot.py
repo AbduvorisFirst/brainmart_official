@@ -1882,7 +1882,10 @@ class TelegramWebhookView(APIView):
                 _tg_session.post(f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage", json=payload, timeout=8)
 
             except Store.DoesNotExist:
-                # Обычный клиент: сообщение или фото товара для поиска через Gemini Vision
+                # Обычный клиент: текст, фото товара или голосовое сообщение
+                voice_obj = message.get("voice") or message.get("audio") or message.get("video_note")
+                voice_file_id = voice_obj.get("file_id") if voice_obj else None
+
                 photo_list = message.get("photo") or []
                 photo_file_id = photo_list[-1]["file_id"] if photo_list else None
                 if not photo_file_id and message.get("document"):
@@ -1893,17 +1896,52 @@ class TelegramWebhookView(APIView):
                 user_caption = (message.get("caption") or "").strip()
                 query_text = (text or user_caption).strip()
 
-                if (query_text and not query_text.startswith("/")) or photo_file_id:
-                    _send_telegram_chat_action(chat_id, "typing")
-                    from core.tasks import handle_incoming_telegram_message_task
-                    tg_from = message.get("from", {})
-                    handle_incoming_telegram_message_task.delay(
-                        chat_id=str(chat_id),
-                        message_text=query_text,
-                        first_name=tg_from.get("first_name", ""),
-                        username=tg_from.get("username", ""),
-                        photo_file_id=photo_file_id,
-                    )
+                if (query_text and not query_text.startswith("/")) or photo_file_id or voice_file_id:
+                    _send_telegram_chat_action(chat_id, "typing", bot_token=bot_token)
+                    tg_from = message.get("from", {}) or {}
+                    try:
+                        from core.tasks import handle_incoming_telegram_message_task
+                        handle_incoming_telegram_message_task.delay(
+                            chat_id=str(chat_id),
+                            message_text=query_text,
+                            first_name=tg_from.get("first_name", ""),
+                            username=tg_from.get("username", ""),
+                            photo_file_id=photo_file_id,
+                            voice_file_id=voice_file_id,
+                            bot_token=bot_token,
+                        )
+                    except Exception:
+                        from core.working_views.services import handle_incoming_telegram_message
+                        ai_reply, matched_products = handle_incoming_telegram_message(
+                            chat_id=str(chat_id),
+                            message_text=query_text,
+                            first_name=tg_from.get("first_name", ""),
+                            username=tg_from.get("username", ""),
+                            photo_file_id=photo_file_id,
+                            voice_file_id=voice_file_id,
+                            bot_token=bot_token,
+                        )
+                        if ai_reply:
+                            site_url = getattr(settings, "SITE_URL", "https://brainmart.uz")
+                            cust = Customer.objects.filter(telegram_chat_id=str(chat_id)).first()
+                            cust_lang = getattr(cust, "language", "uz") or "uz"
+                            if matched_products:
+                                for v in matched_products[:3]:
+                                    photo = v.image or v.product.main_image
+                                    product_url = f"{site_url}/{cust_lang}/product/{v.product.id}/"
+                                    caption = (
+                                        f"✨ {v.product.name}\n"
+                                        f"💰 {int(v.final_price):,} сум\n"
+                                        f"🎨 Цвет: {v.color or '—'} | Размер: {v.size or 'One Size'}"
+                                    )
+                                    kb = {"inline_keyboard": [[{"text": f"🛒 Оформить заказ ({v.product.name[:25]})", "web_app": {"url": product_url}}]]}
+                                    if photo:
+                                        _send_telegram_photo(chat_id, photo, caption=caption, reply_markup=kb, bot_token=bot_token)
+                                    else:
+                                        _send_telegram_message(chat_id, caption, reply_markup=kb, bot_token=bot_token)
+                                _send_telegram_message(chat_id, ai_reply, bot_token=bot_token)
+                            else:
+                                _send_telegram_message(chat_id, ai_reply, bot_token=bot_token)
                 else:
                     # /start без параметра — проверяем, выбирал ли клиент язык
                     existing = Customer.objects.filter(telegram_chat_id=str(chat_id)).order_by("-id").first()
@@ -2439,7 +2477,10 @@ class StoreCustomTelegramWebhookView(APIView):
             _send_telegram_message(chat_id, welcome_msg, reply_markup=kb, bot_token=bot_token)
             return
 
-        # 4. ПОКУПАТЕЛЬ написал текст или прислал фото — отвечает Gemini AI по каталогу этого магазина
+        # 4. ПОКУПАТЕЛЬ написал текст, отправил голосовое или фото — отвечает Gemini AI по каталогу этого магазина
+        voice_obj = message.get("voice") or message.get("audio") or message.get("video_note")
+        voice_file_id = voice_obj.get("file_id") if voice_obj else None
+
         photo_list = message.get("photo") or []
         photo_file_id = photo_list[-1]["file_id"] if photo_list else None
         if not photo_file_id and message.get("document"):
@@ -2450,7 +2491,7 @@ class StoreCustomTelegramWebhookView(APIView):
         user_caption = (message.get("caption") or "").strip()
         query_text = (text or user_caption).strip()
 
-        if query_text or photo_file_id:
+        if query_text or photo_file_id or voice_file_id:
             _send_telegram_chat_action(chat_id, "typing", bot_token=bot_token)
             tg_from = message.get("from", {}) or {}
             from core.working_views.services import handle_incoming_telegram_message
@@ -2460,29 +2501,47 @@ class StoreCustomTelegramWebhookView(APIView):
                 first_name=tg_from.get("first_name", ""),
                 username=tg_from.get("username", ""),
                 photo_file_id=photo_file_id,
+                voice_file_id=voice_file_id,
                 store=store,
                 bot_token=bot_token
             )
             if ai_reply:
-                photo_sent = False
+                site_url = getattr(settings, "SITE_URL", "https://brainmart.uz")
+                cust = Customer.objects.filter(telegram_chat_id=str(chat_id)).first()
+                cust_lang = getattr(cust, "language", "uz") or "uz"
+
+                # Если найдены подходящие товары — отправляем реальное фото каждого товара с кнопкой оформления
                 if matched_products:
-                    best = matched_products[0]
-                    photo = best.image or best.product.main_image
-                    if photo:
-                        site_url = getattr(settings, "SITE_URL", "")
-                        product_url = f"{site_url}/ru/product/{best.product.id}/" if site_url else store_url
-                        reply_markup = {
+                    for v in matched_products[:3]:
+                        photo = v.image or v.product.main_image
+                        product_url = f"{site_url}/{cust_lang}/product/{v.product.id}/"
+                        caption = (
+                            f"✨ {v.product.name}\n"
+                            f"💰 Цена: {int(v.final_price):,} сум\n"
+                            f"🎨 Цвет: {v.color or '—'} | Размер: {v.size or 'One Size'}"
+                        )
+                        kb = {
                             "inline_keyboard": [
-                                [{"text": "🛒 Открыть товар", "web_app": {"url": product_url}}],
-                                [{"text": f"🛍 Вся витрина «{store.name}»", "web_app": {"url": store_url}}],
+                                [{"text": f"🛒 Оформить заказ ({v.product.name[:25]})", "web_app": {"url": product_url}}],
                             ]
                         }
-                        photo_sent = _send_telegram_photo(chat_id, photo, ai_reply, reply_markup=reply_markup, bot_token=bot_token)
-                if not photo_sent:
-                    kb = {
+                        if photo:
+                            _send_telegram_photo(chat_id, photo, caption=caption, reply_markup=kb, bot_token=bot_token)
+                        else:
+                            _send_telegram_message(chat_id, caption, reply_markup=kb, bot_token=bot_token)
+
+                    # Отправляем сообщение-консультацию ИИ с кнопкой всей витрины
+                    store_kb = {
+                        "inline_keyboard": [
+                            [{"text": f"🛍 Вся витрина «{store.name}»", "web_app": {"url": store_url}}]
+                        ]
+                    }
+                    _send_telegram_message(chat_id, ai_reply, reply_markup=store_kb, bot_token=bot_token)
+                else:
+                    store_kb = {
                         "inline_keyboard": [
                             [{"text": f"🛍 Открыть витрину «{store.name}»", "web_app": {"url": store_url}}]
                         ]
                     }
-                    _send_telegram_message(chat_id, ai_reply, reply_markup=kb, bot_token=bot_token)
+                    _send_telegram_message(chat_id, ai_reply, reply_markup=store_kb, bot_token=bot_token)
 
