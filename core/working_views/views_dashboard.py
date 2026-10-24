@@ -200,7 +200,7 @@ def dashboard_home(request):
         "paid_orders_count": paid_orders.count(),
         "pending_orders_count": orders.filter(status=Order.Status.PENDING_PAYMENT).count(),
         "products_count": Product.objects.filter(store=store, is_active=True).count(),
-        "categories": Category.objects.filter(is_active=True).order_by("name"),
+        "categories": Category.objects.all().order_by("name"),
         "recent_products": Product.objects.filter(store=store).prefetch_related("variants").order_by("-id")[:4],
         "low_stock_variants": low_stock_variants,
         "store_catalog_url": store.get_subdomain_url(request),
