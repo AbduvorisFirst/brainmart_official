@@ -1204,6 +1204,18 @@ def generate_ai_store_insights(store: Store) -> list:
     today = timezone.now().date()
     thirty_days_ago = today - datetime.timedelta(days=30)
 
+    # 0. Проверка каталога товаров на витрине
+    active_products_count = store.products.filter(is_active=True).count()
+    if active_products_count == 0:
+        insights.append({
+            "icon": "🚀",
+            "type": "catalog",
+            "title": "Добавьте первый товар",
+            "text": "Ваша витрина пока пуста. Добавьте товар в блоке создания выше, чтобы клиенты в Telegram-боте и на веб-витрине могли оформлять заказы.",
+            "action_url": "#quickAddProductSection",
+            "action_text": "Создать товар"
+        })
+
     # 1. Проверка спящих клиентов
     sleeping_count = Customer.objects.filter(
         orders__store=store
@@ -1250,4 +1262,4 @@ def generate_ai_store_insights(store: Store) -> list:
         "action_text": "Настроить цвета"
     })
 
-    return insights
+    return insights

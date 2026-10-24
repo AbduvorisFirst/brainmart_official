@@ -33,7 +33,7 @@ from django.core.cache import cache
 logger = logging.getLogger(__name__)
 
 from decimal import Decimal
-from core.models import Product, ProductVariant, Order, Store, StoreBranch, StoreManager, ProductImage, Customer, Message, Conversation, OrderItem, ProductReview
+from core.models import Category, Product, ProductVariant, Order, Store, StoreBranch, StoreManager, ProductImage, Customer, Message, Conversation, OrderItem, ProductReview
 from .telegram_bot import build_seller_link_deep_link, build_manager_link_deep_link, notify_customer_about_delivery
 from .services import generate_ai_store_insights, generate_ai_broadcast_copy, generate_ai_product_description
 
@@ -63,6 +63,91 @@ def dashboard_home(request):
     if store is None:
         messages.error(request, "К вашему аккаунту не привязан магазин. Обратитесь к администратору.")
         return render(request, "dashboard/no_store.html")
+
+    # --- БЫСТРОЕ СОЗДАНИЕ ТОВАРА С ГЛАВНОЙ ПАНЕЛИ ---
+    if request.method == "POST" and request.POST.get("action") == "quick_add_product":
+        from django.utils.translation import gettext as _
+        name = request.POST.get("name", "").strip()
+        base_price = request.POST.get("base_price", "").strip()
+        category_id = request.POST.get("category_id", "").strip()
+        description = request.POST.get("description", "").strip()
+        color = request.POST.get("color", "").strip() or "Основной"
+        size_raw = request.POST.get("size", "").strip()
+        stock_quantity_raw = request.POST.get("stock_quantity", "10").strip()
+        main_image = request.FILES.get("main_image")
+
+        if not name or not base_price:
+            messages.error(request, _("Ошибка: укажите название и базовую цену товара."))
+            return redirect("seller-dashboard")
+
+        try:
+            price_clean = base_price.replace(" ", "").replace(",", ".")
+            price_val = float(price_clean)
+            if price_val < 0:
+                price_val = 0.0
+        except (ValueError, TypeError):
+            messages.error(request, _("Ошибка: некорректная цена товара."))
+            return redirect("seller-dashboard")
+
+        try:
+            stock_qty = int(stock_quantity_raw)
+            if stock_qty < 0:
+                stock_qty = 0
+        except (ValueError, TypeError):
+            stock_qty = 10
+
+        category = None
+        if category_id:
+            from core.models import Category
+            category = Category.objects.filter(id=category_id).first()
+            if category and store.category_id != category.id:
+                store.category = category
+                store.save(update_fields=["category"])
+
+        product = Product.objects.create(
+            store=store,
+            category=category,
+            name=name,
+            description=description,
+            base_price=price_val,
+            main_image=main_image,
+        )
+
+        sizes = [s.strip() for s in size_raw.split(",") if s.strip()] if size_raw else [""]
+        for s in sizes:
+            sku = f"{store.id}-{product.id}-{secrets.token_hex(3)}"
+            ProductVariant.objects.create(
+                product=product,
+                color=color,
+                size=s,
+                sku=sku,
+                stock_quantity=stock_qty,
+                image=main_image,
+            )
+
+        if main_image:
+            try:
+                ProductImage.objects.create(product=product, image=main_image, color=color)
+            except Exception as img_err:
+                logger.warning("Ошибка при сохранении ProductImage: %s", img_err)
+
+        try:
+            from core.working_views.services import check_and_notify_waitlist_for_new_product
+            notified_count = check_and_notify_waitlist_for_new_product(product)
+            if notified_count > 0:
+                messages.info(
+                    request,
+                    _("✨ Автоматически отправлено %(count)d уведомлений покупателям из листа ожидания!") % {"count": notified_count}
+                )
+        except Exception as e:
+            logger.exception("Ошибка при уведомлении листа ожидания: %s", e)
+
+        messages.success(
+            request,
+            _("🎉 Товар «%(name)s» успешно создан и опубликован в Telegram-боте и на веб-витрине!") % {"name": product.name}
+        )
+        return redirect("seller-dashboard")
+    # -----------------------------------------------
 
     # --- БЛОК ДЛЯ СОХРАНЕНИЯ ЛОГОТИПА ---
     if request.method == "POST" and request.FILES.get("logo"):
@@ -115,6 +200,8 @@ def dashboard_home(request):
         "paid_orders_count": paid_orders.count(),
         "pending_orders_count": orders.filter(status=Order.Status.PENDING_PAYMENT).count(),
         "products_count": Product.objects.filter(store=store, is_active=True).count(),
+        "categories": Category.objects.filter(is_active=True).order_by("name"),
+        "recent_products": Product.objects.filter(store=store).prefetch_related("variants").order_by("-id")[:4],
         "low_stock_variants": low_stock_variants,
         "store_catalog_url": store.get_subdomain_url(request),
         "telegram_bot_url": store.get_bot_url(),
