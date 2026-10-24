@@ -299,6 +299,12 @@ class Store(models.Model):
     theme_style = models.CharField(
         max_length=50, default="default_black",
         choices=[
+            # Флагманские стили маркетплейсов и брендов
+            ("apple_hightech", "Apple Cupertino (Space Titanium and Black)"),
+            ("uzum_violet", "Uzum Signature (Royal Violet and Crisp Dark)"),
+            ("shopify_mint", "Shopify Nordic (Clean Tech Mint)"),
+            ("alibaba_orange", "Alibaba Global (Sunset Orange and Slate)"),
+            ("midnight_gold", "Midnight Luxury (Champagne Gold and Onyx)"),
             # Одежда и обувь (Fashion)
             ("fashion_casual", "Fashion: Универсальный Casual"),
             ("fashion_premium", "Fashion: Премиум Old Money"),

@@ -412,319 +412,213 @@
             </div>
         </div>
 
-        <!-- ВЫБОР ЦВЕТОВОЙ ТЕМЫ И БРЕНДИНГА -->
-        <div style="margin: 20px 0; padding: 18px; background: rgba(0,0,0,0.3); border: 1.5px solid var(--border); border-radius: 16px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <label style="margin: 0; font-size: 15px; font-weight: 800; color: white;">
-                    🎨 {% trans "Персонализация дизайна" %}
+        <!-- ВЫБОР ЦВЕТОВОЙ ТЕМЫ И БРЕНДИНГА (APPLE HIGH-TECH DESIGN SYSTEM) -->
+        <div style="margin: 22px 0; padding: 22px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+                <label style="margin: 0; font-size: 16px; font-weight: 800; color: white; letter-spacing: -0.02em;">
+                    🎨 {% trans "Фирменный стиль и темы маркетплейсов" %}
                 </label>
-                <span style="font-size: 11px; font-weight: 700; color: #10B981; background: rgba(16,185,129,0.15); padding: 3px 8px; border-radius: 6px;">SAAS PRO</span>
+                <span class="badge" style="background: rgba(41, 151, 255, 0.12); color: var(--primary); font-size: 10.5px; font-weight: 800;">
+                    HIGH-TECH SYSTEM
+                </span>
             </div>
-            <p style="margin: 0 0 16px; font-size: 12.5px; color: var(--text-muted); line-height: 1.4;">
-                {% trans "Выберите одну из готовых премиальных тем или настройте свои фирменные цвета." %}
+            <p style="margin: 0 0 18px; font-size: 13px; color: var(--text-muted); line-height: 1.5;">
+                {% trans "Выберите визитный цвет ведущих мировых маркетплейсов или создайте свой уникальный дизайн бренда:" %}
             </p>
 
-            <!-- 1. НИША: ОДЕЖДА И ОБУВЬ (FASHION) -->
-            <div id="niche_themes_clothes" class="niche-theme-group" style="display: {% if store.niche == 'clothes' or not store.niche %}block{% else %}none{% endif %};">
-                <label style="font-size: 12.5px; font-weight: 700; color: #D1D5DB; margin-bottom: 10px; display: block;">
-                    👗 {% trans "Коллекция стилей для одежды и обуви (4 готовых дизайн-проекта):" %}
+            <!-- ─── 5 ФЛАГМАНСКИХ СТИЛЕЙ МАРКЕТПЛЕЙСОВ ─── -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 22px;">
+                <!-- 1. Apple Cupertino -->
+                <label class="theme-preset-card" onclick="selectThemePreset('apple_hightech', '#2997FF', '#30D158', '#000000', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'apple_hightech' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="radio" name="theme_style" value="apple_hightech" {% if store.theme_style == 'apple_hightech' %}checked{% endif %} style="margin:0;">
+                            <strong style="font-size: 13px; color: white;">Apple Cupertino</strong>
+                        </div>
+                        <span style="font-size: 9.5px; font-weight: 800; color: #2997FF; background: rgba(41, 151, 255, 0.15); padding: 2px 6px; border-radius: 4px;">LUXURY</span>
+                    </div>
+                    <div style="height: 32px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); display: flex; overflow: hidden;">
+                        <div style="flex: 1.5; background: #000000;" title="Space Titanium"></div>
+                        <div style="flex: 1; background: #2997FF;" title="Tech Blue"></div>
+                        <div style="flex: 1; background: #30D158;" title="Mint Green"></div>
+                    </div>
+                    <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Чистый космический титан, глубокий чёрный и синий хайтек." %}</span>
                 </label>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px;">
-                    <!-- 1. Casual Универсальный -->
-                    <label class="theme-preset-card" style="display: flex; flex-direction: column; gap: 8px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'fashion_casual' or store.theme_style == 'default_black' or not store.theme_style %}#8B5CF6{% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <input type="radio" name="theme_style" value="fashion_casual" {% if store.theme_style == 'fashion_casual' or store.theme_style == 'default_black' or not store.theme_style %}checked{% endif %} style="margin:0;">
-                            <div>
-                                <strong style="font-size: 13px; color: white; display: block;">1. Универсальный Casual</strong>
-                                <span style="font-size: 10.5px; color: var(--text-muted);">Индиго & Изумруд, современный кэжуал</span>
-                            </div>
-                        </div>
-                        <div style="height: 38px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); display: flex; overflow: hidden;">
-                            <div style="flex: 1.2; background: #0B0E14;" title="Фон витрины"></div>
-                            <div style="flex: 1; background: #4F46E5;" title="Основной"></div>
-                            <div style="flex: 1; background: #10B981;" title="Акцент"></div>
-                        </div>
-                    </label>
 
-                    <!-- 2. Luxury Old Money -->
-                    <label class="theme-preset-card" style="display: flex; flex-direction: column; gap: 8px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'fashion_premium' or store.theme_style == 'premium_gold' %}#8B5CF6{% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer;">
+                <!-- 2. Uzum Signature -->
+                <label class="theme-preset-card" onclick="selectThemePreset('uzum_violet', '#7000FF', '#00C853', '#0B0C10', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'uzum_violet' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <input type="radio" name="theme_style" value="fashion_premium" {% if store.theme_style == 'fashion_premium' or store.theme_style == 'premium_gold' %}checked{% endif %} style="margin:0;">
-                            <div>
-                                <strong style="font-size: 13px; color: white; display: block;">2. Премиум Old Money</strong>
-                                <span style="font-size: 10.5px; color: #fbbf24;">Шампань, платиновое золото и люкс</span>
-                            </div>
+                            <input type="radio" name="theme_style" value="uzum_violet" {% if store.theme_style == 'uzum_violet' %}checked{% endif %} style="margin:0;">
+                            <strong style="font-size: 13px; color: white;">Uzum Market</strong>
                         </div>
-                        <div style="height: 38px; border-radius: 8px; border: 1px solid rgba(212, 168, 67, 0.35); display: flex; overflow: hidden;">
-                            <div style="flex: 1.2; background: #08070C;" title="Фон витрины"></div>
-                            <div style="flex: 1; background: #D4A843;" title="Платина"></div>
-                            <div style="flex: 1; background: #F59E0B;" title="Золото"></div>
-                        </div>
-                    </label>
+                        <span style="font-size: 9.5px; font-weight: 800; color: #A855F7; background: rgba(112, 0, 255, 0.15); padding: 2px 6px; border-radius: 4px;">UZB #1</span>
+                    </div>
+                    <div style="height: 32px; border-radius: 8px; border: 1px solid rgba(112, 0, 255, 0.3); display: flex; overflow: hidden;">
+                        <div style="flex: 1.5; background: #0B0C10;" title="Графит"></div>
+                        <div style="flex: 1; background: #7000FF;" title="Uzum Violet"></div>
+                        <div style="flex: 1; background: #00C853;" title="Изумруд"></div>
+                    </div>
+                    <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Фирменный королевский фиолетовый маркетплейса Uzum." %}</span>
+                </label>
 
-                    <!-- 3. Streetwear / Gen-Z -->
-                    <label class="theme-preset-card" style="display: flex; flex-direction: column; gap: 8px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'fashion_genz' or store.theme_style == 'genz_neon' %}#8B5CF6{% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer;">
+                <!-- 3. Shopify Nordic -->
+                <label class="theme-preset-card" onclick="selectThemePreset('shopify_mint', '#00A86B', '#10B981', '#090D0B', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'shopify_mint' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <input type="radio" name="theme_style" value="fashion_genz" {% if store.theme_style == 'fashion_genz' or store.theme_style == 'genz_neon' %}checked{% endif %} style="margin:0;">
-                            <div>
-                                <strong style="font-size: 13px; color: white; display: block;">3. Streetwear / Gen-Z</strong>
-                                <span style="font-size: 10.5px; color: #c084fc;">Кибер-неон фиолетовый & циан</span>
-                            </div>
+                            <input type="radio" name="theme_style" value="shopify_mint" {% if store.theme_style == 'shopify_mint' %}checked{% endif %} style="margin:0;">
+                            <strong style="font-size: 13px; color: white;">Shopify Pro</strong>
                         </div>
-                        <div style="height: 38px; border-radius: 8px; border: 1px solid rgba(168, 85, 247, 0.35); display: flex; overflow: hidden;">
-                            <div style="flex: 1.2; background: #070714;" title="Фон"></div>
-                            <div style="flex: 1; background: #A855F7;" title="Неон фиолет"></div>
-                            <div style="flex: 1; background: #06B6D4;" title="Циан"></div>
-                        </div>
-                    </label>
+                        <span style="font-size: 9.5px; font-weight: 800; color: #10B981; background: rgba(0, 168, 107, 0.15); padding: 2px 6px; border-radius: 4px;">GLOBAL</span>
+                    </div>
+                    <div style="height: 32px; border-radius: 8px; border: 1px solid rgba(0, 168, 107, 0.3); display: flex; overflow: hidden;">
+                        <div style="flex: 1.5; background: #090D0B;" title="Pine Dark"></div>
+                        <div style="flex: 1; background: #00A86B;" title="Shopify Mint"></div>
+                        <div style="flex: 1; background: #10B981;" title="Teal"></div>
+                    </div>
+                    <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Скандинавский технологичный изумруд лидера e-commerce." %}</span>
+                </label>
 
-                    <!-- 4. Kids Playful -->
-                    <label class="theme-preset-card" style="display: flex; flex-direction: column; gap: 8px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'fashion_kids' or store.theme_style == 'kids_playful' %}#8B5CF6{% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer;">
+                <!-- 4. Alibaba Global -->
+                <label class="theme-preset-card" onclick="selectThemePreset('alibaba_orange', '#FF5000', '#FF8C00', '#0D0C0B', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'alibaba_orange' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <input type="radio" name="theme_style" value="fashion_kids" {% if store.theme_style == 'fashion_kids' or store.theme_style == 'kids_playful' %}checked{% endif %} style="margin:0;">
-                            <div>
-                                <strong style="font-size: 13px; color: white; display: block;">4. Детский / Playful</strong>
-                                <span style="font-size: 10.5px; color: #f472b6;">Теплый янтарь & розовый, светлый</span>
-                            </div>
+                            <input type="radio" name="theme_style" value="alibaba_orange" {% if store.theme_style == 'alibaba_orange' %}checked{% endif %} style="margin:0;">
+                            <strong style="font-size: 13px; color: white;">Alibaba Global</strong>
                         </div>
-                        <div style="height: 38px; border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.35); display: flex; overflow: hidden;">
-                            <div style="flex: 1.2; background: #FFFDF5;" title="Светлый фон"></div>
-                            <div style="flex: 1; background: #F59E0B;" title="Янтарь"></div>
-                            <div style="flex: 1; background: #EC4899;" title="Розовый"></div>
+                        <span style="font-size: 9.5px; font-weight: 800; color: #FF5000; background: rgba(255, 80, 0, 0.15); padding: 2px 6px; border-radius: 4px;">ENERGY</span>
+                    </div>
+                    <div style="height: 32px; border-radius: 8px; border: 1px solid rgba(255, 80, 0, 0.3); display: flex; overflow: hidden;">
+                        <div style="flex: 1.5; background: #0D0C0B;" title="Уголь"></div>
+                        <div style="flex: 1; background: #FF5000;" title="Alibaba Orange"></div>
+                        <div style="flex: 1; background: #FF8C00;" title="Янтарь"></div>
+                    </div>
+                    <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Огненный оранжевый с высокой конверсией в продажи." %}</span>
+                </label>
+
+                <!-- 5. Midnight Luxury -->
+                <label class="theme-preset-card" onclick="selectThemePreset('midnight_gold', '#D4AF37', '#F59E0B', '#080709', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'midnight_gold' or store.theme_style == 'fashion_premium' or store.theme_style == 'premium_gold' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="radio" name="theme_style" value="midnight_gold" {% if store.theme_style == 'midnight_gold' or store.theme_style == 'fashion_premium' or store.theme_style == 'premium_gold' %}checked{% endif %} style="margin:0;">
+                            <strong style="font-size: 13px; color: white;">Midnight Luxury</strong>
                         </div>
-                    </label>
-                </div>
+                        <span style="font-size: 9.5px; font-weight: 800; color: #D4AF37; background: rgba(212, 175, 55, 0.15); padding: 2px 6px; border-radius: 4px;">BOUTIQUE</span>
+                    </div>
+                    <div style="height: 32px; border-radius: 8px; border: 1px solid rgba(212, 175, 55, 0.3); display: flex; overflow: hidden;">
+                        <div style="flex: 1.5; background: #080709;" title="Чёрный бархат"></div>
+                        <div style="flex: 1; background: #D4AF37;" title="Платиновое золото"></div>
+                        <div style="flex: 1; background: #F59E0B;" title="Янтарь"></div>
+                    </div>
+                    <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Премиум-одежда Old Money, золото, парфюмерия и бутики." %}</span>
+                </label>
+
+                <!-- 6. Свой бренд (Custom) -->
+                <label class="theme-preset-card" onclick="document.getElementById('customThemeRadio').checked = true; updateLivePreview();" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'custom' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="radio" name="theme_style" value="custom" id="customThemeRadio" {% if store.theme_style == 'custom' %}checked{% endif %} style="margin:0;">
+                            <strong style="font-size: 13px; color: white;">{% trans "Свой цвет" %}</strong>
+                        </div>
+                        <span style="font-size: 9.5px; font-weight: 800; color: #FFFFFF; background: rgba(255, 255, 255, 0.15); padding: 2px 6px; border-radius: 4px;">CUSTOM</span>
+                    </div>
+                    <div style="height: 32px; border-radius: 8px; border: 1px dashed rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--text-muted); font-weight: 700;">
+                        🎨 {% trans "Настроить палитру" %}
+                    </div>
+                    <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Свободный выбор любого цвета под ваш фирменный бренд-бук." %}</span>
+                </label>
             </div>
 
-            <!-- 2. НИША: АВТОТОВАРЫ, ШИНЫ И АВТОСЕРВИС (AUTO) -->
-            <div id="niche_themes_auto" class="niche-theme-group" style="display: {% if store.niche == 'auto' %}block{% else %}none{% endif %};">
-                <label style="font-size: 12.5px; font-weight: 700; color: #D1D5DB; margin-bottom: 10px; display: block;">
-                    🚗 {% trans "Коллекция стилей для автобизнеса, шин и сервиса (4 дизайн-проекта):" %}
-                </label>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px;">
-                    <!-- 1. Universal Drive -->
-                    <label class="theme-preset-card" style="display: flex; flex-direction: column; gap: 8px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'auto_drive' %}#8B5CF6{% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <input type="radio" name="theme_style" value="auto_drive" {% if store.theme_style == 'auto_drive' %}checked{% endif %} style="margin:0;">
-                            <div>
-                                <strong style="font-size: 13px; color: white; display: block;">1. Универсальный Drive</strong>
-                                <span style="font-size: 10.5px; color: #38bdf8;">Спорт-графит и синий электрик</span>
-                            </div>
-                        </div>
-                        <div style="height: 38px; border-radius: 8px; border: 1px solid rgba(37, 99, 235, 0.35); display: flex; overflow: hidden;">
-                            <div style="flex: 1.2; background: #080D1A;" title="Темно-синий графит"></div>
-                            <div style="flex: 1; background: #2563EB;" title="Синий электрик"></div>
-                            <div style="flex: 1; background: #38BDF8;" title="Небесный акцент"></div>
-                        </div>
-                    </label>
-
-                    <!-- 2. Premium Detailing & Motors -->
-                    <label class="theme-preset-card" style="display: flex; flex-direction: column; gap: 8px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'auto_premium' %}#8B5CF6{% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <input type="radio" name="theme_style" value="auto_premium" {% if store.theme_style == 'auto_premium' %}checked{% endif %} style="margin:0;">
-                            <div>
-                                <strong style="font-size: 13px; color: white; display: block;">2. Premium Detailing</strong>
-                                <span style="font-size: 10.5px; color: #fbbf24;">Темный титан и платиновое золото</span>
-                            </div>
-                        </div>
-                        <div style="height: 38px; border-radius: 8px; border: 1px solid rgba(212, 175, 55, 0.35); display: flex; overflow: hidden;">
-                            <div style="flex: 1.2; background: #070709;" title="Черный титан"></div>
-                            <div style="flex: 1; background: #D4AF37;" title="Платиновое золото"></div>
-                            <div style="flex: 1; background: #F59E0B;" title="Теплый акцент"></div>
-                        </div>
-                    </label>
-
-                    <!-- 3. Brutal Garage -->
-                    <label class="theme-preset-card" style="display: flex; flex-direction: column; gap: 8px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'auto_brutal' %}#8B5CF6{% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <input type="radio" name="theme_style" value="auto_brutal" {% if store.theme_style == 'auto_brutal' %}checked{% endif %} style="margin:0;">
-                            <div>
-                                <strong style="font-size: 13px; color: white; display: block;">3. Brutal Garage</strong>
-                                <span style="font-size: 10.5px; color: #fb923c;">Темная сталь & оранжевый (мужской)</span>
-                            </div>
-                        </div>
-                        <div style="height: 38px; border-radius: 8px; border: 1px solid rgba(234, 88, 12, 0.35); display: flex; overflow: hidden;">
-                            <div style="flex: 1.2; background: #0D0F12;" title="Сталь"></div>
-                            <div style="flex: 1; background: #EA580C;" title="Оранжевый"></div>
-                            <div style="flex: 1; background: #F97316;" title="Яркий акцент"></div>
-                        </div>
-                    </label>
-
-                    <!-- 4. Tuning & Drift Gen-Z -->
-                    <label class="theme-preset-card" style="display: flex; flex-direction: column; gap: 8px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'auto_tuning' %}#8B5CF6{% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <input type="radio" name="theme_style" value="auto_tuning" {% if store.theme_style == 'auto_tuning' %}checked{% endif %} style="margin:0;">
-                            <div>
-                                <strong style="font-size: 13px; color: white; display: block;">4. Tuning & Drift Gen-Z</strong>
-                                <span style="font-size: 10.5px; color: #34d399;">Токсичный неон, кибер-гонки & нитро</span>
-                            </div>
-                        </div>
-                        <div style="height: 38px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.35); display: flex; overflow: hidden;">
-                            <div style="flex: 1.2; background: #06090E;" title="Кибер-ночь"></div>
-                            <div style="flex: 1; background: #10B981;" title="Неон лайм"></div>
-                            <div style="flex: 1; background: #EF4444;" title="Нитро красный"></div>
-                        </div>
-                    </label>
-                </div>
-            </div>
-
-            <!-- 3. ДРУГИЕ НИШИ: ЭЛЕКТРОНИКА, КОСМЕТИКА, КНИГИ И ДРУГОЕ -->
-            <div id="niche_themes_other" class="niche-theme-group" style="display: {% if store.niche != 'clothes' and store.niche != 'auto' and store.niche %}block{% else %}none{% endif %};">
-                <label style="font-size: 12.5px; font-weight: 700; color: #D1D5DB; margin-bottom: 10px; display: block;">
-                    ✨ {% trans "Универсальные дизайнерские темы витрины:" %}
-                </label>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px;">
-                    <!-- Classic Black -->
-                    <label class="theme-preset-card" style="display: flex; flex-direction: column; gap: 8px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'default_black' or not store.theme_style %}#8B5CF6{% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <input type="radio" name="theme_style" value="default_black" {% if store.theme_style == 'default_black' or not store.theme_style %}checked{% endif %} style="margin:0;">
-                            <div>
-                                <strong style="font-size: 13px; color: white; display: block;">Classic Dark</strong>
-                                <span style="font-size: 10.5px; color: var(--text-muted);">Классический строгий дизайн</span>
-                            </div>
-                        </div>
-                        <div style="height: 38px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); display: flex; overflow: hidden;">
-                            <div style="flex: 1.2; background: #0B0E14;"></div>
-                            <div style="flex: 1; background: #4F46E5;"></div>
-                            <div style="flex: 1; background: #10B981;"></div>
-                        </div>
-                    </label>
-
-                    <!-- Tech Minimal -->
-                    <label class="theme-preset-card" style="display: flex; flex-direction: column; gap: 8px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'tech_minimal' %}#8B5CF6{% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <input type="radio" name="theme_style" value="tech_minimal" {% if store.theme_style == 'tech_minimal' %}checked{% endif %} style="margin:0;">
-                            <div>
-                                <strong style="font-size: 13px; color: white; display: block;">Cyber Minimal</strong>
-                                <span style="font-size: 10.5px; color: #60a5fa;">Графит и чистый синий LED</span>
-                            </div>
-                        </div>
-                        <div style="height: 38px; border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.3); display: flex; overflow: hidden;">
-                            <div style="flex: 1.2; background: #0B0F17;"></div>
-                            <div style="flex: 1; background: #3B82F6;"></div>
-                            <div style="flex: 1; background: #06B6D4;"></div>
-                        </div>
-                    </label>
-
-                    <!-- Luxury Gold -->
-                    <label class="theme-preset-card" style="display: flex; flex-direction: column; gap: 8px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'fashion_premium' or store.theme_style == 'premium_gold' %}#8B5CF6{% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <input type="radio" name="theme_style" value="fashion_premium" {% if store.theme_style == 'fashion_premium' or store.theme_style == 'premium_gold' %}checked{% endif %} style="margin:0;">
-                            <div>
-                                <strong style="font-size: 13px; color: white; display: block;">Luxury Gold</strong>
-                                <span style="font-size: 10.5px; color: #fbbf24;">Золото и глубокий темный</span>
-                            </div>
-                        </div>
-                        <div style="height: 38px; border-radius: 8px; border: 1px solid rgba(212, 168, 67, 0.35); display: flex; overflow: hidden;">
-                            <div style="flex: 1.2; background: #08070C;"></div>
-                            <div style="flex: 1; background: #D4A843;"></div>
-                            <div style="flex: 1; background: #F59E0B;"></div>
-                        </div>
-                    </label>
-
-                    <!-- Playful Pastel -->
-                    <label class="theme-preset-card" style="display: flex; flex-direction: column; gap: 8px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'fashion_kids' or store.theme_style == 'kids_playful' %}#8B5CF6{% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <input type="radio" name="theme_style" value="fashion_kids" {% if store.theme_style == 'fashion_kids' or store.theme_style == 'kids_playful' %}checked{% endif %} style="margin:0;">
-                            <div>
-                                <strong style="font-size: 13px; color: white; display: block;">Playful Warm</strong>
-                                <span style="font-size: 10.5px; color: #f472b6;">Светлый дружелюбный стиль</span>
-                            </div>
-                        </div>
-                        <div style="height: 38px; border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.35); display: flex; overflow: hidden;">
-                            <div style="flex: 1.2; background: #FFFDF5;"></div>
-                            <div style="flex: 1; background: #F59E0B;"></div>
-                            <div style="flex: 1; background: #EC4899;"></div>
-                        </div>
-                    </label>
-                </div>
-            </div>
-
-            <!-- 4. СВОЙ ПЕРСОНАЛЬНЫЙ ДИЗАЙН (CUSTOM BRAND BUILDER) -->
-            <label style="font-size: 13px; font-weight: 800; color: #D1D5DB; margin-bottom: 10px; display: block;">
-                🎯 {% trans "Свой персональный дизайн (Собственные фирменные цвета):" %}
-            </label>
-            
-            <div style="position: relative; padding: 18px; border: 1.5px solid {% if store.theme_style == 'custom' %}#8B5CF6{% else %}var(--border){% endif %}; border-radius: 16px; background: rgba(255,255,255,0.025); margin-bottom: 14px;">
-                <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px; cursor: pointer;">
-                    <input type="radio" name="theme_style" value="custom" id="customThemeRadio" {% if store.theme_style == 'custom' %}checked{% endif %} style="margin:0;">
-                    <div>
-                        <strong style="font-size: 14px; color: white; display: block;">{% trans "Включить свой персональный дизайн" %}</strong>
-                        <span style="font-size: 11.5px; color: var(--text-muted);">{% trans "Вы можете настроить цвета под свой фирменный бренд-бук или упаковку" %}</span>
-                    </div>
-                </label>
-
-                <!-- Выбор режима фона: Темный / Светлый -->
-                <div style="margin-bottom: 16px;">
-                    <label style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 8px; display: block; font-weight: 700;">
-                        🌓 {% trans "Базовый фон витрины:" %}
-                    </label>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <label style="display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: rgba(0,0,0,0.4); border: 1.5px solid {% if store.theme_mode == 'dark' or not store.theme_mode %}#4F46E5{% else %}var(--border){% endif %}; border-radius: 10px; cursor: pointer;">
-                            <input type="radio" name="theme_mode" value="dark" {% if store.theme_mode == 'dark' or not store.theme_mode %}checked{% endif %} style="margin:0;">
-                            <span style="font-size: 12.5px; font-weight: 700; color: white;">🌙 {% trans "Тёмная тема (Dark)" %}</span>
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: rgba(255,255,255,0.06); border: 1.5px solid {% if store.theme_mode == 'light' %}#4F46E5{% else %}var(--border){% endif %}; border-radius: 10px; cursor: pointer;">
-                            <input type="radio" name="theme_mode" value="light" {% if store.theme_mode == 'light' %}checked{% endif %} style="margin:0;">
-                            <span style="font-size: 12.5px; font-weight: 700; color: white;">☀️ {% trans "Светлая тема (Light)" %}</span>
-                        </label>
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-                    <div>
-                        <label style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 6px; display: block; font-weight: 700;">
-                            🎨 {% trans "Основной цвет кнопок (Primary)" %}
-                        </label>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <input type="color" name="primary_color" id="primaryColorInput" value="{{ store.primary_color|default:'#4F46E5' }}" onchange="document.getElementById('customThemeRadio').checked = true; updateLivePreview();" style="width: 48px; height: 42px; padding: 2px; cursor: pointer; border-radius: 10px; border: 1.5px solid var(--border); background: var(--card-bg);">
-                            <span id="primaryColorHex" style="font-family: monospace; font-size: 13px; font-weight: 700; color: white;">{{ store.primary_color|default:'#4F46E5' }}</span>
-                        </div>
-                    </div>
-                    <div>
-                        <label style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 6px; display: block; font-weight: 700;">
-                            ✨ {% trans "Акцентный цвет цен и бейджей" %}
-                        </label>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <input type="color" name="accent_color" id="accentColorInput" value="{{ store.accent_color|default:'#10B981' }}" onchange="document.getElementById('customThemeRadio').checked = true; updateLivePreview();" style="width: 48px; height: 42px; padding: 2px; cursor: pointer; border-radius: 10px; border: 1.5px solid var(--border); background: var(--card-bg);">
-                            <span id="accentColorHex" style="font-family: monospace; font-size: 13px; font-weight: 700; color: white;">{{ store.accent_color|default:'#10B981' }}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Цвет фона всего сайта -->
-                <div style="margin-top: 14px;">
-                    <label style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 6px; display: block; font-weight: 700;">
-                        🖼 {% trans "Цвет фона всей витрины (заливка сайта)" %}
-                    </label>
-                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <input type="color" name="bg_color" id="bgColorInput" value="{{ store.bg_color|default:'#0B0E14' }}" onchange="document.getElementById('customThemeRadio').checked = true; updateLivePreview();" style="width: 48px; height: 42px; padding: 2px; cursor: pointer; border-radius: 10px; border: 1.5px solid var(--border); background: var(--card-bg);">
-                            <span id="bgColorHex" style="font-family: monospace; font-size: 13px; font-weight: 700; color: white;">{{ store.bg_color|default:'#0B0E14' }}</span>
-                        </div>
-                        <button type="button" onclick="clearBgColor()" style="font-size: 11.5px; font-weight: 700; color: #94A3B8; background: rgba(255,255,255,0.04); border: 1px solid var(--border); padding: 6px 14px; border-radius: 8px; cursor: pointer;">
-                            ↩ {% trans "Сбросить на стандартный" %}
-                        </button>
-                        <span style="font-size: 11px; color: var(--text-muted); flex: 1; min-width: 160px; line-height: 1.4;">
-                            {% trans "Изменяет цвет фона всей страницы витрины, карточек и шапки" %}
+            <!-- ─── ИНТЕРАКТИВНЫЙ LIVE IPHONE PREVIEW & НАСТРОЙКА ПАЛИТРЫ ─── -->
+            <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
+                <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+                        <span style="font-size: 13px; font-weight: 700; color: white;">
+                            🎯 {% trans "Тонкая настройка цветов витрины" %}
                         </span>
+                        <div style="display: flex; gap: 8px;">
+                            <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: white; cursor: pointer;">
+                                <input type="radio" name="theme_mode" value="dark" {% if store.theme_mode == 'dark' or not store.theme_mode %}checked{% endif %} onchange="updateLivePreview();">
+                                🌙 Dark
+                            </label>
+                            <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: white; cursor: pointer;">
+                                <input type="radio" name="theme_mode" value="light" {% if store.theme_mode == 'light' %}checked{% endif %} onchange="updateLivePreview();">
+                                ☀️ Light
+                            </label>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Мини-превью карточки товара -->
-                <div id="livePreviewBox" style="margin-top: 16px; padding: 16px; border-radius: 14px; border: 1.5px dashed rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; background: {{ store.bg_color|default:'#0B0E14' }}; transition: background 0.3s;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 11.5px; color: #94A3B8;">{% trans "Превью:" %}</span>
-                        <span id="previewPriceBadge" style="font-size: 14px; font-weight: 800; color: {{ store.accent_color|default:'#10B981' }};">350 000 сум</span>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 16px;">
+                        <!-- Primary Color -->
+                        <div>
+                            <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">
+                                {% trans "Основной цвет кнопок" %}
+                            </label>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="color" name="primary_color" id="primaryColorInput" value="{{ store.primary_color|default:'#2997FF' }}" oninput="document.getElementById('customThemeRadio').checked = true; updateLivePreview();" style="width: 44px; height: 38px; padding: 2px; cursor: pointer; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); margin: 0;">
+                                <span id="primaryColorHex" style="font-family: monospace; font-size: 13px; font-weight: 800; color: white;">{{ store.primary_color|default:'#2997FF' }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Accent Color -->
+                        <div>
+                            <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">
+                                {% trans "Цвет акцентов и скидок" %}
+                            </label>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="color" name="accent_color" id="accentColorInput" value="{{ store.accent_color|default:'#30D158' }}" oninput="document.getElementById('customThemeRadio').checked = true; updateLivePreview();" style="width: 44px; height: 38px; padding: 2px; cursor: pointer; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); margin: 0;">
+                                <span id="accentColorHex" style="font-family: monospace; font-size: 13px; font-weight: 800; color: white;">{{ store.accent_color|default:'#30D158' }}</span>
+                            </div>
+                        </div>
+
+                        <!-- BG Color -->
+                        <div>
+                            <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">
+                                {% trans "Цвет фона сайта" %}
+                            </label>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="color" name="bg_color" id="bgColorInput" value="{{ store.bg_color|default:'#08090D' }}" oninput="document.getElementById('customThemeRadio').checked = true; updateLivePreview();" style="width: 44px; height: 38px; padding: 2px; cursor: pointer; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); margin: 0;">
+                                <span id="bgColorHex" style="font-family: monospace; font-size: 13px; font-weight: 800; color: white;">{{ store.bg_color|default:'#08090D' }}</span>
+                            </div>
+                        </div>
                     </div>
-                    <button type="button" id="previewBtnSample" style="border: none; padding: 9px 18px; border-radius: 12px; font-weight: 800; font-size: 13px; color: white; background: linear-gradient(135deg, {{ store.primary_color|default:'#4F46E5' }} 0%, {{ store.accent_color|default:'#10B981' }} 100%); cursor: default;">
-                        🛒 {% trans "Купить" %}
-                    </button>
+
+                    <!-- ─── ИНТЕРАКТИВНЫЙ МАКЕТ СМАРТФОНА (LIVE DEVICE MOCKUP) ─── -->
+                    <div style="margin-top: 14px;">
+                        <span style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 8px;">
+                            📱 {% trans "Интерактивное превью витрины в реальном времени:" %}
+                        </span>
+                        
+                        <div id="liveDeviceFrame" style="max-width: 360px; margin: 0 auto; background: {{ store.bg_color|default:'#08090D' }}; border: 2px solid rgba(255,255,255,0.16); border-radius: 24px; padding: 14px; box-shadow: 0 16px 40px rgba(0,0,0,0.6); transition: all 0.25s ease;">
+                            <!-- Dynamic Island / Speaker -->
+                            <div style="width: 60px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 99px; margin: 0 auto 12px;"></div>
+                            
+                            <!-- Header Mockup -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="font-size: 12px; font-weight: 800; color: white;">⚡ {{ store.name }}</span>
+                                    <span id="previewTagPill" style="font-size: 8px; font-weight: 800; background: rgba(41,151,255,0.2); color: {{ store.primary_color|default:'#2997FF' }}; padding: 1px 5px; border-radius: 4px;">VERIFIED</span>
+                                </div>
+                                <span style="font-size: 12px;">🔍</span>
+                            </div>
+
+                            <!-- Mini Product Card Mockup -->
+                            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px; display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 44px; height: 44px; border-radius: 8px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 20px;">👕</div>
+                                <div style="flex: 1; min-width: 0;">
+                                    <div style="font-size: 11px; font-weight: 700; color: white;">Футболка Oversize Pro</div>
+                                    <div id="previewPriceBadge" style="font-size: 12px; font-weight: 800; color: {{ store.accent_color|default:'#30D158' }};">240 000 сум</div>
+                                </div>
+                                <button type="button" id="previewBtnSample" style="border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 11px; color: white; background: {{ store.primary_color|default:'#2997FF' }}; cursor: default; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
+                                    Купить
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
+<div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
             <button type="submit" class="btn" style="flex: 1; padding: 14px; font-size: 15px; font-weight: 800;">💾 {% trans "Сохранить оформление витрины" %}</button>
             <a href="{{ store_catalog_url }}" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; font-weight: 700; font-size: 14px; padding: 12px 18px; border-radius: 12px; text-decoration: none; white-space: nowrap;">
                 👁️ {% trans "Посмотреть витрину" %} ↗
@@ -942,10 +836,37 @@ function onNicheChange(nicheVal) {
     updateSignaturePreview();
 }
 
+function selectThemePreset(presetKey, primColor, accColor, bgColor, mode) {
+    var radio = document.querySelector('input[name="theme_style"][value="' + presetKey + '"]');
+    if (radio) radio.checked = true;
+
+    var modeRadio = document.querySelector('input[name="theme_mode"][value="' + mode + '"]');
+    if (modeRadio) modeRadio.checked = true;
+
+    var primInput = document.getElementById('primaryColorInput');
+    var accInput = document.getElementById('accentColorInput');
+    var bgInput = document.getElementById('bgColorInput');
+
+    if (primInput) primInput.value = primColor;
+    if (accInput) accInput.value = accColor;
+    if (bgInput) bgInput.value = bgColor;
+
+    // Highlight selected card
+    var presetCards = document.querySelectorAll('.theme-preset-card');
+    presetCards.forEach(function(card) {
+        card.style.borderColor = 'var(--border)';
+    });
+    if (radio && radio.closest('.theme-preset-card')) {
+        radio.closest('.theme-preset-card').style.borderColor = primColor;
+    }
+
+    updateLivePreview();
+}
+
 function updateLivePreview() {
-    var prim = document.getElementById('primaryColorInput')?.value || '#4F46E5';
-    var acc = document.getElementById('accentColorInput')?.value || '#10B981';
-    var bg = document.getElementById('bgColorInput')?.value || '#0B0E14';
+    var prim = document.getElementById('primaryColorInput')?.value || '#2997FF';
+    var acc = document.getElementById('accentColorInput')?.value || '#30D158';
+    var bg = document.getElementById('bgColorInput')?.value || '#08090D';
 
     var primHex = document.getElementById('primaryColorHex');
     if (primHex) primHex.textContent = prim.toUpperCase();
@@ -960,56 +881,33 @@ function updateLivePreview() {
     if (priceBadge) priceBadge.style.color = acc;
 
     var btnSample = document.getElementById('previewBtnSample');
-    if (btnSample) btnSample.style.background = 'linear-gradient(135deg, ' + prim + ' 0%, ' + acc + ' 100%)';
+    if (btnSample) {
+        btnSample.style.background = prim;
+        btnSample.style.color = '#FFFFFF';
+    }
 
-    var previewBox = document.getElementById('livePreviewBox');
-    if (previewBox) previewBox.style.background = bg;
+    var tagPill = document.getElementById('previewTagPill');
+    if (tagPill) {
+        tagPill.style.color = prim;
+    }
+
+    var deviceFrame = document.getElementById('liveDeviceFrame');
+    if (deviceFrame) {
+        deviceFrame.style.background = bg;
+    }
 }
 
 function clearBgColor() {
-    // Determine sensible default based on current theme_mode radio
     var modeDark = document.querySelector('input[name="theme_mode"][value="dark"]');
-    var defaultBg = (modeDark && modeDark.checked) ? '#0B0E14' : '#F8FAFC';
+    var defaultBg = (modeDark && modeDark.checked) ? '#08090D' : '#F8FAFC';
     var inp = document.getElementById('bgColorInput');
     if (inp) { inp.value = defaultBg; }
-    var bgHex = document.getElementById('bgColorHex');
-    if (bgHex) bgHex.textContent = defaultBg.toUpperCase();
-    var previewBox = document.getElementById('livePreviewBox');
-    if (previewBox) previewBox.style.background = defaultBg;
-    // Set a hidden flag so the server knows to clear bg_color
-    var hidden = document.getElementById('bgColorClearFlag');
-    if (!hidden) {
-        hidden = document.createElement('input');
-        hidden.type = 'hidden';
-        hidden.id = 'bgColorClearFlag';
-        hidden.name = 'bg_color_clear';
-        hidden.value = '1';
-        inp.parentNode.appendChild(hidden);
-    }
+    updateLivePreview();
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    var nicheSelect = document.getElementById('storeNicheSelect');
-    if (nicheSelect) {
-        onNicheChange(nicheSelect.value);
-    }
     updateLivePreview();
     updateSignaturePreview();
-
-    // Highlight active preset card border on radio selection
-    var presetCards = document.querySelectorAll('.theme-preset-card');
-    presetCards.forEach(function(card) {
-        var radio = card.querySelector('input[type="radio"]');
-        if (radio) {
-            radio.addEventListener('change', function() {
-                presetCards.forEach(function(c) { c.style.borderColor = 'var(--border)'; });
-                if (radio.checked) {
-                    card.style.borderColor = '#8B5CF6';
-                }
-                updateSignaturePreview();
-            });
-        }
-    });
 });
 </script>
 {% endblock %}

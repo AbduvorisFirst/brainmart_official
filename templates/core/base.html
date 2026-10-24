@@ -70,6 +70,96 @@
                     --radius-lg: 20px;
                     --radius-md: 14px;
                     --btn-gradient: linear-gradient(135deg, {{ store.primary_color|default:"#4F46E5" }} 0%, {{ store.accent_color|default:"#10B981" }} 100%);
+                {% elif store.theme_style == 'apple_hightech' %}
+                    /* Apple Cupertino (Space Titanium & Black) */
+                    --primary: #2997FF;
+                    --primary-hover: #0071E3;
+                    --accent: #30D158;
+                    --bg-app: #000000;
+                    --surface: #101216;
+                    --surface-card: #15181F;
+                    --text-main: #FFFFFF;
+                    --text-muted: #86868B;
+                    --border: rgba(255, 255, 255, 0.08);
+                    --input-bg: #121418;
+                    --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+                    --badge-bg: rgba(21, 24, 31, 0.95);
+                    --header-bg: rgba(0, 0, 0, 0.85);
+                    --radius-lg: 16px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #2997FF 0%, #0071E3 100%);
+                {% elif store.theme_style == 'uzum_violet' %}
+                    /* Uzum Signature (Royal Violet & Crisp Dark) */
+                    --primary: #7000FF;
+                    --primary-hover: #5B00D1;
+                    --accent: #00C853;
+                    --bg-app: #0B0C10;
+                    --surface: #13141C;
+                    --surface-card: #171822;
+                    --text-main: #FFFFFF;
+                    --text-muted: #94A3B8;
+                    --border: rgba(112, 0, 255, 0.25);
+                    --input-bg: #111219;
+                    --card-shadow: 0 10px 30px rgba(112, 0, 255, 0.2);
+                    --badge-bg: rgba(23, 24, 34, 0.95);
+                    --header-bg: rgba(11, 12, 16, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #7000FF 0%, #8A2BE2 100%);
+                {% elif store.theme_style == 'shopify_mint' %}
+                    /* Shopify Nordic (Clean Tech Mint) */
+                    --primary: #00A86B;
+                    --primary-hover: #008060;
+                    --accent: #10B981;
+                    --bg-app: #090D0B;
+                    --surface: #101713;
+                    --surface-card: #141C18;
+                    --text-main: #FFFFFF;
+                    --text-muted: #8FA396;
+                    --border: rgba(0, 168, 107, 0.22);
+                    --input-bg: #0D1310;
+                    --card-shadow: 0 10px 30px rgba(0, 168, 107, 0.18);
+                    --badge-bg: rgba(20, 28, 24, 0.95);
+                    --header-bg: rgba(9, 13, 11, 0.92);
+                    --radius-lg: 16px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #00A86B 0%, #008060 100%);
+                {% elif store.theme_style == 'alibaba_orange' %}
+                    /* Alibaba Global (Sunset Orange & Slate) */
+                    --primary: #FF5000;
+                    --primary-hover: #E04700;
+                    --accent: #FF8C00;
+                    --bg-app: #0D0C0B;
+                    --surface: #161412;
+                    --surface-card: #1C1916;
+                    --text-main: #FFFFFF;
+                    --text-muted: #A89F96;
+                    --border: rgba(255, 80, 0, 0.25);
+                    --input-bg: #13110F;
+                    --card-shadow: 0 10px 30px rgba(255, 80, 0, 0.2);
+                    --badge-bg: rgba(28, 25, 22, 0.95);
+                    --header-bg: rgba(13, 12, 11, 0.92);
+                    --radius-lg: 16px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #FF5000 0%, #FF7A00 100%);
+                {% elif store.theme_style == 'midnight_gold' %}
+                    /* Midnight Luxury (Champagne Gold & Onyx) */
+                    --primary: #D4AF37;
+                    --primary-hover: #B89628;
+                    --accent: #F59E0B;
+                    --bg-app: #080709;
+                    --surface: #111014;
+                    --surface-card: #16151A;
+                    --text-main: #FBF8F0;
+                    --text-muted: #A39678;
+                    --border: rgba(212, 175, 55, 0.25);
+                    --input-bg: #0E0D10;
+                    --card-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
+                    --badge-bg: rgba(22, 21, 26, 0.95);
+                    --header-bg: rgba(8, 7, 9, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #D4AF37 0%, #AA7C11 100%);
                 {% elif store.theme_style == 'fashion_kids' or store.theme_style == 'kids_playful' %}
                     /* Яркий детский (Kids Playful) — жизнерадостный, теплый, дружелюбный дизайн */
                     --primary: #F59E0B;

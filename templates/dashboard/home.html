@@ -3,132 +3,290 @@
 
 {% block content %}
 <style>
-    /* Мобильная сетка аналитики 2x2 */
-    .mobile-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; padding: 20px; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
-    .stat-value { font-size: 26px; font-weight: 800; color: white; margin-bottom: 6px; z-index: 2; letter-spacing: -0.5px; }
-    .stat-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; line-height: 1.2; z-index: 2; }
-
-    /* Декоративный градиент для карточки выручки */
-    .stat-card.revenue { border-color: rgba(79, 70, 229, 0.4); background: linear-gradient(135deg, rgba(79, 70, 229, 0.15) 0%, rgba(31, 41, 55, 0) 100%); }
-
-    /* Таблицы с горизонтальным скроллом */
-    .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -20px; padding: 0 20px; }
-    table { width: 100%; min-width: 300px; border-collapse: collapse; }
-    td, th { padding: 16px 12px; border-bottom: 1px solid var(--border); font-size: 14px; }
-
-    /* Блок ИИ Аналитики */
-    .ai-card {
-        background: linear-gradient(145deg, #1e1b4b 0%, var(--card-bg) 100%);
-        border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 24px; padding: 24px; margin-bottom: 24px;
-        box-shadow: 0 12px 32px rgba(79, 70, 229, 0.2); position: relative;
+    /* ─── Apple High-Tech Dashboard Metric Grid ─── */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+        margin-bottom: 22px;
     }
-    .ai-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-    .ai-icon { font-size: 28px; animation: pulse 2s infinite; }
-    .ai-title { font-size: 18px; font-weight: 800; color: #818cf8; margin: 0; }
-    .ai-stat-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 12px; color: #e2e8f0; }
-    .ai-stat-row strong { color: white; font-weight: 700; font-size: 15px; }
+    @media (min-width: 900px) {
+        .stats-grid {
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+    }
 
-    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
+    .metric-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 18px 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 4px 18px rgba(0, 0, 0, 0.35);
+        transition: border-color 0.18s ease, transform 0.18s ease;
+    }
+    .metric-card:hover {
+        border-color: rgba(255, 255, 255, 0.16);
+    }
+    .metric-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+    .metric-label {
+        font-size: 12px;
+        color: var(--text-muted);
+        font-weight: 600;
+        letter-spacing: -0.01em;
+    }
+    .metric-icon-pill {
+        width: 32px;
+        height: 32px;
+        border-radius: 9px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+    }
+    .metric-value {
+        font-size: 24px;
+        font-weight: 800;
+        color: white;
+        letter-spacing: -0.03em;
+        line-height: 1.15;
+    }
+    .metric-sub {
+        font-size: 11.5px;
+        color: var(--text-muted);
+        margin-top: 6px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
 
-    /* Контейнер графика */
-    .chart-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; padding: 24px; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
-    .chart-header { font-size: 16px; font-weight: 700; color: white; margin: 0 0 20px; display: flex; justify-content: space-between; align-items: center; }
+    /* ─── Двухколоночный лэптоп-грид ─── */
+    .dashboard-2col {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    @media (min-width: 1024px) {
+        .dashboard-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+    }
+
+    /* ─── Таблица склада ─── */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    td, th {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border);
+        font-size: 13px;
+        text-align: left;
+    }
+    th {
+        color: var(--text-muted);
+        font-size: 11.5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* ─── Dropzone ─── */
+    .quick-dropzone {
+        border: 1.5px dashed rgba(255, 255, 255, 0.16);
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: var(--radius-md);
+        padding: 18px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.18s ease;
+    }
+    .quick-dropzone:hover {
+        border-color: var(--primary);
+        background: rgba(41, 151, 255, 0.04);
+    }
 </style>
 
-<!-- Подключаем библиотеку для графиков -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- СТАТУС МАГАЗИНА -->
+    <!-- СТАТУС МОДЕРАЦИИ -->
     {% if not store.is_active %}
-        <div class="card" style="background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3); color: #fbbf24; padding: 12px 16px; display: flex; gap: 10px; align-items: center; margin-bottom: 16px;">
-            <span style="font-size: 24px;">⏳</span>
-            <span style="font-size: 13px; font-weight: 500; line-height: 1.4;">{% trans "Ваш магазин на модерации. Товары появятся на витрине после проверки." %}</span>
+        <div style="background: rgba(255, 159, 10, 0.1); border: 1px solid rgba(255, 159, 10, 0.35); color: #FFD188; padding: 12px 18px; border-radius: var(--radius-md); display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
+            <span style="font-size: 20px;">⏳</span>
+            <span style="font-size: 13px; font-weight: 600; line-height: 1.4;">
+                {% trans "Ваш магазин проходит верификацию. Товары будут опубликованы на витрине сразу после подтверждения." %}
+            </span>
         </div>
     {% endif %}
 
-    <!-- ВИТРИНА МАГАЗИНА (БОТ И ПОДДОМЕН) -->
-    <div class="card" style="background: linear-gradient(135deg, rgba(79,70,229,0.16) 0%, rgba(16,185,129,0.1) 100%); border: 1.5px solid rgba(79,70,229,0.4); border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.25);">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <span style="font-size: 26px;">🔗</span>
-                <div>
-                    <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: white;">{% trans "Ссылки на ваш магазин" %}</h3>
-                    <span style="font-size: 12px; color: var(--text-muted);">{% trans "Скопируйте для Instagram Bio, Stories, постов и рекламы" %}</span>
-                </div>
+    <!-- ─── 4 ФЛАГМАНСКИХ МЕТРИКИ (Apple / Stripe High-Tech Metric Grid) ─── -->
+    <div class="stats-grid">
+        <!-- 1. Выручка -->
+        <div class="metric-card">
+            <div class="metric-card-header">
+                <span class="metric-label">{% trans "Выручка (Всего)" %}</span>
+                <div class="metric-icon-pill">💳</div>
+            </div>
+            <div class="metric-value">{{ total_revenue|floatformat:0 }} <small style="font-size: 14px; font-weight: 600; color: var(--text-muted);">{% trans "сум" %}</small></div>
+            <div class="metric-sub" style="color: #30D158;">
+                <span>↑ 100%</span> <span style="color: var(--text-muted);">{% trans "за весь период" %}</span>
             </div>
         </div>
 
-        <!-- 1. Ссылка на бота (главная) -->
-        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 14px; padding: 12px 14px; margin-bottom: 10px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
-                <span style="font-size: 12.5px; font-weight: 800; color: #60a5fa;">🤖 {% trans "Магазин в Telegram-боте (Основная ссылка)" %}</span>
-                <a href="{{ telegram_bot_url|default:store.get_bot_url }}" target="_blank" rel="noopener" style="font-size: 11.5px; font-weight: 700; color: #93c5fd; text-decoration: none;">💬 {% trans "Открыть бота" %} ↗</a>
+        <!-- 2. Оплаченные заказы -->
+        <div class="metric-card">
+            <div class="metric-card-header">
+                <span class="metric-label">{% trans "Оплаченные заказы" %}</span>
+                <div class="metric-icon-pill">📦</div>
             </div>
-            <div style="display: flex; gap: 6px; align-items: center; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 10px; padding: 4px 4px 4px 10px;">
-                <input type="text" id="homeStoreBotUrlInput" readonly value="{{ telegram_bot_url|default:store.get_bot_url }}" style="background: transparent; border: none; color: #93c5fd; font-family: monospace; font-size: 12.5px; font-weight: 700; margin: 0; padding: 0; outline: none; width: 100%;" onclick="this.select()">
-                <button type="button" class="btn" onclick="copyInputGeneric('homeStoreBotUrlInput', this)" style="width: auto; padding: 8px 14px; font-size: 11.5px; font-weight: 800; white-space: nowrap; margin: 0; border-radius: 8px; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);">
-                    📋 {% trans "Копировать" %}
-                </button>
+            <div class="metric-value">{{ paid_orders_count }} <small style="font-size: 14px; font-weight: 600; color: var(--text-muted);">{% trans "шт" %}</small></div>
+            <div class="metric-sub">
+                <span style="color: #30D158;">●</span> <span>{% trans "Успешно доставлены" %}</span>
             </div>
         </div>
 
-        <!-- 2. Ссылка на веб-витрину -->
-        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 14px; padding: 12px 14px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
-                <span style="font-size: 12.5px; font-weight: 800; color: #34d399;">🌐 {% trans "Веб-витрина (Прямой интернет-магазин)" %}</span>
-                <a href="{{ store_catalog_url }}" target="_blank" rel="noopener" style="font-size: 11.5px; font-weight: 700; color: #6ee7b7; text-decoration: none;">👁️ {% trans "Открыть витрину" %} ↗</a>
+        <!-- 3. В ожидании оплаты -->
+        <div class="metric-card">
+            <div class="metric-card-header">
+                <span class="metric-label">{% trans "В обработке" %}</span>
+                <div class="metric-icon-pill">⏳</div>
             </div>
-            <div style="display: flex; gap: 6px; align-items: center; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 10px; padding: 4px 4px 4px 10px;">
-                <input type="text" id="homeStoreUrlInput" readonly value="{{ store_catalog_url }}" style="background: transparent; border: none; color: #a5b4fc; font-family: monospace; font-size: 12.5px; font-weight: 700; margin: 0; padding: 0; outline: none; width: 100%;" onclick="this.select()">
-                <button type="button" class="btn" onclick="copyInputGeneric('homeStoreUrlInput', this)" style="width: auto; padding: 8px 14px; font-size: 11.5px; font-weight: 800; white-space: nowrap; margin: 0; border-radius: 8px; background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
-                    📋 {% trans "Копировать" %}
-                </button>
+            <div class="metric-value" style="color: {% if pending_orders_count > 0 %}#FF9F0A{% else %}white{% endif %};">
+                {{ pending_orders_count }} <small style="font-size: 14px; font-weight: 600; color: var(--text-muted);">{% trans "шт" %}</small>
+            </div>
+            <div class="metric-sub">
+                <a href="{% url 'seller-orders' %}" style="color: var(--primary); text-decoration: none; font-weight: 600;">{% trans "Открыть заказы" %} →</a>
+            </div>
+        </div>
+
+        <!-- 4. Товары на витрине -->
+        <div class="metric-card">
+            <div class="metric-card-header">
+                <span class="metric-label">{% trans "Товаров в каталоге" %}</span>
+                <div class="metric-icon-pill">🛍️</div>
+            </div>
+            <div class="metric-value">{{ products_count }} <small style="font-size: 14px; font-weight: 600; color: var(--text-muted);">{% trans "поз." %}</small></div>
+            <div class="metric-sub">
+                <a href="#quickAddProductSection" onclick="toggleQuickAddForm();" style="color: var(--primary); text-decoration: none; font-weight: 600;">+ {% trans "Добавить товар" %}</a>
             </div>
         </div>
     </div>
 
-    <!-- УПРАВЛЕНИЕ И БЫСТРОЕ СОЗДАНИЕ ТОВАРА -->
-    <div id="quickAddProductSection" class="card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(79, 70, 229, 0.12) 100%); border: 1.5px solid rgba(16, 185, 129, 0.4); border-radius: 20px; padding: 22px; margin-bottom: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.25);">
-        
+    <!-- ─── КАРТОЧКА ССЫЛОК НА ВИТРИНУ (Apple High-Tech Showcase) ─── -->
+    <div class="card" style="background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+            <div>
+                <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: white; letter-spacing: -0.02em;">
+                    {% trans "Ссылки на витрину магазина" %}
+                </h3>
+                <span style="font-size: 12px; color: var(--text-muted);">
+                    {% trans "Используйте для Instagram Bio, Stories, рекламы и отправки клиентам" %}
+                </span>
+            </div>
+            <span class="badge" style="background: rgba(255,255,255,0.05); color: var(--text-muted); font-size: 10px;">
+                24/7 ONLINE
+            </span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
+            <!-- 1. Telegram Бот -->
+            <div style="background: rgba(255, 255, 255, 0.025); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+                    <span style="font-size: 12px; font-weight: 700; color: var(--primary);">
+                        ⚡ {% trans "Магазин в Telegram-боте (Основной канал продаж)" %}
+                    </span>
+                    <a href="{{ telegram_bot_url|default:store.get_bot_url }}" target="_blank" rel="noopener" style="font-size: 11.5px; font-weight: 700; color: var(--primary); text-decoration: none;">
+                        {% trans "Открыть бота" %} ↗
+                    </a>
+                </div>
+                <div style="display: flex; gap: 6px; align-items: center; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border); border-radius: 9px; padding: 3px 3px 3px 10px;">
+                    <input type="text" id="homeStoreBotUrlInput" readonly value="{{ telegram_bot_url|default:store.get_bot_url }}" style="background: transparent; border: none; color: #E2E5F0; font-family: monospace; font-size: 12px; font-weight: 700; margin: 0; padding: 0; outline: none; width: 100%; box-shadow: none;" onclick="this.select()">
+                    <button type="button" class="btn" onclick="copyInputGeneric('homeStoreBotUrlInput', this)" style="width: auto; padding: 7px 14px; font-size: 11px; font-weight: 800; white-space: nowrap; margin: 0; border-radius: 7px; height: 32px;">
+                        {% trans "Копировать" %}
+                    </button>
+                </div>
+            </div>
+
+            <!-- 2. Веб-витрина -->
+            <div style="background: rgba(255, 255, 255, 0.025); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+                    <span style="font-size: 12px; font-weight: 700; color: #30D158;">
+                        🌐 {% trans "Прямой интернет-магазин (Веб-витрина)" %}
+                    </span>
+                    <a href="{{ store_catalog_url }}" target="_blank" rel="noopener" style="font-size: 11.5px; font-weight: 700; color: #30D158; text-decoration: none;">
+                        {% trans "Открыть сайт" %} ↗
+                    </a>
+                </div>
+                <div style="display: flex; gap: 6px; align-items: center; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border); border-radius: 9px; padding: 3px 3px 3px 10px;">
+                    <input type="text" id="homeStoreUrlInput" readonly value="{{ store_catalog_url }}" style="background: transparent; border: none; color: #E2E5F0; font-family: monospace; font-size: 12px; font-weight: 700; margin: 0; padding: 0; outline: none; width: 100%; box-shadow: none;" onclick="this.select()">
+                    <button type="button" class="btn" onclick="copyInputGeneric('homeStoreUrlInput', this)" style="width: auto; padding: 7px 14px; font-size: 11px; font-weight: 800; white-space: nowrap; margin: 0; border-radius: 7px; height: 32px; background: rgba(48, 209, 88, 0.2); border: 1px solid rgba(48, 209, 88, 0.4); color: #30D158;">
+                        {% trans "Копировать" %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── УПРАВЛЕНИЕ И БЫСТРОЕ СОЗДАНИЕ ТОВАРА (Apple Ergonomics) ─── -->
+    <div id="quickAddProductSection" class="card" style="border-color: rgba(255, 255, 255, 0.12);">
         <!-- Заголовок блока с кнопками быстрого действия -->
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 12px;">
             <div style="display: flex; align-items: center; gap: 12px;">
-                <span style="font-size: 28px; line-height: 1;">🛍️</span>
+                <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                    🛍️
+                </div>
                 <div>
                     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                        <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: white;">{% trans "Создать товар & Каталог" %}</h3>
-                        <span style="font-size: 11px; font-weight: 800; background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 2px 8px; border-radius: 8px;">
+                        <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: white; letter-spacing: -0.02em;">
+                            {% trans "Каталог & Создание товара" %}
+                        </h3>
+                        <span class="badge badge-active" style="font-size: 10px; padding: 2px 7px;">
                             {{ products_count }} {% trans "товаров" %}
                         </span>
                     </div>
                     <span style="font-size: 12px; color: var(--text-muted); display: block; margin-top: 2px;">
-                        {% trans "Создайте товар прямо здесь — он моментально появится в Telegram-боте и на веб-витрине" %}
+                        {% trans "Создайте товар прямо здесь — он сразу появится в боте и на веб-витрине" %}
                     </span>
                 </div>
             </div>
-            
+
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <a href="{% url 'seller-products' %}" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border); color: #e2e8f0; font-size: 12px; font-weight: 700; padding: 8px 14px; border-radius: 10px; text-decoration: none; transition: 0.2s;">
+                <a href="{% url 'seller-products' %}" class="btn-secondary" style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; padding: 8px 14px; border-radius: 9px; text-decoration: none; height: 36px;">
                     📦 {% trans "Все товары" %}
                 </a>
-                <a href="{% url 'seller-product-add' %}" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(79, 70, 229, 0.25); border: 1px solid rgba(99, 102, 241, 0.5); color: #a5b4fc; font-size: 12px; font-weight: 700; padding: 8px 14px; border-radius: 10px; text-decoration: none; transition: 0.2s;">
-                    ⚙️ {% trans "Расширенный конструктор" %} ↗
+                <a href="{% url 'seller-product-add' %}" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); color: #E2E5F0; font-size: 12px; font-weight: 700; padding: 8px 14px; border-radius: 9px; text-decoration: none; height: 36px;">
+                    ⚙️ {% trans "Расширенный режим" %} ↗
                 </a>
-                <button type="button" onclick="toggleQuickAddForm()" id="toggleQuickFormBtn" style="display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; color: white; font-size: 12.5px; font-weight: 800; padding: 8px 16px; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transition: 0.2s;">
+                <button type="button" onclick="toggleQuickAddForm()" id="toggleQuickFormBtn" style="display: inline-flex; align-items: center; gap: 6px; background: var(--primary); border: none; color: white; font-size: 12px; font-weight: 800; padding: 8px 16px; border-radius: 9px; cursor: pointer; height: 36px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 2px 8px rgba(0,0,0,0.3);">
                     {% if products_count == 0 %}▲ {% trans "Скрыть форму" %}{% else %}➕ {% trans "Создать товар" %}{% endif %}
                 </button>
             </div>
         </div>
 
         <!-- ФОРМА БЫСТРОГО СОЗДАНИЯ ТОВАРА -->
-        <div id="quickAddFormContainer" style="{% if products_count > 0 %}display: none;{% endif %} background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 16px; padding: 20px; margin-top: 14px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px;">
-                <div style="font-size: 14px; font-weight: 800; color: #34d399; display: flex; align-items: center; gap: 8px;">
-                    ✨ {% trans "Экспресс-добавление товара на главную витрину" %}
-                </div>
+        <div id="quickAddFormContainer" style="{% if products_count > 0 %}display: none;{% endif %} background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px; margin-top: 14px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">
+                <span style="font-size: 13px; font-weight: 700; color: white;">
+                    ✨ {% trans "Экспресс-добавление товара" %}
+                </span>
                 <span style="font-size: 11px; color: var(--text-muted);">
-                    {% trans "Займет меньше 1 минуты" %}
+                    {% trans "Меньше 1 минуты" %}
                 </span>
             </div>
 
@@ -136,29 +294,21 @@
                 {% csrf_token %}
                 <input type="hidden" name="action" value="quick_add_product">
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px;">
-                    <!-- Название товара -->
+                <!-- 2-Колоночный адаптивный грид полей для ноутбуков и смартфонов -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 12px;">
                     <div>
-                        <label style="display: block; font-size: 12px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px;">
-                            🏷️ {% trans "Название товара" %} <span style="color: #ef4444;">*</span>
-                        </label>
-                        <input type="text" name="name" id="quickProductName" required placeholder="{% trans 'Например: Худи Oversize, Кроссовки Air, Чехол' %}" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; color: white; font-size: 13px; outline: none;">
+                        <label>{% trans "Название товара" %} *</label>
+                        <input type="text" name="name" id="quickProductName" required placeholder="{% trans 'Худи Oversize, Кроссовки...' %}">
                     </div>
 
-                    <!-- Цена -->
                     <div>
-                        <label style="display: block; font-size: 12px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px;">
-                            💰 {% trans "Цена продажи (сум)" %} <span style="color: #ef4444;">*</span>
-                        </label>
-                        <input type="number" step="any" min="0" name="base_price" id="quickProductPrice" required placeholder="{% trans 'Например: 190000' %}" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; color: white; font-size: 13px; outline: none;">
+                        <label>{% trans "Цена продажи (сум)" %} *</label>
+                        <input type="number" step="any" min="0" name="base_price" id="quickProductPrice" required placeholder="{% trans 'Например: 190000' %}">
                     </div>
 
-                    <!-- Категория -->
                     <div>
-                        <label style="display: block; font-size: 12px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px;">
-                            📂 {% trans "Категория каталога" %}
-                        </label>
-                        <select name="category_id" id="quickProductCategory" style="width: 100%; box-sizing: border-box; background: rgba(15, 23, 42, 0.9); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; color: white; font-size: 13px; outline: none;">
+                        <label>{% trans "Категория каталога" %}</label>
+                        <select name="category_id" id="quickProductCategory">
                             <option value="">{% trans "Без категории" %}</option>
                             {% for cat in categories %}
                                 <option value="{{ cat.id }}" {% if store.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
@@ -166,92 +316,83 @@
                         </select>
                     </div>
 
-                    <!-- Количество на складе -->
                     <div>
-                        <label style="display: block; font-size: 12px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px;">
-                            🔢 {% trans "Остаток на складе (шт)" %}
-                        </label>
-                        <input type="number" min="0" name="stock_quantity" value="10" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; color: white; font-size: 13px; outline: none;">
+                        <label>{% trans "Остаток на складе (шт)" %}</label>
+                        <input type="number" min="0" name="stock_quantity" value="10">
                     </div>
 
-                    <!-- Цвет -->
                     <div>
-                        <label style="display: block; font-size: 12px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px;">
-                            🎨 {% trans "Цвет / Вариант" %}
-                        </label>
-                        <input type="text" name="color" placeholder="{% trans 'Черный, Белый или Основной' %}" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; color: white; font-size: 13px; outline: none;">
+                        <label>{% trans "Цвет / Оттенок" %}</label>
+                        <input type="text" name="color" placeholder="{% trans 'Черный, Белый...' %}">
                     </div>
 
-                    <!-- Размеры (через запятую) -->
                     <div>
-                        <label style="display: block; font-size: 12px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px;">
-                            📏 {% trans "Размеры (через запятую)" %}
-                        </label>
-                        <input type="text" name="size" placeholder="{% trans 'Например: S, M, L, XL или 42, 43' %}" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; color: white; font-size: 13px; outline: none;">
+                        <label>{% trans "Размеры (через запятую)" %}</label>
+                        <input type="text" name="size" placeholder="{% trans 'S, M, L, XL или 41, 42' %}">
                     </div>
                 </div>
 
                 <!-- Главное фото товара (Dropzone) -->
                 <div style="margin-bottom: 14px;">
-                    <label style="display: block; font-size: 12px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px;">
-                        📸 {% trans "Главное фото товара" %} <span style="color: #ef4444;">*</span>
-                    </label>
-                    <div onclick="document.getElementById('quickProductImageInput').click()" style="border: 2px dashed rgba(16, 185, 129, 0.4); background: rgba(0, 0, 0, 0.3); border-radius: 14px; padding: 18px; text-align: center; cursor: pointer; transition: 0.2s;" ondragover="event.preventDefault(); this.style.borderColor='#10b981';" ondragleave="this.style.borderColor='rgba(16, 185, 129, 0.4)';" ondrop="handleQuickImageDrop(event)">
-                        <div style="font-size: 28px; margin-bottom: 4px;">🖼️</div>
-                        <div id="quickUploadText" style="font-size: 13px; font-weight: 700; color: #94a3b8;">
-                            {% trans "Нажмите для выбора фото или перетащите файл сюда" %}
+                    <label>{% trans "Главное фото товара" %} *</label>
+                    <div class="quick-dropzone" onclick="document.getElementById('quickProductImageInput').click()" ondragover="event.preventDefault();" ondrop="handleQuickImageDrop(event)">
+                        <div style="font-size: 24px; margin-bottom: 4px;">📸</div>
+                        <div id="quickUploadText" style="font-size: 12.5px; font-weight: 700; color: #E2E5F0;">
+                            {% trans "Нажмите для выбора фото или перетащите файл" %}
                         </div>
-                        <div style="font-size: 11px; color: #64748b; margin-top: 4px;">JPG, PNG, WEBP (до 10 МБ)</div>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">JPG, PNG, WEBP (до 10 МБ)</div>
                         <input type="file" name="main_image" id="quickProductImageInput" accept="image/*" required style="display: none;" onchange="previewQuickUploadedImage(this)">
-                        <img id="quickImagePreviewEl" src="" alt="Preview" style="display: none; max-height: 140px; border-radius: 10px; margin: 10px auto 0; object-fit: contain; border: 1px solid var(--border);">
+                        <img id="quickImagePreviewEl" src="" alt="Preview" style="display: none; max-height: 120px; border-radius: 8px; margin: 10px auto 0; object-fit: contain; border: 1px solid var(--border);">
                     </div>
                 </div>
 
                 <!-- Описание товара и ИИ-генератор -->
                 <div style="margin-bottom: 16px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
-                        <label style="font-size: 12px; font-weight: 700; color: #cbd5e1;">
-                            📝 {% trans "Описание товара" %}
-                        </label>
-                        <button type="button" onclick="generateQuickAiDesc()" id="quickAiDescBtn" style="background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); color: #818cf8; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
-                            ✨ {% trans "Сгенерировать с Gemini AI" %}
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                        <label>{% trans "Описание товара" %}</label>
+                        <button type="button" onclick="generateQuickAiDesc()" id="quickAiDescBtn" style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); color: #E2E5F0; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                            ✨ {% trans "Сгенерировать с ИИ" %}
                         </button>
                     </div>
-                    <textarea name="description" id="quickProductDescription" rows="2" placeholder="{% trans 'Краткое описание товара, преимущества или материал (можно сгенерировать кнопкой выше)...' %}" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; color: white; font-size: 12.5px; outline: none;"></textarea>
+                    <textarea name="description" id="quickProductDescription" rows="2" placeholder="{% trans 'Краткое описание товара...' %}" style="margin-bottom: 0;"></textarea>
                 </div>
 
                 <!-- Кнопки публикации -->
                 <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                    <button type="submit" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; color: white; font-size: 13.5px; font-weight: 800; padding: 12px 24px; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);">
-                        🚀 {% trans "Опубликовать товар на витрине" %}
+                    <button type="submit" class="btn" style="width: auto; padding: 12px 24px; font-size: 13.5px;">
+                        🚀 {% trans "Опубликовать товар" %}
                     </button>
-                    <a href="{% url 'seller-product-add' %}" style="font-size: 12px; font-weight: 700; color: #93c5fd; text-decoration: none;">
-                        {% trans "Много фото и отдельный склад по цветам? Открыть полный конструктор →" %}
+                    <a href="{% url 'seller-product-add' %}" style="font-size: 12px; font-weight: 600; color: var(--text-muted); text-decoration: none;">
+                        {% trans "Нужен сложный склад по размерам? Открыть полный конструктор →" %}
                     </a>
                 </div>
             </form>
         </div>
 
-        <!-- СПИСОК НЕДАВНИХ ТОВАРОВ (если они уже есть) -->
+        <!-- СПИСОК НЕДАВНИХ ТОВАРОВ -->
         {% if recent_products %}
-        <div style="margin-top: 18px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px;">
+        <div style="margin-top: 16px; border-top: 1px solid var(--border-subtle); padding-top: 14px;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                <span style="font-size: 12.5px; font-weight: 800; color: #cbd5e1;">📦 {% trans "Недавно добавленные товары" %}</span>
-                <a href="{% url 'seller-products' %}" style="font-size: 11.5px; font-weight: 700; color: #93c5fd; text-decoration: none;">{% trans "Смотреть все" %} ({{ products_count }}) →</a>
+                <span style="font-size: 12px; font-weight: 700; color: var(--text-muted);">
+                    {% trans "Недавно добавленные товары" %}
+                </span>
+                <a href="{% url 'seller-products' %}" style="font-size: 11.5px; font-weight: 700; color: var(--primary); text-decoration: none;">
+                    {% trans "Все товары" %} ({{ products_count }}) →
+                </a>
             </div>
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
                 {% for prod in recent_products %}
-                <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 12px; padding: 10px; display: flex; align-items: center; gap: 10px;">
+                <div style="background: rgba(255, 255, 255, 0.025); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px; display: flex; align-items: center; gap: 10px;">
                     {% if prod.main_image %}
-                        <img src="{{ prod.main_image.url }}" alt="{{ prod.name }}" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover; flex-shrink: 0; border: 1px solid var(--border);">
+                        <img src="{{ prod.main_image.url }}" alt="{{ prod.name }}" style="width: 42px; height: 42px; border-radius: 8px; object-fit: cover; flex-shrink: 0; border: 1px solid var(--border);">
                     {% else %}
-                        <div style="width: 44px; height: 44px; border-radius: 8px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">📦</div>
+                        <div style="width: 42px; height: 42px; border-radius: 8px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">📦</div>
                     {% endif %}
                     <div style="flex: 1; min-width: 0;">
                         <div style="font-size: 12.5px; font-weight: 700; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ prod.name }}</div>
-                        <div style="font-size: 11.5px; font-weight: 800; color: #34d399;">{{ prod.base_price|floatformat:0 }} {% trans "сум" %}</div>
+                        <div style="font-size: 11.5px; font-weight: 800; color: #30D158;">{{ prod.base_price|floatformat:0 }} {% trans "сум" %}</div>
                     </div>
-                    <a href="{% url 'seller-product-edit' prod.id %}" title="{% trans 'Редактировать' %}" style="color: #818cf8; font-size: 14px; text-decoration: none; padding: 4px 6px; border-radius: 6px; background: rgba(99,102,241,0.15);">✏️</a>
+                    <a href="{% url 'seller-product-edit' prod.id %}" title="{% trans 'Редактировать' %}" style="color: var(--text-muted); font-size: 13px; text-decoration: none; padding: 4px 6px; border-radius: 6px; background: rgba(255,255,255,0.05);">✏️</a>
                 </div>
                 {% endfor %}
             </div>
@@ -259,156 +400,260 @@
         {% endif %}
     </div>
 
-    <!-- ИИ-СОВЕТНИК ПО РОСТУ БИЗНЕСА -->
-    {% if ai_insights %}
-    <div style="background: linear-gradient(135deg, rgba(79,70,229,0.12) 0%, rgba(147,51,234,0.12) 100%); border: 1.5px solid rgba(99,102,241,0.35); border-radius: 18px; padding: 18px; margin-bottom: 20px;">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-            <div style="display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 14px; color: white;">
-                <span>🤖</span> {% trans "ИИ-Советник по росту продаж (Gemini AI)" %}
-            </div>
-            <span style="font-size: 11px; font-weight: 700; color: #818cf8; background: rgba(79,70,229,0.2); padding: 3px 8px; border-radius: 6px;">AI INSIGHTS</span>
-        </div>
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-            {% for ins in ai_insights %}
-                <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; background: rgba(0,0,0,0.2); padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border);">
-                    <div style="display: flex; align-items: flex-start; gap: 10px;">
-                        <span style="font-size: 20px;">{{ ins.icon }}</span>
-                        <div>
-                            <div style="font-size: 13px; font-weight: 700; color: white; margin-bottom: 2px;">{{ ins.title }}</div>
-                            <div style="font-size: 12px; color: var(--text-muted); line-height: 1.4;">{{ ins.text }}</div>
-                        </div>
-                    </div>
-                    {% if ins.action_url %}
-                        <a href="{{ ins.action_url }}" style="white-space: nowrap; font-size: 11px; font-weight: 700; color: var(--primary); background: rgba(79,70,229,0.15); padding: 6px 12px; border-radius: 8px; text-decoration: none; align-self: center;">
-                            {{ ins.action_text }} →
-                        </a>
-                    {% endif %}
+    <!-- ─── ДВУХКОЛОНОЧНЫЙ ГРИД: ГРАФИК ПРОДАЖ + AI АНАЛИТИКА ─── -->
+    <div class="dashboard-2col">
+        <!-- ГРАФИК ПРОДАЖ ЗА 7 ДНЕЙ -->
+        <div class="card" style="margin-bottom: 0;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                <div>
+                    <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: white; letter-spacing: -0.02em;">
+                        {% trans "Продажи за 7 дней" %}
+                    </h3>
+                    <span style="font-size: 12px; color: var(--text-muted);">{% trans "Динамика выручки" %}</span>
                 </div>
-            {% endfor %}
+                <span class="badge" style="background: rgba(255,255,255,0.05); color: var(--text-muted); font-size: 10px;">7 DAYS</span>
+            </div>
+            <div style="position: relative; height: 200px; width: 100%;">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+
+        <!-- AI CRM & АНАЛИТИКА ПРОДАВЦА -->
+        <div class="card" style="margin-bottom: 0;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+                <div>
+                    <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: white; letter-spacing: -0.02em;">
+                        {% trans "CRM & ИИ-Продавец" %}
+                    </h3>
+                    <span style="font-size: 12px; color: var(--text-muted);">{% trans "Автоматизация диалогов и конверсия" %}</span>
+                </div>
+                <span class="badge" style="background: rgba(41, 151, 255, 0.12); color: var(--primary); font-size: 10px;">AI LIVE</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px;">
+                <div style="background: rgba(255, 255, 255, 0.025); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; text-align: center;">
+                    <div style="font-size: 18px; font-weight: 800; color: white;">{{ ai_conversations_count }}</div>
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">{% trans "Диалогов" %}</div>
+                </div>
+                <div style="background: rgba(255, 255, 255, 0.025); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; text-align: center;">
+                    <div style="font-size: 18px; font-weight: 800; color: white;">{{ ai_messages_count }}</div>
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">{% trans "Ответов ИИ" %}</div>
+                </div>
+                <div style="background: rgba(255, 255, 255, 0.025); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; text-align: center;">
+                    <div style="font-size: 18px; font-weight: 800; color: {% if ai_conversion > 10 %}#30D158{% else %}#FF9F0A{% endif %};">{{ ai_conversion }}%</div>
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">{% trans "Конверсия" %}</div>
+                </div>
+            </div>
+
+            {% if ai_insights %}
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    {% for ins in ai_insights %}
+                        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 16px;">{{ ins.icon }}</span>
+                                <div>
+                                    <div style="font-size: 12.5px; font-weight: 700; color: white;">{{ ins.title }}</div>
+                                    <div style="font-size: 11.5px; color: var(--text-muted); line-height: 1.3;">{{ ins.text|truncatechars:70 }}</div>
+                                </div>
+                            </div>
+                            {% if ins.action_url %}
+                                <a href="{{ ins.action_url }}" style="font-size: 11px; font-weight: 700; color: var(--primary); text-decoration: none; white-space: nowrap; padding: 5px 9px; border-radius: 6px; background: rgba(255,255,255,0.05);">
+                                    {{ ins.action_text }} →
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
     </div>
-    {% endif %}
 
-    <!-- ИИ АССИСТЕНТ (GEMINI) CRM СВОДКА -->
-    <div class="ai-card">
-        <div class="ai-header">
-            <div class="ai-icon">✨</div>
-            <h3 class="ai-title">{% trans "Аналитика ИИ-Продавца" %}</h3>
-        </div>
-        <div class="ai-stat-row">
-            <span>{% trans "Диалогов с клиентами:" %}</span>
-            <strong>{{ ai_conversations_count }} {% trans "диалогов" %}</strong>
-        </div>
-        <div class="ai-stat-row">
-            <span>{% trans "Ответов от ИИ-агента:" %}</span>
-            <strong>{{ ai_messages_count }} {% trans "шт." %}</strong>
-        </div>
-        <div class="ai-stat-row">
-            <span>{% trans "Конверсия в заказ:" %}</span>
-            <strong style="color: {% if ai_conversion > 10 %}#34d399{% else %}#fbbf24{% endif %};">{{ ai_conversion }}% {% if ai_conversion > 10 %}📈{% endif %}</strong>
-        </div>
-        <p style="margin: 10px 0 0; font-size: 11px; color: var(--text-muted); border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px;">
-            {% trans "Gemini автоматически подбирает товары по описанию и фото ваших клиентов." %}
-        </p>
-    </div>
-
-    <!-- ГРАФИК ПРОДАЖ ЗА НЕДЕЛЮ -->
-    <div class="chart-container">
-        <div class="chart-header">
-            <span>📊 {% trans "Продажи за 7 дней" %}</span>
-        </div>
-        <div style="position: relative; height: 180px; width: 100%;">
-            <canvas id="salesChart"></canvas>
-        </div>
-    </div>
-
-    <!-- ТОВАРЫ, КОТОРЫЕ ЗАКАНЧИВАЮТСЯ -->
+    <!-- ТОВАРЫ, КОТОРЫЕ ЗАКАНЧИВАЮТСЯ НА СКЛАДЕ -->
     {% if low_stock_variants %}
-        <div class="card" style="border: 1px solid rgba(245, 158, 11, 0.3);">
-            <h4 style="margin: 0 0 12px; color: #fbbf24; display: flex; align-items: center; gap: 8px; font-size: 15px;">
-                ⚠️ {% trans "Заканчиваются на складе" %}
-            </h4>
+        <div class="card" style="margin-top: 20px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                <h4 style="margin: 0; color: #FF9F0A; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 800;">
+                    ⚠️ {% trans "Заканчиваются на складе" %}
+                </h4>
+                <a href="{% url 'seller-products' %}" style="font-size: 12px; color: var(--text-muted); text-decoration: none;">{% trans "Склад" %} →</a>
+            </div>
             <div class="table-responsive">
                 <table>
-                    <tr><th>{% trans "Товар" %}</th><th>{% trans "Цвет/Размер" %}</th><th>{% trans "Остаток" %}</th></tr>
-                    {% for variant in low_stock_variants %}
-                        <tr>
-                            <td><strong>{{ variant.product.name|truncatechars:15 }}</strong></td>
-                            <td>{{ variant.color }} / {{ variant.size }}</td>
-                            <td>
-                                {% if variant.stock_quantity == 0 %}
-                                    <span class="badge" style="background: rgba(239,68,68,0.2); color: #f87171;">0</span>
-                                {% else %}
-                                    <span class="badge badge-warning">{{ variant.stock_quantity }} {% trans "шт" %}</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
+                    <thead>
+                        <tr><th>{% trans "Товар" %}</th><th>{% trans "Цвет / Размер" %}</th><th>{% trans "Остаток" %}</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for variant in low_stock_variants %}
+                            <tr>
+                                <td><strong>{{ variant.product.name|truncatechars:20 }}</strong></td>
+                                <td style="color: var(--text-muted);">{{ variant.color }} / {{ variant.size }}</td>
+                                <td>
+                                    {% if variant.stock_quantity == 0 %}
+                                        <span class="badge" style="background: rgba(255, 69, 58, 0.15); color: #FF453A;">0</span>
+                                    {% else %}
+                                        <span class="badge badge-warning">{{ variant.stock_quantity }} {% trans "шт" %}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
                 </table>
             </div>
         </div>
     {% endif %}
 
-
-    <!-- СКРИПТ ГРАФИКА -->
+    <!-- СКРИПТ ГРАФИКА И ИНТЕРАКТИВНОСТИ -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const ctx = document.getElementById('salesChart').getContext('2d');
+            const ctx = document.getElementById('salesChart');
+            if (ctx) {
+                const chartCtx = ctx.getContext('2d');
+                let gradient = chartCtx.createLinearGradient(0, 0, 0, 180);
+                gradient.addColorStop(0, 'rgba(41, 151, 255, 0.35)');
+                gradient.addColorStop(1, 'rgba(41, 151, 255, 0.0)');
 
-            // Настраиваем градиент для линии графика (наш фирменный индиго)
-            let gradient = ctx.createLinearGradient(0, 0, 0, 200);
-            gradient.addColorStop(0, 'rgba(79, 70, 229, 0.5)');
-            gradient.addColorStop(1, 'rgba(79, 70, 229, 0.0)');
+                const labels = {{ chart_labels|safe }};
+                const data = {{ chart_data|safe }};
 
-            // Реальные данные из БД за 7 дней
-            const labels = {{ chart_labels|safe }};
-            const data = {{ chart_data|safe }};
-
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Выручка (сум)',
-                        data: data,
-                        borderColor: '#4F46E5',
-                        backgroundColor: gradient,
-                        borderWidth: 3,
-                        pointBackgroundColor: '#fff',
-                        pointBorderColor: '#4F46E5',
-                        pointBorderWidth: 2,
-                        pointRadius: 4,
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
-                            ticks: { color: '#9CA3AF', font: { size: 10 }, callback: function(value) { return value >= 1000 ? (value/1000).toFixed(0) + 'k' : value; } }
-                        },
-                        x: {
-                            grid: { display: false, drawBorder: false },
-                            ticks: { color: '#9CA3AF', font: { size: 11 } }
-                        }
+                new Chart(chartCtx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Выручка (сум)',
+                            data: data,
+                            borderColor: '#2997FF',
+                            backgroundColor: gradient,
+                            borderWidth: 2.5,
+                            pointBackgroundColor: '#FFFFFF',
+                            pointBorderColor: '#2997FF',
+                            pointBorderWidth: 2,
+                            pointRadius: 3.5,
+                            fill: true,
+                            tension: 0.35
+                        }]
                     },
-                    interaction: { intersect: false, mode: 'index' }
-                }
-            });
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(255, 255, 255, 0.04)', drawBorder: false },
+                                ticks: {
+                                    color: '#8E92A4', font: { size: 10 },
+                                    callback: function(v) { return v >= 1000 ? (v/1000).toFixed(0) + 'k' : v; }
+                                }
+                            },
+                            x: {
+                                grid: { display: false, drawBorder: false },
+                                ticks: { color: '#8E92A4', font: { size: 11 } }
+                            }
+                        },
+                        interaction: { intersect: false, mode: 'index' }
+                    }
+                });
+            }
         });
 
-                function copyInputGeneric(inputId, btn) {
+        function toggleQuickAddForm() {
+            var c = document.getElementById('quickAddFormContainer');
+            var btn = document.getElementById('toggleQuickFormBtn');
+            if (!c) return;
+            if (c.style.display === 'none' || c.style.display === '') {
+                c.style.display = 'block';
+                c.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                var nameInput = document.getElementById('quickProductName');
+                if (nameInput) nameInput.focus();
+                if (btn) btn.innerHTML = '▲ {% filter escapejs %}{% trans "Скрыть форму" %}{% endfilter %}';
+            } else {
+                c.style.display = 'none';
+                if (btn) btn.innerHTML = '➕ {% filter escapejs %}{% trans "Создать товар" %}{% endfilter %}';
+            }
+        }
+
+        function previewQuickUploadedImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var img = document.getElementById('quickImagePreviewEl');
+                    var txt = document.getElementById('quickUploadText');
+                    if (img) {
+                        img.src = e.target.result;
+                        img.style.display = 'block';
+                    }
+                    if (txt) {
+                        txt.textContent = '✅ ' + input.files[0].name;
+                        txt.style.color = '#30D158';
+                    }
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function handleQuickImageDrop(e) {
+            e.preventDefault();
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                var fileInput = document.getElementById('quickProductImageInput');
+                fileInput.files = e.dataTransfer.files;
+                previewQuickUploadedImage(fileInput);
+            }
+        }
+
+        function generateQuickAiDesc() {
+            var name = document.getElementById('quickProductName').value;
+            var catSelect = document.getElementById('quickProductCategory');
+            var category = catSelect ? catSelect.options[catSelect.selectedIndex].text : '';
+            var btn = document.getElementById('quickAiDescBtn');
+
+            if (!name) {
+                alert('{% filter escapejs %}{% trans "Сначала введите название товара!" %}{% endfilter %}');
+                var nameInput = document.getElementById('quickProductName');
+                if (nameInput) nameInput.focus();
+                return;
+            }
+
+            var oldText = btn.innerHTML;
+            btn.innerHTML = '⏳ {% filter escapejs %}{% trans "Генерирую..." %}{% endfilter %}';
+            btn.disabled = true;
+
+            fetch('{% url "api-ai-generate-description" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    name: name,
+                    category: category,
+                    features: ''
+                })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                btn.innerHTML = oldText;
+                btn.disabled = false;
+                if (data.status === 'ok' && data.description) {
+                    document.getElementById('quickProductDescription').value = data.description;
+                } else {
+                    alert(data.error || 'Ошибка при генерации описания');
+                }
+            })
+            .catch(function(err) {
+                btn.innerHTML = oldText;
+                btn.disabled = false;
+                console.error(err);
+            });
+        }
+
+        function copyInputGeneric(inputId, btn) {
             var inp = document.getElementById(inputId);
             if (!inp) return;
             navigator.clipboard.writeText(inp.value).then(function() {
                 var old = btn.innerHTML;
                 btn.innerHTML = '✅ {% filter escapejs %}{% trans "Скопировано!" %}{% endfilter %}';
-                btn.style.background = '#10B981';
+                btn.style.background = '#30D158';
                 setTimeout(function() {
                     btn.innerHTML = old;
                     btn.style.background = '';
@@ -419,20 +664,12 @@
             });
         }
 
-        function copyHomeShowcaseLink(btn) {
-            var inp = document.getElementById('homeStoreUrlInput');
-            if (!inp) return;
-            navigator.clipboard.writeText(inp.value).then(function() {
-                var old = btn.innerHTML;
-                btn.innerHTML = '✅ {% filter escapejs %}{% trans "Скопировано!" %}{% endfilter %}';
-                btn.style.background = '#10B981';
-                setTimeout(function() {
-                    btn.innerHTML = old;
-                    btn.style.background = '';
-                }, 2200);
-            }).catch(function() {
-                inp.select();
-                document.execCommand('copy');
+        if (window.location.hash === '#quickAddProductSection') {
+            document.addEventListener('DOMContentLoaded', function() {
+                var c = document.getElementById('quickAddFormContainer');
+                if (c) c.style.display = 'block';
+                var nameInput = document.getElementById('quickProductName');
+                if (nameInput) nameInput.focus();
             });
         }
     </script>

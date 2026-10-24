@@ -1,260 +1,390 @@
 {% load i18n %}
 {# dashboard/base.html #}
 <!DOCTYPE html>
-
-<html lang="ru">
+<html lang="{{ LANGUAGE_CODE|default:'ru' }}">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>brainmart — {% trans "Панель продавца" %}</title>
 
     <!-- Favicon & Icons: Direct Data-URI for instant, 100% reliable zero-cache loading -->
     <link rel="icon" type="image/png" href="data:image/png;base64,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">
-    <link rel="shortcut icon" type="image/png" href="data:image/png;base64,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">
-    <!-- Fallback links with version query to bust proxy/browser cache -->
-    <link rel="icon" type="image/x-icon" href="/static/favicon.ico?v=2">
-    <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon-32x32.png?v=2">
-    <link rel="icon" type="image/png" sizes="16x16" href="/static/img/favicon-16x16.png?v=2">
-    <link rel="apple-touch-icon" sizes="180x180" href="/static/img/apple-touch-icon.png?v=2">
-
-    <!-- PWA & Mobile Web App meta tags -->
     <link rel="manifest" href="/static/manifest.json">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="brainmart CRM">
-    <meta name="theme-color" content="#111827">
+    <meta name="theme-color" content="#08090D">
+
     <style>
         :root {
             {% if user.store and user.store.primary_color %}
                 --primary: {{ user.store.primary_color }};
                 --primary-hover: {{ user.store.primary_color }};
-                --accent: {{ user.store.accent_color|default:"#10B981" }};
+                --accent: {{ user.store.accent_color|default:"#30D158" }};
             {% else %}
-                --primary: #4F46E5;
-                --primary-hover: #4338CA;
-                --accent: #10B981;
+                --primary: #2997FF;
+                --primary-hover: #0071E3;
+                --accent: #30D158;
             {% endif %}
-            --bg: #0F172A; /* slightly richer dark bg */
-            --card-bg: #1E293B;
+
+            /* ─── Apple High-Tech Obsidian Dark System ─── */
+            --bg: #08090D;
+            --card-bg: #111319;
+            --card-bg-elevated: #161922;
+            --card-hover: #1A1D27;
             --border: rgba(255, 255, 255, 0.08);
-            --text-main: #F8FAFC;
-            --text-muted: #94A3B8;
-            --sidebar-w: 260px;
+            --border-subtle: rgba(255, 255, 255, 0.04);
+            --border-focus: rgba(255, 255, 255, 0.22);
+            --text-main: #FFFFFF;
+            --text-secondary: #E2E5F0;
+            --text-muted: #8E92A4;
+            --text-dim: #545768;
+            --sidebar-w: 250px;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
         }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
-            font-family: -apple-system, "Inter", "Segoe UI", Roboto, Arial, sans-serif;
-            margin: 0; background: var(--bg); color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", -system-ui, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            background: var(--bg);
+            color: var(--text-main);
             padding-bottom: 90px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            letter-spacing: -0.015em;
         }
 
-        /* ─── МОБИЛЬНАЯ ШАПКА (показывается только на мобилах) ─── */
+        /* ─── МОБИЛЬНАЯ ШАПКА (только мобильные экраны < 900px) ─── */
         .top-header {
-            position: sticky; top: 0; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid var(--border); z-index: 100;
+            position: sticky; top: 0;
+            background: rgba(8, 9, 13, 0.85);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            padding: 12px 18px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
         }
-        .top-header h3 { margin: 0; font-size: 18px; color: white; display: flex; align-items: center; gap: 8px; font-weight: 800; }
+        .top-header h3 {
+            margin: 0; font-size: 15px; color: white; display: flex; align-items: center; gap: 8px; font-weight: 800; letter-spacing: -0.02em;
+        }
 
-        main { padding: 20px; max-width: 100%; overflow-x: hidden; }
+        main {
+            padding: 20px;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
 
-        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; padding: 24px; margin-bottom: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+        /* ─── Apple-grade Card ─── */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 22px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 8px 28px -4px rgba(0, 0, 0, 0.45);
+            transition: border-color 0.2s ease;
+        }
 
-        /* ─── КНОПКИ И ИНПУТЫ ─── */
+        /* ─── КНОПКИ ─── */
         .btn {
-            display: flex; justify-content: center; align-items: center; gap: 10px;
-            background: var(--primary); color: white; padding: 16px 24px; border-radius: 16px;
-            text-decoration: none; border: none; cursor: pointer; font-size: 16px; font-weight: 700; transition: all 0.2s ease;
-            width: 100%; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: inline-flex; justify-content: center; align-items: center; gap: 8px;
+            background: var(--primary); color: white;
+            padding: 12px 20px; border-radius: var(--radius-md);
+            text-decoration: none; border: none; cursor: pointer;
+            font-size: 13.5px; font-weight: 700; letter-spacing: -0.01em;
+            transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+            width: 100%;
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.18), 0 4px 14px rgba(0, 0, 0, 0.3);
         }
-        .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
-        .btn:active { transform: scale(0.97); }
-        .btn-secondary { background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--border); box-shadow: none; }
+        .btn:hover {
+            filter: brightness(1.08);
+            transform: translateY(-1px);
+        }
+        .btn:active {
+            transform: scale(0.98);
+            filter: brightness(0.95);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            box-shadow: none;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.14);
+        }
 
+        /* ─── ИНПУТЫ И ФОРМЫ ─── */
         input, textarea, select {
-            width: 100%; padding: 16px; background: rgba(15, 23, 42, 0.5); border: 1px solid var(--border); color: white;
-            border-radius: 16px; margin: 8px 0 20px; font-size: 16px; transition: border 0.2s, background 0.2s;
+            width: 100%;
+            padding: 11px 14px;
+            background: rgba(255, 255, 255, 0.035);
+            border: 1px solid var(--border);
+            color: white;
+            border-radius: 11px;
+            margin: 6px 0 16px;
+            font-size: 13.5px;
+            font-family: inherit;
+            transition: border 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+            box-sizing: border-box;
         }
-        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary); background: rgba(15, 23, 42, 0.8); }
-        label { font-size: 14px; font-weight: 600; color: #CBD5E1; }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 0 0 3px rgba(41, 151, 255, 0.15);
+        }
+        label {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: -0.01em;
+        }
 
-        /* ─── НИЖНЕЕ МЕНЮ (Bottom Nav) — только на мобилах ─── */
+        /* ─── НИЖНЕЕ МЕНЮ (Bottom Nav — только смартфоны) ─── */
         .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(14px);
-            border-top: 1px solid var(--border); display: flex; justify-content: flex-start; align-items: center;
-            padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); z-index: 1000;
-            overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; gap: 4px;
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgba(10, 12, 17, 0.88);
+            backdrop-filter: blur(28px) saturate(200%);
+            -webkit-backdrop-filter: blur(28px) saturate(200%);
+            border-top: 1px solid var(--border);
+            display: flex; justify-content: flex-start; align-items: center;
+            padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+            z-index: 1000;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            gap: 2px;
         }
         .bottom-nav::-webkit-scrollbar { display: none; }
         .nav-item {
             display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
-            color: var(--text-muted); text-decoration: none; font-size: 10.5px; font-weight: 600; transition: all 0.2s;
-            flex-shrink: 0; min-width: 62px; padding: 6px 8px; border-radius: 10px;
+            color: var(--text-muted); text-decoration: none; font-size: 10px; font-weight: 600;
+            transition: all 0.18s ease;
+            flex-shrink: 0; min-width: 60px; padding: 6px 6px; border-radius: 10px;
         }
-        .nav-item.active { color: var(--primary); background: rgba(79, 70, 229, 0.15); }
-        .nav-icon { font-size: 20px; transition: transform 0.2s; }
+        .nav-item.active {
+            color: #FFFFFF;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .nav-icon { font-size: 18px; transition: transform 0.18s; }
         .nav-item.active .nav-icon { transform: scale(1.1); }
 
-        .badge { padding: 6px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; display: inline-block; }
-        .badge-active { background: rgba(16, 185, 129, 0.15); color: #34d399; }
-        .badge-inactive { background: rgba(107, 114, 128, 0.15); color: #9ca3af; }
-        .badge-warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+        .badge {
+            padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;
+        }
+        .badge-active { background: rgba(48, 209, 88, 0.12); color: #30D158; border: 1px solid rgba(48, 209, 88, 0.25); }
+        .badge-inactive { background: rgba(142, 146, 164, 0.12); color: #8E92A4; border: 1px solid rgba(142, 146, 164, 0.2); }
+        .badge-warning { background: rgba(255, 159, 10, 0.12); color: #FF9F0A; border: 1px solid rgba(255, 159, 10, 0.25); }
 
         /* ─────────────────────────────────────────────────────────
-           DESKTOP LAYOUT (>= 900px)
-           Боковой сайдбар + просторная рабочая область
+           DESKTOP & LAPTOP LAYOUT (>= 900px)
+           Стиль Apple Mac / Linear / Stripe
         ───────────────────────────────────────────────────────── */
         @media (min-width: 900px) {
-            body { padding-bottom: 0; display: flex; min-height: 100vh; }
+            body { padding-bottom: 0; display: flex; min-height: 100vh; background: var(--bg); }
 
-            /* Скрываем мобильные элементы */
+            /* Скрываем мобильную шапку и мобильный dock */
             .top-header { display: none; }
             .bottom-nav { display: none; }
 
-            /* Боковой сайдбар */
+            /* Боковой сайдбар (Apple Dark Slate) */
             .desktop-sidebar {
                 width: var(--sidebar-w);
                 height: 100vh;
                 max-height: 100vh;
-                background: var(--card-bg);
+                background: #0B0D12;
                 border-right: 1px solid var(--border);
                 display: flex;
                 flex-direction: column;
-                padding: 20px 0 24px;
+                padding: 18px 0 20px;
                 position: fixed;
                 top: 0; left: 0; bottom: 0;
                 z-index: 200;
                 overflow-y: auto;
                 overflow-x: hidden;
                 scrollbar-width: thin;
-                scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+                scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
             }
-            .desktop-sidebar::-webkit-scrollbar {
-                width: 5px;
-            }
-            .desktop-sidebar::-webkit-scrollbar-track {
-                background: transparent;
-            }
+            .desktop-sidebar::-webkit-scrollbar { width: 4px; }
             .desktop-sidebar::-webkit-scrollbar-thumb {
-                background: rgba(255, 255, 255, 0.15);
-                border-radius: 4px;
+                background: rgba(255, 255, 255, 0.1); border-radius: 4px;
             }
-            .desktop-sidebar::-webkit-scrollbar-thumb:hover {
-                background: var(--primary);
-            }
+
             .desktop-sidebar .sidebar-logo {
-                padding: 0 20px 14px;
-                border-bottom: 1px solid var(--border);
+                padding: 0 18px 14px;
+                border-bottom: 1px solid var(--border-subtle);
                 margin-bottom: 12px;
                 flex-shrink: 0;
+                display: flex; align-items: center; justify-content: space-between;
             }
             .desktop-sidebar .sidebar-logo h2 {
-                margin: 0; font-size: 22px; font-weight: 900; color: white; letter-spacing: -0.5px;
+                margin: 0; font-size: 19px; font-weight: 800; color: white; letter-spacing: -0.03em;
             }
             .desktop-sidebar .sidebar-logo h2 span { color: var(--primary); }
+
             .desktop-sidebar .sidebar-store {
-                padding: 0 20px 14px;
-                font-size: 13px; color: var(--text-muted); font-weight: 600;
-                border-bottom: 1px solid var(--border); margin-bottom: 8px;
-                flex-shrink: 0;
-            }
-            .sidebar-nav-item {
-                display: flex; align-items: center; gap: 12px;
-                padding: 10px 18px; color: var(--text-muted);
-                text-decoration: none; font-size: 14px; font-weight: 600;
-                border-radius: 12px; margin: 2px 10px;
-                transition: all 0.2s ease;
-            }
-            .sidebar-nav-item:hover { background: rgba(255,255,255,0.05); color: white; transform: translateX(4px); }
-            .sidebar-nav-item.active { background: rgba(79, 70, 229, 0.15); color: #818CF8; font-weight: 700; }
-            .sidebar-nav-item .nav-icon { font-size: 19px; }
-            .desktop-sidebar nav {
-                display: flex;
-                flex-direction: column;
-                flex: 1 1 auto;
-            }
-            .sidebar-footer {
-                margin-top: auto; padding: 14px 16px 0;
-                border-top: 1px solid var(--border);
+                padding: 0 16px 12px;
+                font-size: 12.5px; color: var(--text-muted); font-weight: 600;
+                border-bottom: 1px solid var(--border-subtle); margin-bottom: 8px;
                 flex-shrink: 0;
             }
 
-            /* Главная область контента */
+            .sidebar-nav-item {
+                display: flex; align-items: center; gap: 10px;
+                padding: 9px 14px; color: var(--text-muted);
+                text-decoration: none; font-size: 13px; font-weight: 600;
+                border-radius: 10px; margin: 2px 8px;
+                transition: all 0.16s ease;
+                letter-spacing: -0.01em;
+            }
+            .sidebar-nav-item:hover {
+                background: rgba(255, 255, 255, 0.05); color: #FFFFFF;
+                transform: translateX(2px);
+            }
+            .sidebar-nav-item.active {
+                background: rgba(255, 255, 255, 0.09);
+                color: #FFFFFF;
+                font-weight: 700;
+                box-shadow: inset 2px 0 0 0 var(--primary);
+            }
+            .sidebar-nav-item .nav-icon { font-size: 17px; }
+
+            .desktop-sidebar nav {
+                display: flex; flex-direction: column; flex: 1 1 auto;
+            }
+            .sidebar-footer {
+                margin-top: auto; padding: 12px 14px 0;
+                border-top: 1px solid var(--border-subtle);
+                flex-shrink: 0;
+            }
+
+            /* Рабочая область контента */
             .desktop-content {
                 margin-left: var(--sidebar-w);
                 flex: 1;
-                padding: 32px 40px;
                 min-width: 0;
+                display: flex;
+                flex-direction: column;
             }
+
+            /* ─── Apple High-Tech Desktop TopBar ─── */
+            .desktop-topbar {
+                height: 60px;
+                background: rgba(8, 9, 13, 0.85);
+                backdrop-filter: blur(24px) saturate(180%);
+                -webkit-backdrop-filter: blur(24px) saturate(180%);
+                border-bottom: 1px solid var(--border);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 36px;
+                position: sticky;
+                top: 0;
+                z-index: 150;
+            }
+
             main {
-                padding: 0;
-                max-width: 1200px;
+                padding: 28px 36px 40px;
+                max-width: 1280px;
+                width: 100%;
+                margin: 0 auto;
             }
         }
 
-        /* Переключатель языков в Dashboard */
-        .lang-switcher-dashboard {
-            display: flex; gap: 4px; padding: 10px 20px;
+        /* Apple Segmented Language Switcher */
+        .apple-lang-control {
+            display: inline-flex;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 2px;
+            gap: 2px;
         }
-        .lang-switcher-dashboard button {
-            all: unset; cursor: pointer;
-            padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 700;
-            background: var(--border); color: var(--text-muted);
-            transition: 0.15s;
+        .apple-lang-control button {
+            all: unset;
+            cursor: pointer;
+            padding: 5px 9px;
+            border-radius: 7px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            transition: all 0.15s ease;
         }
-        .lang-switcher-dashboard button.active {
-            background: var(--primary); color: white;
+        .apple-lang-control button.active {
+            background: rgba(255, 255, 255, 0.16);
+            color: #FFFFFF;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        .apple-lang-control button:hover:not(.active) {
+            color: #FFFFFF;
         }
     </style>
-
 </head>
 <body>
 
     {% if user.is_authenticated and user.store %}
 
-    <!-- ─── ДЕСКТОПНЫЙ САЙДБАР ─── -->
+    <!-- ─── ДЕСКТОПНЫЙ САЙДБАР (Apple Space Dark) ─── -->
     <aside class="desktop-sidebar" style="display: none;">
         <div class="sidebar-logo">
             <h2>⚡ brain<span>mart</span></h2>
+            <span style="background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--text-muted); padding: 2px 7px; border-radius: 6px; font-size: 9.5px; font-weight: 800; letter-spacing: 0.5px;">SaaS CRM</span>
         </div>
+
         <div class="sidebar-store" style="display: flex; flex-direction: column; gap: 8px;">
             <div style="display: flex; align-items: center; justify-content: space-between;">
-                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; font-weight: 700;">🏪 {{ user.store.name }}</span>
-                <span style="background: rgba(99,102,241,0.2); border: 1px solid rgba(99,102,241,0.4); color: #818cf8; padding: 2px 7px; border-radius: 6px; font-size: 9.5px; font-weight: 800; letter-spacing: 0.5px; flex-shrink: 0;">SaaS CRM</span>
+                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 135px; font-weight: 700; color: white; font-size: 13px;">🏪 {{ user.store.name }}</span>
+                <span style="font-size: 9.5px; color: #30D158; font-weight: 800; display: inline-flex; align-items: center; gap: 3px;">
+                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #30D158; display: inline-block;"></span> {% trans "Онлайн" %}
+                </span>
             </div>
-            <a href="/{{ CURRENT_LANG|default:'ru' }}/?store_id={{ user.store.id }}" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; font-size: 11.5px; font-weight: 700; text-decoration: none; padding: 6px 10px; border-radius: 8px; transition: all 0.2s ease;">
+            <a href="/{{ CURRENT_LANG|default:'ru' }}/?store_id={{ user.store.id }}" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); color: #FFFFFF; font-size: 11.5px; font-weight: 700; text-decoration: none; padding: 6px 10px; border-radius: 8px; transition: all 0.16s ease;">
                 👁️ {% trans "Открыть витрину" %} ↗
             </a>
         </div>
-        <!-- Переключатель языков в сайдбаре -->
-        <div class="lang-switcher-dashboard">
-            {% get_current_language as CURRENT_LANG %}
-            {% get_available_languages as LANGUAGES %}
-            {% for lang_code, lang_name in LANGUAGES %}
-                <form action="{% url 'set_language' %}" method="post" style="display:inline">
-                    {% csrf_token %}
-                    <input name="next" type="hidden" value="{{ request.get_full_path }}">
-                    <input name="language" type="hidden" value="{{ lang_code }}">
-                    <button type="submit" class="{% if lang_code == CURRENT_LANG %}active{% endif %}">
-                        {% if lang_code == 'ru' %}RU{% elif lang_code == 'uz' %}UZ{% else %}EN{% endif %}
-                    </button>
-                </form>
-            {% endfor %}
+
+        <!-- Языковой переключатель в сайдбаре -->
+        <div style="padding: 6px 16px 10px;">
+            <div class="apple-lang-control" style="width: 100%; justify-content: space-between;">
+                {% get_current_language as CURRENT_LANG %}
+                {% get_available_languages as LANGUAGES %}
+                {% for lang_code, lang_name in LANGUAGES %}
+                    <form action="{% url 'set_language' %}" method="post" style="display:inline; flex: 1; text-align: center;">
+                        {% csrf_token %}
+                        <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                        <input name="language" type="hidden" value="{{ lang_code }}">
+                        <button type="submit" class="{% if lang_code == CURRENT_LANG %}active{% endif %}" style="width: 100%; text-align: center;">
+                            {% if lang_code == 'ru' %}RU{% elif lang_code == 'uz' %}UZ{% else %}EN{% endif %}
+                        </button>
+                    </form>
+                {% endfor %}
+            </div>
         </div>
+
         <nav>
             <a href="{% url 'seller-dashboard' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'seller-dashboard' %}active{% endif %}">
                 <span class="nav-icon">📊</span> {% trans "Главная" %}
             </a>
-            <div style="display: flex; align-items: center; justify-content: space-between; padding-right: 10px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding-right: 8px;">
                 <a href="{% url 'seller-products' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'seller-products' or request.resolver_match.url_name == 'seller-product-add' %}active{% endif %}" style="flex: 1; margin-right: 4px;">
                     <span class="nav-icon">📦</span> {% trans "Товары" %}
                 </a>
-                <a href="{% url 'seller-product-add' %}" title="{% trans 'Создать товар' %}" style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; font-size: 11.5px; font-weight: 800; padding: 6px 9px; border-radius: 8px; text-decoration: none; display: flex; align-items: center; justify-content: center; transition: 0.2s;">➕</a>
+                <a href="{% url 'seller-product-add' %}" title="{% trans 'Создать товар' %}" style="background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border); color: white; font-size: 11px; font-weight: 800; padding: 5px 8px; border-radius: 7px; text-decoration: none; display: flex; align-items: center; justify-content: center; transition: 0.16s;">➕</a>
             </div>
             <a href="javascript:void(0)" onclick="showPosUnderDevModal()" class="sidebar-nav-item" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
                 <span><span class="nav-icon">📟</span> {% trans "POS Касса" %}</span>
-                <span style="font-size: 10px; background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); padding: 2px 7px; border-radius: 6px; font-weight: 800;">
+                <span style="font-size: 9.5px; background: rgba(255, 159, 10, 0.15); color: #FF9F0A; border: 1px solid rgba(255, 159, 10, 0.3); padding: 2px 6px; border-radius: 5px; font-weight: 800;">
                     {% trans "В разработке" %}
                 </span>
             </a>
@@ -277,14 +407,15 @@
                 <span class="nav-icon">⭐</span> {% trans "Отзывы" %}
             </a>
             <a href="{% url 'seller-branches' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'seller-branches' %}active{% endif %}">
-                <span class="nav-icon">🏢</span> {% trans "Точки/Филиалы" %}
+                <span class="nav-icon">🏢</span> {% trans "Филиалы" %}
             </a>
-        <a href="{% url 'seller-settings' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'seller-settings' %}active{% endif %}">
+            <a href="{% url 'seller-settings' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'seller-settings' %}active{% endif %}">
                 <span class="nav-icon">⚙️</span> {% trans "Настройки" %}
             </a>
         </nav>
+
         <div class="sidebar-footer">
-            <a href="{% url 'seller-logout' %}" class="sidebar-nav-item" style="color: #ef4444;">
+            <a href="{% url 'seller-logout' %}" class="sidebar-nav-item" style="color: #FF453A;">
                 <span class="nav-icon">🚪</span> {% trans "Выйти" %}
             </a>
         </div>
@@ -293,18 +424,17 @@
     <!-- ─── МОБИЛЬНАЯ ШАПКА ─── -->
     <div class="top-header">
         <div style="display: flex; align-items: center; gap: 8px;">
-            <h3 style="margin: 0; font-size: 15px; font-weight: 800;">⚡ {{ user.store.name }}</h3>
-            <span style="background: rgba(99,102,241,0.2); border: 1px solid rgba(99,102,241,0.4); color: #818cf8; padding: 2px 6px; border-radius: 5px; font-size: 9px; font-weight: 800;">SaaS CRM</span>
+            <h3 style="margin: 0; font-size: 14.5px; font-weight: 800;">⚡ {{ user.store.name }}</h3>
+            <span style="background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--text-muted); padding: 2px 6px; border-radius: 5px; font-size: 9px; font-weight: 800;">CRM</span>
         </div>
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <a href="{% url 'seller-product-add' %}" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; font-size: 11px; font-weight: 800; text-decoration: none; padding: 4px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <a href="{% url 'seller-product-add' %}" style="background: var(--primary); color: white; font-size: 11px; font-weight: 800; text-decoration: none; padding: 5px 10px; border-radius: 8px; display: inline-flex; align-items: center; gap: 4px;">
                 ➕ {% trans "Товар" %}
             </a>
-            <a href="/{{ CURRENT_LANG|default:'ru' }}/?store_id={{ user.store.id }}" target="_blank" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; font-size: 11px; font-weight: 700; text-decoration: none; padding: 4px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">
-                👁️ {% trans "Витрина" %} ↗
+            <a href="/{{ CURRENT_LANG|default:'ru' }}/?store_id={{ user.store.id }}" target="_blank" style="background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: #FFFFFF; font-size: 11px; font-weight: 700; text-decoration: none; padding: 5px 9px; border-radius: 8px; display: inline-flex; align-items: center; gap: 4px;">
+                👁️ ↗
             </a>
-            <!-- Переключатель языков в мобильной шапке -->
-            <div class="lang-switcher-dashboard" style="padding: 0;">
+            <div class="apple-lang-control" style="padding: 1px;">
                 {% get_current_language as CURRENT_LANG %}
                 {% get_available_languages as LANGUAGES %}
                 {% for lang_code, lang_name in LANGUAGES %}
@@ -312,18 +442,17 @@
                         {% csrf_token %}
                         <input name="next" type="hidden" value="{{ request.get_full_path }}">
                         <input name="language" type="hidden" value="{{ lang_code }}">
-                        <button type="submit" class="{% if lang_code == CURRENT_LANG %}active{% endif %}" style="padding: 4px 8px; border-radius: 6px; font-size: 10px;">
+                        <button type="submit" class="{% if lang_code == CURRENT_LANG %}active{% endif %}" style="padding: 3px 6px; font-size: 9.5px;">
                             {% if lang_code == 'ru' %}RU{% elif lang_code == 'uz' %}UZ{% else %}EN{% endif %}
                         </button>
                     </form>
                 {% endfor %}
             </div>
-            <a href="{% url 'seller-logout' %}" style="color: var(--text-muted); text-decoration: none; font-size: 20px;">🚪</a>
+            <a href="{% url 'seller-logout' %}" style="color: var(--text-muted); text-decoration: none; font-size: 18px; line-height: 1;">🚪</a>
         </div>
     </div>
 
-
-    <!-- ─── МОБИЛЬНОЕ НИЖНЕЕ МЕНЮ ─── -->
+    <!-- ─── МОБИЛЬНОЕ НИЖНЕЕ МЕНЮ (Apple Dock) ─── -->
     <nav class="bottom-nav">
         <a href="{% url 'seller-dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-dashboard' %}active{% endif %}">
             <span class="nav-icon">📊</span>
@@ -333,9 +462,9 @@
             <span class="nav-icon">📦</span>
             <span>{% trans "Товары" %}</span>
         </a>
-        <a href="javascript:void(0)" onclick="showPosUnderDevModal()" class="nav-item" style="position: relative; cursor: pointer;">
+        <a href="javascript:void(0)" onclick="showPosUnderDevModal()" class="nav-item">
             <span class="nav-icon">📟</span>
-            <span>{% trans "POS" %} <small style="color: #fbbf24; font-size: 8.5px; font-weight: 800;">({% trans "Скоро" %})</small></span>
+            <span>{% trans "POS" %}</span>
         </a>
         <a href="{% url 'seller-orders' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-orders' %}active{% endif %}">
             <span class="nav-icon">🚚</span>
@@ -373,47 +502,91 @@
 
     {% endif %}
 
-    <!-- Десктопный wrapper: сайдбар + контент -->
+    <!-- ─── ДЕСКТОПНЫЙ КОНТЕНТ (Сайдбар + Верхняя полоса + Основное полотно) ─── -->
     <div class="desktop-content">
+        {% if user.is_authenticated and user.store %}
+        <!-- Верхняя полоса на ноутбуке/десктопе -->
+        <header class="desktop-topbar">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <span style="font-size: 14px; font-weight: 800; color: white; letter-spacing: -0.02em;">
+                    ⚡ {{ user.store.name }}
+                </span>
+                <span class="badge badge-active" style="font-size: 10px; padding: 2px 8px;">
+                    <span style="width: 5px; height: 5px; border-radius: 50%; background: #30D158; display: inline-block;"></span>
+                    {% trans "Система активна" %}
+                </span>
+                <a href="/{{ CURRENT_LANG|default:'ru' }}/?store_id={{ user.store.id }}" target="_blank" style="color: var(--text-muted); font-size: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: color 0.15s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='var(--text-muted)'">
+                    👁️ {{ user.store.slug }}.brainmart.uz ↗
+                </a>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <a href="{% url 'seller-product-add' %}" style="background: var(--primary); color: white; font-size: 12px; font-weight: 800; text-decoration: none; padding: 7px 14px; border-radius: 9px; display: inline-flex; align-items: center; gap: 6px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 3px 10px rgba(0,0,0,0.3); transition: transform 0.15s;" onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform=''">
+                    ➕ {% trans "Создать товар" %}
+                </a>
+
+                <!-- Языковой переключатель -->
+                <div class="apple-lang-control">
+                    {% get_current_language as CURRENT_LANG %}
+                    {% get_available_languages as LANGUAGES %}
+                    {% for lang_code, lang_name in LANGUAGES %}
+                        <form action="{% url 'set_language' %}" method="post" style="display:inline">
+                            {% csrf_token %}
+                            <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                            <input name="language" type="hidden" value="{{ lang_code }}">
+                            <button type="submit" class="{% if lang_code == CURRENT_LANG %}active{% endif %}">
+                                {% if lang_code == 'ru' %}RU{% elif lang_code == 'uz' %}UZ{% else %}EN{% endif %}
+                            </button>
+                        </form>
+                    {% endfor %}
+                </div>
+
+                <a href="{% url 'seller-logout' %}" title="{% trans 'Выйти из кабинета' %}" style="color: var(--text-muted); text-decoration: none; font-size: 16px; padding: 6px 8px; border-radius: 8px; transition: all 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#FF453A';" onmouseout="this.style.background=''; this.style.color='var(--text-muted)';">
+                    🚪
+                </a>
+            </div>
+        </header>
+        {% endif %}
+
         <main>
             {% if user.is_authenticated and user.store %}
                 {% with sub_info=user.store.get_subscription_status_info %}
                     {% if sub_info.status == 'suspended' %}
-                        <div style="background: #7F1D1D; border: 2px solid #EF4444; color: white; padding: 16px 20px; border-radius: 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);">
+                        <div style="background: rgba(255, 69, 58, 0.12); border: 1px solid rgba(255, 69, 58, 0.4); color: white; padding: 16px 20px; border-radius: 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; box-shadow: 0 4px 20px rgba(255, 69, 58, 0.2);">
                             <div style="display: flex; align-items: center; gap: 12px;">
-                                <span style="font-size: 28px;">🛑</span>
+                                <span style="font-size: 26px;">🛑</span>
                                 <div>
-                                    <div style="font-weight: 800; font-size: 15px;">{% trans "Магазин и ИИ-продавец заблокированы!" %}</div>
-                                    <div style="font-size: 13px; color: #FCA5A5;">{% trans "Просрочка подписки превысила 5 дней. Приём заказов и автоответы ИИ отключены." %}</div>
+                                    <div style="font-weight: 800; font-size: 14.5px; letter-spacing: -0.01em;">{% trans "Магазин и ИИ-продавец временно приостановлены" %}</div>
+                                    <div style="font-size: 12.5px; color: #FF9B9B;">{% trans "Просрочка подписки превысила 5 дней. Пополните подписку для возобновления приёма заказов." %}</div>
                                 </div>
                             </div>
-                            <a href="{% url 'seller-finance' %}" style="background: #EF4444; color: white; padding: 10px 18px; border-radius: 10px; font-weight: 800; text-decoration: none; font-size: 13px;">
+                            <a href="{% url 'seller-finance' %}" style="background: #FF453A; color: white; padding: 10px 18px; border-radius: 10px; font-weight: 800; text-decoration: none; font-size: 13px;">
                                 💳 {% trans "Оплатить" %} {{ request.user.store.current_tier_fee|floatformat:"0" }} {% trans "сум" %}
                             </a>
                         </div>
                     {% elif sub_info.status == 'grace_period' %}
-                        <div style="background: #78350F; border: 2px solid #F59E0B; color: white; padding: 14px 18px; border-radius: 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25);">
+                        <div style="background: rgba(255, 159, 10, 0.12); border: 1px solid rgba(255, 159, 10, 0.4); color: white; padding: 14px 18px; border-radius: 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
                             <div style="display: flex; align-items: center; gap: 12px;">
-                                <span style="font-size: 24px;">🚨</span>
+                                <span style="font-size: 22px;">🚨</span>
                                 <div>
-                                    <div style="font-weight: 800; font-size: 14px;">
-                                        {% trans "Внимание! Действует льготный период:" %} {{ sub_info.overdue }}-{% trans "й день (осталось" %} {{ sub_info.remaining_grace }} {% trans "дн. до блокировки)" %}
+                                    <div style="font-weight: 800; font-size: 13.5px;">
+                                        {% trans "Действует льготный период:" %} {{ sub_info.overdue }}-{% trans "й день (осталось" %} {{ sub_info.remaining_grace }} {% trans "дн. до блокировки)" %}
                                     </div>
-                                    <div style="font-size: 12px; color: #FDE68A;">{% trans "Срок подписки истёк" %} {{ user.store.subscription_paid_until|date:"d.m.Y" }}. {% trans "Пожалуйста, оплатите 150 000 сум во избежание остановки ИИ." %}</div>
+                                    <div style="font-size: 12px; color: #FFE399;">{% trans "Срок подписки истёк" %} {{ user.store.subscription_paid_until|date:"d.m.Y" }}.</div>
                                 </div>
                             </div>
-                            <a href="{% url 'seller-finance' %}" style="background: #F59E0B; color: #1E1B4B; padding: 8px 16px; border-radius: 10px; font-weight: 800; text-decoration: none; font-size: 12px;">
+                            <a href="{% url 'seller-finance' %}" style="background: #FF9F0A; color: #000; padding: 8px 16px; border-radius: 10px; font-weight: 800; text-decoration: none; font-size: 12px;">
                                 💳 {% trans "Оплатить" %}
                             </a>
                         </div>
                     {% elif sub_info.status == 'expiring' %}
-                        <div style="background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.4); color: white; padding: 12px 16px; border-radius: 14px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                        <div style="background: rgba(41, 151, 255, 0.1); border: 1px solid rgba(41, 151, 255, 0.3); color: white; padding: 12px 16px; border-radius: 14px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
                             <div style="display: flex; align-items: center; gap: 10px; font-size: 13px;">
                                 <span>📅</span>
-                                <span>{% trans "Подписка CRM & ИИ заканчивается через" %} <strong>{{ sub_info.days }} {% trans "дн." %}</strong> ({{ user.store.subscription_paid_until|date:"d.m.Y" }}).</span>
+                                <span>{% trans "Подписка заканчивается через" %} <strong>{{ sub_info.days }} {% trans "дн." %}</strong> ({{ user.store.subscription_paid_until|date:"d.m.Y" }}).</span>
                             </div>
                             <a href="{% url 'seller-finance' %}" style="background: var(--primary); color: white; padding: 6px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 12px;">
-                                {% trans "Продлить" %} ({{ request.user.store.current_tier_fee|floatformat:"0" }} {% trans "сум" %})
+                                {% trans "Продлить" %}
                             </a>
                         </div>
                     {% endif %}
@@ -423,7 +596,7 @@
             {% if messages and user.is_authenticated and user.store %}
                 <div style="margin-bottom: 20px;">
                     {% for message in messages %}
-                        <div style="padding: 12px 18px; border-radius: 12px; margin-bottom: 10px; font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 10px; {% if message.tags == 'error' %}background: rgba(239, 68, 68, 0.15); border: 1.5px solid #EF4444; color: #FCA5A5;{% elif message.tags == 'success' %}background: rgba(16, 185, 129, 0.15); border: 1.5px solid #10B981; color: #6EE7B7;{% else %}background: rgba(59, 130, 246, 0.15); border: 1.5px solid #3B82F6; color: #93C5FD;{% endif %}">
+                        <div style="padding: 12px 18px; border-radius: 12px; margin-bottom: 10px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 10px; {% if message.tags == 'error' %}background: rgba(255, 69, 58, 0.12); border: 1px solid rgba(255, 69, 58, 0.35); color: #FF9B9B;{% elif message.tags == 'success' %}background: rgba(48, 209, 88, 0.12); border: 1px solid rgba(48, 209, 88, 0.35); color: #73E58C;{% else %}background: rgba(41, 151, 255, 0.12); border: 1px solid rgba(41, 151, 255, 0.35); color: #8EC5FC;{% endif %}">
                             <span style="font-size: 16px;">{% if message.tags == 'error' %}⚠️{% elif message.tags == 'success' %}✅{% else %}ℹ️{% endif %}</span>
                             <div>{{ message }}</div>
                         </div>
@@ -436,22 +609,22 @@
     </div>
 
 <!-- Modal: POS Касса в разработке -->
-<div id="posUnderDevModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); z-index: 99999; align-items: center; justify-content: center; padding: 20px;">
-    <div style="background: #111827; border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 24px; max-width: 440px; width: 100%; padding: 28px 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7); text-align: center; position: relative;">
-        <button type="button" onclick="closePosUnderDevModal()" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.08); border: none; color: #94a3b8; font-size: 16px; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" title="Закрыть">✕</button>
-        <div style="width: 64px; height: 64px; margin: 0 auto 16px; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px;">
+<div id="posUnderDevModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.78); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 99999; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #12141A; border: 1px solid rgba(255, 159, 10, 0.35); border-radius: 20px; max-width: 420px; width: 100%; padding: 26px 22px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); text-align: center; position: relative;">
+        <button type="button" onclick="closePosUnderDevModal()" style="position: absolute; top: 14px; right: 14px; background: rgba(255,255,255,0.08); border: none; color: #8E92A4; font-size: 16px; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="Закрыть">✕</button>
+        <div style="width: 58px; height: 58px; margin: 0 auto 14px; background: rgba(255, 159, 10, 0.12); border: 1px solid rgba(255, 159, 10, 0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px;">
             📟
         </div>
-        <div style="display: inline-block; background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px;">
+        <div style="display: inline-block; background: rgba(255, 159, 10, 0.16); color: #FF9F0A; border: 1px solid rgba(255, 159, 10, 0.35); padding: 3px 10px; border-radius: 999px; font-size: 10.5px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 10px;">
             {% trans "В разработке" %}
         </div>
-        <h3 style="font-size: 20px; font-weight: 800; color: #ffffff; margin: 0 0 10px;">
-            {% trans "POS Касса скоро будет доступна!" %}
+        <h3 style="font-size: 18px; font-weight: 800; color: #ffffff; margin: 0 0 8px; letter-spacing: -0.02em;">
+            {% trans "POS Касса скоро будет доступна" %}
         </h3>
-        <p style="font-size: 13.5px; color: #94a3b8; line-height: 1.55; margin: 0 0 22px;">
+        <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin: 0 0 20px;">
             {% trans "Мы активно дорабатываем оффлайн-терминал для продавцов и кассиров: сканирование штрихкодов, открытие смен, фискальные чеки и быструю продажу на кассе." %}
         </p>
-        <button type="button" onclick="closePosUnderDevModal()" style="width: 100%; padding: 13px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #000; font-weight: 800; font-size: 14px; border: none; border-radius: 14px; cursor: pointer; transition: transform 0.15s ease;">
+        <button type="button" onclick="closePosUnderDevModal()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #FF9F0A 0%, #D97706 100%); color: #000; font-weight: 800; font-size: 13.5px; border: none; border-radius: 12px; cursor: pointer;">
             {% trans "Понятно" %}
         </button>
     </div>
@@ -460,25 +633,17 @@
 <script>
     function showPosUnderDevModal() {
         const modal = document.getElementById('posUnderDevModal');
-        if (modal) {
-            modal.style.display = 'flex';
-        }
+        if (modal) modal.style.display = 'flex';
     }
     function closePosUnderDevModal() {
         const modal = document.getElementById('posUnderDevModal');
-        if (modal) {
-            modal.style.display = 'none';
-        }
+        if (modal) modal.style.display = 'none';
     }
-    // Закрытие по клику вне контента
     document.addEventListener('click', function(e) {
         const modal = document.getElementById('posUnderDevModal');
-        if (modal && e.target === modal) {
-            modal.style.display = 'none';
-        }
+        if (modal && e.target === modal) modal.style.display = 'none';
     });
 
-    // Показываем сайдбар только на десктопе (CSS display:none мешает flex-сайдбару)
     function handleLayout() {
         const sidebar = document.querySelector('.desktop-sidebar');
         if (!sidebar) return;
