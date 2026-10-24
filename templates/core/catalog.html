@@ -8,8 +8,10 @@
 
     .catalog-container {
         padding: 12px 14px 40px;
-        max-width: 1200px;
+        max-width: 100%;
+        width: 100%;
         margin: 0 auto;
+        box-sizing: border-box;
     }
 
     /* --- ВОДЯНОЙ ЗНАК БРЕНДА --- */
@@ -113,8 +115,17 @@
     }
     @media (min-width: 768px) {
         .global-header-hero {
-            padding: 24px 28px 28px;
+            padding: 26px 36px 30px;
             margin-bottom: 22px;
+            border-radius: 28px;
+        }
+    }
+    @media (min-width: 1200px) {
+        .global-header-hero {
+            padding: 28px 46px 34px;
+        }
+        .hero-brand-name {
+            font-size: 60px;
         }
     }
     .global-top-row {
@@ -331,10 +342,13 @@
     }
 
     @media (min-width: 900px) {
-        .catalog-container { padding: 24px 0 60px; }
+        .catalog-container { padding: 18px 0 60px; max-width: 100%; width: 100%; }
         .global-title { font-size: 32px; }
         .grid { grid-template-columns: repeat(4, 1fr); gap: 18px; }
         .store-text h1 { font-size: 24px; }
+    }
+    @media (min-width: 1440px) {
+        .grid { grid-template-columns: repeat(5, 1fr); gap: 20px; }
     }
 
     /* Горизонтальный скролл Категорий */
@@ -584,9 +598,26 @@
     }
     @media (min-width: 768px) {
         .wb-promo-slider-wrap {
-            height: 250px;
-            border-radius: 24px;
-            margin-bottom: 22px;
+            height: 275px;
+            border-radius: 26px;
+            margin-bottom: 24px;
+        }
+    }
+    @media (min-width: 1200px) {
+        .wb-promo-slider-wrap {
+            height: 310px;
+            border-radius: 28px;
+            margin-bottom: 26px;
+        }
+        .wb-slide-title {
+            font-size: 32px;
+        }
+        .wb-slide-sub {
+            font-size: 15px;
+        }
+        .wb-slide-btn {
+            padding: 10px 22px;
+            font-size: 14px;
         }
     }
     .wb-slider-track {
