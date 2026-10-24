@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from core.models import (
+    PromoBanner,
     Customer,
     Order,
     OrderItem,
@@ -50,6 +51,86 @@ def platform_admin_dashboard_view(request):
             ps.save(update_fields=["superadmin_telegram_chat_id", "superadmin_telegram_username"])
             messages.info(request, "Telegram супер-админа успешно отвязан от платформы.")
             return redirect("platform-admin-dashboard")
+
+        if action == "add_banner":
+            title = request.POST.get("banner_title", "").strip()
+            subtitle = request.POST.get("banner_subtitle", "").strip()
+            badge = request.POST.get("banner_badge", "").strip()
+            link_url = request.POST.get("banner_link_url", "").strip()
+            button_text = request.POST.get("banner_button_text", "Перейти").strip() or "Перейти"
+            bg_gradient = request.POST.get("banner_bg_gradient", "").strip() or "linear-gradient(135deg, #060709 0%, #001F54 50%, #0066FF 100%)"
+            order_raw = request.POST.get("banner_order", "0").strip()
+            try:
+                order_val = int(order_raw)
+            except (ValueError, TypeError):
+                order_val = 0
+            image = request.FILES.get("banner_image")
+
+            if not title:
+                messages.error(request, "Ошибка: укажите заголовок баннера.")
+                return redirect("platform-admin-dashboard")
+
+            PromoBanner.objects.create(
+                title=title,
+                subtitle=subtitle,
+                badge=badge,
+                image=image,
+                link_url=link_url,
+                button_text=button_text,
+                bg_gradient=bg_gradient,
+                order=order_val,
+                is_active=True,
+            )
+            messages.success(request, f"🎉 Рекламный баннер «{title}» успешно добавлен и опубликован в карусели!")
+            return redirect("platform-admin-dashboard")
+
+        elif action == "edit_banner":
+            banner_id = request.POST.get("banner_id")
+            banner = get_object_or_404(PromoBanner, id=banner_id)
+            title = request.POST.get("banner_title", "").strip()
+            subtitle = request.POST.get("banner_subtitle", "").strip()
+            badge = request.POST.get("banner_badge", "").strip()
+            link_url = request.POST.get("banner_link_url", "").strip()
+            button_text = request.POST.get("banner_button_text", "").strip() or "Перейти"
+            bg_gradient = request.POST.get("banner_bg_gradient", "").strip() or banner.bg_gradient
+            order_raw = request.POST.get("banner_order", "0").strip()
+            try:
+                order_val = int(order_raw)
+            except (ValueError, TypeError):
+                order_val = banner.order
+
+            if title:
+                banner.title = title
+            banner.subtitle = subtitle
+            banner.badge = badge
+            banner.link_url = link_url
+            banner.button_text = button_text
+            banner.bg_gradient = bg_gradient
+            banner.order = order_val
+
+            if request.FILES.get("banner_image"):
+                banner.image = request.FILES.get("banner_image")
+
+            banner.save()
+            messages.success(request, f"Баннер «{banner.title}» успешно обновлен!")
+            return redirect("platform-admin-dashboard")
+
+        elif action == "toggle_banner_active":
+            banner_id = request.POST.get("banner_id")
+            banner = get_object_or_404(PromoBanner, id=banner_id)
+            banner.is_active = not banner.is_active
+            banner.save(update_fields=["is_active"])
+            messages.info(request, f"Баннер «{banner.title}» теперь {'активен (показывается)' if banner.is_active else 'выключен'}.")
+            return redirect("platform-admin-dashboard")
+
+        elif action == "delete_banner":
+            banner_id = request.POST.get("banner_id")
+            banner = get_object_or_404(PromoBanner, id=banner_id)
+            title = banner.title
+            banner.delete()
+            messages.info(request, f"Баннер «{title}» удален.")
+            return redirect("platform-admin-dashboard")
+
 
         if store_id:
             store = get_object_or_404(Store, id=store_id)
@@ -212,6 +293,7 @@ def platform_admin_dashboard_view(request):
         "chart_gmv": json.dumps(chart_gmv),
         
         "stores": stores,
+        "all_banners": PromoBanner.objects.all().order_by("order", "-id"),
         "search_q": search_q,
         "status_filter": status_filter,
     }

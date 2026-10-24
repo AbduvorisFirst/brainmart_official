@@ -226,8 +226,11 @@ def catalog_view(request):
             })
 
     effective_bot = current_store.telegram_bot_username if (current_store and current_store.telegram_bot_username and current_store.telegram_bot_active) else settings.TELEGRAM_BOT_USERNAME
+    from core.models import PromoBanner
+    promo_banners = PromoBanner.get_active_banners() if not current_store else []
     context = {
         "products": cards,
+        "promo_banners": promo_banners,
         "categories": categories,
         "selected_category_id": int(category_id) if (category_id and category_id.isdigit()) else None,
         "search_query": search_query,
@@ -690,4 +693,4 @@ def become_seller_view(request):
     }
     return render(request, "core/become_seller.html", context)
 
-
+

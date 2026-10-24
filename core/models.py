@@ -1448,3 +1448,85 @@ class ProductWaitlist(models.Model):
 
 
 
+
+
+class PromoBanner(models.Model):
+    """
+    Рекламные баннеры для глобального маркетплейса (в стиле Wildberries).
+    Отображаются в слайдере на главной странице brainmart.uz.
+    Управляются суперпользователем через платформенную панель управления.
+    """
+    title = models.CharField(max_length=255, verbose_name="Заголовок баннера")
+    subtitle = models.CharField(max_length=255, blank=True, default="", verbose_name="Подзаголовок / Описание акции")
+    badge = models.CharField(max_length=60, blank=True, default="", verbose_name="Бейдж акции (напр. 'СКИДКИ ДО -70%', '0% РАССРОЧКА')")
+    image = models.ImageField(upload_to="banners/", null=True, blank=True, verbose_name="Изображение баннера")
+    link_url = models.CharField(max_length=500, blank=True, default="", verbose_name="Ссылка при клике (URL)")
+    button_text = models.CharField(max_length=60, blank=True, default="Перейти к покупкам", verbose_name="Текст кнопки")
+    bg_gradient = models.CharField(
+        max_length=255,
+        default="linear-gradient(135deg, #060709 0%, #002244 50%, #0066FF 100%)",
+        verbose_name="CSS-градиент фона"
+    )
+    is_active = models.BooleanField(default=True, verbose_name="Активен (показывается)")
+    order = models.PositiveIntegerField(default=0, verbose_name="Порядок показа (0 = первый)")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+
+    class Meta:
+        verbose_name = "Рекламный баннер"
+        verbose_name_plural = "Рекламные баннеры"
+        ordering = ["order", "-id"]
+
+    def __str__(self):
+        return f"{self.title} [{'Активен' if self.is_active else 'Выключен'}]"
+
+    @classmethod
+    def get_active_banners(cls):
+        """
+        Возвращает активные баннеры для главной страницы.
+        Если в базе данных еще нет ни одного баннера, автоматически создает
+        4 профессиональных рекламных баннера в черно-электрическом синем стиле.
+        """
+        active = list(cls.objects.filter(is_active=True).order_by("order", "-id"))
+        if not active and not cls.objects.exists():
+            default_banners = [
+                {
+                    "title": "БОЛЬШАЯ РАСПРОДАЖА 2026",
+                    "subtitle": "Скидки до -70% на трендовые коллекции одежды, обуви и аксессуаров от топовых брендов",
+                    "badge": "⚡ СКИДКИ ДО -70%",
+                    "button_text": "Купить со скидкой 🛒",
+                    "link_url": "/?category=1",
+                    "bg_gradient": "linear-gradient(135deg, #060709 0%, #001F54 40%, #0066FF 85%, #00F0FF 100%)",
+                    "order": 1,
+                },
+                {
+                    "title": "APPLE & PRO ГАДЖЕТЫ",
+                    "subtitle": "Оригинальные смартфоны, смарт-часы и ультрабуки с гарантией и быстрой доставкой по Ташкенту",
+                    "badge": "💎 РАССРОЧКА 0%",
+                    "button_text": "Выбрать гаджет 📱",
+                    "link_url": "/?category=3",
+                    "bg_gradient": "linear-gradient(135deg, #05050B 0%, #0C1E40 45%, #2563EB 85%, #38BDF8 100%)",
+                    "order": 2,
+                },
+                {
+                    "title": "СЕЗОН АВТОТОВАРОВ & ШИНЫ",
+                    "subtitle": "Шины Michelin, Pirelli, масла Motul и автоаксессуары от проверенных магазинов",
+                    "badge": "🏎️ ТОП СЕЗОНА",
+                    "button_text": "Подобрать шины 🛠️",
+                    "link_url": "/?category=2",
+                    "bg_gradient": "linear-gradient(135deg, #08090C 0%, #162035 45%, #1D4ED8 85%, #60A5FA 100%)",
+                    "order": 3,
+                },
+                {
+                    "title": "ОТКРОЙ СВОЙ МАГАЗИН В BRAINMART",
+                    "subtitle": "Telegram CRM + ИИ-продавец 24/7 + витрина для вашего бизнеса. Запуск за 2 минуты!",
+                    "badge": "🚀 ДЛЯ БИЗНЕСА",
+                    "button_text": "Стать продавцом ✨",
+                    "link_url": "/become-seller/",
+                    "bg_gradient": "linear-gradient(135deg, #030712 0%, #1E3A8A 50%, #0284C7 85%, #06B6D4 100%)",
+                    "order": 4,
+                },
+            ]
+            for b_data in default_banners:
+                cls.objects.create(**b_data)
+            active = list(cls.objects.filter(is_active=True).order_by("order", "-id"))
+        return active
