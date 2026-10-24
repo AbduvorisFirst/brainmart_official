@@ -47,85 +47,44 @@
         </div>
     {% endif %}
 
-    <!-- ВИТРИНА МАГАЗИНА (ПОДДОМЕН И БОТ) -->
+    <!-- ВИТРИНА МАГАЗИНА (БОТ И ПОДДОМЕН) -->
     <div class="card" style="background: linear-gradient(135deg, rgba(79,70,229,0.16) 0%, rgba(16,185,129,0.1) 100%); border: 1.5px solid rgba(79,70,229,0.4); border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.25);">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
             <div style="display: flex; align-items: center; gap: 12px;">
-                <span style="font-size: 26px;">🌐</span>
+                <span style="font-size: 26px;">🔗</span>
                 <div>
-                    <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: white;">{% trans "Ваша персональная витрина" %}</h3>
-                    <span style="font-size: 12px; color: var(--text-muted);">{% trans "Прямая ссылка для покупателей и рекламы" %}</span>
+                    <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: white;">{% trans "Ссылки на ваш магазин" %}</h3>
+                    <span style="font-size: 12px; color: var(--text-muted);">{% trans "Скопируйте для Instagram Bio, Stories, постов и рекламы" %}</span>
                 </div>
             </div>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                {% if store.telegram_bot_username and store.telegram_bot_active %}
-                    <a href="https://t.me/{{ store.telegram_bot_username }}" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(59,130,246,0.18); border: 1px solid rgba(59,130,246,0.4); color: #60a5fa; padding: 8px 14px; border-radius: 12px; font-size: 12.5px; font-weight: 700; text-decoration: none;">
-                        🤖 @{{ store.telegram_bot_username }} ↗
-                    </a>
-                {% endif %}
-                <a href="{{ store_catalog_url }}" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(16,185,129,0.2); border: 1.5px solid rgba(16,185,129,0.4); color: #34d399; padding: 8px 16px; border-radius: 12px; font-size: 13px; font-weight: 700; text-decoration: none;">
-                    👁️ {% trans "Открыть" %} ↗
-                </a>
+        </div>
+
+        <!-- 1. Ссылка на бота (главная) -->
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 14px; padding: 12px 14px; margin-bottom: 10px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+                <span style="font-size: 12.5px; font-weight: 800; color: #60a5fa;">🤖 {% trans "Магазин в Telegram-боте (Основная ссылка)" %}</span>
+                <a href="{{ telegram_bot_url|default:store.get_bot_url }}" target="_blank" rel="noopener" style="font-size: 11.5px; font-weight: 700; color: #93c5fd; text-decoration: none;">💬 {% trans "Открыть бота" %} ↗</a>
+            </div>
+            <div style="display: flex; gap: 6px; align-items: center; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 10px; padding: 4px 4px 4px 10px;">
+                <input type="text" id="homeStoreBotUrlInput" readonly value="{{ telegram_bot_url|default:store.get_bot_url }}" style="background: transparent; border: none; color: #93c5fd; font-family: monospace; font-size: 12.5px; font-weight: 700; margin: 0; padding: 0; outline: none; width: 100%;" onclick="this.select()">
+                <button type="button" class="btn" onclick="copyInputGeneric('homeStoreBotUrlInput', this)" style="width: auto; padding: 8px 14px; font-size: 11.5px; font-weight: 800; white-space: nowrap; margin: 0; border-radius: 8px; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);">
+                    📋 {% trans "Копировать" %}
+                </button>
             </div>
         </div>
 
-        <div style="display: flex; gap: 8px; align-items: center; background: rgba(0,0,0,0.5); border: 1.5px solid var(--border); border-radius: 14px; padding: 6px 6px 6px 14px;">
-            <input type="text" id="homeStoreUrlInput" readonly value="{{ store_catalog_url }}" style="background: transparent; border: none; color: #a5b4fc; font-family: monospace; font-size: 13.5px; font-weight: 700; margin: 0; padding: 0; outline: none; width: 100%;" onclick="this.select()">
-            <button type="button" class="btn" onclick="copyHomeShowcaseLink(this)" style="width: auto; padding: 10px 18px; font-size: 13px; font-weight: 800; white-space: nowrap; margin: 0; border-radius: 10px; background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);">
-                📋 {% trans "Копировать" %}
-            </button>
-        </div>
-    </div>
-
-    <!-- БЛОК ЗАГРУЗКИ ЛОГОТИПА -->
-    <div class="card" style="display: flex; align-items: center; gap: 16px; padding: 16px;">
-        <div style="width: 56px; height: 56px; border-radius: 14px; background: rgba(79, 70, 229, 0.15); color: var(--primary); border: 1px solid rgba(79, 70, 229, 0.3); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 24px; overflow: hidden; flex-shrink: 0;">
-            {% if store.logo %}
-                <img src="{{ store.logo.url }}" style="width: 100%; height: 100%; object-fit: cover;">
-            {% else %}
-                {{ store.name|make_list|first|upper }}
-            {% endif %}
-        </div>
-        <div style="flex: 1;">
-            <h4 style="margin: 0 0 4px; color: white; font-size: 15px;">{% trans "Мой бренд" %}</h4>
-            <p style="margin: 0; font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Логотип виден клиентам в вашем каталоге." %}</p>
-        </div>
-        <form method="post" enctype="multipart/form-data" style="margin: 0;">
-            {% csrf_token %}
-            <label style="margin: 0; cursor: pointer; background: var(--primary); color: white; padding: 8px 12px; border-radius: 10px; font-size: 12px; font-weight: 700; display: inline-block;">
-                📸 {% trans "Изменить" %}
-                <input type="file" name="logo" accept="image/*" style="display: none;" onchange="this.form.submit()">
-            </label>
-        </form>
-    </div>
-
-    <!-- БЫСТРЫЕ ДЕЙСТВИЯ (Quick Actions) -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
-        <a href="{% url 'seller-product-add' %}" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; text-decoration: none; padding: 14px 16px; border-radius: 14px; font-weight: 800; font-size: 14px; box-shadow: 0 4px 16px rgba(16, 185, 129, 0.25); transition: transform 0.15s ease;">
-            <span style="font-size: 18px;">➕</span> {% trans "Добавить товар" %}
-        </a>
-        <a href="{% url 'seller-reviews' %}" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--card-bg); border: 1px solid var(--border); color: white; text-decoration: none; padding: 14px 16px; border-radius: 14px; font-weight: 700; font-size: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.15s ease;">
-            <span style="font-size: 18px; color: #F59E0B;">⭐</span> {% trans "Отзывы клиентов" %}
-        </a>
-    </div>
-
-    <!-- ОСНОВНАЯ АНАЛИТИКА (2x2) -->
-    <div class="mobile-stats-grid">
-        <div class="stat-card revenue">
-            <div class="stat-value">{{ total_revenue|floatformat:"0" }} {% trans "сум" %}</div>
-            <div class="stat-label">{% trans "Выручка" %}</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value">{{ paid_orders_count }}</div>
-            <div class="stat-label">{% trans "Оплачено" %}</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value">{{ pending_orders_count }}</div>
-            <div class="stat-label">{% trans "В ожидании" %}</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value">{{ products_count }}</div>
-            <div class="stat-label">{% trans "В каталоге" %}</div>
+        <!-- 2. Ссылка на веб-витрину -->
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 14px; padding: 12px 14px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+                <span style="font-size: 12.5px; font-weight: 800; color: #34d399;">🌐 {% trans "Веб-витрина (Прямой интернет-магазин)" %}</span>
+                <a href="{{ store_catalog_url }}" target="_blank" rel="noopener" style="font-size: 11.5px; font-weight: 700; color: #6ee7b7; text-decoration: none;">👁️ {% trans "Открыть витрину" %} ↗</a>
+            </div>
+            <div style="display: flex; gap: 6px; align-items: center; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 10px; padding: 4px 4px 4px 10px;">
+                <input type="text" id="homeStoreUrlInput" readonly value="{{ store_catalog_url }}" style="background: transparent; border: none; color: #a5b4fc; font-family: monospace; font-size: 12.5px; font-weight: 700; margin: 0; padding: 0; outline: none; width: 100%;" onclick="this.select()">
+                <button type="button" class="btn" onclick="copyInputGeneric('homeStoreUrlInput', this)" style="width: auto; padding: 8px 14px; font-size: 11.5px; font-weight: 800; white-space: nowrap; margin: 0; border-radius: 8px; background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
+                    📋 {% trans "Копировать" %}
+                </button>
+            </div>
         </div>
     </div>
 
@@ -272,6 +231,23 @@
             });
         });
 
+                function copyInputGeneric(inputId, btn) {
+            var inp = document.getElementById(inputId);
+            if (!inp) return;
+            navigator.clipboard.writeText(inp.value).then(function() {
+                var old = btn.innerHTML;
+                btn.innerHTML = '✅ {% filter escapejs %}{% trans "Скопировано!" %}{% endfilter %}';
+                btn.style.background = '#10B981';
+                setTimeout(function() {
+                    btn.innerHTML = old;
+                    btn.style.background = '';
+                }, 2200);
+            }).catch(function() {
+                inp.select();
+                document.execCommand('copy');
+            });
+        }
+
         function copyHomeShowcaseLink(btn) {
             var inp = document.getElementById('homeStoreUrlInput');
             if (!inp) return;
@@ -289,4 +265,4 @@
             });
         }
     </script>
-{% endblock %}
+{% endblock %}

@@ -199,11 +199,11 @@
         </h1>
         <p class="hero-subtitle">
             {% if CURRENT_LANG == 'uz' %}
-                Ramziy tarif: oyiga bor-yo'g'i 50 000 so'm. Barcha savdolardan 0% komissiya. Mijozlar to'lovi to'g'ridan-to'g'ri Uzcard / Humo kartangizga tushadi.
+                Oylik obuna: 390 000 so'm/oy. Barcha savdolardan 0% komissiya. Mijozlar to'lovi to'g'ridan-to'g'ri Uzcard / Humo kartangizga tushadi.
             {% elif CURRENT_LANG == 'en' %}
-                Fair plan: only 50,000 UZS/month. 0% sales commission. Customer payments go directly to your Uzcard / Humo card.
+                Monthly plan: 390,000 UZS/month. 0% sales commission. Customer payments go directly to your Uzcard / Humo card.
             {% else %}
-                Символический тариф: всего 50 000 сум/мес. 0% комиссии со всех продаж. Выручка от клиентов напрямую зачисляется на вашу карту Uzcard / Humo.
+                Базовый тариф: 390 000 сум/мес. 0% комиссии со всех продаж. Выручка от клиентов напрямую зачисляется на вашу карту Uzcard / Humo.
             {% endif %}
         </p>
         <a href="{% url 'seller-register' %}" class="hero-cta-btn">
@@ -217,30 +217,30 @@
         </a>
     </div>
 
-    <!-- ЧЕСТНЫЙ СТАТУС: ФОКУС НА TELEGRAM И ДОРАБОТКА INSTAGRAM DIRECT -->
+    <!-- ИНТЕГРАЦИЯ TELEGRAM, INSTAGRAM И СПОСОБЫ ОПЛАТЫ -->
     <div style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(99, 102, 241, 0.35); border-radius: 18px; padding: 20px 22px; margin-bottom: 26px;">
         <div style="display: flex; align-items: flex-start; gap: 12px;">
-            <span style="font-size: 24px; line-height: 1;">⚙️</span>
+            <span style="font-size: 24px; line-height: 1;">📱</span>
             <div>
                 <h3 style="margin: 0 0 6px; font-size: 16px; font-weight: 800; color: #FFFFFF;">
                     {% if CURRENT_LANG == 'uz' %}
-                        Halol holat: Asosiy e'tibor Telegramga va Instagram Direct integratsiyasini yakunlash
+                        Instagram va Telegram integratsiyasi: Xavfsiz Bio-havola va Meta Direct
                     {% elif CURRENT_LANG == 'en' %}
-                        Honest Status: Focus on Telegram and Finalizing Instagram Direct
+                        Instagram & Telegram Integration: Safe Bio Link & Meta Direct
                     {% else %}
-                        Честный статус: Фокус на Telegram и доработка Instagram Direct
+                        Интеграция с Instagram и Telegram: Безопасная Bio-ссылка и Meta Direct
                     {% endif %}
                 </h3>
                 <p style="margin: 0; font-size: 13px; color: #CBD5E1; line-height: 1.55;">
                     {% if CURRENT_LANG == 'uz' %}
-                        Biz hozirda Meta kompaniyasining qat'iy talablari va xavfsizlik qoidalariga mos ravishda Instagram Direct bilan rasmiy integratsiyani faol yakunlamoqdamiz. Barcha texnik va rasmiy talablar bajarilishi bilanoq — Instagram Direct barcha do'konlarimiz uchun avtomatik ravishda ishga tushadi!<br><br>
-                        Hozirgi vaqtda BrainMart eng asosiy va eng tez o'sayotgan savdo kanaliga — <strong>Telegram</strong> (Mini App + matn va rasm bo'yicha qidiruvchi aqlli Gemini-bot) hamda <strong>veb-marketpleysga</strong> qaratilgan. Biznes egalarini qo'llab-quvvatlash uchun biz tizimni serverlarning sof tannarxi bo'yicha taqdim etmoqdamiz: <strong>oyiga bor-yo'g'i 50 000 so'm!</strong>
+                        Mijozlar Instagram Bio (profil tavsifi) va Stories orqali bir zumda shaxsiy veb-vitrinangizga yoki Telegram-botingizga o'tib, buyurtma berishadi. Bu usul Meta blokirovkalaridan 100% himoyalangan!<br>
+                        Rasmiy yuridik shaxslar uchun esa Meta Graph API orqali to'g'ridan-to'g'ri <strong>Instagram Direct</strong> sun'iy intellektli botini ham ulash imkoniyati mavjud.
                     {% elif CURRENT_LANG == 'en' %}
-                        We are currently actively finalizing the official Instagram Direct integration according to Meta's strict policies. As soon as compliance is complete, Instagram Direct will automatically launch for all our connected stores!<br><br>
-                        Right now, BrainMart is 100% focused on the primary sales channel — <strong>Telegram</strong> (Mini App + smart Gemini bot with text & photo catalog search) and our <strong>Web marketplace</strong>. To support merchants, we offer access at pure server cost: <strong>only 50,000 UZS per month!</strong>
+                        Shoppers seamlessly visit your branded web storefront or Telegram bot via your Instagram Bio and Stories link with zero ban risk!<br>
+                        For registered businesses, official <strong>Instagram Direct</strong> AI bot integration via Meta Graph API is also supported.
                     {% else %}
-                        Мы активно дорабатываем официальную интеграцию с Instagram Direct под строгие стандарты и требования Meta. Как только технические и регламентные процедуры завершатся — Instagram Direct автоматически станет доступен каждому магазину!<br><br>
-                        Прямо сейчас BrainMart сфокусирован на главном канале продаж — <strong>Telegram</strong> (Mini App + умный Gemini-бот с поиском по тексту и фото) и <strong>веб-маркетплейсе</strong>. Чтобы поддержать предпринимателей, мы отдаём доступ по чистой себестоимости серверов: <strong>всего 50 000 сум в месяц!</strong>
+                        Покупатели мгновенно переходят из шапки профиля Instagram (Bio) и Stories в вашу персональную витрину или Telegram-бота без риска блокировок со стороны Meta!<br>
+                        А для официальных юридических лиц доступно прямое подключение умного ИИ-бота в <strong>Instagram Direct</strong> через Meta Graph API.
                     {% endif %}
                 </p>
             </div>
@@ -348,41 +348,41 @@
         </div>
     </div>
 
-    <!-- ТАРИФНАЯ МОДЕЛЬ «БАЗА + ФИЛИАЛЫ» -->
+    <!-- ТАРИФНАЯ МОДЕЛЬ «БАЗА + ФИЛИАЛЫ» И УСЛУГА «ПОД КЛЮЧ» -->
     <div class="saas-card">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px; border-bottom: 1px dashed var(--border); padding-bottom: 20px; margin-bottom: 20px;">
             <div>
                 <span style="font-size: 11px; font-weight: 900; color: var(--primary); text-transform: uppercase; letter-spacing: 0.8px;">
                     {% if CURRENT_LANG == 'uz' %}
-                        💎 SERVERLARNING SOF TANNARXI BO'YICHA TARIF
+                        💎 SHAFFOF VA ADOLATLI SAAS TARIFLARI
                     {% elif CURRENT_LANG == 'en' %}
-                        💎 FAIR COST-PRICE SAAS TIER
+                        💎 TRANSPARENT & FAIR SAAS PRICING
                     {% else %}
-                        💎 ТАРИФ ПО СЕБЕСТОИМОСТИ СЕРВЕРОВ
+                        💎 ПРОЗРАЧНЫЕ И ЧЕСТНЫЕ SAAS ТАРИФЫ
                     {% endif %}
                 </span>
                 <h2 style="font-size: 24px; font-weight: 900; color: var(--text-main); margin: 6px 0 6px;">
                     {% if CURRENT_LANG == 'uz' %}
-                        «Baza + Filiallar» modeli
+                        «Baza + Filiallar» va «Kalit ostida yuklash»
                     {% elif CURRENT_LANG == 'en' %}
-                        "Base + Branches" Model
+                        "Base + Branches" & Turnkey Setup
                     {% else %}
-                        Модель «База + Филиалы»
+                        Модель «База + Филиалы» и «Запуск под ключ»
                     {% endif %}
                 </h2>
                 <p style="font-size: 13.5px; color: var(--text-muted); margin: 0; line-height: 1.45;">
                     {% if CURRENT_LANG == 'uz' %}
-                        Boshlang'ich do'konlar uchun ham, yirik savdo tarmoqlari uchun ham ortiqcha to'lovlarsiz adolatli va arzon narx.
+                        Yashirin to'lovlarsiz adolatli obuna. 100% savdo summasi to'g'ridan-to'g'ri o'zingizda qoladi.
                     {% elif CURRENT_LANG == 'en' %}
-                        Affordable and transparent pricing without hidden fees for both single showrooms and retail networks.
+                        Transparent subscription with 0% commission. 100% of sales goes straight to you.
                     {% else %}
-                        Доступная и честная цена без переплат как для начинающих магазинов, так и для крупных сетей.
+                        Честная подписка без скрытых комиссий. 100% выручки с продаж остаётся у вас.
                     {% endif %}
                 </p>
             </div>
             <div style="text-align: right;">
                 <div style="font-size: 28px; font-weight: 900; color: var(--primary);">
-                    50 000 <span style="font-size: 15px; font-weight: 600; color: var(--text-muted);">{% if CURRENT_LANG == 'uz' %}so'm/oy{% elif CURRENT_LANG == 'en' %}UZS/mo{% else %}сум/мес{% endif %}</span>
+                    390 000 <span style="font-size: 15px; font-weight: 600; color: var(--text-muted);">{% if CURRENT_LANG == 'uz' %}so'm/oy{% elif CURRENT_LANG == 'en' %}UZS/mo{% else %}сум/мес{% endif %}</span>
                 </div>
                 <div style="font-size: 12px; color: #10B981; font-weight: 800;">
                     {% if CURRENT_LANG == 'uz' %}
@@ -397,99 +397,153 @@
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 22px;">
-            <div style="background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 14px; padding: 18px;">
+            <div style="background: rgba(99, 102, 241, 0.05); border: 1.5px solid rgba(99, 102, 241, 0.3); border-radius: 16px; padding: 20px;">
                 <div style="font-size: 16px; font-weight: 800; color: var(--primary); margin-bottom: 8px;">
                     {% if CURRENT_LANG == 'uz' %}
-                        🏪 Asosiy tarif (1-nuqta / Bosh do'kon)
+                        🏪 Asosiy oylik tarif (Bosh do'kon)
                     {% elif CURRENT_LANG == 'en' %}
-                        🏪 Base Tier (1st Location / Main Store)
+                        🏪 Main Monthly Tier (Base Store)
                     {% else %}
-                        🏪 Базовый тариф (1-я точка / Головной магазин)
+                        🏪 Базовый ежемесячный тариф (Основной магазин)
                     {% endif %}
                 </div>
-                <div style="font-size: 22px; font-weight: 900; color: var(--text-main); margin-bottom: 8px;">
-                    50 000 {% if CURRENT_LANG == 'uz' %}so'm/oy{% elif CURRENT_LANG == 'en' %}UZS/mo{% else %}сум/мес{% endif %}
+                <div style="font-size: 24px; font-weight: 900; color: var(--text-main); margin-bottom: 8px;">
+                    390 000 {% if CURRENT_LANG == 'uz' %}so'm/oy{% elif CURRENT_LANG == 'en' %}UZS/mo{% else %}сум/мес{% endif %}
                 </div>
-                <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.45; margin: 0;">
+                <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin: 0;">
                     {% if CURRENT_LANG == 'uz' %}
-                        Bunga CRM-tizim, ombor hisobi, veb-vitrina, Telegram Mini App va Telegramdagi cheksiz Gemini Vision AI kiradi.
+                        Shaxsiy veb-vitrina (masalan: <code>brend.brainmart.uz</code>), Telegram-bot, kechayu-kunduz ishlovchi <strong>Gemini Vision AI</strong> (rasm va ovozlarni taniydi), ombor va buyurtmalar CRM-tizimi, Yandex Taksi hisobi.
                     {% elif CURRENT_LANG == 'en' %}
-                        Includes CRM, inventory management, web storefront, Telegram Mini App, and unlimited Gemini Vision AI in Telegram.
+                        Branded web storefront (e.g. <code>brand.brainmart.uz</code>), store Telegram bot, 24/7 <strong>Gemini Vision AI</strong> (voice & photo search), inventory CRM, and automated Yandex Taxi routing.
                     {% else %}
-                        Сюда входит CRM-система, складской учёт, веб-витрина, Telegram Mini App и безлимитный Gemini Vision ИИ в Telegram.
+                        Фирменная веб-витрина (<code>бренд.brainmart.uz</code>), Telegram-бот магазина, круглосуточный <strong>Gemini Vision ИИ</strong> (распознаёт фото и голос), CRM заказов и склада, расчёт Яндекс Такси.
                     {% endif %}
                 </p>
             </div>
 
-            <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 14px; padding: 18px;">
+            <div style="background: rgba(16, 185, 129, 0.05); border: 1.5px solid rgba(16, 185, 129, 0.3); border-radius: 16px; padding: 20px;">
                 <div style="font-size: 16px; font-weight: 800; color: #10B981; margin-bottom: 8px;">
                     {% if CURRENT_LANG == 'uz' %}
-                        🏢 Har bir qo'shimcha filial (2-dan 10-gacha)
+                        🏢 Har bir qo'shimcha filial
                     {% elif CURRENT_LANG == 'en' %}
-                        🏢 Each Additional Branch (from 2nd to 10th)
+                        🏢 Each Additional Branch
                     {% else %}
-                        🏢 Каждый дополнительный филиал (со 2-го по 10-й)
+                        🏢 Каждый дополнительный филиал
                     {% endif %}
                 </div>
-                <div style="font-size: 22px; font-weight: 900; color: var(--text-main); margin-bottom: 8px;">
-                    +20 000 {% if CURRENT_LANG == 'uz' %}so'm/oy nuqta uchun{% elif CURRENT_LANG == 'en' %}UZS/mo per branch{% else %}сум/мес за точку{% endif %}
+                <div style="font-size: 24px; font-weight: 900; color: var(--text-main); margin-bottom: 8px;">
+                    +100 000 {% if CURRENT_LANG == 'uz' %}so'm/oy filial uchun{% elif CURRENT_LANG == 'en' %}UZS/mo per branch{% else %}сум/мес за филиал{% endif %}
                 </div>
-                <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.45; margin: 0;">
+                <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin: 0;">
                     {% if CURRENT_LANG == 'uz' %}
-                        Taksi yetkazib berish tez va arzon bo'lishi uchun xaritada alohida manzillar, qoldiqlar va menejerlar hisobiga ega filiallarni ulang.
+                        Taksi orqali eng tez va arzon yetkazib berish uchun xaritada alohida filial manzillari, ombor qoldiqlari va mas'ul menejerlarni ulang.
                     {% elif CURRENT_LANG == 'en' %}
-                        Connect individual branch locations with distinct inventory and managers for quick and cost-effective taxi delivery.
+                        Connect branch locations on the map with individual stock and managers for fastest, lowest-cost taxi deliveries.
                     {% else %}
-                        Подключайте отдельные филиалы с собственным учётом локаций, остатков и менеджеров для быстрой доставки такси.
+                        Подключайте филиалы на карте с независимым учётом остатков и менеджеров для быстрой и выгодной доставки такси.
                     {% endif %}
                 </p>
             </div>
         </div>
 
-        <!-- НАГЛЯДНЫЕ ПРИМЕРЫ РАСЧЁТА ДЛЯ СЕТЕЙ -->
-        <div style="margin-top: 12px;">
-            <div style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">
+        <!-- АКЦИЯ: ГОДОВАЯ ПОДПИСКА СО СКИДКОЙ -->
+        <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(234, 88, 12, 0.08)); border: 1.5px solid rgba(245, 158, 11, 0.35); border-radius: 16px; padding: 18px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 28px;">🎁</span>
+                <div>
+                    <strong style="color: #FBBF24; font-size: 15px; display: block; margin-bottom: 3px;">
+                        {% if CURRENT_LANG == 'uz' %}
+                            Yillik to'lovda 2 oy SOVG'A!
+                        {% elif CURRENT_LANG == 'en' %}
+                            Pay Annually & Get 2 Months FREE!
+                        {% else %}
+                            При оплате за 1 год — 2 месяца в ПОДАРОК!
+                        {% endif %}
+                    </strong>
+                    <span style="font-size: 12.5px; color: #CBD5E1;">
+                        {% if CURRENT_LANG == 'uz' %}
+                            12 oylik obuna bor-yo'g'i 3 900 000 so'm (4 680 000 o'rniga). Oyiga atigi 325 000 so'm!
+                        {% elif CURRENT_LANG == 'en' %}
+                            12 months for only 3,900,000 UZS (instead of 4,680,000). Only 325,000 UZS/mo!
+                        {% else %}
+                            12 месяцев подписки всего за 3 900 000 сум (вместо 4 680 000 сум). Всего 325 000 сум в месяц!
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            <a href="{% url 'seller-register' %}" style="display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: #000; font-weight: 800; font-size: 13px; padding: 10px 18px; border-radius: 10px; text-decoration: none;">
+                {% if CURRENT_LANG == 'uz' %}Ulanish ➔{% elif CURRENT_LANG == 'en' %}Get Deal ➔{% else %}Оформить ➔{% endif %}
+            </a>
+        </div>
+
+        <!-- УСЛУГА «ЗАПУСК ПОД КЛЮЧ» -->
+        <div style="border-top: 1px dashed var(--border); padding-top: 20px;">
+            <div style="font-size: 16px; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">
                 {% if CURRENT_LANG == 'uz' %}
-                    📊 Filiallar tarmog'i uchun hisob-kitob namunalari:
+                    🛠️ Qo'shimcha xizmat: «Kalit ostida to'liq ishga tushirish»
                 {% elif CURRENT_LANG == 'en' %}
-                    📊 Sample Pricing for Multi-Branch Networks:
+                    🛠️ Add-on Service: "Turnkey Store Launch & Setup"
                 {% else %}
-                    📊 Примеры расчёта стоимости для сетей:
+                    🛠️ Дополнительная услуга: «Запуск магазина под ключ»
                 {% endif %}
             </div>
-            <p style="font-size: 12.5px; color: var(--text-muted); margin: 0 0 12px;">
+            <p style="font-size: 12.5px; color: var(--text-muted); margin: 0 0 16px;">
                 {% if CURRENT_LANG == 'uz' %}
-                    Nuqtalaringiz qancha ko'p bo'lsa, har bir nuqtaning xizmat ko'rsatish narxi shuncha arzonlashadi:
+                    Tovarlaringizni kiritishga vaqtingiz yo'qmi? Biz hamma narsani o'zimiz professional tarzda tayyorlab beramiz:
                 {% elif CURRENT_LANG == 'en' %}
-                    The more branches you connect, the lower the cost per individual store point:
+                    No time to upload your catalog? We will professionally set up your store and inventory for you:
                 {% else %}
-                    Чем больше у вас точек, тем дешевле обходится обслуживание каждой отдельной точки сети:
+                    Нет времени или навыков фотографировать и вбивать товары? Мы сделаем всё за вас на высшем уровне:
                 {% endif %}
             </p>
 
-            <div class="calc-example-grid">
-                <div class="calc-box">
-                    <div class="calc-box-title">{% if CURRENT_LANG == 'uz' %}1 ta do'kon (Baza){% elif CURRENT_LANG == 'en' %}1 Store (Base){% else %}1 магазин (База){% endif %}</div>
-                    <div class="calc-box-price">50 000 {% if CURRENT_LANG == 'uz' %}so'm{% elif CURRENT_LANG == 'en' %}UZS{% else %}сум{% endif %}</div>
-                    <div class="calc-box-sub">50 000 {% if CURRENT_LANG == 'uz' %}so'm/nuqta{% elif CURRENT_LANG == 'en' %}UZS/branch{% else %}сум/точка{% endif %}</div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;">
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 14px; padding: 16px;">
+                    <div style="font-size: 14px; font-weight: 800; color: #60A5FA; margin-bottom: 4px;">
+                        {% if CURRENT_LANG == 'uz' %}
+                            📦 «Tezkor start» (50 tagacha tovar)
+                        {% elif CURRENT_LANG == 'en' %}
+                            📦 "Quick Launch" (up to 50 items)
+                        {% else %}
+                            📦 «Быстрый старт» (до 50 товаров)
+                        {% endif %}
+                    </div>
+                    <div style="font-size: 20px; font-weight: 900; color: var(--text-main); margin-bottom: 8px;">
+                        700 000 {% if CURRENT_LANG == 'uz' %}so'm (bir martalik){% elif CURRENT_LANG == 'en' %}UZS (one-time){% else %}сум (разово){% endif %}
+                    </div>
+                    <p style="font-size: 12px; color: var(--text-muted); line-height: 1.45; margin: 0;">
+                        {% if CURRENT_LANG == 'uz' %}
+                            Tovarlarni (rasmlar, o'lchamlar, ranglar, narxlar) to'liq yuklash, bot va filial lokatsiyalarini sozlash.
+                        {% elif CURRENT_LANG == 'en' %}
+                            Full setup of up to 50 items (photos, sizes, colors, pricing), bot & branch GPS configuration.
+                        {% else %}
+                            Загрузка до 50 товаров с вариациями (фото, размеры, цвета, цены), настройка геоточек филиалов и бота.
+                        {% endif %}
+                    </p>
                 </div>
 
-                <div class="calc-box">
-                    <div class="calc-box-title">{% if CURRENT_LANG == 'uz' %}3 ta nuqta tarmog'i{% elif CURRENT_LANG == 'en' %}3-Branch Network{% else %}Сеть из 3 точек{% endif %}</div>
-                    <div class="calc-box-price">90 000 {% if CURRENT_LANG == 'uz' %}so'm{% elif CURRENT_LANG == 'en' %}UZS{% else %}сум{% endif %}</div>
-                    <div class="calc-box-sub">30 000 {% if CURRENT_LANG == 'uz' %}so'm/nuqta (-40% tejash){% elif CURRENT_LANG == 'en' %}UZS/branch (-40%){% else %}сум/точка (-40%){% endif %}</div>
-                </div>
-
-                <div class="calc-box">
-                    <div class="calc-box-title">{% if CURRENT_LANG == 'uz' %}5 ta nuqta tarmog'i{% elif CURRENT_LANG == 'en' %}5-Branch Network{% else %}Сеть из 5 точек{% endif %}</div>
-                    <div class="calc-box-price">130 000 {% if CURRENT_LANG == 'uz' %}so'm{% elif CURRENT_LANG == 'en' %}UZS{% else %}сум{% endif %}</div>
-                    <div class="calc-box-sub">26 000 {% if CURRENT_LANG == 'uz' %}so'm/nuqta (-48% tejash){% elif CURRENT_LANG == 'en' %}UZS/branch (-48%){% else %}сум/точка (-48%){% endif %}</div>
-                </div>
-
-                <div class="calc-box">
-                    <div class="calc-box-title">{% if CURRENT_LANG == 'uz' %}10 ta nuqta tarmog'i{% elif CURRENT_LANG == 'en' %}10-Branch Network{% else %}Сеть из 10 точек{% endif %}</div>
-                    <div class="calc-box-price">230 000 {% if CURRENT_LANG == 'uz' %}so'm{% elif CURRENT_LANG == 'en' %}UZS{% else %}сум{% endif %}</div>
-                    <div class="calc-box-sub">23 000 {% if CURRENT_LANG == 'uz' %}so'm/nuqta (-54% tejash){% elif CURRENT_LANG == 'en' %}UZS/branch (-54%){% else %}сум/точка (-54%){% endif %}</div>
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 14px; padding: 16px;">
+                    <div style="font-size: 14px; font-weight: 800; color: #34D399; margin-bottom: 4px;">
+                        {% if CURRENT_LANG == 'uz' %}
+                            🚀 «To'liq assortiment» (150 tagacha tovar)
+                        {% elif CURRENT_LANG == 'en' %}
+                            🚀 "Full Assortment" (up to 150 items)
+                        {% else %}
+                            🚀 «Полный ассортимент» (до 150 товаров)
+                        {% endif %}
+                    </div>
+                    <div style="font-size: 20px; font-weight: 900; color: var(--text-main); margin-bottom: 8px;">
+                        1 500 000 {% if CURRENT_LANG == 'uz' %}so'm (bir martalik){% elif CURRENT_LANG == 'en' %}UZS (one-time){% else %}сум (разово){% endif %}
+                    </div>
+                    <p style="font-size: 12px; color: var(--text-muted); line-height: 1.45; margin: 0;">
+                        {% if CURRENT_LANG == 'uz' %}
+                            Instagram yoki Telegramingizdan butun katalog bazasini ko'chirish, toifalarga ajratish, xodimlarni o'rgatish.
+                        {% elif CURRENT_LANG == 'en' %}
+                            Full catalog transfer from Instagram/Telegram, category organization, and manager order training.
+                        {% else %}
+                            Полный перенос каталога из вашего Instagram/Telegram, распределение по категориям, обучение персонала.
+                        {% endif %}
+                    </p>
                 </div>
             </div>
         </div>
@@ -543,11 +597,11 @@
                 </div>
                 <div style="font-size: 12px; color: #CBD5E1; line-height: 1.45;">
                     {% if CURRENT_LANG == 'uz' %}
-                        50 000 so'm/oy — bu faqat real xarajatlar: tezkor bulutli serverlar, xavfsiz ma'lumotlar bazasi va Google Gemini AI so'rovlarini qoplashdir.
+                        390 000 so'm/oy — bu to'liq tizim: tezkor bulutli serverlar, xavfsiz baza, veb-vitrina va Google Gemini AI so'rovlarini qoplaydi.
                     {% elif CURRENT_LANG == 'en' %}
-                        50,000 UZS/month strictly covers real infrastructure overhead: high-speed servers, database uptime, and Google Gemini AI API requests.
+                        390,000 UZS/month fully covers high-speed servers, database uptime, branded web storefront, and Google Gemini AI API requests.
                     {% else %}
-                        Тариф 50 000 сум/мес покрывает исключительно технические затраты: аренду быстрых серверов, базу данных и запросы к Google Gemini ИИ.
+                        Тариф 390 000 сум/мес полностью покрывает быстрые серверы, базу данных, витрину и запросы к Google Gemini ИИ.
                     {% endif %}
                 </div>
             </div>

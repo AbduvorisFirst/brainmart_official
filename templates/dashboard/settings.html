@@ -89,27 +89,52 @@
     {% endfor %}
 {% endif %}
 
-<!-- КАРТОЧКА ССЫЛКИ НА ВИТРИНУ ДЛЯ INSTAGRAM BIO И TELEGRAM -->
+<!-- КАРТОЧКА ССЫЛОК ДЛЯ INSTAGRAM BIO И TELEGRAM -->
 <div class="card" style="background: linear-gradient(135deg, rgba(79,70,229,0.14) 0%, rgba(16,185,129,0.09) 100%); border: 1.5px solid rgba(79,70,229,0.38); border-radius: 20px; padding: 22px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.25);">
-    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
         <div style="display: flex; align-items: center; gap: 12px;">
             <span style="font-size: 28px;">🔗</span>
             <div>
-                <h3 style="margin: 0; font-size: 16.5px; font-weight: 800; color: white;">{% trans "Ссылка на вашу онлайн-витрину" %}</h3>
-                <span style="font-size: 12.5px; color: var(--text-muted);">{% trans "Скопируйте и разместите в профиле Instagram и Telegram для приёма заказов" %}</span>
+                <h3 style="margin: 0; font-size: 16.5px; font-weight: 800; color: white;">{% trans "Ссылки на ваш магазин (Telegram-бот и Веб-витрина)" %}</h3>
+                <span style="font-size: 12.5px; color: var(--text-muted);">{% trans "Скопируйте и разместите в профиле Instagram Bio, Stories и Telegram для приёма заказов" %}</span>
             </div>
         </div>
-        <a href="{{ store_catalog_url }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(16,185,129,0.2); border: 1.5px solid rgba(16,185,129,0.4); color: #34d399; padding: 9px 16px; border-radius: 12px; font-size: 13px; font-weight: 700; text-decoration: none;">
-            👁️ {% trans "Открыть витрину" %} ↗
-        </a>
     </div>
 
-    <!-- Поле с ссылкой и кнопка 1-клик копирования -->
-    <div style="display: flex; gap: 8px; align-items: center; background: rgba(0,0,0,0.5); border: 1.5px solid var(--border); border-radius: 14px; padding: 6px 6px 6px 14px; margin-bottom: 14px;">
-        <input type="text" id="storeShowcaseUrlInput" readonly value="{{ store_catalog_url }}" style="background: transparent; border: none; color: #a5b4fc; font-family: monospace; font-size: 13.5px; font-weight: 700; margin: 0; padding: 0; outline: none; width: 100%;" onclick="this.select()">
-        <button type="button" class="btn" onclick="copyShowcaseLink(this)" style="width: auto; padding: 11px 20px; font-size: 13px; font-weight: 800; white-space: nowrap; margin: 0; border-radius: 10px; background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);">
-            📋 {% trans "Скопировать ссылку" %}
-        </button>
+    <!-- 1. ГЛАВНАЯ ССЫЛКА: МАГАЗИН В TELEGRAM-БОТЕ -->
+    <div style="background: rgba(15, 23, 42, 0.6); border: 1.5px solid rgba(59, 130, 246, 0.35); border-radius: 16px; padding: 14px 16px; margin-bottom: 14px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+            <span style="font-size: 13px; font-weight: 800; color: #60a5fa; display: flex; align-items: center; gap: 6px;">
+                🤖 {% trans "Магазин в Telegram-боте (Основная ссылка для клиентов)" %}
+            </span>
+            <a href="{{ telegram_bot_url|default:store.get_bot_url }}" target="_blank" style="display: inline-flex; align-items: center; gap: 5px; color: #93c5fd; font-size: 12px; font-weight: 700; text-decoration: none;">
+                💬 {% trans "Открыть в Telegram" %} ↗
+            </a>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 12px; padding: 6px 6px 6px 12px;">
+            <input type="text" id="storeBotUrlInput" readonly value="{{ telegram_bot_url|default:store.get_bot_url }}" style="background: transparent; border: none; color: #93c5fd; font-family: monospace; font-size: 13px; font-weight: 700; margin: 0; padding: 0; outline: none; width: 100%;" onclick="this.select()">
+            <button type="button" class="btn" onclick="copyInputText('storeBotUrlInput', this)" style="width: auto; padding: 9px 16px; font-size: 12px; font-weight: 800; white-space: nowrap; margin: 0; border-radius: 8px; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);">
+                📋 {% trans "Скопировать бота" %}
+            </button>
+        </div>
+    </div>
+
+    <!-- 2. ВЕБ-САЙТ ВИТРИНЫ -->
+    <div style="background: rgba(15, 23, 42, 0.6); border: 1.5px solid rgba(16, 185, 129, 0.35); border-radius: 16px; padding: 14px 16px; margin-bottom: 14px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+            <span style="font-size: 13px; font-weight: 800; color: #34d399; display: flex; align-items: center; gap: 6px;">
+                🌐 {% trans "Веб-витрина (Прямой интернет-магазин)" %}
+            </span>
+            <a href="{{ store_catalog_url }}" target="_blank" style="display: inline-flex; align-items: center; gap: 5px; color: #6ee7b7; font-size: 12px; font-weight: 700; text-decoration: none;">
+                👁️ {% trans "Открыть витрину" %} ↗
+            </a>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 12px; padding: 6px 6px 6px 12px;">
+            <input type="text" id="storeShowcaseUrlInput" readonly value="{{ store_catalog_url }}" style="background: transparent; border: none; color: #a5b4fc; font-family: monospace; font-size: 13px; font-weight: 700; margin: 0; padding: 0; outline: none; width: 100%;" onclick="this.select()">
+            <button type="button" class="btn" onclick="copyShowcaseLink(this)" style="width: auto; padding: 9px 16px; font-size: 12px; font-weight: 800; white-space: nowrap; margin: 0; border-radius: 8px; background: linear-gradient(135deg, #059669 0%, #10b981 100%); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);">
+                📋 {% trans "Скопировать сайт" %}
+            </button>
+        </div>
     </div>
 
     <!-- Советы: куда вставить ссылку для максимальных продаж -->
@@ -119,7 +144,7 @@
             <div>
                 <strong style="color: white; display: block; margin-bottom: 3px;">Instagram Bio (Шапка профиля)</strong>
                 <span style="color: var(--text-muted); line-height: 1.4; display: block;">
-                    {% trans "В приложении Instagram: «Редактировать профиль» → «Ссылки» → Вставить. Покупатели смогут сразу выбирать товары и оформлять заказы!" %}
+                    {% trans "В приложении Instagram: «Редактировать профиль» → «Ссылки» → Вставьте ссылку на бота или сайт. Покупатели смогут сразу выбирать товары и оформлять заказы!" %}
                 </span>
             </div>
         </div>
@@ -127,10 +152,9 @@
         <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 12px 14px; border-radius: 12px; display: flex; align-items: flex-start; gap: 10px;">
             <span style="font-size: 22px;">💬</span>
             <div>
-                <strong style="color: white; display: block; margin-bottom: 3px;">Telegram канал и Бот</strong>
+                <strong style="color: white; display: block; margin-bottom: 3px;">Telegram канал и Stories</strong>
                 <span style="color: var(--text-muted); line-height: 1.4; display: block;">
-                    {% trans "Закрепите ссылку в описании вашего канала или отправляйте покупателям в ЛС." %}
-                    {% if telegram_bot_url %}<br><a href="{{ telegram_bot_url }}" target="_blank" style="color:#60a5fa;text-decoration:none;font-weight:700;">🤖 {% trans "Бот вашей витрины" %} ↗</a>{% endif %}
+                    {% trans "Закрепите ссылку на бота в описании вашего канала или отправляйте покупателям в переписке." %}
                 </span>
             </div>
         </div>

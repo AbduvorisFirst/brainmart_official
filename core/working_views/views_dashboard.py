@@ -44,8 +44,16 @@ from .services import generate_ai_store_insights, generate_ai_broadcast_copy, ge
 def _get_store_or_none(request):
     """
     Небольшой помощник: возвращает Store текущего пользователя, либо None.
+    Синхронизирует активный язык панели управления с настройками продавца.
     """
-    return getattr(request.user, "store", None)
+    store = getattr(request.user, "store", None)
+    if store and hasattr(request, "session"):
+        from django.utils import translation
+        session_lang = request.session.get("django_language")
+        if not session_lang and store.telegram_notification_language:
+            translation.activate(store.telegram_notification_language)
+            request.LANGUAGE_CODE = store.telegram_notification_language
+    return store
 
 
 @login_required
@@ -109,6 +117,7 @@ def dashboard_home(request):
         "products_count": Product.objects.filter(store=store, is_active=True).count(),
         "low_stock_variants": low_stock_variants,
         "store_catalog_url": store.get_subdomain_url(request),
+        "telegram_bot_url": store.get_bot_url(),
         "telegram_connected": bool(store.telegram_chat_id),
         "telegram_link": (
             None if store.telegram_chat_id
@@ -1691,6 +1700,13 @@ def store_settings_view(request):
                 "enable_auto_acquiring", "enable_card_transfer",
                 "show_global_market_button"
             ])
+            # Синхронизируем язык текущей сессии
+            if hasattr(request, "session") and telegram_notification_language in ("ru", "uz", "en"):
+                request.session["django_language"] = telegram_notification_language
+                from django.utils import translation
+                translation.activate(telegram_notification_language)
+                request.LANGUAGE_CODE = telegram_notification_language
+
             messages.success(request, "Настройки магазина, адрес витрины, ниша, способы оплаты и оформление сохранены!")
             return redirect("seller-settings")
 
@@ -1711,14 +1727,7 @@ def store_settings_view(request):
     site_url = getattr(settings, "SITE_URL", "") or "https://brainmart.uz"
     store_catalog_url = store.get_subdomain_url(request)
     global_market_url = f"{site_url.rstrip('/')}/ru/?global=1"
-
-    # Telegram bot link for showcase:
-    if store.telegram_bot_active and store.telegram_bot_username:
-        bot_showcase_url = f"https://t.me/{store.telegram_bot_username}"
-    elif settings.TELEGRAM_BOT_USERNAME:
-        bot_showcase_url = f"https://t.me/{settings.TELEGRAM_BOT_USERNAME}?start=store_{store.id}"
-    else:
-        bot_showcase_url = None
+    bot_showcase_url = store.get_bot_url()
 
     context = {
         "store": store,

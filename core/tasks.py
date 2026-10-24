@@ -91,14 +91,31 @@ def handle_incoming_telegram_message_task(
                 for v in matched_products[:3]:
                     photo = v.image or v.product.main_image
                     product_url = f"{site_url}/{cust_lang}/product/{v.product.id}/"
-                    caption = (
-                        f"✨ {v.product.name}\n"
-                        f"💰 Цена: {int(v.final_price):,} сум\n"
-                        f"🎨 Цвет: {v.color or '—'} | Размер: {v.size or 'One Size'}"
-                    )
+                    if cust_lang == "uz":
+                        caption = (
+                            f"✨ {v.product.name}\n"
+                            f"💰 Narxi: {int(v.final_price):,} so'm\n"
+                            f"🎨 Rangi: {v.color or '—'} | O'lchami: {v.size or 'Standart'}"
+                        )
+                        btn_order_text = f"🛒 Buyurtma berish ({v.product.name[:25]})"
+                    elif cust_lang == "en":
+                        caption = (
+                            f"✨ {v.product.name}\n"
+                            f"💰 Price: {int(v.final_price):,} UZS\n"
+                            f"🎨 Color: {v.color or '—'} | Size: {v.size or 'One Size'}"
+                        )
+                        btn_order_text = f"🛒 Order Now ({v.product.name[:25]})"
+                    else:
+                        caption = (
+                            f"✨ {v.product.name}\n"
+                            f"💰 Цена: {int(v.final_price):,} сум\n"
+                            f"🎨 Цвет: {v.color or '—'} | Размер: {v.size or 'One Size'}"
+                        )
+                        btn_order_text = f"🛒 Оформить заказ ({v.product.name[:25]})"
+
                     kb = {
                         "inline_keyboard": [
-                            [{"text": f"🛒 Оформить заказ ({v.product.name[:25]})", "web_app": {"url": product_url}}],
+                            [{"text": btn_order_text, "web_app": {"url": product_url}}],
                         ]
                     }
                     if photo:

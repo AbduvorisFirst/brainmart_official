@@ -595,19 +595,35 @@ class Store(models.Model):
         Возвращает персональный URL онлайн-витрины магазина на поддомене:
         https://<slug>.brainmart.uz/
         В dev-окружении: http://<slug>.localhost:8000/
+        В продакшене порт :8000 ВСЕГДА исключается!
         """
         from django.conf import settings
         slug_val = self.slug or self.clean_slug()
         base_domain = getattr(settings, "SITE_DOMAIN", "brainmart.uz")
 
         if request:
-            host_header = request.get_host().split(":")[0]
-            port = f":{request.get_port()}" if request.get_port() not in ("80", "443", 80, 443) else ""
+            host_header = request.get_host().split(":")[0].lower()
             if "localhost" in host_header or "127.0.0.1" in host_header:
+                port = f":{request.get_port()}" if request.get_port() not in ("80", "443", 80, 443) else ""
                 return f"{request.scheme}://{slug_val}.localhost{port}/"
-            return f"{request.scheme}://{slug_val}.{base_domain}{port}/"
+            # В продакшене всегда чистый https без портов gunicorn (:8000)
+            return f"https://{slug_val}.{base_domain}/"
 
         return f"https://{slug_val}.{base_domain}/"
+
+    def get_bot_url(self) -> str:
+        """
+        Возвращает прямую персональную ссылку на витрину магазина в Telegram-боте.
+        Если подключен личный бот: https://t.me/<store_bot>
+        Иначе ссылка через главный бот: https://t.me/<main_bot>?start=store_<id>
+        """
+        from django.conf import settings
+        if self.telegram_bot_active and self.telegram_bot_username:
+            clean_username = self.telegram_bot_username.strip().lstrip("@")
+            return f"https://t.me/{clean_username}"
+        main_bot = getattr(settings, "TELEGRAM_BOT_USERNAME", "BrainMart_bot") or "BrainMart_bot"
+        clean_main = main_bot.strip().lstrip("@")
+        return f"https://t.me/{clean_main}?start=store_{self.id}"
 
     def save(self, *args, **kwargs):
         if not self.slug:

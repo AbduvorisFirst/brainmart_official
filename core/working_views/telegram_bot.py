@@ -1461,16 +1461,27 @@ class TelegramWebhookView(APIView):
                     except Order.DoesNotExist:
                         cache.delete(f"tg_state_{chat_id}")
 
-        # Команда /lang — выбор языка
-        if text.strip() == "/lang":
+        # Команда /lang или текстовый запрос на смену языка
+        clean_text_lower = text.strip().lower()
+        requested_lang = None
+        if clean_text_lower in ["/lang", "/language", "til", "язык", "language"]:
+            requested_lang = "CHOOSE"
+        elif any(phrase in clean_text_lower for phrase in ["o'zbek", "ozbek", "uzbek", "ўзбек", "узбек", "o'zbekcha", "ozbekcha", "o'zbek tili", "uzbek tili"]):
+            requested_lang = "uz"
+        elif any(phrase in clean_text_lower for phrase in ["русский", "русском", "по-русски", "russian", "ruscha", "русский язык"]):
+            requested_lang = "ru"
+        elif any(phrase in clean_text_lower for phrase in ["english", "ingliz", "inglizcha", "in english", "to english", "english language"]):
+            requested_lang = "en"
+
+        if requested_lang == "CHOOSE":
             payload = {
                 "chat_id": chat_id,
-                "text": BOT_TEXTS["ru"]["choose_lang"],
+                "text": BOT_TEXTS["uz"]["choose_lang"],
                 "reply_markup": {
                     "inline_keyboard": [
                         [
-                            {"text": "🇷🇺 Русский", "callback_data": "lang_ru"},
                             {"text": "🇺🇿 O'zbekcha", "callback_data": "lang_uz"},
+                            {"text": "🇷🇺 Русский", "callback_data": "lang_ru"},
                             {"text": "🇬🇧 English", "callback_data": "lang_en"},
                         ]
                     ]
@@ -1479,6 +1490,47 @@ class TelegramWebhookView(APIView):
             lang_token = bot_token or getattr(settings, "TELEGRAM_BOT_TOKEN", None)
             if lang_token:
                 requests.post(f"https://api.telegram.org/bot{lang_token}/sendMessage", json=payload)
+            return
+
+        elif requested_lang in ("uz", "ru", "en"):
+            Customer.objects.filter(telegram_chat_id=str(chat_id)).update(language=requested_lang)
+            Store.objects.filter(telegram_chat_id=str(chat_id)).update(telegram_notification_language=requested_lang)
+            StoreManager.objects.filter(telegram_chat_id=str(chat_id)).update(language=requested_lang)
+            lang_token = bot_token or getattr(settings, "TELEGRAM_BOT_TOKEN", None)
+            lang_text = BOT_TEXTS[requested_lang]["lang_set"]
+            _send_telegram_message(chat_id, lang_text, bot_token=lang_token)
+
+            store_check = Store.objects.filter(telegram_chat_id=str(chat_id)).first()
+            if store_check:
+                inline_kb = [
+                    [{"text": _nt(requested_lang, "btn_dashboard"), "web_app": {"url": f"{settings.SITE_URL}/dashboard/"}}],
+                    [{"text": _nt(requested_lang, "btn_storefront"), "web_app": {"url": f"{settings.SITE_URL}/{requested_lang}/?store_id={store_check.id}"}}],
+                ]
+                if not lang_token or lang_token == getattr(settings, "TELEGRAM_BOT_TOKEN", None):
+                    inline_kb.append([
+                        {"text": _nt(requested_lang, "btn_global_market"), "web_app": {"url": f"{settings.SITE_URL}/{requested_lang}/?global=1"}}
+                    ])
+                _send_telegram_message(
+                    chat_id,
+                    _t(chat_id, "welcome_seller", name=store_check.name),
+                    reply_markup={"inline_keyboard": inline_kb},
+                    bot_token=lang_token
+                )
+            else:
+                web_app_url = f"{settings.SITE_URL}/{requested_lang}/"
+                inline_kb = [
+                    [{"text": _nt(requested_lang, "btn_catalog"), "web_app": {"url": web_app_url}}],
+                ]
+                if not lang_token or lang_token == getattr(settings, "TELEGRAM_BOT_TOKEN", None):
+                    inline_kb.append([
+                        {"text": _nt(requested_lang, "btn_global_market"), "web_app": {"url": f"{settings.SITE_URL}/{requested_lang}/?global=1"}}
+                    ])
+                _send_telegram_message(
+                    chat_id,
+                    _t(chat_id, "welcome_buyer"),
+                    reply_markup={"inline_keyboard": inline_kb},
+                    bot_token=lang_token
+                )
             return
 
         # Команда /otp, /code, /login — получение или генерация текущего одноразового кода для входа
@@ -1977,12 +2029,29 @@ class TelegramWebhookView(APIView):
                                 for v in matched_products[:3]:
                                     photo = v.image or v.product.main_image
                                     product_url = f"{site_url}/{cust_lang}/product/{v.product.id}/"
-                                    caption = (
-                                        f"✨ {v.product.name}\n"
-                                        f"💰 {int(v.final_price):,} сум\n"
-                                        f"🎨 Цвет: {v.color or '—'} | Размер: {v.size or 'One Size'}"
-                                    )
-                                    kb = {"inline_keyboard": [[{"text": f"🛒 Оформить заказ ({v.product.name[:25]})", "web_app": {"url": product_url}}]]}
+                                    if cust_lang == "uz":
+                                        caption = (
+                                            f"✨ {v.product.name}\n"
+                                            f"💰 Narxi: {int(v.final_price):,} so'm\n"
+                                            f"🎨 Rangi: {v.color or '—'} | O'lchami: {v.size or 'Standart'}"
+                                        )
+                                        btn_order_text = f"🛒 Buyurtma berish ({v.product.name[:25]})"
+                                    elif cust_lang == "en":
+                                        caption = (
+                                            f"✨ {v.product.name}\n"
+                                            f"💰 Price: {int(v.final_price):,} UZS\n"
+                                            f"🎨 Color: {v.color or '—'} | Size: {v.size or 'One Size'}"
+                                        )
+                                        btn_order_text = f"🛒 Order Now ({v.product.name[:25]})"
+                                    else:
+                                        caption = (
+                                            f"✨ {v.product.name}\n"
+                                            f"💰 Цена: {int(v.final_price):,} сум\n"
+                                            f"🎨 Цвет: {v.color or '—'} | Размер: {v.size or 'One Size'}"
+                                        )
+                                        btn_order_text = f"🛒 Оформить заказ ({v.product.name[:25]})"
+
+                                    kb = {"inline_keyboard": [[{"text": btn_order_text, "web_app": {"url": product_url}}]]}
                                     if photo:
                                         _send_telegram_photo(chat_id, photo, caption=caption, reply_markup=kb, bot_token=bot_token)
                                     else:
@@ -2130,14 +2199,14 @@ class TelegramWebhookView(APIView):
         elif callback_data.startswith("delivered_"):
             order_id = callback_data.replace("delivered_", "")
             try:
-                order = Order.objects.select_related("store").get(id=order_id)
+                order = Order.objects.select_related("store", "customer").get(id=order_id)
                 order.status = Order.Status.DELIVERED
                 order.save(update_fields=["status"])
                 from core.payments.payout_service import release_order_funds_and_auto_payout
                 release_order_funds_and_auto_payout(order)
 
                 store_obj = order.store
-                caller_lang = _get_store_lang(store_obj) if store_obj else "ru"
+                caller_lang = _get_store_lang(store_obj) if store_obj else "uz"
 
                 curr_token = bot_token or (store_obj.telegram_bot_token if (store_obj and store_obj.telegram_bot_token and store_obj.telegram_bot_active) else getattr(settings, "TELEGRAM_BOT_TOKEN", None))
                 if curr_token:
@@ -2151,6 +2220,29 @@ class TelegramWebhookView(APIView):
                     f"{_nt(caller_lang, 'btn_mark_delivered')} (#{order_id})!",
                     bot_token=curr_token
                 )
+
+                # Уведомляем клиента о доставке на выбранном им языке
+                if order.customer and order.customer.telegram_chat_id:
+                    cust_l = getattr(order.customer, "language", None) or _get_customer_lang(order.customer.telegram_chat_id) or "uz"
+                    if cust_l == "uz":
+                        deliv_msg = (
+                            f"🎉 #{order.id}-buyurtmangiz yetkazildi! ✅\n\n"
+                            f"🏪 «{store_obj.name}» do'konidan xarid qilganingiz uchun tashakkur! "
+                            f"Kiyimlaringiz sizga quvonch keltirsin deb qolamiz. Yana kutib qolamiz! ✨"
+                        )
+                    elif cust_l == "en":
+                        deliv_msg = (
+                            f"🎉 Order #{order.id} has been delivered! ✅\n\n"
+                            f"🏪 Thank you for shopping with «{store_obj.name}»! "
+                            f"We hope you enjoy your purchase! ✨"
+                        )
+                    else:
+                        deliv_msg = (
+                            f"🎉 Ваш заказ #{order.id} успешно доставлен! ✅\n\n"
+                            f"🏪 Спасибо за покупку в магазине «{store_obj.name}»! "
+                            f"Носите с удовольствием и ждём вас снова! ✨"
+                        )
+                    _send_telegram_message(order.customer.telegram_chat_id, deliv_msg, bot_token=curr_token)
             except Order.DoesNotExist:
                 pass
 
