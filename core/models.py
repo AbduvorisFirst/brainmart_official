@@ -199,8 +199,11 @@ class Store(models.Model):
         CLOTHES = "clothes", "Одежда, обувь и аксессуары"
         AUTO = "auto", "Автотовары, шины и автосервис"
         ELECTRONICS = "electronics", "Электроника и гаджеты"
-        COSMETICS = "cosmetics", "Косметика и парфюмерия"
-        KIDS = "kids", "Детские товары и игрушки"
+        FOOD = "food", "Продукты питания и гастрономия"
+        HOME = "home", "Мебель и товары для дома"
+        BEAUTY = "beauty", "Красота, косметика и здоровье"
+        KIDS = "kids", "Детские товары и одежда"
+        SPORT = "sport", "Спорт, экипировка и активный отдых"
         BOOKS = "books", "Книги и канцелярия"
         OTHER = "other", "Другое"
 
@@ -305,26 +308,53 @@ class Store(models.Model):
             ("shopify_mint", "Shopify Nordic (Clean Tech Mint)"),
             ("alibaba_orange", "Alibaba Global (Sunset Orange and Slate)"),
             ("midnight_gold", "Midnight Luxury (Champagne Gold and Onyx)"),
-            # Одежда и обувь (Fashion)
-            ("fashion_casual", "Fashion: Универсальный Casual"),
-            ("fashion_premium", "Fashion: Премиум Old Money"),
-            ("fashion_genz", "Fashion: Streetwear / Gen-Z"),
+
+            # 1. Одежда и обувь (Fashion)
+            ("fashion_genz", "Fashion: Streetwear / Cyber Drip (Для подростков)"),
+            ("fashion_premium", "Fashion: Old Money / Luxury Silk (Для состоятельных)"),
+            ("fashion_casual", "Fashion: Smart Casual / Urban (Для 30-летних)"),
             ("fashion_kids", "Fashion: Kids Playful"),
-            # Автотовары и автосервис (Auto)
-            ("auto_drive", "Auto: Универсальный Drive"),
-            ("auto_premium", "Auto: Premium Detailing"),
-            ("auto_brutal", "Auto: Brutal Garage"),
-            ("auto_tuning", "Auto: Tuning & Drift Gen-Z"),
-            # Электроника и гаджеты (Tech)
-            ("tech_minimal", "Tech: Cyber Minimal"),
-            ("tech_gaming", "Tech: RGB Gaming"),
-            # Предыдущие темы для совместимости
+
+            # 2. Автотовары и автосервис (Auto)
+            ("auto_tuning", "Auto: Tuning & Drift JDM (Для подростков)"),
+            ("auto_premium", "Auto: Executive Motors & Detailing (Для состоятельных)"),
+            ("auto_drive", "Auto: Pro Service & Practical SUV (Для 30-летних)"),
+            ("auto_brutal", "Auto: Brutal Garage & Heavy Duty"),
+
+            # 3. Электроника и гаджеты (Tech)
+            ("tech_gaming", "Tech: RGB Gaming & Cyberpunk (Для подростков)"),
+            ("tech_minimal", "Tech: Smart Home & Clean Living (Для 30-летних)"),
+
+            # 4. Продукты питания (Food)
+            ("food_pop", "Food: Snack Pop & Street Food (Для подростков)"),
+            ("food_gourmet", "Food: Gourmet Deli & Truffle Wine (Для состоятельных)"),
+            ("food_organic", "Food: Fresh Farm & Eco Bio (Для 30-летних)"),
+
+            # 5. Мебель и товары для дома (Home)
+            ("home_loft", "Home: Loft Neon & RGB Bedroom (Для подростков)"),
+            ("home_luxury", "Home: Grand Villa & Italian Marble (Для состоятельных)"),
+            ("home_nordic", "Home: Scandinavian Hygge & Wood (Для 30-летних)"),
+
+            # 6. Красота и здоровье (Beauty)
+            ("beauty_korean", "Beauty: K-Beauty Glow & Pastel Trend (Для подростков)"),
+            ("beauty_luxury", "Beauty: Haute Parfumerie & Gold Spa (Для состоятельных)"),
+            ("beauty_wellness", "Beauty: Clean Derma & Botanical Eco (Для 30-летних)"),
+
+            # 7. Детские товары (Kids)
+            ("kids_anime", "Kids: Anime Merch & Gaming Kid (Для подростков)"),
+            ("kids_boutique", "Kids: Royal Baby & Pastel Boutique (Для состоятельных)"),
+            ("kids_playful", "Kids: Montessori Smart & Bright Colors (Для 30-летних)"),
+
+            # 8. Спорт и отдых (Sport)
+            ("sport_voltage", "Sport: Extreme Voltage & Skate Energy (Для подростков)"),
+            ("sport_luxury", "Sport: Golf & Yacht Club Prestige (Для состоятельных)"),
+            ("sport_pro", "Sport: Trail Marathon & Active Balance (Для 30-летних)"),
+
+            # Пользовательский дизайн и обратная совместимость
+            ("custom", "Свой дизайн (Фирменные цвета бренда)"),
             ("default_black", "Default Black (Классический)"),
-            ("kids_playful", "Kids Playful (Для детей - Яркий)"),
             ("premium_gold", "Premium Gold (Премиум Золото)"),
             ("genz_neon", "Gen-Z Neon (Подростковый Неон)"),
-            # Пользовательский дизайн
-            ("custom", "Свой дизайн (Фирменные цвета)"),
         ],
         verbose_name="Стиль темы оформления"
     )
@@ -367,54 +397,73 @@ class Store(models.Model):
         sname = (self.name or "").lower()
 
         # 1. Базовый бейдж, иконка и текст по нише/стилю оформления
-        if theme in ("kids_playful", "fashion_kids") or niche == "kids" or "kids" in sname:
-            badge_class = "badge-kids"
-            def_icon = "🧸"
-            def_text = "kids-joyfull"
-        elif theme in ("genz_neon", "fashion_genz") or "gen" in sname:
-            badge_class = "badge-genz"
-            def_icon = "⚡"
-            def_text = "gen-z"
-        elif theme in ("premium_gold", "fashion_premium") or "luxury" in sname or "premium" in sname:
-            badge_class = "badge-premium"
-            def_icon = "👑"
-            def_text = "luxury gold"
-        elif theme == "auto_drive":
-            badge_class = "badge-drive"
-            def_icon = "🏎️"
-            def_text = "sport drive"
-        elif theme == "auto_premium":
-            badge_class = "badge-auto-premium"
-            def_icon = "⭐"
-            def_text = "premium motors"
-        elif theme == "auto_brutal":
-            badge_class = "badge-garage"
-            def_icon = "🛠️"
-            def_text = "brutal garage"
-        elif theme == "auto_tuning" or "tuning" in sname or "drift" in sname:
-            badge_class = "badge-tuning"
-            def_icon = "🔥"
-            def_text = "drift & tuning"
-        elif theme == "tech_minimal":
-            badge_class = "badge-tech-minimal"
-            def_icon = "⚡"
-            def_text = "cyber minimal"
-        elif theme == "tech_gaming":
-            badge_class = "badge-gaming"
-            def_icon = "🎮"
-            def_text = "rgb gaming"
-        elif theme == "fashion_casual":
-            badge_class = "badge-casual"
-            def_icon = "✨"
-            def_text = "casual fashion"
-        elif theme == "custom":
-            badge_class = "badge-custom"
-            def_icon = "🎨"
-            def_text = "custom brand"
+        SIG_LOOKUP = {
+            # Флагманы маркетплейсов
+            "apple_hightech": ("badge-tech-minimal", "⚡", "titanium pro"),
+            "uzum_violet": ("badge-uzum", "💜", "uzum market"),
+            "shopify_mint": ("badge-shopify", "🌿", "shopify pro"),
+            "alibaba_orange": ("badge-alibaba", "🔥", "alibaba global"),
+            "midnight_gold": ("badge-premium", "👑", "midnight luxury"),
+            # 1. Одежда и обувь
+            "fashion_genz": ("badge-genz", "⚡", "street drip"),
+            "fashion_premium": ("badge-premium", "👑", "old money"),
+            "fashion_casual": ("badge-casual", "✨", "smart casual"),
+            "fashion_kids": ("badge-kids", "🧸", "kids fashion"),
+            # 2. Автотовары и шины
+            "auto_tuning": ("badge-tuning", "🔥", "drift & tuning"),
+            "auto_premium": ("badge-auto-premium", "⭐", "luxury motors"),
+            "auto_drive": ("badge-drive", "🏎️", "pro service"),
+            "auto_brutal": ("badge-garage", "🛠️", "brutal garage"),
+            # 3. Электроника и гаджеты
+            "tech_gaming": ("badge-gaming", "🎮", "rgb gaming"),
+            "tech_minimal": ("badge-tech-minimal", "⚡", "smart living"),
+            # 4. Продукты питания
+            "food_pop": ("badge-food-pop", "🍿", "snack attack"),
+            "food_gourmet": ("badge-food-gourmet", "🍷", "haute cuisine"),
+            "food_organic": ("badge-food-organic", "🥑", "eco farm"),
+            # 5. Мебель и товары для дома
+            "home_loft": ("badge-home-loft", "🛋️", "aesthetic loft"),
+            "home_luxury": ("badge-home-luxury", "🏛️", "grand interior"),
+            "home_nordic": ("badge-home-nordic", "🌿", "nordic hygge"),
+            # 6. Красота и здоровье
+            "beauty_korean": ("badge-beauty-korean", "🌸", "glass skin"),
+            "beauty_luxury": ("badge-beauty-luxury", "💎", "royal beauty"),
+            "beauty_wellness": ("badge-beauty-wellness", "🌿", "clean derma"),
+            # 7. Детские товары
+            "kids_anime": ("badge-kids-anime", "⚡", "teen zone"),
+            "kids_boutique": ("badge-kids-boutique", "👑", "baby boutique"),
+            "kids_playful": ("badge-kids", "🧸", "kids-joyfull"),
+            # 8. Спорт и отдых
+            "sport_voltage": ("badge-sport-voltage", "⚡", "extreme rush"),
+            "sport_luxury": ("badge-sport-luxury", "🏆", "yacht & polo"),
+            "sport_pro": ("badge-sport-pro", "🏔️", "trail & pro"),
+            # Custom & Legacy
+            "custom": ("badge-custom", "🎨", "custom brand"),
+            "kids_playful": ("badge-kids", "🧸", "kids-joyfull"),
+            "premium_gold": ("badge-premium", "👑", "luxury gold"),
+            "genz_neon": ("badge-genz", "⚡", "gen-z"),
+        }
+
+        if theme in SIG_LOOKUP:
+            badge_class, def_icon, def_text = SIG_LOOKUP[theme]
+        elif niche == "kids" or "kids" in sname:
+            badge_class, def_icon, def_text = "badge-kids", "🧸", "kids-joyfull"
+        elif niche == "auto":
+            badge_class, def_icon, def_text = "badge-drive", "🏎️", "sport drive"
+        elif niche == "electronics":
+            badge_class, def_icon, def_text = "badge-tech-minimal", "⚡", "smart living"
+        elif niche in ("beauty", "cosmetics"):
+            badge_class, def_icon, def_text = "badge-beauty-luxury", "💎", "royal beauty"
+        elif niche == "food":
+            badge_class, def_icon, def_text = "badge-food-organic", "🥑", "eco farm"
+        elif niche == "home":
+            badge_class, def_icon, def_text = "badge-home-nordic", "🌿", "nordic hygge"
+        elif niche == "sport":
+            badge_class, def_icon, def_text = "badge-sport-pro", "🏔️", "trail & pro"
+        elif niche == "clothes":
+            badge_class, def_icon, def_text = "badge-casual", "✨", "casual fashion"
         else:
-            badge_class = "badge-classic"
-            def_icon = "✦"
-            def_text = "official brand"
+            badge_class, def_icon, def_text = "badge-classic", "✦", "official brand"
 
         icon = (self.brand_signature_icon or "").strip() or def_icon
         text = (self.brand_signature_text or "").strip() or def_text
