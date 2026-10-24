@@ -125,7 +125,7 @@
             padding: 28px 46px 34px;
         }
         .hero-brand-name {
-            font-size: 60px;
+            font-size: 44px;
         }
     }
     .global-top-row {
@@ -525,21 +525,7 @@
     .meta-separator { color: #475569; font-size: 10px; }
     .meta-orders { color: #00F0FF; font-weight: 700; font-size: 10.5px; letter-spacing: 0.2px; }
 
-    /* Рассрочка */
-    .installment-badge {
-        display: inline-flex;
-        align-items: center;
-        background: rgba(0, 102, 255, 0.14);
-        border: 1px solid rgba(0, 102, 255, 0.35);
-        color: #2997FF;
-        font-size: 10.5px;
-        font-weight: 800;
-        border-radius: 6px;
-        padding: 2.5px 7px;
-        width: fit-content;
-        margin-bottom: 10px;
-        letter-spacing: 0.2px;
-    }
+    
 
     /* Цена и кнопка покупки */
     .price-row {
@@ -593,19 +579,19 @@
         background: #060709;
         box-shadow: 0 10px 30px rgba(0, 102, 255, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.1);
         border: 1.5px solid rgba(0, 102, 255, 0.28);
-        height: 185px;
+        height: 165px;
         user-select: none;
     }
     @media (min-width: 768px) {
         .wb-promo-slider-wrap {
-            height: 275px;
+            height: 205px;
             border-radius: 26px;
             margin-bottom: 24px;
         }
     }
     @media (min-width: 1200px) {
         .wb-promo-slider-wrap {
-            height: 310px;
+            height: 215px;
             border-radius: 28px;
             margin-bottom: 26px;
         }
@@ -933,10 +919,18 @@
             <div class="global-hero-banner">
                 <div class="hero-badge-pill">
                     <span class="pulse-dot"></span>
-                    <span>⚡ {% trans "Глобальный Маркетплейс" %}</span>
+                    <span>⚡ {% trans "Глобальный маркетплейс" %}</span>
                 </div>
                 <h1 class="hero-brand-name">BRAINMART</h1>
                 <p class="hero-tagline">{% trans "Товары от лучших магазинов, официальные бренды и экспресс-доставка" %}</p>
+
+                <!-- Много полезных надписей (100% переводимые) -->
+                <div class="hero-trust-row">
+                    <div class="trust-chip">⚡ {% trans "Гарантия оригинала" %}</div>
+                    <div class="trust-chip">🚀 {% trans "Экспресс доставка" %}</div>
+                    <div class="trust-chip">🛡️ {% trans "Защита покупателя" %}</div>
+                    <div class="trust-chip">🏪 {% trans "Официальные магазины" %}</div>
+                </div>
             </div>
         </div>
     {% endif %}
@@ -966,13 +960,13 @@
                         {% endif %}
                         <div class="wb-slide-content">
                             {% if b.badge %}
-                                <div class="wb-slide-badge">{{ b.badge }}</div>
+                                <div class="wb-slide-badge">{% trans b.badge %}</div>
                             {% endif %}
-                            <h2 class="wb-slide-title">{{ b.title }}</h2>
+                            <h2 class="wb-slide-title">{% trans b.title %}</h2>
                             {% if b.subtitle %}
-                                <p class="wb-slide-sub">{{ b.subtitle }}</p>
+                                <p class="wb-slide-sub">{% trans b.subtitle %}</p>
                             {% endif %}
-                            <span class="wb-slide-btn">{{ b.button_text|default:_("Перейти") }} ↗</span>
+                            <span class="wb-slide-btn">{% trans b.button_text|default:_("Перейти") %} ↗</span>
                         </div>
                     </a>
                 {% endfor %}
@@ -1000,7 +994,7 @@
             </a>
             {% for cat in categories %}
                 <a href="?{% if current_store_id %}store_id={{ current_store_id }}&{% endif %}category={{ cat.id }}{% if search_query %}&q={{ search_query }}{% endif %}" class="category-chip {% if selected_category_id == cat.id %}active{% endif %}">
-                    {{ cat.name }}
+                    {% trans cat.name %}
                 </a>
             {% endfor %}
         </div>
@@ -1074,7 +1068,7 @@
                             {% endif %}
                         </div>
 
-                        <!-- Рейтинг и заказы -->
+                        <!-- Рейтинг, заказы и быстрая доставка (БЕЗ РАССРОЧКИ) -->
                         <div class="product-meta-row">
                             <span class="rating-star">★</span>
                             <span class="rating-val">{{ product.average_rating|default:"4.9" }}</span>
@@ -1084,14 +1078,11 @@
                             <span class="meta-separator">•</span>
                             <span class="meta-orders">140+ {% trans "заказов" %}</span>
                         </div>
-
-                        <!-- Рассрочка в стиле Wildberries / Uzum -->
-                        {% widthratio product.base_price 6 1 as monthly_price %}
-                        <div class="installment-badge">
-                            {% trans "от" %} {{ monthly_price|default:product.base_price }} {% trans "сум/мес" %}
+                        <div style="font-size: 10.5px; font-weight: 700; color: #38BDF8; margin-bottom: 8px; display: flex; align-items: center; gap: 4px;">
+                            <span>🚚</span>
+                            <span>{% trans "Быстрая доставка" %}</span>
                         </div>
 
-                        <!-- Цена и кнопка покупки -->
                         <div class="price-row">
                             <div class="product-price">{{ product.base_price }} {% trans "сум" %}</div>
                             <div class="btn-mini" title="{% trans 'Добавить в корзину' %}">+</div>

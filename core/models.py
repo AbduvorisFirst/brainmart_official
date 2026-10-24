@@ -1458,7 +1458,7 @@ class PromoBanner(models.Model):
     """
     title = models.CharField(max_length=255, verbose_name="Заголовок баннера")
     subtitle = models.CharField(max_length=255, blank=True, default="", verbose_name="Подзаголовок / Описание акции")
-    badge = models.CharField(max_length=60, blank=True, default="", verbose_name="Бейдж акции (напр. 'СКИДКИ ДО -70%', '0% РАССРОЧКА')")
+    badge = models.CharField(max_length=60, blank=True, default="", verbose_name="Бейдж акции (напр. 'СКИДКИ ДО -70%', '0% ОФИЦИАЛЬНАЯ ГАРАНТИЯ')")
     image = models.ImageField(upload_to="banners/", null=True, blank=True, verbose_name="Изображение баннера")
     link_url = models.CharField(max_length=500, blank=True, default="", verbose_name="Ссылка при клике (URL)")
     button_text = models.CharField(max_length=60, blank=True, default="Перейти к покупкам", verbose_name="Текст кнопки")
@@ -1501,7 +1501,7 @@ class PromoBanner(models.Model):
                 {
                     "title": "APPLE & PRO ГАДЖЕТЫ",
                     "subtitle": "Оригинальные смартфоны, смарт-часы и ультрабуки с гарантией и быстрой доставкой по Ташкенту",
-                    "badge": "💎 РАССРОЧКА 0%",
+                    "badge": "⚡ ОФИЦИАЛЬНАЯ ГАРАНТИЯ",
                     "button_text": "Выбрать гаджет 📱",
                     "link_url": "/?category=3",
                     "bg_gradient": "linear-gradient(135deg, #05050B 0%, #0C1E40 45%, #2563EB 85%, #38BDF8 100%)",

@@ -1651,3 +1651,155 @@ msgstr "✅ Receipt successfully forwarded to store! The order will be delivered
 msgid "🔍 Поиск адреса (напр: Чорсу, ЦУМ, Юнусабад...)"
 msgstr "🔍 Search address (e.g. Chorsu, TSUM, Yunusabad...)"
 
+
+# --- AUTO ADDED MARKETPLACE TRANSLATIONS ---
+
+msgid "Глобальный Маркетплейс"
+msgstr "Global Marketplace"
+
+msgid "Глобальный маркетплейс"
+msgstr "Global Marketplace"
+
+msgid "⚡ Глобальный Маркетплейс"
+msgstr "⚡ Global Marketplace"
+
+msgid "⚡ Глобальный маркетплейс"
+msgstr "⚡ Global Marketplace"
+
+msgid "Товары от лучших магазинов, официальные бренды и экспресс-доставка"
+msgstr "Products from top stores, official brands and express delivery"
+
+msgid "100% Оригинал"
+msgstr "100% Original"
+
+msgid "Экспресс доставка"
+msgstr "Express Delivery"
+
+msgid "Защита покупателя"
+msgstr "Buyer Protection"
+
+msgid "Официальные магазины"
+msgstr "Official Stores"
+
+msgid "Быстрая доставка"
+msgstr "Fast Delivery"
+
+msgid "Все категории"
+msgstr "All categories"
+
+msgid "Поиск по товарам или стилю (напр: айтишник, оверсайз)..."
+msgstr "Search products or styles (e.g.: oversize, tech)..."
+
+msgid "🚗 Автотовары и шины"
+msgstr "🚗 Auto parts & tires"
+
+msgid "👕 Одежда и обувь"
+msgstr "👕 Clothing & shoes"
+
+msgid "🍏 Продукты питания"
+msgstr "🍏 Groceries & food"
+
+msgid "📱 Электроника и техника"
+msgstr "📱 Electronics & tech"
+
+msgid "🛋️ Мебель и товары для дома"
+msgstr "🛋️ Home & furniture"
+
+msgid "💄 Красота и здоровье"
+msgstr "💄 Beauty & health"
+
+msgid "🧸 Детские товары"
+msgstr "🧸 Kids products"
+
+msgid "⚽ Спорт и отдых"
+msgstr "⚽ Sports & outdoors"
+
+msgid "заказов"
+msgstr "orders"
+
+msgid "Перейти в магазин"
+msgstr "Visit store"
+
+msgid "Оригинальное качество с быстрой доставкой от магазина"
+msgstr "Original quality with fast delivery from store"
+
+msgid "Оригинальное качество с быстрой доставкой"
+msgstr "Original quality with fast delivery"
+
+msgid "Качественный товар с быстрой доставкой от проверенного продавца."
+msgstr "High-quality product with fast delivery from a verified seller."
+
+msgid "БОЛЬШАЯ РАСПРОДАЖА 2026"
+msgstr "BIG SALE 2026"
+
+msgid "⚡ СКИДКИ ДО -70%"
+msgstr "⚡ UP TO -70% OFF"
+
+msgid "Купить со скидкой 🛒"
+msgstr "Buy with discount 🛒"
+
+msgid "Тысячи товаров по суперценам с быстрой доставкой по всему Узбекистану"
+msgstr "Thousands of products at super prices with fast delivery across Uzbekistan"
+
+msgid "APPLE & PRO ГАДЖЕТЫ"
+msgstr "APPLE & PRO GADGETS"
+
+msgid "⚡ ОФИЦИАЛЬНАЯ ГАРАНТИЯ"
+msgstr "⚡ OFFICIAL WARRANTY"
+
+msgid "Выбрать гаджет 📱"
+msgstr "Choose gadget 📱"
+
+msgid "Смартфоны, планшеты, смарт-часы и аксессуары от проверенных поставщиков"
+msgstr "Smartphones, tablets, smart watches and accessories from verified suppliers"
+
+msgid "СЕЗОН АВТОТОВАРОВ & ШИНЫ"
+msgstr "AUTO PARTS & TIRES SEASON"
+
+msgid "🏎️ ТОП СЕЗОНА"
+msgstr "🏎️ TOP OF SEASON"
+
+msgid "Подобрать шины 🛠️"
+msgstr "Pick tires 🛠️"
+
+msgid "Шины Michelin, Pirelli, масла Motul и автоаксессуары от проверенных магазинов"
+msgstr "Michelin, Pirelli tires, Motul oils and auto accessories from verified stores"
+
+msgid "ОТКРОЙ СВОЙ МАГАЗИН В BRAINMART"
+msgstr "OPEN YOUR STORE ON BRAINMART"
+
+msgid "🚀 ДЛЯ БИЗНЕСА"
+msgstr "🚀 FOR BUSINESS"
+
+msgid "Стать продавцом ✨"
+msgstr "Become a seller ✨"
+
+msgid "Telegram CRM + ИИ-продавец 24/7 + витрина для вашего бизнеса. Запуск за 2 минуты!"
+msgstr "Telegram CRM + 24/7 AI Seller + storefront for your business. Launch in 2 minutes!"
+
+msgid "Перейти"
+msgstr "View"
+
+msgid "Назад"
+msgstr "Prev"
+
+msgid "Вперёд"
+msgstr "Next"
+
+msgid "Скидки до -70% на трендовые коллекции одежды, обуви и аксессуаров от топовых брендов"
+msgstr "Discounts up to -70% on trending clothing, shoes and accessories from top brands"
+
+msgid "Оригинальные смартфоны, смарт-часы и ультрабуки с гарантией и быстрой доставкой по Ташкенту"
+msgstr "Original smartphones, smartwatches and laptops with warranty and fast delivery in Tashkent"
+
+msgid "⚡ СКИДКИ ДО -70%"
+msgstr "⚡ UP TO -70% OFF"
+
+msgid "100% Оригинал"
+msgstr "100% Original"
+
+msgid "Гарантия оригинала"
+msgstr "Authentic Guarantee"
+
+msgid "⚡ 100% Оригинал"
+msgstr "⚡ 100% Original"

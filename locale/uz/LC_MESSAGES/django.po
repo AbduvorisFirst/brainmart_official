@@ -1654,3 +1654,155 @@ msgstr "✅ Chek do'konga muvaffaqiyatli topshirildi! Tez orada buyurtma yetkazi
 msgid "🔍 Поиск адреса (напр: Чорсу, ЦУМ, Юнусабад...)"
 msgstr "🔍 Manzil qidirish (masalan: Chorsu, TSUM, Yunusobod...)"
 
+
+# --- AUTO ADDED MARKETPLACE TRANSLATIONS ---
+
+msgid "Глобальный Маркетплейс"
+msgstr "Global bozor"
+
+msgid "Глобальный маркетплейс"
+msgstr "Global bozor"
+
+msgid "⚡ Глобальный Маркетплейс"
+msgstr "⚡ Global bozor"
+
+msgid "⚡ Глобальный маркетплейс"
+msgstr "⚡ Global bozor"
+
+msgid "Товары от лучших магазинов, официальные бренды и экспресс-доставка"
+msgstr "Eng yaxshi do'konlar tovarlari, rasmiy brendlar va tezkor yetkazib berish"
+
+msgid "100% Оригинал"
+msgstr "100% Asl mahsulot"
+
+msgid "Экспресс доставка"
+msgstr "Tezkor yetkazish"
+
+msgid "Защита покупателя"
+msgstr "Xaridor himoyasi"
+
+msgid "Официальные магазины"
+msgstr "Rasmiy do'konlar"
+
+msgid "Быстрая доставка"
+msgstr "Tez yetkazib berish"
+
+msgid "Все категории"
+msgstr "Barcha toifalar"
+
+msgid "Поиск по товарам или стилю (напр: айтишник, оверсайз)..."
+msgstr "Tovarlar yoki uslub bo'yicha qidiruv (masalan: oversayz)..."
+
+msgid "🚗 Автотовары и шины"
+msgstr "🚗 Avtotovarlar va shinalar"
+
+msgid "👕 Одежда и обувь"
+msgstr "👕 Kiyim va poyabzal"
+
+msgid "🍏 Продукты питания"
+msgstr "🍏 Oziq-ovqat mahsulotlari"
+
+msgid "📱 Электроника и техника"
+msgstr "📱 Elektronika va texnika"
+
+msgid "🛋️ Мебель и товары для дома"
+msgstr "🛋️ Mebel va uy jihozlari"
+
+msgid "💄 Красота и здоровье"
+msgstr "💄 Go'zallik va salomatlik"
+
+msgid "🧸 Детские товары"
+msgstr "🧸 Bolalar tovarlari"
+
+msgid "⚽ Спорт и отдых"
+msgstr "⚽ Sport va hordiq"
+
+msgid "заказов"
+msgstr "buyurtma"
+
+msgid "Перейти в магазин"
+msgstr "Do'konga o'tish"
+
+msgid "Оригинальное качество с быстрой доставкой от магазина"
+msgstr "Do'kondan tezkor yetkazib beriladigan sifatli mahsulot"
+
+msgid "Оригинальное качество с быстрой доставкой"
+msgstr "Tezkor yetkazib beriladigan sifatli mahsulot"
+
+msgid "Качественный товар с быстрой доставкой от проверенного продавца."
+msgstr "Ishonchli sotuvchidan sifatli mahsulot va tez yetkazish."
+
+msgid "БОЛЬШАЯ РАСПРОДАЖА 2026"
+msgstr "KATTA SOTUV 2026"
+
+msgid "⚡ СКИДКИ ДО -70%"
+msgstr "⚡ -70% GACHA CHEGIRMALAR"
+
+msgid "Купить со скидкой 🛒"
+msgstr "Chegirma bilan olish 🛒"
+
+msgid "Тысячи товаров по суперценам с быстрой доставкой по всему Узбекистану"
+msgstr "O'zbekiston bo'ylab tezkor yetkazish bilan minglab tovarlar arzon narxlarda"
+
+msgid "APPLE & PRO ГАДЖЕТЫ"
+msgstr "APPLE VA PRO GADJETLAR"
+
+msgid "⚡ ОФИЦИАЛЬНАЯ ГАРАНТИЯ"
+msgstr "⚡ RASMIY KAFOLAT"
+
+msgid "Выбрать гаджет 📱"
+msgstr "Gadjet tanlash 📱"
+
+msgid "Смартфоны, планшеты, смарт-часы и аксессуары от проверенных поставщиков"
+msgstr "Ishonchli yetkazib beruvchilardan smartfonlar, planshetlar va aqlli soatlar"
+
+msgid "СЕЗОН АВТОТОВАРОВ & ШИНЫ"
+msgstr "AVTOTAVORLAR VA SHINALAR MAVSUMI"
+
+msgid "🏎️ ТОП СЕЗОНА"
+msgstr "🏎️ MAVSUM TOPI"
+
+msgid "Подобрать шины 🛠️"
+msgstr "Shinalarni tanlash 🛠️"
+
+msgid "Шины Michelin, Pirelli, масла Motul и автоаксессуары от проверенных магазинов"
+msgstr "Ishonchli do'konlardan Michelin, Pirelli shinalari va Motul moylari"
+
+msgid "ОТКРОЙ СВОЙ МАГАЗИН В BRAINMART"
+msgstr "BRAINMART'DA O'Z DO'KONINGIZNI OCHING"
+
+msgid "🚀 ДЛЯ БИЗНЕСА"
+msgstr "🚀 BIZNES UCHUN"
+
+msgid "Стать продавцом ✨"
+msgstr "Sotuvchi bo'lish ✨"
+
+msgid "Telegram CRM + ИИ-продавец 24/7 + витрина для вашего бизнеса. Запуск за 2 минуты!"
+msgstr "Telegram CRM + 24/7 AI-sotuvchi + biznesingiz uchun vitrina. 2 daqiqada ishga tushirish!"
+
+msgid "Перейти"
+msgstr "O'tish"
+
+msgid "Назад"
+msgstr "Orqaga"
+
+msgid "Вперёд"
+msgstr "Oldinga"
+
+msgid "Скидки до -70% на трендовые коллекции одежды, обуви и аксессуаров от топовых брендов"
+msgstr "Top brendlarning kiyim, poyabzal va aksessuarlari kolleksiyalariga -70% gacha chegirmalar"
+
+msgid "Оригинальные смартфоны, смарт-часы и ультрабуки с гарантией и быстрой доставкой по Ташкенту"
+msgstr "Toshkent bo'yicha kafolat va tezkor yetkazib berish bilan asl smartfonlar, aqlli soatlar va noutbuklar"
+
+msgid "⚡ СКИДКИ ДО -70%"
+msgstr "⚡ -70% GACHA CHEGIRMALAR"
+
+msgid "100% Оригинал"
+msgstr "100% Asl tovar"
+
+msgid "Гарантия оригинала"
+msgstr "Asl mahsulot kafolati"
+
+msgid "⚡ 100% Оригинал"
+msgstr "⚡ 100% Asl tovar"

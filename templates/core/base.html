@@ -867,23 +867,18 @@
         .messages { list-style: none; padding: 0 16px; margin: 10px 0; }
         .messages li { background: #fee2e2; color: #991b1b; padding: 12px; border-radius: var(--radius-md); font-size: 14px; font-weight: 500; }
 
-        /* ─── WIDESCREEN DESKTOP ≥ 900px (EXPANDED TO FULL MODERN MARKETPLACE WIDTH) ─── */
+        /* ─── DESKTOP ≥ 900px (COMPACT BALANCED WIDESCREEN 1360px) ─── */
         @media (min-width: 900px) {
             body { padding-bottom: 0; }
             header {
-                padding: 14px 32px;
+                padding: 14px 28px;
             }
             #app-main {
-                max-width: 1720px;
+                max-width: 1360px;
                 margin: 0 auto;
-                padding: 0 24px;
+                padding: 0 20px;
                 width: 100%;
-            }
-        }
-        @media (min-width: 1440px) {
-            #app-main {
-                max-width: 1840px;
-                padding: 0 36px;
+                box-sizing: border-box;
             }
         }
         .segmented-control {
