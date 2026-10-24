@@ -98,7 +98,6 @@ def dashboard_home(request):
 
         category = None
         if category_id:
-            from core.models import Category
             category = Category.objects.filter(id=category_id).first()
             if category and store.category_id != category.id:
                 store.category = category
