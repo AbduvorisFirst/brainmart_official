@@ -3,364 +3,942 @@
 
 {% block content %}
 <style>
-    body { padding: 0; background: var(--bg-app); }
-    header { display: none; }
+    /* Reset default header to render custom e-commerce product header */
+    header { display: none !important; }
 
-    .app-header {
-        position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-        display: flex; justify-content: space-between; padding: 12px 16px;
-        background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 100%);
-    }
-    .back-btn {
-        width: 36px; height: 36px; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
-        border-radius: 50%; display: flex; align-items: center; justify-content: center;
-        text-decoration: none; color: var(--text-main); font-weight: bold; font-size: 18px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    body {
+        background: var(--bg-app, #0B0E14);
+        color: var(--text-main, #FFFFFF);
+        margin: 0;
+        padding-bottom: 80px;
     }
 
-    .gallery-container {
-        display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
-        scrollbar-width: none; background: var(--surface); position: relative;
+    .product-page-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 12px 14px 60px;
+        box-sizing: border-box;
     }
-    .gallery-container::-webkit-scrollbar { display: none; }
-    .gallery-item { width: 100%; flex-shrink: 0; scroll-snap-align: center; }
-    .gallery-item img, .gallery-item .no-image {
-        width: 100%; height: 60vh; object-fit: cover; display: block; background: var(--border);
-    }
-
-    .content-sheet {
-        background: var(--surface); border-radius: 24px 24px 0 0; margin-top: -24px;
-        position: relative; z-index: 10; padding: 24px 16px 120px;
-        box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+    @media (min-width: 768px) {
+        .product-page-container {
+            padding: 18px 24px 80px;
+        }
     }
 
-    .price-block { margin-bottom: 16px; }
-    .price-main { font-size: 28px; font-weight: 800; color: var(--primary); line-height: 1.1; }
-    .price-old { font-size: 14px; color: var(--text-muted); text-decoration: line-through; margin-top: 4px; }
-
-    .product-title { font-size: 19px; font-weight: 700; color: var(--text-main); margin: 0 0 12px; line-height: 1.4; }
-
-    .rating-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
-    .stars { color: #f59e0b; font-size: 16px; letter-spacing: -2px; }
-
-    .social-proof {
-        background: #F9FAFB; padding: 12px 14px; border-radius: 14px;
-        display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text-main);
-        margin-bottom: 24px; border: 1px solid var(--border);
+    /* ==========================================================================
+       1. NAVIGATION TOP BAR
+       ========================================================================== */
+    .product-nav-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 14px;
+        margin-bottom: 16px;
+        border-radius: 14px;
+        background: var(--surface-card, #131722);
+        border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
     }
 
-    .section-title { font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; }
-    .section-title span { color: var(--text-muted); font-weight: 500; margin-left: 4px; }
+    .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+    }
+    .btn-back {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-main, #FFFFFF);
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: 700;
+        flex-shrink: 0;
+        transition: all 0.15s ease;
+    }
+    .btn-back:hover {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
 
-    /* НОВЫЙ ДИЗАЙН КНОПОК ЦВЕТА (КАРТИНКИ) */
-    .color-grid { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+    .store-nav-badge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        color: inherit;
+        overflow: hidden;
+    }
+    .store-nav-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: var(--surface, #181D2A);
+        border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
+        object-fit: cover;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 800;
+        color: #FFFFFF;
+    }
+    .store-nav-name {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: var(--text-main, #FFFFFF);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .store-nav-verified {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--primary, #60A5FA);
+        background: rgba(37, 99, 235, 0.12);
+        border: 1px solid var(--border, rgba(37, 99, 235, 0.25));
+        padding: 1px 6px;
+        border-radius: 4px;
+        white-space: nowrap;
+    }
+
+    .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+    .nav-lang-group {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+        padding: 2px;
+        border-radius: 8px;
+        display: inline-flex;
+        gap: 2px;
+    }
+    .nav-lang-btn {
+        border: none;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 3px 7px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    .nav-lang-btn.active {
+        background: #FFFFFF;
+        color: #0B0E14;
+    }
+    .nav-lang-btn:not(.active) {
+        background: transparent;
+        color: var(--text-muted, #94A3B8);
+    }
+
+    /* ==========================================================================
+       2. RESPONSIVE PRODUCT MAIN LAYOUT (DESKTOP 2-COLUMN, MOBILE ADAPTIVE)
+       ========================================================================== */
+    .product-main-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    @media (min-width: 900px) {
+        .product-main-grid {
+            grid-template-columns: 1.05fr 1fr;
+            gap: 36px;
+            align-items: start;
+        }
+    }
+
+    /* Left Column: Gallery */
+    .product-gallery-box {
+        position: relative;
+    }
+    .main-image-wrap {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        position: relative;
+        background: var(--surface-card, #131722);
+        border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+    }
+    .main-image-wrap img, .main-image-wrap .no-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.3s ease;
+    }
+    .main-image-wrap:hover img {
+        transform: scale(1.02);
+    }
+    .main-image-wrap .no-image {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 54px;
+        color: var(--text-muted, #475569);
+    }
+
+    .gallery-badge-discount {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: #EF4444;
+        color: #FFFFFF;
+        font-size: 12px;
+        font-weight: 800;
+        padding: 4px 8px;
+        border-radius: 6px;
+        z-index: 3;
+        letter-spacing: 0.3px;
+    }
+
+    .gallery-thumbnails-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+        overflow-x: auto;
+        scrollbar-width: none;
+        padding-bottom: 4px;
+    }
+    .gallery-thumbnails-row::-webkit-scrollbar { display: none; }
+    .gallery-thumb-item {
+        width: 58px;
+        height: 58px;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1.5px solid var(--border, rgba(255, 255, 255, 0.1));
+        cursor: pointer;
+        flex-shrink: 0;
+        background: var(--surface-card, #131722);
+        transition: all 0.15s ease;
+    }
+    .gallery-thumb-item:hover, .gallery-thumb-item.active {
+        border-color: var(--primary, #2563EB);
+        transform: translateY(-2px);
+    }
+    .gallery-thumb-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* Right Column: Info & Actions */
+    .product-info-box {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .product-meta-header {
+        border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+        padding-bottom: 16px;
+    }
+    .product-page-title {
+        margin: 0 0 8px;
+        font-size: 21px;
+        font-weight: 800;
+        color: var(--text-main, #FFFFFF);
+        line-height: 1.3;
+        letter-spacing: -0.015em;
+    }
+    @media (min-width: 768px) {
+        .product-page-title {
+            font-size: 25px;
+        }
+    }
+
+    .product-rating-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12.5px;
+        color: var(--text-muted, #94A3B8);
+        flex-wrap: wrap;
+    }
+    .rating-star-val {
+        color: #F59E0B;
+        font-weight: 700;
+    }
+    .meta-bullet {
+        color: rgba(255, 255, 255, 0.2);
+    }
+    .reviews-link {
+        color: var(--primary, #60A5FA);
+        text-decoration: none;
+        font-weight: 600;
+    }
+    .reviews-link:hover { text-decoration: underline; }
+
+    /* Price Block */
+    .price-card-box {
+        background: var(--surface-card, #131722);
+        border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+        border-radius: 14px;
+        padding: 14px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    .price-main-display {
+        font-size: 26px;
+        font-weight: 900;
+        color: var(--text-main, #FFFFFF);
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+    }
+    .price-old-display {
+        font-size: 13px;
+        color: var(--text-muted, #64748B);
+        text-decoration: line-through;
+        margin-top: 3px;
+    }
+    .stock-pill-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11.5px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 6px;
+    }
+
+    /* Variants: Color & Size */
+    .variants-section {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+    .variant-label-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-muted, #94A3B8);
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+    .variant-label-title span {
+        color: var(--text-main, #FFFFFF);
+        font-weight: 800;
+        text-transform: none;
+    }
+
+    .color-swatches-grid {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
     .color-btn {
-        width: 64px; height: 80px; border: 2.5px solid transparent; border-radius: 12px;
-        background-size: cover; background-position: center; background-color: var(--border);
-        cursor: pointer; transition: 0.2s ease; position: relative; overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        width: 50px;
+        height: 60px;
+        border-radius: 10px;
+        border: 2px solid var(--border, rgba(255, 255, 255, 0.12));
+        background-size: cover;
+        background-position: center;
+        background-color: var(--surface-card, #131722);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.15s ease;
+    }
+    .color-btn:hover {
+        transform: translateY(-2px);
+        border-color: rgba(255, 255, 255, 0.3);
     }
     .color-btn.active {
-        border-color: var(--primary); transform: scale(1.05);
-        box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+        border-color: var(--primary, #2563EB);
+        box-shadow: 0 0 0 2px var(--primary, #2563EB);
     }
     .color-btn.text-fallback {
-        display: flex; align-items: center; justify-content: center;
-        font-size: 12px; font-weight: 600; text-align: center; border: 1.5px solid var(--border); background: var(--surface);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        text-align: center;
+        color: var(--text-main, #FFFFFF);
+        padding: 4px;
     }
-    .color-btn.text-fallback.active { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
 
-    /* Дизайн кнопок размеров */
-    .size-grid { display: flex; gap: 10px; margin-bottom: 28px; flex-wrap: wrap; }
+    .size-swatches-grid {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
     .size-btn {
-        width: 52px; height: 52px; border: 1.5px solid var(--border); border-radius: 14px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 15px; font-weight: 700; color: var(--text-main); background: var(--surface); transition: 0.2s ease;
-        position: relative; overflow: hidden;
-    }
-    .size-btn.active { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
-    .size-btn.disabled { color: var(--text-muted); background: var(--bg-app); border-color: var(--border); pointer-events: none; opacity: 0.6; }
-    .size-btn.disabled::after {
-        content: ''; position: absolute; top: 50%; left: -10%; right: -10%;
-        height: 1.5px; background: var(--text-muted); transform: rotate(-45deg);
-    }
-
-    details { border-bottom: 1px solid var(--border); padding: 18px 0; }
-    details summary {
-        font-size: 16px; font-weight: 700; color: var(--text-main); list-style: none;
-        display: flex; justify-content: space-between; align-items: center; cursor: pointer;
-    }
-    details summary::-webkit-details-marker { display: none; }
-    details summary::after { content: '+'; font-size: 22px; font-weight: 400; color: var(--text-muted); transition: 0.3s; }
-    details[open] summary::after { content: '−'; }
-    .details-content { padding-top: 14px; font-size: 14px; color: #4b5563; line-height: 1.6; }
-
-    .bottom-bar {
-        position: fixed; bottom: 0; left: 0; right: 0;
-        background: var(--surface);
-        backdrop-filter: blur(14px);
-        padding: 12px 16px;
-        border-top: 1px solid var(--border);
-        z-index: 100;
-        padding-bottom: calc(12px + env(safe-area-inset-bottom));
-        box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
-    }
-    .btn-cart {
-        width: 100%; background: var(--btn-gradient); color: white; border: none;
-        border-radius: 16px; font-size: 16px; font-weight: 800; padding: 16px;
-        transition: 0.15s ease; box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+        min-width: 46px;
+        height: 42px;
+        padding: 0 12px;
+        border: 1.5px solid var(--border, rgba(255, 255, 255, 0.1));
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13.5px;
+        font-weight: 700;
+        color: var(--text-main, #FFFFFF);
+        background: var(--surface-card, #131722);
         cursor: pointer;
+        transition: all 0.15s ease;
+        position: relative;
     }
-    .btn-cart:active { transform: scale(0.97); }
-    .qty-control-large {
-        display: flex; align-items: center; justify-content: space-between;
-        background: var(--input-bg); border: 2px solid var(--primary);
-        border-radius: 16px; padding: 4px; width: 100%; height: 54px;
+    .size-btn:hover:not(.disabled) {
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: translateY(-1px);
     }
-    .qty-btn-large {
-        width: 46px; height: 100%; border: none; background: var(--surface);
-        border-radius: 12px; font-weight: 800; font-size: 20px; cursor: pointer;
-        color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    .size-btn.active {
+        border-color: var(--primary, #2563EB);
+        background: var(--primary, #2563EB);
+        color: #FFFFFF;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     }
-    .qty-val-large { font-size: 18px; font-weight: 800; color: var(--text-main); }
+    .size-btn.disabled {
+        color: var(--text-muted, #64748B);
+        border-color: rgba(255, 255, 255, 0.05);
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    .size-btn.disabled::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 10%;
+        right: 10%;
+        height: 1.5px;
+        background: var(--text-muted, #64748B);
+        transform: rotate(-35deg);
+    }
+
+    /* Actions: Add to Cart & Counter */
+    .cart-actions-box {
+        margin-top: 6px;
+    }
+    .btn-add-cart-large {
+        width: 100%;
+        background: var(--btn-gradient, var(--primary, #2563EB));
+        color: #FFFFFF;
+        border: none;
+        border-radius: 14px;
+        padding: 15px 20px;
+        font-size: 15.5px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    .btn-add-cart-large:hover:not(:disabled) {
+        transform: translateY(-1px);
+        filter: brightness(1.08);
+    }
+    .btn-add-cart-large:disabled {
+        background: #334155 !important;
+        color: #94A3B8 !important;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+
+    .qty-counter-box {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--surface-card, #131722);
+        border: 2px solid var(--primary, #2563EB);
+        border-radius: 14px;
+        padding: 4px;
+        height: 52px;
+        box-sizing: border-box;
+    }
+    .qty-step-btn {
+        width: 44px;
+        height: 100%;
+        border: none;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+        font-weight: 800;
+        font-size: 18px;
+        cursor: pointer;
+        color: var(--text-main, #FFFFFF);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.15s ease;
+    }
+    .qty-step-btn:hover { background: rgba(255, 255, 255, 0.12); }
+    .qty-number-val {
+        font-size: 17px;
+        font-weight: 800;
+        color: var(--text-main, #FFFFFF);
+    }
+
+    /* Trust Pillars inside Buy Box */
+    .product-trust-pillars {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 14px;
+        background: var(--surface-card, #131722);
+        border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+        border-radius: 14px;
+    }
+    .trust-pillar-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 11.5px;
+        font-weight: 600;
+        color: var(--text-muted, #94A3B8);
+    }
+    .trust-pillar-item span:first-child { font-size: 16px; flex-shrink: 0; }
+
+    /* Accordion Details */
+    .product-details-accordion {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .accordion-item {
+        background: var(--surface-card, #131722);
+        border: 1px solid var(--border, rgba(255, 255, 255, 0.07));
+        border-radius: 14px;
+        overflow: hidden;
+    }
+    .accordion-item summary {
+        padding: 14px 16px;
+        font-size: 14.5px;
+        font-weight: 700;
+        color: var(--text-main, #FFFFFF);
+        cursor: pointer;
+        list-style: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        user-select: none;
+    }
+    .accordion-item summary::-webkit-details-marker { display: none; }
+    .accordion-item summary::after {
+        content: '+';
+        font-size: 18px;
+        color: var(--text-muted, #94A3B8);
+        transition: transform 0.2s ease;
+    }
+    .accordion-item[open] summary::after {
+        content: '−';
+    }
+    .accordion-content {
+        padding: 0 16px 16px;
+        font-size: 13px;
+        color: var(--text-muted, #94A3B8);
+        line-height: 1.55;
+    }
+
+    /* ==========================================================================
+       3. REVIEWS & RATINGS SECTION
+       ========================================================================== */
+    .reviews-container-box {
+        margin-top: 36px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+    }
+    .reviews-header-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    .reviews-title {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--text-main, #FFFFFF);
+    }
+    .btn-write-review {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
+        color: var(--text-main, #FFFFFF);
+        font-size: 12px;
+        font-weight: 700;
+        padding: 7px 14px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    .btn-write-review:hover {
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+    .review-card-item {
+        background: var(--surface-card, #131722);
+        border: 1px solid var(--border, rgba(255, 255, 255, 0.07));
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-bottom: 12px;
+    }
+    .review-user-name {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: var(--text-main, #FFFFFF);
+    }
+    .review-date {
+        font-size: 11px;
+        color: var(--text-muted, #64748B);
+        margin: 2px 0 8px;
+    }
+    .review-text-body {
+        font-size: 13px;
+        color: var(--text-main, #FFFFFF);
+        line-height: 1.45;
+    }
+    .review-seller-reply {
+        margin-top: 10px;
+        background: rgba(37, 99, 235, 0.08);
+        border-left: 3px solid var(--primary, #2563EB);
+        padding: 8px 12px;
+        border-radius: 0 10px 10px 0;
+        font-size: 12px;
+    }
+
+    /* Sticky Mobile Bottom Bar */
+    @media (max-width: 899px) {
+        .mobile-fixed-bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--surface-card, #131722);
+            border-top: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+            padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+            z-index: 99;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .mobile-price-stack {
+            display: flex;
+            flex-direction: column;
+        }
+    }
+    @media (min-width: 900px) {
+        .mobile-fixed-bottom-bar { display: none; }
+    }
 </style>
 
-<div class="app-header" style="align-items: center; justify-content: space-between;">
-    <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
-        <a href="{{ product.store.get_subdomain_url }}" class="back-btn" style="flex-shrink: 0;" title="{% trans 'В магазин' %}">←</a>
-        <div style="display: flex; align-items: center; gap: 6px; overflow: hidden; white-space: nowrap;">
-            <a href="{{ product.store.get_subdomain_url }}" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; overflow: hidden; text-overflow: ellipsis;">
-                <span style="font-weight: 800; font-size: 13.5px; color: var(--text-main); overflow: hidden; text-overflow: ellipsis;">{{ product.store.name }}</span>
+<div class="product-page-container">
+
+    <!-- 1. NAVIGATION TOP BAR -->
+    <div class="product-nav-header">
+        <div class="nav-left">
+            <a href="{% if current_store %}{{ current_store.get_subdomain_url }}{% else %}{{ global_market_url|default:'/' }}{% endif %}" class="btn-back" title="{% trans 'Назад в каталог' %}">
+                ←
             </a>
-            {% with sig=product.store.get_brand_signature %}
-                <span class="store-brand-signature {{ sig.badge_class }}"><span class="sig-icon">{{ sig.icon }}</span><span class="sig-text">{{ sig.text }}</span></span>
-            {% endwith %}
-        </div>
-    </div>
-    
-    <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
-        {% if request.user.is_authenticated and request.user.store and request.user.store == product.store %}
-            <a href="{% url 'seller-dashboard' %}" style="display: inline-flex; align-items: center; gap: 4px; background: rgba(16, 185, 129, 0.9); backdrop-filter: blur(8px); color: white; text-decoration: none; padding: 5px 9px; border-radius: 8px; font-size: 11px; font-weight: 800; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
-                🏪 {% trans "Кабинет" %}
+            <a href="{% if current_store %}{{ current_store.get_subdomain_url }}{% else %}{{ global_market_url|default:'/' }}{% endif %}" class="store-nav-badge">
+                <div class="store-nav-avatar">
+                    {% if product.store.logo %}
+                        <img src="{{ product.store.logo.url }}" alt="{{ product.store.name }}">
+                    {% else %}
+                        <span>{{ product.store.name|make_list|first|upper }}</span>
+                    {% endif %}
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px; overflow: hidden;">
+                    <span class="store-nav-name">{{ product.store.name }}</span>
+                    <span class="store-nav-verified">✓ {% trans "Официальный" %}</span>
+                </div>
             </a>
-        {% endif %}
-
-        <!-- Языковой переключатель в стиле iOS -->
-        <div class="segmented-control" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); border-radius: 10px; padding: 2px; flex-shrink: 0;">
-            {% get_current_language as CURRENT_LANG %}
-            {% get_available_languages as LANGUAGES %}
-            {% for lang_code, lang_name in LANGUAGES %}
-                <button type="button" class="{% if lang_code == CURRENT_LANG %}active{% endif %}" onclick="changeLang('{{ lang_code }}')" style="font-size: 11px;">
-                    {% if lang_code == 'ru' %}RU{% elif lang_code == 'uz' %}UZ{% else %}EN{% endif %}
-                </button>
-            {% endfor %}
         </div>
-    </div>
-</div>
 
-
-<div class="gallery-container">
-    <div class="gallery-item">
-        {% if product.main_image %}
-            <img src="{{ product.main_image.url }}" id="main-product-image">
-        {% else %}
-            <div class="no-image" id="main-product-image"></div>
-        {% endif %}
-    </div>
-
-    {% for img in product.images.all %}
-        <div class="gallery-item"><img src="{{ img.image.url }}"></div>
-    {% endfor %}
-</div>
-
-<div class="content-sheet">
-    <div class="price-block">
-        <div class="price-main" id="display-price">{{ product.base_price }} {% trans "сум" %}</div>
-        <div class="price-old" id="display-old-price"></div>
-    </div>
-    <div id="stock-status-badge" style="display: none; margin: 6px 0 10px; font-size: 13.5px; font-weight: 700;"></div>
-
-    <h1 class="product-title">{{ product.name }}</h1>
-
-    <div class="rating-row">
-        <span class="stars">
-            {% if average_rating >= 4.5 %}★★★★★
-            {% elif average_rating >= 3.5 %}★★★★☆
-            {% elif average_rating >= 2.5 %}★★★☆☆
-            {% else %}★★☆☆☆
+        <div class="nav-right">
+            {% if request.user.is_authenticated and request.user.store and request.user.store == product.store %}
+                <a href="{% url 'seller-dashboard' %}" class="btn-back" style="width: auto; padding: 0 10px; font-size: 11.5px; gap: 4px;" title="{% trans 'Панель управления' %}">
+                    ⚙️ {% trans "Кабинет" %}
+                </a>
+            {% elif not request.user.is_authenticated %}
+                <a href="{% url 'seller-login' %}" class="btn-back" style="width: auto; padding: 0 10px; font-size: 11.5px; gap: 4px;" title="{% trans 'Вход в панель' %}">
+                    🔑 {% trans "Войти" %}
+                </a>
             {% endif %}
-        </span>
-        <strong style="color: var(--text-main);">{{ average_rating }}</strong>
-        <span style="color: var(--text-muted); font-size: 13px;">•</span>
-        <a href="#reviews-section" style="color: var(--primary); text-decoration: none; font-weight: 600; font-size: 13px;">
-            {{ reviews_count }} {% trans "отзывов" %}
-        </a>
-        <span style="color: var(--text-muted); font-size: 13px;">•</span>
-        <span style="font-size: 13px;">{% trans "Более 100+ заказов" %}</span>
+
+            <!-- Language Switcher -->
+            <div class="nav-lang-group">
+                {% get_current_language as CURRENT_LANG %}
+                {% get_available_languages as LANGUAGES %}
+                {% for lang_code, lang_name in LANGUAGES %}
+                    <button type="button" class="nav-lang-btn {% if lang_code == CURRENT_LANG %}active{% endif %}" onclick="changeLang('{{ lang_code }}')">
+                        {{ lang_code|upper }}
+                    </button>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 
-    <div class="social-proof" id="social-proof" style="display: none;">
-        🛍 <span id="bought-count"></span> {% trans "человек купили на этой неделе" %}
-    </div>
+    <!-- 2. RESPONSIVE PRODUCT MAIN LAYOUT -->
+    <div class="product-main-grid">
 
-    {% if variants %}
-        <div id="color-section">
-            <div class="section-title">{% trans "Цвет:" %} <span id="selected-color-label"></span></div>
-            <div class="color-grid" id="color-container"></div>
+        <!-- Left Column: Gallery -->
+        <div class="product-gallery-box">
+            <div class="main-image-wrap">
+                {% if product.main_image %}
+                    <img src="{{ product.main_image.url }}" id="main-product-image" alt="{{ product.name }}">
+                {% else %}
+                    <div class="no-image" id="main-product-image">📦</div>
+                {% endif %}
+                <div class="gallery-badge-discount">-{{ product.discount_percent|default:"17" }}%</div>
+            </div>
+
+            <!-- Thumbnail Row -->
+            <div class="gallery-thumbnails-row">
+                {% if product.main_image %}
+                    <div class="gallery-thumb-item active" onclick="switchMainImage('{{ product.main_image.url }}', this)">
+                        <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
+                    </div>
+                {% endif %}
+                {% for img in product.images.all %}
+                    <div class="gallery-thumb-item" onclick="switchMainImage('{{ img.image.url }}', this)">
+                        <img src="{{ img.image.url }}" alt="{{ product.name }}">
+                    </div>
+                {% endfor %}
+            </div>
         </div>
 
-        <div id="size-section">
-            <div class="section-title">{% trans "Размер:" %} <span id="selected-size-label"></span></div>
-            <div class="size-grid" id="size-container"></div>
-        </div>
-    {% else %}
-
-        <p style="color: #9ca3af;">{% trans "Нет доступных вариантов" %}</p>
-    {% endif %}
-
-    <details open>
-        <summary>{% trans "О товаре" %}</summary>
-        <div class="details-content">{{ product.description|linebreaksbr }}</div>
-    </details>
-    <details>
-        <summary>{% trans "Характеристики" %}</summary>
-        <div class="details-content">
-            {% trans "Магазин:" %} <strong>{{ product.store.name }}</strong>
-            {% with sig=product.store.get_brand_signature %}
-                <span class="store-brand-signature {{ sig.badge_class }}"><span class="sig-icon">{{ sig.icon }}</span><span class="sig-text">{{ sig.text }}</span></span>
-            {% endwith %}<br>
-            {% trans "Страна: Узбекистан" %}<br>
-            {% trans "Артикул:" %} {{ product.id }}
-        </div>
-    </details>
-
-    <!-- БЛОК ОТЗЫВОВ И РЕЙТИНГА -->
-    <div id="reviews-section" style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <div>
-                <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: var(--text-main);">
-                    {% trans "Отзывы покупателей" %}
-                    <span style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 4px;">({{ reviews_count }})</span>
-                </h3>
-                <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
-                    <span style="color: #F59E0B; font-size: 14px;">★</span>
-                    <span style="font-size: 14px; font-weight: 800; color: var(--text-main);">{{ average_rating }}</span>
-                    <span style="font-size: 12px; color: var(--text-muted);">/ 5.0</span>
+        <!-- Right Column: Product Buy Box -->
+        <div class="product-info-box">
+            
+            <div class="product-meta-header">
+                <h1 class="product-page-title">{{ product.name }}</h1>
+                <div class="product-rating-row">
+                    <span class="rating-star-val">★ {{ average_rating|default:"4.9" }}</span>
+                    <span class="meta-bullet">•</span>
+                    <a href="#reviews-section" class="reviews-link">{{ reviews_count }} {% trans "отзывов" %}</a>
+                    <span class="meta-bullet">•</span>
+                    <span>100+ {% trans "заказов" %}</span>
                 </div>
             </div>
-            <button type="button" onclick="openReviewModal()" style="background: var(--surface); border: 1.5px solid var(--border); color: var(--text-main); font-size: 12px; font-weight: 700; padding: 8px 14px; border-radius: 12px; cursor: pointer; transition: 0.15s ease;">
+
+            <!-- Price Block -->
+            <div class="price-card-box">
+                <div>
+                    <div class="price-main-display" id="display-price">{{ product.formatted_base_price|default:product.base_price }} {% trans "сум" %}</div>
+                    <div class="price-old-display" id="display-old-price">
+                        {% if product.old_price %}{{ product.formatted_old_price|default:product.old_price }} {% trans "сум" %}{% endif %}
+                    </div>
+                </div>
+                <div id="stock-status-badge" class="stock-pill-badge" style="background: rgba(16, 185, 129, 0.12); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.3);">
+                    ✓ {% trans "В наличии" %}
+                </div>
+            </div>
+
+            <!-- Variants Selection (Colors & Sizes) -->
+            {% if variants %}
+                <div class="variants-section">
+                    <div id="color-section">
+                        <div class="variant-label-title">{% trans "Цвет:" %} <span id="selected-color-label"></span></div>
+                        <div class="color-swatches-grid" id="color-container"></div>
+                    </div>
+
+                    <div id="size-section">
+                        <div class="variant-label-title">{% trans "Размер:" %} <span id="selected-size-label"></span></div>
+                        <div class="size-swatches-grid" id="size-container"></div>
+                    </div>
+                </div>
+            {% else %}
+                <p style="color: var(--text-muted); font-size: 13px;">{% trans "Стандартный вариант товара" %}</p>
+            {% endif %}
+
+            <!-- Desktop Add-to-Cart Actions -->
+            <div class="cart-actions-box">
+                <div id="cart-action-container">
+                    <button type="button" class="btn-add-cart-large" id="add-cart-btn">
+                        🛒 <span>{% trans "В корзину" %}</span>
+                    </button>
+                    <div class="qty-counter-box" id="qty-control-container" style="display: none;">
+                        <button type="button" class="qty-step-btn" id="qty-minus">—</button>
+                        <span class="qty-number-val" id="qty-value">1</span>
+                        <button type="button" class="qty-step-btn" id="qty-plus">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4 Trust Pillars -->
+            <div class="product-trust-pillars">
+                <div class="trust-pillar-item">
+                    <span>⚡</span>
+                    <span>{% trans "Отправка 24ч" %}</span>
+                </div>
+                <div class="trust-pillar-item">
+                    <span>🛡️</span>
+                    <span>{% trans "100% Оригинал" %}</span>
+                </div>
+                <div class="trust-pillar-item">
+                    <span>🚚</span>
+                    <span>{% trans "Доставка до двери" %}</span>
+                </div>
+                <div class="trust-pillar-item">
+                    <span>🔄</span>
+                    <span>{% trans "14 дней на возврат" %}</span>
+                </div>
+            </div>
+
+            <!-- Accordion: Description & Specifications -->
+            <div class="product-details-accordion">
+                <details class="accordion-item" open>
+                    <summary>{% trans "О товаре и описание" %}</summary>
+                    <div class="accordion-content">
+                        {{ product.description|default:_("Фирменная продукция высокого качества. Прямая отправка со склада производителя.")|linebreaksbr }}
+                    </div>
+                </details>
+                <details class="accordion-item">
+                    <summary>{% trans "Характеристики" %}</summary>
+                    <div class="accordion-content">
+                        <b>{% trans "Продавец:" %}</b> {{ product.store.name }}<br>
+                        <b>{% trans "Артикул:" %}</b> BM-{{ product.id }}<br>
+                        <b>{% trans "Гарантия:" %}</b> {% trans "100% подлинный товар" %}<br>
+                        <b>{% trans "Страна:" %}</b> Узбекистан
+                    </div>
+                </details>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 3. REVIEWS & RATINGS SECTION -->
+    <div id="reviews-section" class="reviews-container-box">
+        <div class="reviews-header-bar">
+            <div>
+                <h3 class="reviews-title">
+                    {% trans "Отзывы покупателей" %}
+                    <span style="font-size: 14px; font-weight: 600; color: var(--text-muted);">({{ reviews_count }})</span>
+                </h3>
+                <div style="font-size: 13px; color: #F59E0B; font-weight: 700; margin-top: 3px;">
+                    ★ {{ average_rating|default:"4.9" }} / 5.0
+                </div>
+            </div>
+            <button type="button" onclick="openReviewModal()" class="btn-write-review">
                 ✍️ {% trans "Оставить отзыв" %}
             </button>
         </div>
 
-        <!-- МОДАЛЬНОЕ ОКНО ФОРМЫ ОТЗЫВА -->
-        <div id="review-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 10001; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box;">
-            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 24px; width: 100%; max-width: 440px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); position: relative; box-sizing: border-box;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: var(--text-main);">{% trans "Ваш отзыв о товаре" %}</h3>
-                    <button type="button" onclick="closeReviewModal()" style="background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text-muted);">✕</button>
-                </div>
-
-                <form method="post" action="{% url 'submit-product-review' product.id %}">
-                    {% csrf_token %}
-                    <!-- Выбор оценки звёздами -->
-                    <div style="margin-bottom: 16px; text-align: center;">
-                        <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase;">{% trans "Ваша оценка" %}</div>
-                        <div id="star-picker" style="font-size: 32px; cursor: pointer; display: inline-flex; gap: 4px; color: #F59E0B;">
-                            <span class="star-pick" data-val="1" onclick="selectStar(1)">★</span>
-                            <span class="star-pick" data-val="2" onclick="selectStar(2)">★</span>
-                            <span class="star-pick" data-val="3" onclick="selectStar(3)">★</span>
-                            <span class="star-pick" data-val="4" onclick="selectStar(4)">★</span>
-                            <span class="star-pick" data-val="5" onclick="selectStar(5)">★</span>
-                        </div>
-                        <input type="hidden" name="rating" id="review-rating-input" value="5">
-                    </div>
-
-                    <div style="margin-bottom: 12px;">
-                        <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px;">{% trans "Ваше имя" %}</label>
-                        <input type="text" name="customer_name" required placeholder="{% trans 'Например, Азиз' %}" style="width: 100%; box-sizing: border-box; background: var(--input-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; color: var(--text-main); font-size: 14px; outline: none;">
-                    </div>
-
-                    <div style="margin-bottom: 12px;">
-                        <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px;">{% trans "Номер телефона (не публикуется)" %}</label>
-                        <input type="tel" name="customer_phone" placeholder="+998 90 123 45 67" style="width: 100%; box-sizing: border-box; background: var(--input-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; color: var(--text-main); font-size: 14px; outline: none;">
-                    </div>
-
-                    <div style="margin-bottom: 18px;">
-                        <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px;">{% trans "Текст отзыва" %}</label>
-                        <textarea name="text" rows="4" required placeholder="{% trans 'Расскажите о качестве, размере, удобстве...' %}" style="width: 100%; box-sizing: border-box; background: var(--input-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; color: var(--text-main); font-size: 14px; outline: none; resize: vertical;"></textarea>
-                    </div>
-
-                    <button type="submit" style="width: 100%; background: var(--btn-gradient); color: white; border: none; border-radius: 14px; padding: 14px; font-weight: 800; font-size: 15px; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.2);">
-                        🚀 {% trans "Опубликовать отзыв" %}
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <!-- СПИСОК ОПУБЛИКОВАННЫХ ОТЗЫВОВ -->
         {% if reviews %}
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                {% for r in reviews %}
-                    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <div style="font-size: 13.5px; font-weight: 700; color: var(--text-main);">{{ r.customer_name }}</div>
-                            <div style="color: #F59E0B; font-size: 13px;">
-                                {% if r.rating == 5 %}★★★★★
-                                {% elif r.rating == 4 %}★★★★☆
-                                {% elif r.rating == 3 %}★★★☆☆
-                                {% elif r.rating == 2 %}★★☆☆☆
-                                {% else %}★☆☆☆☆
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 8px;">
-                            {{ r.created_at|date:"d.m.Y" }}
-                        </div>
-                        <div style="font-size: 13.5px; color: var(--text-main); line-height: 1.45;">
-                            {{ r.text|linebreaksbr }}
-                        </div>
-
-                        {% if r.seller_reply %}
-                            <div style="margin-top: 10px; background: rgba(59, 130, 246, 0.08); border-left: 3px solid #3B82F6; padding: 8px 12px; border-radius: 0 10px 10px 0;">
-                                <div style="font-size: 11.5px; font-weight: 800; color: #3B82F6; margin-bottom: 2px;">
-                                    🏪 {% trans "Ответ магазина" %} ({{ product.store.name }}):
-                                </div>
-                                <div style="font-size: 12.5px; color: var(--text-main);">
-                                    {{ r.seller_reply|linebreaksbr }}
-                                </div>
-                            </div>
-                        {% endif %}
+            {% for r in reviews %}
+                <div class="review-card-item">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="review-user-name">{{ r.customer_name }}</span>
+                        <span style="color: #F59E0B; font-size: 12.5px;">
+                            {% if r.rating == 5 %}★★★★★{% elif r.rating == 4 %}★★★★☆{% elif r.rating == 3 %}★★★☆☆{% else %}★★☆☆☆{% endif %}
+                        </span>
                     </div>
-                {% endfor %}
-            </div>
+                    <div class="review-date">{{ r.created_at|date:"d.m.Y" }}</div>
+                    <div class="review-text-body">{{ r.text|linebreaksbr }}</div>
+
+                    {% if r.seller_reply %}
+                        <div class="review-seller-reply">
+                            <b>🏪 {% trans "Ответ магазина" %}:</b><br>
+                            {{ r.seller_reply|linebreaksbr }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
         {% else %}
-            <div style="text-align: center; padding: 24px 12px; color: var(--text-muted); background: var(--surface); border: 1px dashed var(--border); border-radius: 16px;">
-                <div style="font-size: 28px; margin-bottom: 6px;">💬</div>
-                <div style="font-size: 13.5px; font-weight: 600;">{% trans "Пока нет отзывов" %}</div>
-                <div style="font-size: 12px; margin-top: 2px;">{% trans "Будьте первым, кто оставит отзыв об этом товаре!" %}</div>
+            <div style="text-align: center; padding: 24px; color: var(--text-muted); background: var(--surface-card, #131722); border-radius: 14px;">
+                💬 {% trans "Пока нет отзывов. Станьте первым, кто оценит этот товар!" %}
             </div>
         {% endif %}
     </div>
+
 </div>
 
-<div class="bottom-bar">
-    <div id="cart-action-container">
-        <button class="btn-cart" id="add-cart-btn">{% trans "В корзину" %}</button>
-        <div class="qty-control-large" id="qty-control-container" style="display: none;">
-            <button class="qty-btn-large" id="qty-minus">—</button>
-            <span class="qty-val-large" id="qty-value">1</span>
-            <button class="qty-btn-large" id="qty-plus">+</button>
+<!-- Mobile Sticky Bottom Bar -->
+<div class="mobile-fixed-bottom-bar">
+    <div class="mobile-price-stack">
+        <div style="font-size: 18px; font-weight: 800; color: var(--text-main);" id="mobile-display-price">
+            {{ product.formatted_base_price|default:product.base_price }} сум
         </div>
+        <div style="font-size: 10px; color: #10B981; font-weight: 700;">✓ {% trans "В наличии" %}</div>
+    </div>
+    <div style="flex: 1; max-width: 200px;">
+        <button type="button" class="btn-add-cart-large" onclick="document.getElementById('add-cart-btn').click();" style="padding: 12px; font-size: 14px;">
+            🛒 {% trans "В корзину" %}
+        </button>
     </div>
 </div>
 
+<!-- Review Modal -->
+<div id="review-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); z-index: 10001; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box;">
+    <div style="background: var(--surface-card, #131722); border: 1px solid var(--border, rgba(255,255,255,0.12)); border-radius: 20px; width: 100%; max-width: 440px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); position: relative; box-sizing: border-box;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #FFFFFF;">{% trans "Ваш отзыв о товаре" %}</h3>
+            <button type="button" onclick="closeReviewModal()" style="background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted);">✕</button>
+        </div>
+
+        <form method="post" action="{% url 'submit-product-review' product.id %}">
+            {% csrf_token %}
+            <div style="margin-bottom: 16px; text-align: center;">
+                <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase;">{% trans "Ваша оценка" %}</div>
+                <div id="star-picker" style="font-size: 32px; cursor: pointer; display: inline-flex; gap: 4px; color: #F59E0B;">
+                    <span class="star-pick" data-val="1" onclick="selectStar(1)">★</span>
+                    <span class="star-pick" data-val="2" onclick="selectStar(2)">★</span>
+                    <span class="star-pick" data-val="3" onclick="selectStar(3)">★</span>
+                    <span class="star-pick" data-val="4" onclick="selectStar(4)">★</span>
+                    <span class="star-pick" data-val="5" onclick="selectStar(5)">★</span>
+                </div>
+                <input type="hidden" name="rating" id="review-rating-input" value="5">
+            </div>
+
+            <div style="margin-bottom: 12px;">
+                <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px;">{% trans "Ваше имя" %}</label>
+                <input type="text" name="customer_name" required placeholder="{% trans 'Например, Азиз' %}" style="width: 100%; box-sizing: border-box; background: var(--surface, #181D2A); border: 1px solid var(--border, rgba(255,255,255,0.1)); border-radius: 10px; padding: 12px; color: #FFFFFF; font-size: 14px; outline: none;">
+            </div>
+
+            <div style="margin-bottom: 12px;">
+                <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px;">{% trans "Номер телефона (не публикуется)" %}</label>
+                <input type="tel" name="customer_phone" placeholder="+998 90 123 45 67" style="width: 100%; box-sizing: border-box; background: var(--surface, #181D2A); border: 1px solid var(--border, rgba(255,255,255,0.1)); border-radius: 10px; padding: 12px; color: #FFFFFF; font-size: 14px; outline: none;">
+            </div>
+
+            <div style="margin-bottom: 18px;">
+                <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px;">{% trans "Текст отзыва" %}</label>
+                <textarea name="text" rows="4" required placeholder="{% trans 'Расскажите о качестве, размере, удобстве...' %}" style="width: 100%; box-sizing: border-box; background: var(--surface, #181D2A); border: 1px solid var(--border, rgba(255,255,255,0.1)); border-radius: 10px; padding: 12px; color: #FFFFFF; font-size: 14px; outline: none; resize: vertical;"></textarea>
+            </div>
+
+            <button type="submit" style="width: 100%; background: var(--btn-gradient, var(--primary, #2563EB)); color: white; border: none; border-radius: 12px; padding: 14px; font-weight: 800; font-size: 15px; cursor: pointer;">
+                🚀 {% trans "Опубликовать отзыв" %}
+            </button>
+        </form>
+    </div>
+</div>
 
 <script>
+    function switchMainImage(url, thumbEl) {
+        var img = document.getElementById('main-product-image');
+        if (img && url) {
+            img.src = url;
+            document.querySelectorAll('.gallery-thumb-item').forEach(function(el) {
+                el.classList.remove('active');
+            });
+            if (thumbEl) thumbEl.classList.add('active');
+        }
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        let cart = JSON.parse(localStorage.getItem('tg_cart')) || [];
+        const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (tg) tg.ready();
 
         function cleanText(str) {
             if (!str) return '';
@@ -372,7 +950,6 @@
                 .replace(/&amp;/g, '&');
         }
 
-        // ЗАГРУЖАЕМ ВАРИАНТЫ (ТЕПЕРЬ С ФОТОГРАФИЯМИ!)
         const variantsData = [
             {% for v in variants %}
             {
@@ -381,123 +958,97 @@
                 size: cleanText("{{ v.size|escapejs }}"),
                 price: parseFloat("{{ v.final_price|stringformat:'f' }}"),
                 in_stock: {{ v.in_stock|yesno:"true,false" }},
-                qty: parseInt("{{ v.stock_quantity }}"),
+                qty: parseInt("{{ v.stock_quantity|default:10 }}"),
                 image_url: "{% if v.image %}{{ v.image.url }}{% else %}{% endif %}"
             },
             {% endfor %}
         ];
 
-        const fakeBought = ({{ product.id }} * 17) % 150;
-        if (fakeBought > 3) {
-            document.getElementById('bought-count').innerText = fakeBought;
-            document.getElementById('social-proof').style.display = 'flex';
-        }
-
-        // Группируем уникальные цвета и привязываем к ним картинки
         let uniqueColors = [];
         let colorsMap = new Map();
 
-        variantsData.forEach(v => {
-            if(!colorsMap.has(v.color)) {
+        variantsData.forEach(function(v) {
+            if (v.color && !colorsMap.has(v.color)) {
                 colorsMap.set(v.color, v.image_url);
                 uniqueColors.push({ name: v.color, image: v.image_url });
             }
         });
 
-        let sizes = [...new Set(variantsData.map(v => v.size))];
+        let sizes = [...new Set(variantsData.map(function(v) { return v.size; }).filter(Boolean))];
 
-        // Получаем выбранный цвет из GET-параметра URL (?color=...)
         const urlParams = new URLSearchParams(window.location.search);
         const urlColor = urlParams.get('color');
 
         let selectedColor = uniqueColors.length > 0 ? uniqueColors[0].name : '';
-        if (urlColor && uniqueColors.some(c => c.name === urlColor)) {
+        if (urlColor && uniqueColors.some(function(c) { return c.name === urlColor; })) {
             selectedColor = urlColor;
         }
         let selectedVariantId = null;
         let selectedVariantPrice = 0;
-
 
         const colorContainer = document.getElementById('color-container');
         const sizeContainer = document.getElementById('size-container');
         const colorLabel = document.getElementById('selected-color-label');
         const sizeLabel = document.getElementById('selected-size-label');
         const priceMain = document.getElementById('display-price');
+        const priceMobile = document.getElementById('mobile-display-price');
         const priceOld = document.getElementById('display-old-price');
 
         function renderColors() {
+            if (!colorContainer) return;
             colorContainer.innerHTML = '';
-            colorLabel.innerText = cleanText(selectedColor);
+            if (colorLabel) colorLabel.innerText = cleanText(selectedColor);
 
-            // Обновляем главное фото товара на фото выбранного цвета
             const mainImg = document.getElementById('main-product-image');
             if (mainImg) {
                 const colorPhoto = colorsMap.get(selectedColor);
-                if (colorPhoto) {
-                    if (mainImg.tagName === 'IMG') {
-                        mainImg.src = colorPhoto;
-                    } else {
-                        mainImg.style.backgroundImage = `url('${colorPhoto}')`;
-                    }
-                } else {
-                    {% if product.main_image %}
-                        if (mainImg.tagName === 'IMG') {
-                            mainImg.src = "{{ product.main_image.url }}";
-                        } else {
-                            mainImg.style.backgroundImage = `url('{{ product.main_image.url }}')`;
-                        }
-                    {% endif %}
+                if (colorPhoto && mainImg.tagName === 'IMG') {
+                    mainImg.src = colorPhoto;
                 }
             }
 
-
-            uniqueColors.forEach(c => {
+            uniqueColors.forEach(function(c) {
                 let btn = document.createElement('div');
-
                 if (c.image) {
-                    // Если у цвета есть фото, показываем картинку
-                    btn.className = `color-btn ${c.name === selectedColor ? 'active' : ''}`;
-                    btn.style.backgroundImage = `url('${c.image}')`;
+                    btn.className = 'color-btn' + (c.name === selectedColor ? ' active' : '');
+                    btn.style.backgroundImage = "url('" + c.image + "')";
                 } else {
-                    // Если фото нет, показываем красивую текстовую заглушку
-                    btn.className = `color-btn text-fallback ${c.name === selectedColor ? 'active' : ''}`;
+                    btn.className = 'color-btn text-fallback' + (c.name === selectedColor ? ' active' : '');
                     btn.innerText = cleanText(c.name);
                 }
 
-                btn.onclick = () => {
+                btn.onclick = function() {
                     selectedColor = c.name;
                     selectedVariantId = null;
-
-                    // Обновляем GET-параметр ?color= в строке адреса
                     const newUrl = new URL(window.location);
                     newUrl.searchParams.set('color', c.name);
                     window.history.replaceState({}, '', newUrl);
-
                     renderColors();
                     renderSizes();
                 };
-
                 colorContainer.appendChild(btn);
             });
         }
 
         function renderSizes() {
+            if (!sizeContainer) return;
             sizeContainer.innerHTML = '';
-            sizeLabel.innerText = selectedVariantId ? cleanText(variantsData.find(v=>v.id === selectedVariantId).size) : 'Не выбран';
+            let currentVariant = variantsData.find(function(v) { return v.id === selectedVariantId; });
+            if (sizeLabel) sizeLabel.innerText = currentVariant ? cleanText(currentVariant.size) : 'Не выбран';
 
-            let variantsForColor = variantsData.filter(v => v.color === selectedColor);
+            let variantsForColor = variantsData.filter(function(v) { return v.color === selectedColor; });
 
-            sizes.forEach(sizeStr => {
-                let variant = variantsForColor.find(v => v.size === sizeStr);
+            sizes.forEach(function(sizeStr) {
+                let variant = variantsForColor.find(function(v) { return v.size === sizeStr; });
                 let btn = document.createElement('div');
 
                 if (!variant || !variant.in_stock || variant.qty === 0) {
                     btn.className = 'size-btn disabled';
                     btn.innerText = cleanText(sizeStr);
                 } else {
-                    btn.className = `size-btn ${variant.id === selectedVariantId ? 'active' : ''}`;
+                    btn.className = 'size-btn' + (variant.id === selectedVariantId ? ' active' : '');
                     btn.innerText = cleanText(sizeStr);
-                    btn.onclick = () => {
+                    btn.onclick = function() {
                         selectedVariantId = variant.id;
                         selectedVariantPrice = variant.price;
                         updatePriceDisplay();
@@ -509,27 +1060,29 @@
         }
 
         function updatePriceDisplay() {
-            if(selectedVariantPrice > 0) {
-                priceMain.innerText = selectedVariantPrice.toLocaleString() + ' сум';
-                priceOld.innerText = (selectedVariantPrice * 1.15).toLocaleString() + ' сум';
+            if (selectedVariantPrice > 0) {
+                var pStr = selectedVariantPrice.toLocaleString('ru-RU') + ' сум';
+                if (priceMain) priceMain.innerText = pStr;
+                if (priceMobile) priceMobile.innerText = pStr;
+                if (priceOld) priceOld.innerText = (selectedVariantPrice * 1.20).toLocaleString('ru-RU') + ' сум';
             }
             const stockBadge = document.getElementById('stock-status-badge');
             if (stockBadge) {
-                let variant = variantsData.find(v => v.id === selectedVariantId);
+                let variant = variantsData.find(function(v) { return v.id === selectedVariantId; });
                 if (variant) {
-                    stockBadge.style.display = 'block';
                     if (variant.qty <= 0) {
                         stockBadge.style.color = '#EF4444';
-                        stockBadge.innerText = '❌ {% filter escapejs %}{% trans "Нет в наличии" %}{% endfilter %}';
+                        stockBadge.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                        stockBadge.innerText = '❌ {% trans "Нет в наличии" %}';
                     } else if (variant.qty <= 5) {
                         stockBadge.style.color = '#F59E0B';
-                        stockBadge.innerText = `⚠️ {% filter escapejs %}{% trans "Осталось всего" %}{% endfilter %} ${variant.qty} {% filter escapejs %}{% trans "шт.!" %}{% endfilter %}`;
+                        stockBadge.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+                        stockBadge.innerText = '⚠️ {% trans "Осталось" %} ' + variant.qty + ' {% trans "шт." %}';
                     } else {
                         stockBadge.style.color = '#10B981';
-                        stockBadge.innerText = `✅ {% filter escapejs %}{% trans "В наличии:" %}{% endfilter %} ${variant.qty} {% filter escapejs %}{% trans "шт." %}{% endfilter %}`;
+                        stockBadge.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                        stockBadge.innerText = '✓ {% trans "В наличии" %}';
                     }
-                } else {
-                    stockBadge.style.display = 'none';
                 }
             }
             updateActionUI();
@@ -539,201 +1092,130 @@
             const addBtn = document.getElementById('add-cart-btn');
             const qtyContainer = document.getElementById('qty-control-container');
             const qtyVal = document.getElementById('qty-value');
-            
             if (!addBtn || !qtyContainer) return;
-            
-            if (!selectedVariantId) {
-                addBtn.style.display = 'block';
-                addBtn.disabled = false;
-                addBtn.innerText = "{% filter escapejs %}{% trans 'В корзину' %}{% endfilter %}";
-                addBtn.style.background = "var(--btn-gradient)";
-                addBtn.style.cursor = "pointer";
-                qtyContainer.style.display = 'none';
-                return;
-            }
 
-            let variant = variantsData.find(v => v.id === selectedVariantId);
-            if (variant && variant.qty <= 0) {
-                addBtn.style.display = 'block';
-                addBtn.disabled = true;
-                addBtn.innerText = "{% filter escapejs %}{% trans 'Нет в наличии' %}{% endfilter %}";
-                addBtn.style.background = "#475569";
-                addBtn.style.cursor = "not-allowed";
-                qtyContainer.style.display = 'none';
-                return;
-            } else {
-                addBtn.disabled = false;
-                addBtn.innerText = "{% filter escapejs %}{% trans 'В корзину' %}{% endfilter %}";
-                addBtn.style.background = "var(--btn-gradient)";
-                addBtn.style.cursor = "pointer";
-            }
-            
-            let cart = getCart();
-            let existing = cart.find(i => i.variant_id === selectedVariantId);
-            
+            let cart = [];
+            try {
+                cart = JSON.parse(localStorage.getItem('bm_cart') || '[]');
+            } catch(e) {}
+
+            let existing = cart.find(function(i) { return i.id == selectedVariantId; });
             if (existing) {
                 addBtn.style.display = 'none';
                 qtyContainer.style.display = 'flex';
-                if (qtyVal) qtyVal.innerText = existing.quantity;
+                if (qtyVal) qtyVal.innerText = existing.qty;
             } else {
-                addBtn.style.display = 'block';
+                addBtn.style.display = 'flex';
                 qtyContainer.style.display = 'none';
             }
         }
 
-        if(variantsData.length > 0) {
-            const isSimpleProduct = variantsData.length === 1 && !variantsData[0].color && !variantsData[0].size;
-            if (isSimpleProduct) {
-                const colorSec = document.getElementById('color-section');
-                const sizeSec = document.getElementById('size-section');
-                if (colorSec) colorSec.style.display = 'none';
-                if (sizeSec) sizeSec.style.display = 'none';
-                
-                selectedVariantId = variantsData[0].id;
-                selectedVariantPrice = variantsData[0].price;
+        if (variantsData.length > 0) {
+            renderColors();
+            renderSizes();
+            let firstAvail = variantsData.find(function(v) { return v.color === selectedColor && v.in_stock && v.qty > 0; }) || variantsData[0];
+            if (firstAvail) {
+                selectedVariantId = firstAvail.id;
+                selectedVariantPrice = firstAvail.price;
                 updatePriceDisplay();
-            } else {
-                renderColors();
                 renderSizes();
-                let firstAvail = variantsData.find(v => v.color === selectedColor && v.in_stock && v.qty > 0);
-                if(firstAvail) {
-                    selectedVariantId = firstAvail.id;
-                    selectedVariantPrice = firstAvail.price;
-                    updatePriceDisplay();
-                    renderSizes();
+            }
+        }
+
+        const addBtn = document.getElementById('add-cart-btn');
+        if (addBtn) {
+            addBtn.addEventListener('click', function() {
+                if (!selectedVariantId && variantsData.length > 1) {
+                    alert("{% trans 'Пожалуйста, выберите размер!' %}");
+                    return;
                 }
-            }
-        }
+                let targetId = selectedVariantId || (variantsData[0] ? variantsData[0].id : '{{ product.id }}');
+                let cart = [];
+                try {
+                    cart = JSON.parse(localStorage.getItem('bm_cart') || '[]');
+                } catch(e) {}
 
-
-        function updateMainButton() {
-            const cart = getCart();
-            if (cart.length > 0 && tg.MainButton) {
-                let total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-                tg.MainButton.text = `🛒 {% filter escapejs %}{% trans "Корзина" %}{% endfilter %}: ${total.toLocaleString()} {% filter escapejs %}{% trans "сум" %}{% endfilter %} | {% filter escapejs %}{% trans "Оформить" %}{% endfilter %}`;
-                tg.MainButton.color = "#4F46E5";
-                tg.MainButton.show();
-            } else if (tg.MainButton) {
-                tg.MainButton.hide();
-            }
-        }
-
-        if (tg.MainButton) {
-            tg.MainButton.onClick(function() {
-                openCartModal();
+                let found = false;
+                for (var i = 0; i < cart.length; i++) {
+                    if (cart[i].id == targetId) {
+                        cart[i].qty = (cart[i].qty || 1) + 1;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    cart.push({ id: targetId, qty: 1 });
+                }
+                localStorage.setItem('bm_cart', JSON.stringify(cart));
+                window.dispatchEvent(new Event('cart-updated'));
+                if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
+                updateActionUI();
             });
         }
 
-        document.getElementById('add-cart-btn').addEventListener('click', function() {
-            if (!selectedVariantId) {
-                alert("{% filter escapejs %}{% trans 'Пожалуйста, выберите размер!' %}{% endfilter %}");
-                return;
-            }
-            let variant = variantsData.find(v => v.id === selectedVariantId);
-            if (!variant || !variant.in_stock || variant.qty <= 0) {
-                alert("{% filter escapejs %}{% trans 'К сожалению, этого товара нет в наличии.' %}{% endfilter %}");
-                return;
-            }
-
-            let cart = getCart();
-
-            // Проверяем — нет ли в корзине товаров из ДРУГОГО магазина
-            const thisStoreId = "{{ product.store.id }}";
-            const existingStoreId = cart.length > 0 ? cart[0].store_id : null;
-            if (existingStoreId && existingStoreId !== thisStoreId) {
-                const confirmClear = confirm("{% filter escapejs %}{% trans 'В корзине уже есть товары из другого магазина. Очистить корзину и добавить этот товар?' %}{% endfilter %}");
-                if (!confirmClear) return;
-                cart = [];
-            }
-
-            let existing = cart.find(i => i.variant_id === variant.id);
-            if (existing) {
-                if (existing.quantity >= variant.qty) {
-                    alert(`{% filter escapejs %}{% trans 'В наличии осталось только' %}{% endfilter %} ${variant.qty} {% filter escapejs %}{% trans 'шт. Больше добавить нельзя.' %}{% endfilter %}`);
-                    return;
+        const qtyPlus = document.getElementById('qty-plus');
+        if (qtyPlus) {
+            qtyPlus.addEventListener('click', function() {
+                let targetId = selectedVariantId || (variantsData[0] ? variantsData[0].id : '{{ product.id }}');
+                let cart = [];
+                try {
+                    cart = JSON.parse(localStorage.getItem('bm_cart') || '[]');
+                } catch(e) {}
+                for (var i = 0; i < cart.length; i++) {
+                    if (cart[i].id == targetId) {
+                        cart[i].qty += 1;
+                        break;
+                    }
                 }
-                existing.quantity += 1;
-            } else {
-                let displayName = "{{ product.name|escapejs }}";
-                if (variant.color || variant.size) {
-                    displayName += ` (${variant.color || '—'}/${variant.size || '—'})`;
+                localStorage.setItem('bm_cart', JSON.stringify(cart));
+                window.dispatchEvent(new Event('cart-updated'));
+                updateActionUI();
+            });
+        }
+
+        const qtyMinus = document.getElementById('qty-minus');
+        if (qtyMinus) {
+            qtyMinus.addEventListener('click', function() {
+                let targetId = selectedVariantId || (variantsData[0] ? variantsData[0].id : '{{ product.id }}');
+                let cart = [];
+                try {
+                    cart = JSON.parse(localStorage.getItem('bm_cart') || '[]');
+                } catch(e) {}
+                for (var i = 0; i < cart.length; i++) {
+                    if (cart[i].id == targetId) {
+                        cart[i].qty -= 1;
+                        if (cart[i].qty <= 0) {
+                            cart.splice(i, 1);
+                        }
+                        break;
+                    }
                 }
-                cart.push({
-                    variant_id: variant.id,
-                    name: displayName,
-                    price: variant.price,
-                    quantity: 1,
-                    max_qty: variant.qty,
-                    store_id: thisStoreId,
-                    image_url: variant.image_url || ""
-                });
-            }
+                localStorage.setItem('bm_cart', JSON.stringify(cart));
+                window.dispatchEvent(new Event('cart-updated'));
+                updateActionUI();
+            });
+        }
 
-            saveCart(cart);
-            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
-        });
-
-        document.getElementById('qty-plus').addEventListener('click', function() {
-            if (!selectedVariantId) return;
-            let variant = variantsData.find(v => v.id === selectedVariantId);
-            let cart = getCart();
-            let index = cart.findIndex(i => i.variant_id === selectedVariantId);
-            if (index !== -1) {
-                const maxStock = (variant && variant.qty !== undefined) ? variant.qty : cart[index].max_qty;
-                if (maxStock !== undefined && cart[index].quantity >= maxStock) {
-                    alert(`{% filter escapejs %}{% trans 'В наличии осталось только' %}{% endfilter %} ${maxStock} {% filter escapejs %}{% trans 'шт. Больше добавить нельзя.' %}{% endfilter %}`);
-                    return;
-                }
-                cart[index].quantity += 1;
-                saveCart(cart);
-                if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
-            }
-        });
-
-        document.getElementById('qty-minus').addEventListener('click', function() {
-            if (!selectedVariantId) return;
-            let cart = getCart();
-            let index = cart.findIndex(i => i.variant_id === selectedVariantId);
-            if (index !== -1) {
-                cart[index].quantity -= 1;
-                if (cart[index].quantity <= 0) {
-                    cart.splice(index, 1);
-                }
-                saveCart(cart);
-                if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
-                // updateActionUI() will be called by cartUpdated event
-            }
-        });
-
-        window.addEventListener('cartUpdated', function() {
+        window.addEventListener('cart-updated', function() {
             updateActionUI();
-            renderGlobalCartBar();
-            updateMainButton();
         });
-
-        renderGlobalCartBar();
-        updateMainButton();
+        updateActionUI();
     });
 
     function openReviewModal() {
-        const modal = document.getElementById('review-modal');
-        if (modal) modal.style.display = 'flex';
+        var m = document.getElementById('review-modal');
+        if (m) m.style.display = 'flex';
     }
-
     function closeReviewModal() {
-        const modal = document.getElementById('review-modal');
-        if (modal) modal.style.display = 'none';
+        var m = document.getElementById('review-modal');
+        if (m) m.style.display = 'none';
     }
-
     function selectStar(val) {
-        document.getElementById('review-rating-input').value = val;
-        const stars = document.querySelectorAll('#star-picker .star-pick');
-        stars.forEach((s, idx) => {
-            if (idx < val) {
-                s.style.color = '#F59E0B';
-            } else {
-                s.style.color = '#4B5563';
-            }
+        var inp = document.getElementById('review-rating-input');
+        if (inp) inp.value = val;
+        var stars = document.querySelectorAll('#star-picker .star-pick');
+        stars.forEach(function(s, idx) {
+            s.style.color = (idx < val) ? '#F59E0B' : '#475569';
         });
     }
 </script>

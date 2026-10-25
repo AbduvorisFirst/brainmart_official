@@ -79,6 +79,9 @@
         <form method="post" action="{% url 'seller-verify-otp' %}?u={{ user_obj.username }}" id="otp-form" style="margin-top: 10px;">
             {% csrf_token %}
             <input type="hidden" name="username" value="{{ user_obj.username }}">
+            {% if request.GET.next %}
+                <input type="hidden" name="next" value="{{ request.GET.next }}">
+            {% endif %}
             
             <label for="otp_code_input" style="display: block; font-size: 13px; font-weight: 700; color: #CBD5E1; margin-bottom: 10px; text-align: center;">
                 Введите 6-значный код безопасности

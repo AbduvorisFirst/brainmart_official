@@ -59,6 +59,12 @@ def _get_store_or_none(request):
 @login_required
 def dashboard_home(request):
     """Главная страница кабинета — сводка по магазину, реальный график, реальная AI-аналитика."""
+    # Если зашёл суперпользователь без привязанного магазина — направляем в платформенную панель
+    if request.user.is_superuser and (not hasattr(request.user, "store") or not request.user.store):
+        return redirect("platform-admin-dashboard")
+    if request.user.is_staff and (not hasattr(request.user, "store") or not request.user.store):
+        return redirect("/brainmart-secure-admin-panel/")
+
     store = _get_store_or_none(request)
     if store is None:
         messages.error(request, "К вашему аккаунту не привязан магазин. Обратитесь к администратору.")
@@ -909,6 +915,11 @@ def seller_login_view(request):
                 messages.success(request, f"Вход выполнен по коду подтверждения! Добро пожаловать, {store.name if store else target_user.username}!")
                 return redirect("seller-dashboard")
 
+        # Получаем параметр next для безопасного редиректа
+        next_url = request.POST.get("next") or request.GET.get("next")
+        if not next_url or not next_url.startswith("/"):
+            next_url = None
+
         # --- СЦЕНАРИЙ Б: Авторизация по логину и паролю ---
         auth_username = target_user.username if target_user else username_raw
         user = authenticate(request, username=auth_username, password=password_raw)
@@ -918,27 +929,47 @@ def seller_login_view(request):
                 messages.error(request, "Неверный код подтверждения из Telegram или срок его действия истёк. Нажмите «Получить код в Telegram» или отправьте /code боту.")
             else:
                 messages.error(request, "Неверный логин или пароль. Вы также можете войти по 6-значному коду из Telegram.")
-            return render(request, "dashboard/login.html", {"username": username_raw})
+            return render(request, "dashboard/login.html", {"username": username_raw, "next": next_url})
 
         store = getattr(user, "store", None)
 
-        # Администратор без магазина
-        if not store and user.is_superuser:
+        # 1. Администратор (superuser / staff)
+        if user.is_superuser:
             login(request, user)
             request.session.save()
             messages.success(request, f"Добро пожаловать, администратор {user.username}!")
-            return redirect("platform-admin-dashboard")
+            return redirect(next_url or "platform-admin-dashboard")
 
+        if user.is_staff:
+            login(request, user)
+            request.session.save()
+            messages.success(request, f"Добро пожаловать, {user.username}!")
+            return redirect(next_url or "/brainmart-secure-admin-panel/")
+
+        # 2. Пользователь без магазина
         if not store:
             login(request, user)
             request.session.save()
-            return redirect("seller-dashboard")
+            return redirect(next_url or "seller-dashboard")
 
-        # Генерируем OTP для 2FA (в БД и кэш)
-        if store:
-            otp_code = store.generate_login_otp()
-        else:
-            otp_code = f"{secrets.randbelow(900000) + 100000}"
+        # 3. Продавец: проверяем chat_id для 2FA
+        chat_id = store.telegram_chat_id
+        if not chat_id and store.owner_telegram_username:
+            cust = Customer.objects.filter(telegram_username__iexact=store.owner_telegram_username.lstrip("@")).first()
+            if cust and cust.telegram_chat_id:
+                chat_id = cust.telegram_chat_id
+                store.telegram_chat_id = str(chat_id)
+                store.save(update_fields=["telegram_chat_id"])
+
+        # Если Telegram-бот не привязан — пускаем напрямую по паролю! Не блокируем продавца!
+        if not chat_id or not store.telegram_bot_active:
+            login(request, user)
+            request.session.save()
+            messages.success(request, f"Вход выполнен! Добро пожаловать, {store.name}!")
+            return redirect(next_url or "seller-dashboard")
+
+        # Если Telegram привязан и бот активен — генерируем OTP для 2FA
+        otp_code = store.generate_login_otp()
         now_ts = timezone.now().timestamp()
         expires_ts = (timezone.now() + timedelta(minutes=10)).timestamp()
 
@@ -957,33 +988,27 @@ def seller_login_view(request):
             cache.set(f"username_pending_otp_{store.slug.lower()}", otp_code, timeout=600)
 
         # Отправляем в Telegram
-        chat_id = store.telegram_chat_id
-        if not chat_id and store.owner_telegram_username:
-            cust = Customer.objects.filter(telegram_username__iexact=store.owner_telegram_username.lstrip("@")).first()
-            if cust and cust.telegram_chat_id:
-                chat_id = cust.telegram_chat_id
-                store.telegram_chat_id = str(chat_id)
-                store.save(update_fields=["telegram_chat_id"])
+        try:
+            from core.working_views.telegram_bot import _send_telegram_message
+            time_str = timezone.localtime().strftime("%H:%M:%S")
+            owner_tag = f"@{store.owner_telegram_username}" if store.owner_telegram_username else user.username
+            msg = (
+                f"🔐 ВХОД В ПАНЕЛЬ BRAINMART (2FA)\n\n"
+                f"👤 Аккаунт: {user.username} ({owner_tag})\n"
+                f"🏪 Магазин: «{store.name}»\n"
+                f"🕒 Время: {time_str}\n\n"
+                f"Ваш код подтверждения:\n"
+                f"👉 {otp_code} 👈\n\n"
+                f"⏱ Код действует 10 минут."
+            )
+            _send_telegram_message(chat_id, msg)
+        except Exception as e:
+            logger.warning("Не удалось отправить OTP в Telegram: %s", e)
 
-        if chat_id:
-            try:
-                from core.working_views.telegram_bot import _send_telegram_message
-                time_str = timezone.localtime().strftime("%H:%M:%S")
-                owner_tag = f"@{store.owner_telegram_username}" if store.owner_telegram_username else user.username
-                msg = (
-                    f"🔐 ВХОД В ПАНЕЛЬ BRAINMART (2FA)\n\n"
-                    f"👤 Аккаунт: {user.username} ({owner_tag})\n"
-                    f"🏪 Магазин: «{store.name}»\n"
-                    f"🕒 Время: {time_str}\n\n"
-                    f"Ваш код подтверждения:\n"
-                    f"👉 {otp_code} 👈\n\n"
-                    f"⏱ Код действует 10 минут."
-                )
-                _send_telegram_message(chat_id, msg)
-            except Exception as e:
-                logger.warning("Не удалось отправить OTP в Telegram: %s", e)
-
-        return redirect(f"/dashboard/login/verify-otp/?u={user.username}")
+        redirect_verify = f"/dashboard/login/verify-otp/?u={user.username}"
+        if next_url:
+            redirect_verify += f"&next={next_url}"
+        return redirect(redirect_verify)
 
     return render(request, "dashboard/login.html")
 
@@ -1058,8 +1083,11 @@ def seller_verify_otp_view(request):
                 except Exception:
                     pass
 
+            next_url = request.POST.get("next") or request.GET.get("next")
+            if not next_url or not next_url.startswith("/"):
+                next_url = None
             messages.success(request, f"Вход выполнен! Добро пожаловать, {store.name if store else user.username}!")
-            return redirect("seller-dashboard")
+            return redirect(next_url or "seller-dashboard")
         else:
             attempts = request.session.get("otp_attempts", 0) + 1
             request.session["otp_attempts"] = attempts

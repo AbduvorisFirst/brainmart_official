@@ -34,6 +34,9 @@
 
         <form method="post" action="{% url 'seller-login' %}" style="display: flex; flex-direction: column; gap: 4px;">
             {% csrf_token %}
+            {% if request.GET.next or next %}
+                <input type="hidden" name="next" value="{{ next|default:request.GET.next }}">
+            {% endif %}
 
             <div>
                 <label for="id_username" style="display: block; font-size: 13px; font-weight: 700; color: #CBD5E1; margin-bottom: 4px;">{% trans "Логин / Ник магазина / Поддомен" %}</label>
