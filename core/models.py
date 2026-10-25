@@ -831,7 +831,7 @@ class Product(models.Model):
 
     @property
     def discount_percent(self):
-        return "-17%"
+        return "17"
 
     @property
     def formatted_base_price(self):

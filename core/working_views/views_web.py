@@ -227,7 +227,7 @@ def catalog_view(request):
                 "formatted_price": f"{final_p:,}".replace(",", " "),
                 "old_price": old_p,
                 "formatted_old_price": f"{old_p:,}".replace(",", " "),
-                "discount_percent": "-17%",
+                "discount_percent": "17",
                 "main_image": v.image if v.image else v.product.main_image,
                 "store": v.product.store,
                 "category": v.product.category,
