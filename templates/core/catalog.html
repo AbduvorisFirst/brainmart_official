@@ -20,22 +20,22 @@
     .store-header-hero {
         position: relative;
         overflow: hidden;
-        margin-bottom: 18px;
-        padding: 18px 20px 22px;
-        border-radius: var(--radius-lg, 24px);
+        margin-bottom: 14px;
+        padding: 12px 16px 14px;
+        border-radius: var(--radius-lg, 18px);
         background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.04) 0%, var(--surface-card, #12141A) 100%), var(--bg-app, #060709);
         border: 1.5px solid var(--border, rgba(255, 255, 255, 0.12));
-        box-shadow: var(--card-shadow, 0 12px 36px rgba(0, 0, 0, 0.4)), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        box-shadow: var(--card-shadow, 0 8px 26px rgba(0, 0, 0, 0.35)), inset 0 1px 0 rgba(255, 255, 255, 0.08);
         display: flex;
         flex-direction: column;
-        gap: 14px;
+        gap: 9px;
         transition: border-color 0.25s ease, box-shadow 0.25s ease;
     }
     @media (min-width: 768px) {
         .store-header-hero {
-            padding: 24px 32px 28px;
-            margin-bottom: 22px;
-            border-radius: 28px;
+            padding: 16px 24px 18px;
+            margin-bottom: 16px;
+            border-radius: 20px;
         }
     }
 
@@ -148,26 +148,26 @@
         flex-shrink: 0;
     }
     .store-hero-avatar {
-        width: 62px;
-        height: 62px;
-        border-radius: 18px;
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
         object-fit: cover;
         border: 2px solid var(--primary);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 14px var(--border);
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3), 0 0 10px var(--border);
     }
     .store-hero-placeholder {
-        width: 62px;
-        height: 62px;
-        border-radius: 18px;
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
         background: var(--btn-gradient);
         color: #FFFFFF;
-        font-size: 26px;
+        font-size: 22px;
         font-weight: 900;
         display: flex;
         align-items: center;
         justify-content: center;
         border: 2px solid var(--primary);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 14px var(--border);
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3), 0 0 10px var(--border);
     }
     .store-verified-icon {
         position: absolute;
@@ -200,7 +200,7 @@
     }
     .store-hero-title {
         margin: 0;
-        font-size: 20px;
+        font-size: 18px;
         font-weight: 900;
         letter-spacing: -0.03em;
         color: var(--text-main);
@@ -208,7 +208,7 @@
     }
     @media (min-width: 768px) {
         .store-hero-title {
-            font-size: 28px;
+            font-size: 22px;
         }
     }
     .verified-pill {
@@ -548,10 +548,10 @@
     .category-chip {
         white-space: nowrap;
         text-decoration: none;
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 700;
-        padding: 8px 16px;
-        border-radius: 14px;
+        padding: 6px 14px;
+        border-radius: 20px;
         border: 1px solid var(--border);
         background: var(--surface);
         color: var(--text-main);
@@ -607,16 +607,17 @@
 
     .img-wrapper {
         width: 100%;
-        padding-bottom: 110%;
+        padding-bottom: 96%; /* Compact 1:1 human-designed ratio */
         position: relative;
         background: var(--bg-app, #060709);
         overflow: hidden;
+        border-radius: var(--radius-lg, 20px) var(--radius-lg, 20px) 0 0;
     }
     .img-wrapper img {
         position: absolute;
         top: 0; left: 0; width: 100%; height: 100%;
         object-fit: cover;
-        transition: transform 0.4s ease;
+        transition: transform 0.35s ease;
     }
     .product-card:hover .img-wrapper img {
         transform: scale(1.04);
@@ -632,18 +633,79 @@
         font-size: 38px;
     }
 
+    /* Commercial Discount Tag (Uzum / WB style) */
+    .badge-discount-tag {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        background: linear-gradient(135deg, #FF334B 0%, #E11D48 100%);
+        color: #FFFFFF;
+        font-size: 10.5px;
+        font-weight: 900;
+        padding: 3px 7px;
+        border-radius: 7px;
+        z-index: 3;
+        box-shadow: 0 3px 10px rgba(225, 29, 72, 0.45);
+        letter-spacing: 0.2px;
+    }
+
+    /* Interactive Favorite Heart Icon Button */
+    .btn-favorite-icon {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: rgba(15, 23, 42, 0.65);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #E2E8F0;
+        cursor: pointer;
+        z-index: 4;
+        transition: all 0.18s ease;
+        padding: 0;
+    }
+    .btn-favorite-icon:hover {
+        transform: scale(1.12);
+        background: rgba(15, 23, 42, 0.9);
+        color: #FF334B;
+    }
+    .btn-favorite-icon.active {
+        color: #FF334B;
+        background: rgba(255, 51, 75, 0.22);
+        border-color: #FF334B;
+        animation: heartPulse 0.35s ease;
+    }
+    .btn-favorite-icon.active svg {
+        fill: #FF334B;
+    }
+    @keyframes heartPulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.28); }
+        100% { transform: scale(1); }
+    }
+    .heart-icon {
+        width: 16px;
+        height: 16px;
+    }
+
     .store-badge {
-        position: absolute; top: 8px; left: 8px;
-        background: rgba(6, 7, 9, 0.85);
+        position: absolute; bottom: 8px; left: 8px;
+        background: rgba(6, 7, 9, 0.88);
         backdrop-filter: blur(10px);
         border: 1px solid var(--border);
-        padding: 4px 9px;
+        padding: 3.5px 8px;
         border-radius: 8px;
-        font-size: 10px;
+        font-size: 9.5px;
         font-weight: 800;
         color: #E2E8F0;
         text-transform: uppercase;
-        letter-spacing: 0.4px;
+        letter-spacing: 0.3px;
         box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
         max-width: calc(100% - 16px);
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -657,22 +719,21 @@
     }
 
     .stock-pill {
-        position: absolute; top: 8px; right: 8px;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid var(--primary);
-        color: var(--primary);
+        position: absolute; bottom: 8px; right: 8px;
+        background: rgba(15, 23, 42, 0.78);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: #10B981;
         font-size: 9.5px;
-        font-weight: 900;
-        padding: 3px 7px;
+        font-weight: 800;
+        padding: 2.5px 7px;
         border-radius: 7px;
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
         z-index: 3;
-        box-shadow: 0 0 10px var(--border);
     }
 
     .product-info {
-        padding: 12px 13px 14px;
+        padding: 10px 12px 12px;
         flex: 1;
         display: flex;
         flex-direction: column;
@@ -680,50 +741,50 @@
         background: transparent;
     }
     .product-title {
-        font-size: 13.5px;
-        font-weight: 800;
+        font-size: 13px;
+        font-weight: 700;
         line-height: 1.3;
         color: var(--text-main, #FFFFFF);
-        margin: 0 0 6px;
+        margin: 0 0 4px;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        height: 35px;
+        height: 34px;
         letter-spacing: -0.015em;
     }
 
     .product-card-desc {
-        font-size: 11.5px;
+        font-size: 11px;
         font-weight: 500;
         color: var(--text-muted, #8FA0B8);
-        line-height: 1.35;
-        margin: 0 0 8px;
+        line-height: 1.3;
+        margin: 0 0 6px;
         display: -webkit-box;
-        -webkit-line-clamp: 2;
+        -webkit-line-clamp: 1;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        height: 31px;
+        height: 15px;
     }
 
     .product-meta-row {
         display: flex;
         align-items: center;
         gap: 5px;
-        font-size: 11.5px;
-        margin-bottom: 8px;
+        font-size: 11px;
+        margin-bottom: 6px;
     }
     .rating-star { color: #F59E0B; font-size: 12px; }
-    .rating-val { font-weight: 800; color: var(--text-main, #FFFFFF); font-size: 11.5px; }
-    .reviews-count { color: var(--text-muted, #64748B); font-size: 10.5px; }
+    .rating-val { font-weight: 800; color: var(--text-main, #FFFFFF); font-size: 11px; }
+    .reviews-count { color: var(--text-muted, #64748B); font-size: 10px; }
     .meta-separator { color: var(--border, #475569); font-size: 10px; }
-    .meta-orders { color: var(--primary); font-weight: 700; font-size: 10.5px; letter-spacing: 0.2px; }
+    .meta-orders { color: var(--primary); font-weight: 700; font-size: 10px; letter-spacing: 0.2px; }
 
     .product-fast-delivery {
-        font-size: 10.5px;
+        font-size: 10px;
         font-weight: 700;
         color: var(--accent, #38BDF8);
-        margin-bottom: 8px;
+        margin-bottom: 6px;
         display: flex;
         align-items: center;
         gap: 4px;
@@ -732,39 +793,59 @@
     .price-row {
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: flex-end;
         margin-top: auto;
         padding-top: 6px;
         border-top: 1px solid var(--border, rgba(255, 255, 255, 0.06));
     }
+    .price-stack {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+    .product-old-price {
+        font-size: 10.5px;
+        font-weight: 600;
+        color: var(--text-muted, #64748B);
+        text-decoration: line-through;
+        margin-bottom: 1px;
+        line-height: 1;
+    }
     .product-price {
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 900;
         color: var(--primary);
         letter-spacing: -0.02em;
-        text-shadow: 0 0 12px var(--border);
+        line-height: 1.1;
     }
     .btn-mini {
-        width: 35px;
-        height: 35px;
+        width: 36px;
+        height: 36px;
         background: var(--btn-gradient);
         color: #FFFFFF;
+        border: none;
         border-radius: 11px;
         display: flex;
         justify-content: center;
         align-items: center;
-        font-size: 20px;
+        font-size: 18px;
         font-weight: 800;
         line-height: 1;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+        cursor: pointer;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
         transition: transform 0.15s ease, box-shadow 0.15s ease;
         flex-shrink: 0;
+        padding: 0;
     }
     .product-card:hover .btn-mini {
-        transform: scale(1.06);
+        transform: scale(1.08);
         box-shadow: 0 6px 18px var(--border);
     }
     .btn-mini:active { transform: scale(0.9); }
+    .btn-mini.added {
+        background: #10B981 !important;
+        transform: scale(1.1);
+    }
 
     .empty-state { text-align: center; margin-top: 50px; padding: 0 16px; }
     .empty-icon { font-size: 48px; margin-bottom: 12px; }
@@ -1274,49 +1355,71 @@
     {% if products %}
         <div class="grid">
             {% for product in products %}
-                <a href="{% url 'product-detail' product.id %}{% if product.color %}?color={{ product.color }}{% endif %}" class="product-card">
+                <a href="{% url 'product-detail' product.id %}{% if product.color %}?color={{ product.color }}{% endif %}" class="product-card" data-product-id="{{ product.id }}">
 
                     <div class="img-wrapper">
                         {% if product.main_image %}
                             <img src="{{ product.main_image.url }}" loading="lazy" alt="{{ product.name }}">
                         {% else %}
-                            <div class="no-image">📦</div>
+                            <div class="no-image">??</div>
                         {% endif %}
+
+                        <!-- Discount Tag (Uzum / WB style) -->
+                        <div class="badge-discount-tag">-{{ product.discount_percent|default:"17" }}%</div>
+
+                        <!-- Interactive Favorite Heart Toggle -->
+                        <button type="button" class="btn-favorite-icon" onclick="event.preventDefault(); event.stopPropagation(); toggleFav(this, '{{ product.id }}');" aria-label="Favorite" title="{% trans '? ?????????' %}">
+                            <svg class="heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                            </svg>
+                        </button>
+
                         {% if not current_store %}
-                            <div class="store-badge" role="button" tabindex="0" onclick="event.preventDefault(); event.stopPropagation(); window.location.href='{{ product.store.get_subdomain_url }}';" title="{% trans 'Перейти в магазин' %} {{ product.store.name }}" style="cursor: pointer;">
-                                🏪 {{ product.store.name }} →
+                            <div class="store-badge" role="button" tabindex="0" onclick="event.preventDefault(); event.stopPropagation(); window.location.href='{{ product.store.get_subdomain_url }}';" title="{% trans '??????? ? ???????' %} {{ product.store.name }}" style="cursor: pointer;">
+                                ?? {{ product.store.name }} ?
                             </div>
                         {% endif %}
-                        <div class="stock-pill">✓ {% trans "В наличии" %}</div>
+                        <div class="stock-pill">? {% trans "? ???????" %}</div>
                     </div>
                     <div class="product-info">
                         <div class="product-title">{{ product.name }}</div>
 
                         <div class="product-card-desc">
                             {% if product.description %}
-                                {{ product.description|striptags|truncatechars:78 }}
+                                {{ product.description|striptags|truncatechars:65 }}
                             {% else %}
-                                {% trans "Премиальный стиль и высокое качество от бренда" %} {{ product.store.name }}
+                                {% trans "??????????? ???????? ?? ??????" %} {{ product.store.name }}
                             {% endif %}
                         </div>
 
                         <div class="product-meta-row">
-                            <span class="rating-star">★</span>
+                            <span class="rating-star">?</span>
                             <span class="rating-val">{{ product.average_rating|default:"4.9" }}</span>
                             {% if product.reviews_count %}
                                 <span class="reviews-count">({{ product.reviews_count }})</span>
                             {% endif %}
-                            <span class="meta-separator">•</span>
-                            <span class="meta-orders">140+ {% trans "заказов" %}</span>
+                            <span class="meta-separator">?</span>
+                            <span class="meta-orders">140+ {% trans "???????" %}</span>
                         </div>
                         <div class="product-fast-delivery">
-                            <span>⚡</span>
-                            <span>{% trans "Быстрая доставка" %}</span>
+                            <span>?</span>
+                            <span>{% trans "??????? ????????" %}</span>
                         </div>
 
                         <div class="price-row">
-                            <div class="product-price">{{ product.base_price }} {% trans "сум" %}</div>
-                            <div class="btn-mini" title="{% trans 'Добавить в корзину' %}">+</div>
+                            <div class="price-stack">
+                                {% if product.old_price %}
+                                    <div class="product-old-price">{{ product.formatted_old_price|default:product.old_price }} {% trans "???" %}</div>
+                                {% endif %}
+                                <div class="product-price">{{ product.formatted_base_price|default:product.base_price }} {% trans "???" %}</div>
+                            </div>
+                            <button type="button" class="btn-mini" onclick="event.preventDefault(); event.stopPropagation(); quickAddToCart(this, '{{ product.id }}');" title="{% trans '???????? ? ???????' %}">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="9" cy="21" r="1"></circle>
+                                    <circle cx="20" cy="21" r="1"></circle>
+                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                </svg>
+                            </button>
                         </div>
                     </div>
                 </a>
@@ -1418,3 +1521,88 @@ document.addEventListener('DOMContentLoaded', function() {
 {% endif %}
 
 {% endblock %}
+
+
+<div id="bmToastContainer" style="position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none;"></div>
+
+<script>
+function showBmToast(msg, icon) {
+    var c = document.getElementById('bmToastContainer');
+    if (!c) return;
+    var t = document.createElement('div');
+    t.style.cssText = 'background: rgba(15, 23, 42, 0.92); color: #FFFFFF; font-size: 12.5px; font-weight: 700; padding: 10px 18px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.18); backdrop-filter: blur(12px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 8px; pointer-events: auto; animation: toastSlideUp 0.25s ease;';
+    t.innerHTML = '<span>' + (icon || '?') + '</span><span>' + msg + '</span>';
+    c.appendChild(t);
+    setTimeout(function() {
+        t.style.opacity = '0';
+        t.style.transition = 'opacity 0.3s ease';
+        setTimeout(function() { t.remove(); }, 300);
+    }, 2200);
+}
+
+function toggleFav(btn, productId) {
+    btn.classList.toggle('active');
+    var isFav = btn.classList.contains('active');
+    try {
+        var favs = JSON.parse(localStorage.getItem('bm_favs') || '[]');
+        if (isFav) {
+            if (favs.indexOf(productId) === -1) favs.push(productId);
+            showBmToast('????? ???????? ? ?????????', '??');
+        } else {
+            favs = favs.filter(function(id) { return id !== productId; });
+            showBmToast('??????? ?? ??????????', '??');
+        }
+        localStorage.setItem('bm_favs', JSON.stringify(favs));
+    } catch(e) {}
+}
+
+function quickAddToCart(btn, productId) {
+    var origHtml = btn.innerHTML;
+    btn.classList.add('added');
+    btn.innerHTML = '?';
+    showBmToast('????? ???????? ? ???????', '??');
+    
+    // Add to localStorage cart or dispatch event
+    try {
+        var cart = JSON.parse(localStorage.getItem('bm_cart') || '[]');
+        var found = false;
+        for (var i = 0; i < cart.length; i++) {
+            if (cart[i].id == productId) {
+                cart[i].qty = (cart[i].qty || 1) + 1;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            cart.push({ id: productId, qty: 1 });
+        }
+        localStorage.setItem('bm_cart', JSON.stringify(cart));
+        window.dispatchEvent(new Event('cart-updated'));
+    } catch(e) {}
+
+    setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.classList.remove('added');
+    }, 1400);
+}
+
+// Restore favorites from localStorage on page load
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        var favs = JSON.parse(localStorage.getItem('bm_favs') || '[]');
+        favs.forEach(function(pid) {
+            var card = document.querySelector('[data-product-id="' + pid + '"]');
+            if (card) {
+                var heartBtn = card.querySelector('.btn-favorite-icon');
+                if (heartBtn) heartBtn.classList.add('active');
+            }
+        });
+    } catch(e) {}
+});
+</script>
+<style>
+@keyframes toastSlideUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>

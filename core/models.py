@@ -309,46 +309,61 @@ class Store(models.Model):
             ("alibaba_orange", "Alibaba Global (Sunset Orange and Slate)"),
             ("midnight_gold", "Midnight Luxury (Champagne Gold and Onyx)"),
 
-            # 1. Одежда и обувь (Fashion)
+            # 1. Одежда и обувь (Fashion - 5 стилей)
             ("fashion_genz", "Fashion: Streetwear / Cyber Drip (Для подростков)"),
             ("fashion_premium", "Fashion: Old Money / Luxury Silk (Для состоятельных)"),
             ("fashion_casual", "Fashion: Smart Casual / Urban (Для 30-летних)"),
-            ("fashion_kids", "Fashion: Kids Playful"),
+            ("fashion_vintage", "Fashion: Retro Denim & Classic (Винтаж и ретро)"),
+            ("fashion_minimal", "Fashion: Cupertino Minimal & Monomode (Премиум минимал)"),
 
-            # 2. Автотовары и автосервис (Auto)
+            # 2. Автотовары и автосервис (Auto - 5 стилей)
             ("auto_tuning", "Auto: Tuning & Drift JDM (Для подростков)"),
             ("auto_premium", "Auto: Executive Motors & Detailing (Для состоятельных)"),
             ("auto_drive", "Auto: Pro Service & Practical SUV (Для 30-летних)"),
-            ("auto_brutal", "Auto: Brutal Garage & Heavy Duty"),
+            ("auto_brutal", "Auto: Brutal Garage & Heavy Duty (Брутал 4x4)"),
+            ("auto_electric", "Auto: EV Next & Clean Mobility (Электрокары)"),
 
-            # 3. Электроника и гаджеты (Tech)
+            # 3. Электроника и гаджеты (Tech - 5 стилей)
             ("tech_gaming", "Tech: RGB Gaming & Cyberpunk (Для подростков)"),
-            ("tech_minimal", "Tech: Smart Home & Clean Living (Для 30-летних)"),
+            ("tech_minimal", "Tech: Space Titanium Pro (Apple-стиль, премиум)"),
+            ("tech_smarthome", "Tech: Smart Home & Clean Living (Для 30-летних)"),
+            ("tech_future", "Tech: AI Matrix & Quantum Grid (Будущее и ИИ)"),
+            ("tech_audio", "Tech: Studio Acoustic & Hi-Fi Gold (Аудио и винил)"),
 
-            # 4. Продукты питания (Food)
+            # 4. Продукты питания (Food - 5 стилей)
             ("food_pop", "Food: Snack Pop & Street Food (Для подростков)"),
             ("food_gourmet", "Food: Gourmet Deli & Truffle Wine (Для состоятельных)"),
             ("food_organic", "Food: Fresh Farm & Eco Bio (Для 30-летних)"),
+            ("food_bakery", "Food: Artisan Bakery & Coffee (Пекарня и кофе)"),
+            ("food_asian", "Food: Asian Wok & Spice Bazaar (Паназия и вок)"),
 
-            # 5. Мебель и товары для дома (Home)
+            # 5. Мебель и товары для дома (Home - 5 стилей)
             ("home_loft", "Home: Loft Neon & RGB Bedroom (Для подростков)"),
             ("home_luxury", "Home: Grand Villa & Italian Marble (Для состоятельных)"),
             ("home_nordic", "Home: Scandinavian Hygge & Wood (Для 30-летних)"),
+            ("home_boho", "Home: Boho Chic & Warm Terracotta (Уют и бохо)"),
+            ("home_japanese", "Home: Japandi Zen & Modern Wabi-Sabi (Японский дзен)"),
 
-            # 6. Красота и здоровье (Beauty)
+            # 6. Красота и здоровье (Beauty - 5 стилей)
             ("beauty_korean", "Beauty: K-Beauty Glow & Pastel Trend (Для подростков)"),
             ("beauty_luxury", "Beauty: Haute Parfumerie & Gold Spa (Для состоятельных)"),
             ("beauty_wellness", "Beauty: Clean Derma & Botanical Eco (Для 30-летних)"),
+            ("beauty_salon", "Beauty: Glam Studio & Pro Makeup (Салонный мейкап)"),
+            ("beauty_organic", "Beauty: Pure Herbal & Eco Ayurveda (Эко и травы)"),
 
-            # 7. Детские товары (Kids)
+            # 7. Детские товары (Kids - 5 стилей)
             ("kids_anime", "Kids: Anime Merch & Gaming Kid (Для подростков)"),
             ("kids_boutique", "Kids: Royal Baby & Pastel Boutique (Для состоятельных)"),
             ("kids_playful", "Kids: Montessori Smart & Bright Colors (Для 30-летних)"),
+            ("kids_disney", "Kids: Magic Kingdom & Fairytale (Сказка и магия)"),
+            ("kids_teen", "Kids: Teen Street & Skater Tribe (Скейт и стрит)"),
 
-            # 8. Спорт и отдых (Sport)
+            # 8. Спорт и отдых (Sport - 5 стилей)
             ("sport_voltage", "Sport: Extreme Voltage & Skate Energy (Для подростков)"),
             ("sport_luxury", "Sport: Golf & Yacht Club Prestige (Для состоятельных)"),
             ("sport_pro", "Sport: Trail Marathon & Active Balance (Для 30-летних)"),
+            ("sport_combat", "Sport: Fight Club & Heavy Iron (Единоборства и зал)"),
+            ("sport_outdoor", "Sport: Alpine Trek & Mountain Camp (Горы и туризм)"),
 
             # Пользовательский дизайн и обратная совместимость
             ("custom", "Свой дизайн (Фирменные цвета бренда)"),
@@ -404,39 +419,55 @@ class Store(models.Model):
             "shopify_mint": ("badge-shopify", "🌿", "shopify pro"),
             "alibaba_orange": ("badge-alibaba", "🔥", "alibaba global"),
             "midnight_gold": ("badge-premium", "👑", "midnight luxury"),
-            # 1. Одежда и обувь
+            # 1. Одежда и обувь (5 стилей)
             "fashion_genz": ("badge-genz", "⚡", "street drip"),
             "fashion_premium": ("badge-premium", "👑", "old money"),
-            "fashion_casual": ("badge-casual", "✨", "smart casual"),
+            "fashion_casual": ("badge-casual", "👔", "smart casual"),
+            "fashion_vintage": ("badge-vintage", "🧥", "heritage denim"),
+            "fashion_minimal": ("badge-minimal", "💎", "pure minimal"),
             "fashion_kids": ("badge-kids", "🧸", "kids fashion"),
-            # 2. Автотовары и шины
-            "auto_tuning": ("badge-tuning", "🔥", "drift & tuning"),
-            "auto_premium": ("badge-auto-premium", "⭐", "luxury motors"),
-            "auto_drive": ("badge-drive", "🏎️", "pro service"),
+            # 2. Автотовары и шины (5 стилей)
+            "auto_tuning": ("badge-tuning", "🏎️", "drift & tuning"),
+            "auto_premium": ("badge-auto-premium", "🚘", "luxury motors"),
+            "auto_drive": ("badge-drive", "🚙", "pro service"),
             "auto_brutal": ("badge-garage", "🛠️", "brutal garage"),
-            # 3. Электроника и гаджеты
+            "auto_electric": ("badge-electric", "⚡", "ev mobility"),
+            # 3. Электроника и гаджеты (5 стилей)
             "tech_gaming": ("badge-gaming", "🎮", "rgb gaming"),
-            "tech_minimal": ("badge-tech-minimal", "⚡", "smart living"),
-            # 4. Продукты питания
-            "food_pop": ("badge-food-pop", "🍿", "snack attack"),
+            "tech_minimal": ("badge-tech-minimal", "💻", "titanium pro"),
+            "tech_smarthome": ("badge-smarthome", "🏡", "smart living"),
+            "tech_future": ("badge-future", "🤖", "quantum ai"),
+            "tech_audio": ("badge-audio", "🎧", "studio acoustic"),
+            # 4. Продукты питания (5 стилей)
+            "food_pop": ("badge-food-pop", "🍕", "snack attack"),
             "food_gourmet": ("badge-food-gourmet", "🍷", "haute cuisine"),
             "food_organic": ("badge-food-organic", "🥑", "eco farm"),
-            # 5. Мебель и товары для дома
+            "food_bakery": ("badge-bakery", "🥐", "artisan roast"),
+            "food_asian": ("badge-asian", "🍜", "asian wok"),
+            # 5. Мебель и товары для дома (5 стилей)
             "home_loft": ("badge-home-loft", "🛋️", "aesthetic loft"),
             "home_luxury": ("badge-home-luxury", "🏛️", "grand interior"),
             "home_nordic": ("badge-home-nordic", "🌿", "nordic hygge"),
-            # 6. Красота и здоровье
-            "beauty_korean": ("badge-beauty-korean", "🌸", "glass skin"),
-            "beauty_luxury": ("badge-beauty-luxury", "💎", "royal beauty"),
-            "beauty_wellness": ("badge-beauty-wellness", "🌿", "clean derma"),
-            # 7. Детские товары
-            "kids_anime": ("badge-kids-anime", "⚡", "teen zone"),
+            "home_boho": ("badge-boho", "🪴", "cozy boho"),
+            "home_japanese": ("badge-japanese", "🎋", "japandi zen"),
+            # 6. Красота и здоровье (5 стилей)
+            "beauty_korean": ("badge-beauty-korean", "✨", "glass skin"),
+            "beauty_luxury": ("badge-beauty-luxury", "💄", "royal beauty"),
+            "beauty_wellness": ("badge-beauty-wellness", "🧴", "clean derma"),
+            "beauty_salon": ("badge-salon", "💅", "glam studio"),
+            "beauty_organic": ("badge-beauty-organic", "🌸", "pure herbal"),
+            # 7. Детские товары (5 стилей)
+            "kids_anime": ("badge-kids-anime", "🎮", "teen gaming"),
             "kids_boutique": ("badge-kids-boutique", "👑", "baby boutique"),
-            "kids_playful": ("badge-kids", "🧸", "kids-joyfull"),
-            # 8. Спорт и отдых
+            "kids_playful": ("badge-kids", "🧸", "montessori joy"),
+            "kids_disney": ("badge-disney", "🦄", "magic kingdom"),
+            "kids_teen": ("badge-teen", "🛹", "teen skater"),
+            # 8. Спорт и отдых (5 стилей)
             "sport_voltage": ("badge-sport-voltage", "⚡", "extreme rush"),
-            "sport_luxury": ("badge-sport-luxury", "🏆", "yacht & polo"),
-            "sport_pro": ("badge-sport-pro", "🏔️", "trail & pro"),
+            "sport_luxury": ("badge-sport-luxury", "⛵", "yacht & polo"),
+            "sport_pro": ("badge-sport-pro", "🏃", "trail & pro"),
+            "sport_combat": ("badge-combat", "🥊", "fight club"),
+            "sport_outdoor": ("badge-outdoor", "🏔️", "alpine trek"),
             # Custom & Legacy
             "custom": ("badge-custom", "🎨", "custom brand"),
             "kids_playful": ("badge-kids", "🧸", "kids-joyfull"),
@@ -789,6 +820,32 @@ class Product(models.Model):
     @property
     def reviews_count(self):
         return self.reviews.filter(is_visible=True).count()
+
+    @property
+    def old_price(self):
+        """Расчетная старая зачеркнутая цена для коммерческого вида витрины."""
+        try:
+            return int(float(self.base_price) * 1.20)
+        except (ValueError, TypeError):
+            return 0
+
+    @property
+    def discount_percent(self):
+        return "-17%"
+
+    @property
+    def formatted_base_price(self):
+        try:
+            return f"{int(self.base_price):,}".replace(",", " ")
+        except (ValueError, TypeError):
+            return str(self.base_price)
+
+    @property
+    def formatted_old_price(self):
+        try:
+            return f"{self.old_price:,}".replace(",", " ")
+        except (ValueError, TypeError):
+            return ""
 
 
 class ProductVariant(models.Model):

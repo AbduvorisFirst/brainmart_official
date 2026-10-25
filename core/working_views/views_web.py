@@ -128,8 +128,12 @@ def catalog_view(request):
     is_ai_search = request.GET.get("ai") == "1"
     ai_advice = None
 
-    # Категории для фильтрации (8 главных ниш маркетплейса)
-    categories = Category.objects.all().order_by("id")
+    # Категории: в витрине магазина - только его категории, в глобальном маркете - все
+    if current_store:
+        store_cat_ids = Product.objects.filter(store=current_store, is_active=True).values_list("category_id", flat=True).distinct()
+        categories = Category.objects.filter(id__in=store_cat_ids).order_by("id")
+    else:
+        categories = Category.objects.all().order_by("id")
 
     # Интеллектуальный поиск: многословный, по названию, цвету, описанию и ИИ
     if search_query:
@@ -213,11 +217,17 @@ def catalog_view(request):
         key = (v.product_id, v.color)
         if key not in seen:
             seen.add(key)
+            final_p = int(v.final_price)
+            old_p = int(final_p * 1.20)
             cards.append({
                 "id": v.product.id,
                 "color": v.color,
                 "name": f"{v.product.name} ({v.color})" if v.color else v.product.name,
-                "base_price": int(v.final_price),
+                "base_price": final_p,
+                "formatted_price": f"{final_p:,}".replace(",", " "),
+                "old_price": old_p,
+                "formatted_old_price": f"{old_p:,}".replace(",", " "),
+                "discount_percent": "-17%",
                 "main_image": v.image if v.image else v.product.main_image,
                 "store": v.product.store,
                 "category": v.product.category,

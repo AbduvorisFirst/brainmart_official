@@ -525,13 +525,13 @@
             <!-- ─── БЛОКИ ТЕМ ПО НИШАМ (ПОКАЗЫВАЮТСЯ ПО ВЫБРАННОЙ НИШЕ) ─── -->
             <div id="nicheThemesContainer" style="margin-bottom: 22px;">
 
-                <!-- 1. НИША: ОДЕЖДА И ОБУВЬ (CLOTHES) -->
+                <!-- 1. НИША: ОДЕЖДА И ОБУВЬ (CLOTHES - 5 СТИЛЕЙ) -->
                 <div class="niche-theme-group" id="niche_themes_clothes" style="display: {% if store.niche == 'clothes' or not store.niche %}block{% else %}none{% endif %};">
                     <div style="font-size: 12px; font-weight: 800; color: #2997FF; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-                        <span>👗</span> {% trans "Эксклюзивные стили для одежды и обуви:" %}
+                        <span>👗</span> {% trans "Эксклюзивные стили для одежды и обуви (5 готовых дизайнов):" %}
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px;">
-                        <!-- Подростки: Street Drip -->
+                        <!-- 1. Подростки: Street Drip -->
                         <label class="theme-preset-card" onclick="selectThemePreset('fashion_genz', '#00F0FF', '#FF0055', '#070712', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'fashion_genz' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
@@ -548,7 +548,7 @@
                             <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Оверсайз худи, кроссовки, дрип и неон. Стиль уличной моды." %}</span>
                         </label>
 
-                        <!-- Состоятельные: Old Money -->
+                        <!-- 2. Состоятельные: Old Money -->
                         <label class="theme-preset-card" onclick="selectThemePreset('fashion_premium', '#D4AF37', '#E2C974', '#0A0908', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'fashion_premium' or store.theme_style == 'premium_gold' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
@@ -565,7 +565,7 @@
                             <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Шерсть, кашемир, тихая роскошь и золотой шёлк для бутиков." %}</span>
                         </label>
 
-                        <!-- 30-летние: Smart Casual -->
+                        <!-- 3. 30-летние: Smart Casual -->
                         <label class="theme-preset-card" onclick="selectThemePreset('fashion_casual', '#4F46E5', '#06B6D4', '#0C0E14', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'fashion_casual' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
@@ -581,139 +581,241 @@
                             </div>
                             <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Базовый гардероб, пальто, пиджаки, минимализм и комфорт." %}</span>
                         </label>
+
+                        <!-- 4. Винтаж и ретро: Heritage Denim -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('fashion_vintage', '#EA580C', '#D97706', '#0E0C0A', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'fashion_vintage' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="radio" name="theme_style" value="fashion_vintage" {% if store.theme_style == 'fashion_vintage' %}checked{% endif %} style="margin:0;">
+                                    <strong style="font-size: 13px; color: white;">Vintage & Heritage</strong>
+                                </div>
+                                <span style="font-size: 9px; font-weight: 800; color: #FB923C; background: rgba(234, 88, 12, 0.15); padding: 2px 6px; border-radius: 4px;">ВИНТАЖ</span>
+                            </div>
+                            <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(234,88,12,0.25); display: flex; overflow: hidden;">
+                                <div style="flex: 1.5; background: #0E0C0A;"></div>
+                                <div style="flex: 1; background: #EA580C;"></div>
+                                <div style="flex: 1; background: #D97706;"></div>
+                            </div>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Ретро-деним, тёплая терракота, винтажные джинсы и аутентичность." %}</span>
+                        </label>
+
+                        <!-- 5. Премиум минимал: Monomode -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('fashion_minimal', '#94A3B8', '#38BDF8', '#0B0C10', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'fashion_minimal' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="radio" name="theme_style" value="fashion_minimal" {% if store.theme_style == 'fashion_minimal' %}checked{% endif %} style="margin:0;">
+                                    <strong style="font-size: 13px; color: white;">Monomode Minimal</strong>
+                                </div>
+                                <span style="font-size: 9px; font-weight: 800; color: #38BDF8; background: rgba(56, 189, 248, 0.15); padding: 2px 6px; border-radius: 4px;">МИНИМАЛ</span>
+                            </div>
+                            <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(148,163,184,0.25); display: flex; overflow: hidden;">
+                                <div style="flex: 1.5; background: #0B0C10;"></div>
+                                <div style="flex: 1; background: #94A3B8;"></div>
+                                <div style="flex: 1; background: #38BDF8;"></div>
+                            </div>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Стиль COS и Arket: титановый серый, монохром и чистые линии." %}</span>
+                        </label>
                     </div>
                 </div>
 
-                <!-- 2. НИША: АВТОТОВАРЫ И ШИНЫ (AUTO) -->
+                <!-- 2. НИША: АВТОТОВАРЫ И ШИНЫ (AUTO - 5 СТИЛЕЙ) -->
                 <div class="niche-theme-group" id="niche_themes_auto" style="display: {% if store.niche == 'auto' %}block{% else %}none{% endif %};">
-                    <div style="font-size: 12px; font-weight: 800; color: #FF1E27; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-                        <span>🏎️</span> {% trans "Эксклюзивные стили для автотоваров и сервиса:" %}
+                    <div style="font-size: 12px; font-weight: 800; color: #FF334B; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                        <span>🏎️</span> {% trans "Эксклюзивные стили для автотоваров (5 готовых дизайнов):" %}
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px;">
-                        <!-- Подростки: Tuning & Drift -->
-                        <label class="theme-preset-card" onclick="selectThemePreset('auto_tuning', '#FF1E27', '#00FF66', '#060709', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'auto_tuning' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                        <!-- 1. Подростки: Tuning JDM -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('auto_tuning', '#FF1E27', '#00FF66', '#09080B', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'auto_tuning' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <input type="radio" name="theme_style" value="auto_tuning" {% if store.theme_style == 'auto_tuning' %}checked{% endif %} style="margin:0;">
-                                    <strong style="font-size: 13px; color: white;">Drift & Tuning JDM</strong>
+                                    <strong style="font-size: 13px; color: white;">JDM Drift / Tuning</strong>
                                 </div>
                                 <span style="font-size: 9px; font-weight: 800; color: #FF1E27; background: rgba(255, 30, 39, 0.15); padding: 2px 6px; border-radius: 4px;">ПОДРОСТКИ</span>
                             </div>
                             <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(255,30,39,0.25); display: flex; overflow: hidden;">
-                                <div style="flex: 1.5; background: #060709;"></div>
+                                <div style="flex: 1.5; background: #09080B;"></div>
                                 <div style="flex: 1; background: #FF1E27;"></div>
                                 <div style="flex: 1; background: #00FF66;"></div>
                             </div>
-                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Турбины, выхлоп, диски, неоновая подсветка и адреналин." %}</span>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Дрифт, спойлеры, выхлоп, LED-подсветка и агрессивный стиль." %}</span>
                         </label>
 
-                        <!-- Состоятельные: Luxury Motors -->
-                        <label class="theme-preset-card" onclick="selectThemePreset('auto_premium', '#C0C0C0', '#D4AF37', '#050507', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'auto_premium' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                        <!-- 2. Состоятельные: Executive Motors -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('auto_premium', '#C0C0C0', '#D4AF37', '#0B0C0E', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'auto_premium' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <input type="radio" name="theme_style" value="auto_premium" {% if store.theme_style == 'auto_premium' %}checked{% endif %} style="margin:0;">
                                     <strong style="font-size: 13px; color: white;">Executive Detailing</strong>
                                 </div>
-                                <span style="font-size: 9px; font-weight: 800; color: #C0C0C0; background: rgba(192, 192, 192, 0.15); padding: 2px 6px; border-radius: 4px;">БОГАТЫЕ</span>
+                                <span style="font-size: 9px; font-weight: 800; color: #D4AF37; background: rgba(212, 175, 55, 0.15); padding: 2px 6px; border-radius: 4px;">БОГАТЫЕ</span>
                             </div>
-                            <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(212,175,55,0.25); display: flex; overflow: hidden;">
-                                <div style="flex: 1.5; background: #050507;"></div>
+                            <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(192,192,192,0.25); display: flex; overflow: hidden;">
+                                <div style="flex: 1.5; background: #0B0C0E;"></div>
                                 <div style="flex: 1; background: #C0C0C0;"></div>
                                 <div style="flex: 1; background: #D4AF37;"></div>
                             </div>
-                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Премиум детейлинг, керамика, элитные шины Pirelli/Michelin." %}</span>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Керамика, детейлинг, кожа, премиум-масла для BMW/Porsche." %}</span>
                         </label>
 
-                        <!-- 30-летние: Pro Service -->
+                        <!-- 3. 30-летние: Pro Service -->
                         <label class="theme-preset-card" onclick="selectThemePreset('auto_drive', '#FF6B00', '#2563EB', '#0B0D12', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'auto_drive' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <input type="radio" name="theme_style" value="auto_drive" {% if store.theme_style == 'auto_drive' %}checked{% endif %} style="margin:0;">
-                                    <strong style="font-size: 13px; color: white;">Pro Service & SUV</strong>
+                                    <strong style="font-size: 13px; color: white;">Pro Service / SUV</strong>
                                 </div>
-                                <span style="font-size: 9px; font-weight: 800; color: #FF6B00; background: rgba(255, 107, 0, 0.15); padding: 2px 6px; border-radius: 4px;">30 ЛЕТ</span>
+                                <span style="font-size: 9px; font-weight: 800; color: #FB923C; background: rgba(255, 107, 0, 0.15); padding: 2px 6px; border-radius: 4px;">30 ЛЕТ</span>
                             </div>
                             <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(255,107,0,0.25); display: flex; overflow: hidden;">
                                 <div style="flex: 1.5; background: #0B0D12;"></div>
                                 <div style="flex: 1; background: #FF6B00;"></div>
                                 <div style="flex: 1; background: #2563EB;"></div>
                             </div>
-                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Масла, фильтры, надежные запчасти и семейные автомобили." %}</span>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Шины, фильтры, колодки, инструмент и проверенные запчасти." %}</span>
+                        </label>
+
+                        <!-- 4. Брутал 4x4: Offroad Garage -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('auto_brutal', '#84CC16', '#EAB308', '#0C0D0A', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'auto_brutal' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="radio" name="theme_style" value="auto_brutal" {% if store.theme_style == 'auto_brutal' %}checked{% endif %} style="margin:0;">
+                                    <strong style="font-size: 13px; color: white;">Brutal 4x4 Garage</strong>
+                                </div>
+                                <span style="font-size: 9px; font-weight: 800; color: #A3E635; background: rgba(132, 204, 22, 0.15); padding: 2px 6px; border-radius: 4px;">4X4 OFFROAD</span>
+                            </div>
+                            <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(132,204,22,0.25); display: flex; overflow: hidden;">
+                                <div style="flex: 1.5; background: #0C0D0A;"></div>
+                                <div style="flex: 1; background: #84CC16;"></div>
+                                <div style="flex: 1; background: #EAB308;"></div>
+                            </div>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Внедорожный тюнинг, экспедиции, хаки, пикапы и мощный 4x4." %}</span>
+                        </label>
+
+                        <!-- 5. Электрокары: Clean EV -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('auto_electric', '#06B6D4', '#3B82F6', '#0A0D14', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'auto_electric' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="radio" name="theme_style" value="auto_electric" {% if store.theme_style == 'auto_electric' %}checked{% endif %} style="margin:0;">
+                                    <strong style="font-size: 13px; color: white;">Clean EV Mobility</strong>
+                                </div>
+                                <span style="font-size: 9px; font-weight: 800; color: #22D3EE; background: rgba(6, 182, 212, 0.15); padding: 2px 6px; border-radius: 4px;">EV NEXT</span>
+                            </div>
+                            <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(6,182,212,0.25); display: flex; overflow: hidden;">
+                                <div style="flex: 1.5; background: #0A0D14;"></div>
+                                <div style="flex: 1; background: #06B6D4;"></div>
+                                <div style="flex: 1; background: #3B82F6;"></div>
+                            </div>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Электрокары, зарядные станции, неоновый циан и кибер-стиль." %}</span>
                         </label>
                     </div>
                 </div>
 
-                <!-- 3. НИША: ЭЛЕКТРОНИКА И ГАДЖЕТЫ (ELECTRONICS) -->
+                <!-- 3. НИША: ЭЛЕКТРОНИКА И ГАДЖЕТЫ (ELECTRONICS - 5 СТИЛЕЙ) -->
                 <div class="niche-theme-group" id="niche_themes_electronics" style="display: {% if store.niche == 'electronics' %}block{% else %}none{% endif %};">
-                    <div style="font-size: 12px; font-weight: 800; color: #9945FF; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-                        <span>⚡</span> {% trans "Эксклюзивные стили для электроники и гаджетов:" %}
+                    <div style="font-size: 12px; font-weight: 800; color: #8B5CF6; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                        <span>💻</span> {% trans "Эксклюзивные стили для электроники (5 готовых дизайнов):" %}
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px;">
-                        <!-- Подростки: RGB Gaming -->
-                        <label class="theme-preset-card" onclick="selectThemePreset('tech_gaming', '#9945FF', '#14F195', '#05050B', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'tech_gaming' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                        <!-- 1. Подростки: Cyber Gaming -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('tech_gaming', '#9945FF', '#14F195', '#070611', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'tech_gaming' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <input type="radio" name="theme_style" value="tech_gaming" {% if store.theme_style == 'tech_gaming' %}checked{% endif %} style="margin:0;">
-                                    <strong style="font-size: 13px; color: white;">RGB Gaming Twitch</strong>
+                                    <strong style="font-size: 13px; color: white;">RGB Cyber Gaming</strong>
                                 </div>
-                                <span style="font-size: 9px; font-weight: 800; color: #9945FF; background: rgba(153, 69, 255, 0.15); padding: 2px 6px; border-radius: 4px;">ПОДРОСТКИ</span>
+                                <span style="font-size: 9px; font-weight: 800; color: #14F195; background: rgba(20, 241, 149, 0.15); padding: 2px 6px; border-radius: 4px;">ПОДРОСТКИ</span>
                             </div>
                             <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(153,69,255,0.25); display: flex; overflow: hidden;">
-                                <div style="flex: 1.5; background: #05050B;"></div>
+                                <div style="flex: 1.5; background: #070611;"></div>
                                 <div style="flex: 1; background: #9945FF;"></div>
                                 <div style="flex: 1; background: #14F195;"></div>
                             </div>
-                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Клавиатуры, мышки, PlayStation, неон, стриминг и киберспорт." %}</span>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Игровые ПК, клавиатуры, наушники, Steam/Twitch эстетика." %}</span>
                         </label>
 
-                        <!-- Состоятельные: Titanium Pro -->
-                        <label class="theme-preset-card" onclick="selectThemePreset('apple_hightech', '#2997FF', '#30D158', '#000000', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'apple_hightech' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
-                            <div style="display: flex; align-items: center; justify-content: space-between;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <input type="radio" name="theme_style" value="apple_hightech" {% if store.theme_style == 'apple_hightech' %}checked{% endif %} style="margin:0;">
-                                    <strong style="font-size: 13px; color: white;">Titanium Pro Ecosystem</strong>
-                                </div>
-                                <span style="font-size: 9px; font-weight: 800; color: #2997FF; background: rgba(41, 151, 255, 0.15); padding: 2px 6px; border-radius: 4px;">БОГАТЫЕ</span>
-                            </div>
-                            <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); display: flex; overflow: hidden;">
-                                <div style="flex: 1.5; background: #000000;"></div>
-                                <div style="flex: 1; background: #2997FF;"></div>
-                                <div style="flex: 1; background: #30D158;"></div>
-                            </div>
-                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Флагманы iPhone Pro, MacBook, титан, сапфир и экосистемы." %}</span>
-                        </label>
-
-                        <!-- 30-летние: Smart Home -->
-                        <label class="theme-preset-card" onclick="selectThemePreset('tech_minimal', '#0EA5E9', '#6366F1', '#090C15', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'tech_minimal' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                        <!-- 2. Состоятельные: Space Titanium -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('tech_minimal', '#0284C7', '#38BDF8', '#08090C', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'tech_minimal' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <input type="radio" name="theme_style" value="tech_minimal" {% if store.theme_style == 'tech_minimal' %}checked{% endif %} style="margin:0;">
+                                    <strong style="font-size: 13px; color: white;">Space Titanium Pro</strong>
+                                </div>
+                                <span style="font-size: 9px; font-weight: 800; color: #38BDF8; background: rgba(56, 189, 248, 0.15); padding: 2px 6px; border-radius: 4px;">БОГАТЫЕ</span>
+                            </div>
+                            <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(2,132,199,0.25); display: flex; overflow: hidden;">
+                                <div style="flex: 1.5; background: #08090C;"></div>
+                                <div style="flex: 1; background: #0284C7;"></div>
+                                <div style="flex: 1; background: #38BDF8;"></div>
+                            </div>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Флагманы iPhone Pro, MacBook, титан, чистый OLED визуал." %}</span>
+                        </label>
+
+                        <!-- 3. 30-летние: Smart Home -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('tech_smarthome', '#0D9488', '#6366F1', '#0A0D12', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'tech_smarthome' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="radio" name="theme_style" value="tech_smarthome" {% if store.theme_style == 'tech_smarthome' %}checked{% endif %} style="margin:0;">
                                     <strong style="font-size: 13px; color: white;">Smart Home Living</strong>
                                 </div>
-                                <span style="font-size: 9px; font-weight: 800; color: #0EA5E9; background: rgba(14, 165, 233, 0.15); padding: 2px 6px; border-radius: 4px;">30 ЛЕТ</span>
+                                <span style="font-size: 9px; font-weight: 800; color: #2DD4BF; background: rgba(13, 148, 136, 0.15); padding: 2px 6px; border-radius: 4px;">30 ЛЕТ</span>
                             </div>
-                            <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(14,165,233,0.25); display: flex; overflow: hidden;">
-                                <div style="flex: 1.5; background: #090C15;"></div>
-                                <div style="flex: 1; background: #0EA5E9;"></div>
+                            <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(13,148,136,0.25); display: flex; overflow: hidden;">
+                                <div style="flex: 1.5; background: #0A0D12;"></div>
+                                <div style="flex: 1; background: #0D9488;"></div>
                                 <div style="flex: 1; background: #6366F1;"></div>
                             </div>
-                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Роботы-пылесосы, мониторы, эргономика, умный дом и быт." %}</span>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Умный дом, датчики, роботы-пылесосы, гаджеты для комфорта." %}</span>
+                        </label>
+
+                        <!-- 4. Будущее и ИИ: AI Matrix -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('tech_future', '#38BDF8', '#818CF8', '#080C14', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'tech_future' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="radio" name="theme_style" value="tech_future" {% if store.theme_style == 'tech_future' %}checked{% endif %} style="margin:0;">
+                                    <strong style="font-size: 13px; color: white;">AI Matrix Grid</strong>
+                                </div>
+                                <span style="font-size: 9px; font-weight: 800; color: #38BDF8; background: rgba(56, 189, 248, 0.15); padding: 2px 6px; border-radius: 4px;">ИИ & КИБЕР</span>
+                            </div>
+                            <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(56,189,248,0.25); display: flex; overflow: hidden;">
+                                <div style="flex: 1.5; background: #080C14;"></div>
+                                <div style="flex: 1; background: #38BDF8;"></div>
+                                <div style="flex: 1; background: #818CF8;"></div>
+                            </div>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Нейросети, чипы, искусственный интеллект и квантовый электрик." %}</span>
+                        </label>
+
+                        <!-- 5. Hi-Fi Аудио: Studio Acoustic -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('tech_audio', '#F59E0B', '#D97706', '#0D0C0A', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'tech_audio' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="radio" name="theme_style" value="tech_audio" {% if store.theme_style == 'tech_audio' %}checked{% endif %} style="margin:0;">
+                                    <strong style="font-size: 13px; color: white;">Studio Hi-Fi Gold</strong>
+                                </div>
+                                <span style="font-size: 9px; font-weight: 800; color: #FBBF24; background: rgba(245, 158, 11, 0.15); padding: 2px 6px; border-radius: 4px;">HI-FI АУДИО</span>
+                            </div>
+                            <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(245,158,11,0.25); display: flex; overflow: hidden;">
+                                <div style="flex: 1.5; background: #0D0C0A;"></div>
+                                <div style="flex: 1; background: #F59E0B;"></div>
+                                <div style="flex: 1; background: #D97706;"></div>
+                            </div>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Виниловый звук, ламповые усилители, студийный мониторинг и тепло." %}</span>
                         </label>
                     </div>
                 </div>
 
-                <!-- 4. НИША: ПРОДУКТЫ ПИТАНИЯ (FOOD) -->
+                <!-- 4. НИША: ПРОДУКТЫ ПИТАНИЯ (FOOD - 5 СТИЛЕЙ) -->
                 <div class="niche-theme-group" id="niche_themes_food" style="display: {% if store.niche == 'food' %}block{% else %}none{% endif %};">
-                    <div style="font-size: 12px; font-weight: 800; color: #16A34A; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-                        <span>🥑</span> {% trans "Эксклюзивные стили для продуктов и гастрономии:" %}
+                    <div style="font-size: 12px; font-weight: 800; color: #F43F5E; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                        <span>🍔</span> {% trans "Эксклюзивные стили для продуктов питания (5 готовых дизайнов):" %}
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px;">
-                        <!-- Подростки: Snack Pop -->
+                        <!-- 1. Подростки: Snack Pop -->
                         <label class="theme-preset-card" onclick="selectThemePreset('food_pop', '#FF007A', '#FFD600', '#0D0710', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'food_pop' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <input type="radio" name="theme_style" value="food_pop" {% if store.theme_style == 'food_pop' %}checked{% endif %} style="margin:0;">
-                                    <strong style="font-size: 13px; color: white;">Snack Attack Pop</strong>
+                                    <strong style="font-size: 13px; color: white;">Snack Pop / Street</strong>
                                 </div>
                                 <span style="font-size: 9px; font-weight: 800; color: #FF007A; background: rgba(255, 0, 122, 0.15); padding: 2px 6px; border-radius: 4px;">ПОДРОСТКИ</span>
                             </div>
@@ -722,70 +824,104 @@
                                 <div style="flex: 1; background: #FF007A;"></div>
                                 <div style="flex: 1; background: #FFD600;"></div>
                             </div>
-                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Корейские рамёны, Bubble Tea, японские сладости и снеки." %}</span>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Снеки, бургеры, сладости, газировка, неоновый стритфуд." %}</span>
                         </label>
 
-                        <!-- Состоятельные: Gourmet Deli -->
-                        <label class="theme-preset-card" onclick="selectThemePreset('food_gourmet', '#B8860B', '#800020', '#0B0807', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'food_gourmet' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                        <!-- 2. Состоятельные: Gourmet Deli -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('food_gourmet', '#B8860B', '#800020', '#0B0709', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'food_gourmet' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <input type="radio" name="theme_style" value="food_gourmet" {% if store.theme_style == 'food_gourmet' %}checked{% endif %} style="margin:0;">
-                                    <strong style="font-size: 13px; color: white;">Gourmet & Truffle</strong>
+                                    <strong style="font-size: 13px; color: white;">Gourmet Deli & Wine</strong>
                                 </div>
                                 <span style="font-size: 9px; font-weight: 800; color: #B8860B; background: rgba(184, 134, 11, 0.15); padding: 2px 6px; border-radius: 4px;">БОГАТЫЕ</span>
                             </div>
                             <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(184,134,11,0.25); display: flex; overflow: hidden;">
-                                <div style="flex: 1.5; background: #0B0807;"></div>
+                                <div style="flex: 1.5; background: #0B0709;"></div>
                                 <div style="flex: 1; background: #B8860B;"></div>
                                 <div style="flex: 1; background: #800020;"></div>
                             </div>
-                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Элитные сыры, трюфели, выдержанные стейки и деликатесы." %}</span>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Трюфели, выдержанные сыры, премиум стейки и гастрономия." %}</span>
                         </label>
 
-                        <!-- 30-летние: Fresh Eco Farm -->
-                        <label class="theme-preset-card" onclick="selectThemePreset('food_organic', '#16A34A', '#F59E0B', '#080D09', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'food_organic' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                        <!-- 3. 30-летние: Fresh Eco Farm -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('food_organic', '#16A34A', '#F59E0B', '#070D08', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'food_organic' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <input type="radio" name="theme_style" value="food_organic" {% if store.theme_style == 'food_organic' %}checked{% endif %} style="margin:0;">
                                     <strong style="font-size: 13px; color: white;">Fresh Eco Farm</strong>
                                 </div>
-                                <span style="font-size: 9px; font-weight: 800; color: #16A34A; background: rgba(22, 163, 74, 0.15); padding: 2px 6px; border-radius: 4px;">30 ЛЕТ</span>
+                                <span style="font-size: 9px; font-weight: 800; color: #4ADE80; background: rgba(22, 163, 74, 0.15); padding: 2px 6px; border-radius: 4px;">30 ЛЕТ</span>
                             </div>
                             <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(22,163,74,0.25); display: flex; overflow: hidden;">
-                                <div style="flex: 1.5; background: #080D09;"></div>
+                                <div style="flex: 1.5; background: #070D08;"></div>
                                 <div style="flex: 1; background: #16A34A;"></div>
                                 <div style="flex: 1; background: #F59E0B;"></div>
                             </div>
-                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Фермерские свежие продукты, органика, ягоды и здоровое меню." %}</span>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Органика, свежие ягоды, фермерские молочные продукты и ЗОЖ." %}</span>
+                        </label>
+
+                        <!-- 4. Пекарня и кофе: Artisan Bakery -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('food_bakery', '#D97706', '#EA580C', '#0E0C09', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'food_bakery' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="radio" name="theme_style" value="food_bakery" {% if store.theme_style == 'food_bakery' %}checked{% endif %} style="margin:0;">
+                                    <strong style="font-size: 13px; color: white;">Artisan Bakery & Cafe</strong>
+                                </div>
+                                <span style="font-size: 9px; font-weight: 800; color: #FBBF24; background: rgba(217, 119, 6, 0.15); padding: 2px 6px; border-radius: 4px;">ПЕКАРНЯ</span>
+                            </div>
+                            <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(217,119,6,0.25); display: flex; overflow: hidden;">
+                                <div style="flex: 1.5; background: #0E0C09;"></div>
+                                <div style="flex: 1; background: #D97706;"></div>
+                                <div style="flex: 1; background: #EA580C;"></div>
+                            </div>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Свежий круассан, спешелти кофе, золотистая корочка и ваниль." %}</span>
+                        </label>
+
+                        <!-- 5. Паназия и вок: Asian Spice -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('food_asian', '#DC2626', '#F97316', '#0F0A0A', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'food_asian' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="radio" name="theme_style" value="food_asian" {% if store.theme_style == 'food_asian' %}checked{% endif %} style="margin:0;">
+                                    <strong style="font-size: 13px; color: white;">Asian Wok & Spice</strong>
+                                </div>
+                                <span style="font-size: 9px; font-weight: 800; color: #F87171; background: rgba(220, 38, 38, 0.15); padding: 2px 6px; border-radius: 4px;">ПАНАЗИЯ</span>
+                            </div>
+                            <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(220,38,38,0.25); display: flex; overflow: hidden;">
+                                <div style="flex: 1.5; background: #0F0A0A;"></div>
+                                <div style="flex: 1; background: #DC2626;"></div>
+                                <div style="flex: 1; background: #F97316;"></div>
+                            </div>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Горячий вок, суши, рамен, пряные специи и огненный перец." %}</span>
                         </label>
                     </div>
                 </div>
 
-                <!-- 5. НИША: МЕБЕЛЬ И ТОВАРЫ ДЛЯ ДОМА (HOME) -->
+                <!-- 5. НИША: ТОВАРЫ ДЛЯ ДОМА И МЕБЕЛЬ (HOME - 5 СТИЛЕЙ) -->
                 <div class="niche-theme-group" id="niche_themes_home" style="display: {% if store.niche == 'home' %}block{% else %}none{% endif %};">
-                    <div style="font-size: 12px; font-weight: 800; color: #8B5CF6; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-                        <span>🛋️</span> {% trans "Эксклюзивные стили для мебели и интерьера:" %}
+                    <div style="font-size: 12px; font-weight: 800; color: #A855F7; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                        <span>🛋️</span> {% trans "Эксклюзивные стили для дома и уюта (5 готовых дизайнов):" %}
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px;">
-                        <!-- Подростки: Loft Neon -->
-                        <label class="theme-preset-card" onclick="selectThemePreset('home_loft', '#8B5CF6', '#EC4899', '#090710', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'home_loft' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                        <!-- 1. Подростки: Loft RGB -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('home_loft', '#8B5CF6', '#EC4899', '#090714', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'home_loft' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <input type="radio" name="theme_style" value="home_loft" {% if store.theme_style == 'home_loft' %}checked{% endif %} style="margin:0;">
-                                    <strong style="font-size: 13px; color: white;">Loft Studio Neon</strong>
+                                    <strong style="font-size: 13px; color: white;">Loft Neon RGB</strong>
                                 </div>
-                                <span style="font-size: 9px; font-weight: 800; color: #8B5CF6; background: rgba(139, 92, 246, 0.15); padding: 2px 6px; border-radius: 4px;">ПОДРОСТКИ</span>
+                                <span style="font-size: 9px; font-weight: 800; color: #C084FC; background: rgba(139, 92, 246, 0.15); padding: 2px 6px; border-radius: 4px;">ПОДРОСТКИ</span>
                             </div>
                             <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(139,92,246,0.25); display: flex; overflow: hidden;">
-                                <div style="flex: 1.5; background: #090710;"></div>
+                                <div style="flex: 1.5; background: #090714;"></div>
                                 <div style="flex: 1; background: #8B5CF6;"></div>
                                 <div style="flex: 1; background: #EC4899;"></div>
                             </div>
-                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Светодиоды, геймерские столы, пуфы-мешки, постеры и лофт." %}</span>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Неоновые ленты, постеры, геймерские столы и стильный лофт." %}</span>
                         </label>
 
-                        <!-- Состоятельные: Grand Villa -->
-                        <label class="theme-preset-card" onclick="selectThemePreset('home_luxury', '#C5A059', '#78716C', '#0A0908', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'home_luxury' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                        <!-- 2. Состоятельные: Italian Marble -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('home_luxury', '#C5A059', '#78716C', '#0C0B09', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'home_luxury' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <input type="radio" name="theme_style" value="home_luxury" {% if store.theme_style == 'home_luxury' %}checked{% endif %} style="margin:0;">
@@ -794,198 +930,300 @@
                                 <span style="font-size: 9px; font-weight: 800; color: #C5A059; background: rgba(197, 160, 89, 0.15); padding: 2px 6px; border-radius: 4px;">БОГАТЫЕ</span>
                             </div>
                             <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(197,160,89,0.25); display: flex; overflow: hidden;">
-                                <div style="flex: 1.5; background: #0A0908;"></div>
+                                <div style="flex: 1.5; background: #0C0B09;"></div>
                                 <div style="flex: 1; background: #C5A059;"></div>
                                 <div style="flex: 1; background: #78716C;"></div>
                             </div>
-                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Итальянский мрамор, бархат, люстры и дизайнерская мебель." %}</span>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Итальянский мрамор, золото, латунь, премиальная мебель." %}</span>
                         </label>
 
-                        <!-- 30-летние: Nordic Hygge -->
-                        <label class="theme-preset-card" onclick="selectThemePreset('home_nordic', '#059669', '#D97706', '#080C0A', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'home_nordic' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                        <!-- 3. 30-летние: Nordic Wood -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('home_nordic', '#059669', '#D97706', '#080D09', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'home_nordic' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <input type="radio" name="theme_style" value="home_nordic" {% if store.theme_style == 'home_nordic' %}checked{% endif %} style="margin:0;">
                                     <strong style="font-size: 13px; color: white;">Nordic Hygge Wood</strong>
                                 </div>
-                                <span style="font-size: 9px; font-weight: 800; color: #059669; background: rgba(5, 150, 105, 0.15); padding: 2px 6px; border-radius: 4px;">30 ЛЕТ</span>
+                                <span style="font-size: 9px; font-weight: 800; color: #34D399; background: rgba(5, 150, 105, 0.15); padding: 2px 6px; border-radius: 4px;">30 ЛЕТ</span>
                             </div>
                             <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(5,150,105,0.25); display: flex; overflow: hidden;">
-                                <div style="flex: 1.5; background: #080C0A;"></div>
+                                <div style="flex: 1.5; background: #080D09;"></div>
                                 <div style="flex: 1; background: #059669;"></div>
                                 <div style="flex: 1; background: #D97706;"></div>
                             </div>
-                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Массив дуба, лен, модульные кухни, скандинавский уют." %}</span>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Массив дуба, эко-текстиль, скандинавский свет и уют." %}</span>
+                        </label>
+
+                        <!-- 4. Уют и бохо: Warm Boho -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('home_boho', '#EA580C', '#F59E0B', '#0E0B09', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'home_boho' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="radio" name="theme_style" value="home_boho" {% if store.theme_style == 'home_boho' %}checked{% endif %} style="margin:0;">
+                                    <strong style="font-size: 13px; color: white;">Boho Terracotta</strong>
+                                </div>
+                                <span style="font-size: 9px; font-weight: 800; color: #FB923C; background: rgba(234, 88, 12, 0.15); padding: 2px 6px; border-radius: 4px;">БОХО</span>
+                            </div>
+                            <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(234,88,12,0.25); display: flex; overflow: hidden;">
+                                <div style="flex: 1.5; background: #0E0B09;"></div>
+                                <div style="flex: 1; background: #EA580C;"></div>
+                                <div style="flex: 1; background: #F59E0B;"></div>
+                            </div>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Натуральный текстиль, плетёная мебель, керамика и песок." %}</span>
+                        </label>
+
+                        <!-- 5. Дзен ваби-саби: Japandi Zen -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('home_japanese', '#65A30D', '#84CC16', '#0B0D0A', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'home_japanese' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="radio" name="theme_style" value="home_japanese" {% if store.theme_style == 'home_japanese' %}checked{% endif %} style="margin:0;">
+                                    <strong style="font-size: 13px; color: white;">Japandi Zen Wood</strong>
+                                </div>
+                                <span style="font-size: 9px; font-weight: 800; color: #A3E635; background: rgba(101, 163, 13, 0.15); padding: 2px 6px; border-radius: 4px;">ДЗЕН</span>
+                            </div>
+                            <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(101,163,13,0.25); display: flex; overflow: hidden;">
+                                <div style="flex: 1.5; background: #0B0D0A;"></div>
+                                <div style="flex: 1; background: #65A30D;"></div>
+                                <div style="flex: 1; background: #84CC16;"></div>
+                            </div>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Бамбук, рисовая бумага, спокойствие и японский минимализм." %}</span>
                         </label>
                     </div>
                 </div>
 
-                <!-- 6. НИША: КРАСОТА И ЗДОРОВЬЕ (BEAUTY) -->
-                <div class="niche-theme-group" id="niche_themes_beauty" style="display: {% if store.niche == 'beauty' or store.niche == 'cosmetics' %}block{% else %}none{% endif %};">
-                    <div style="font-size: 12px; font-weight: 800; color: #F43F5E; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-                        <span>🌸</span> {% trans "Эксклюзивные стили для косметики и бьюти:" %}
+                <!-- 6. НИША: КРАСОТА И ЗДОРОВЬЕ (BEAUTY - 5 СТИЛЕЙ) -->
+                <div class="niche-theme-group" id="niche_themes_beauty" style="display: {% if store.niche == 'beauty' %}block{% else %}none{% endif %};">
+                    <div style="font-size: 12px; font-weight: 800; color: #EC4899; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                        <span>💄</span> {% trans "Эксклюзивные стили для косметики и бьюти (5 готовых дизайнов):" %}
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px;">
-                        <!-- Подростки: K-Beauty -->
-                        <label class="theme-preset-card" onclick="selectThemePreset('beauty_korean', '#F43F5E', '#A855F7', '#0F070B', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'beauty_korean' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                        <!-- 1. Подростки: K-Beauty -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('beauty_korean', '#F43F5E', '#A855F7', '#11070D', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'beauty_korean' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <input type="radio" name="theme_style" value="beauty_korean" {% if store.theme_style == 'beauty_korean' %}checked{% endif %} style="margin:0;">
-                                    <strong style="font-size: 13px; color: white;">K-Beauty Glass Skin</strong>
+                                    <strong style="font-size: 13px; color: white;">K-Beauty Glow Pastel</strong>
                                 </div>
-                                <span style="font-size: 9px; font-weight: 800; color: #F43F5E; background: rgba(244, 63, 94, 0.15); padding: 2px 6px; border-radius: 4px;">ПОДРОСТКИ</span>
+                                <span style="font-size: 9px; font-weight: 800; color: #FB7185; background: rgba(244, 63, 94, 0.15); padding: 2px 6px; border-radius: 4px;">ПОДРОСТКИ</span>
                             </div>
                             <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(244,63,94,0.25); display: flex; overflow: hidden;">
-                                <div style="flex: 1.5; background: #0F070B;"></div>
+                                <div style="flex: 1.5; background: #11070D;"></div>
                                 <div style="flex: 1; background: #F43F5E;"></div>
                                 <div style="flex: 1; background: #A855F7;"></div>
                             </div>
-                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Корейские патчи, тинты, блестки, сияние и модный макияж." %}</span>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Корейская косметика, тинты, сияние, маски, TikTok бьюти-тренды." %}</span>
                         </label>
 
-                        <!-- Состоятельные: Haute Parfumerie -->
-                        <label class="theme-preset-card" onclick="selectThemePreset('beauty_luxury', '#E5A93C', '#BE185D', '#0C0709', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'beauty_luxury' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                        <!-- 2. Состоятельные: Haute Parfumerie -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('beauty_luxury', '#E5A93C', '#BE185D', '#0F0B0E', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'beauty_luxury' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <input type="radio" name="theme_style" value="beauty_luxury" {% if store.theme_style == 'beauty_luxury' %}checked{% endif %} style="margin:0;">
-                                    <strong style="font-size: 13px; color: white;">Haute Parfumerie Spa</strong>
+                                    <strong style="font-size: 13px; color: white;">Haute Parfumerie Gold</strong>
                                 </div>
-                                <span style="font-size: 9px; font-weight: 800; color: #E5A93C; background: rgba(229, 169, 60, 0.15); padding: 2px 6px; border-radius: 4px;">БОГАТЫЕ</span>
+                                <span style="font-size: 9px; font-weight: 800; color: #FBBF24; background: rgba(229, 169, 60, 0.15); padding: 2px 6px; border-radius: 4px;">БОГАТЫЕ</span>
                             </div>
                             <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(229,169,60,0.25); display: flex; overflow: hidden;">
-                                <div style="flex: 1.5; background: #0C0709;"></div>
+                                <div style="flex: 1.5; background: #0F0B0E;"></div>
                                 <div style="flex: 1; background: #E5A93C;"></div>
                                 <div style="flex: 1; background: #BE185D;"></div>
                             </div>
-                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Селективная нишевая парфюмерия, швейцарский салонный уход." %}</span>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Селективная нишевая парфюмерия, золото, спа и элитный уход." %}</span>
                         </label>
 
-                        <!-- 30-летние: Clean Derma -->
-                        <label class="theme-preset-card" onclick="selectThemePreset('beauty_wellness', '#0D9488', '#10B981', '#060D0B', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'beauty_wellness' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                        <!-- 3. 30-летние: Clean Botanical -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('beauty_wellness', '#0D9488', '#10B981', '#070D0B', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'beauty_wellness' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <input type="radio" name="theme_style" value="beauty_wellness" {% if store.theme_style == 'beauty_wellness' %}checked{% endif %} style="margin:0;">
-                                    <strong style="font-size: 13px; color: white;">Clean Derma Care</strong>
+                                    <strong style="font-size: 13px; color: white;">Botanical Derma Eco</strong>
                                 </div>
-                                <span style="font-size: 9px; font-weight: 800; color: #0D9488; background: rgba(13, 148, 136, 0.15); padding: 2px 6px; border-radius: 4px;">30 ЛЕТ</span>
+                                <span style="font-size: 9px; font-weight: 800; color: #2DD4BF; background: rgba(13, 148, 136, 0.15); padding: 2px 6px; border-radius: 4px;">30 ЛЕТ</span>
                             </div>
                             <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(13,148,136,0.25); display: flex; overflow: hidden;">
-                                <div style="flex: 1.5; background: #060D0B;"></div>
+                                <div style="flex: 1.5; background: #070D0B;"></div>
                                 <div style="flex: 1; background: #0D9488;"></div>
                                 <div style="flex: 1; background: #10B981;"></div>
                             </div>
-                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Аптечная дерматология CeraVe, гиалурон, SPF и чистая органика." %}</span>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Аптечная дерматокосметика, чистые составы, витамины и ЗОЖ." %}</span>
+                        </label>
+
+                        <!-- 4. Салонный мейкап: Glam Studio -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('beauty_salon', '#E11D48', '#FB7185', '#100A0E', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'beauty_salon' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="radio" name="theme_style" value="beauty_salon" {% if store.theme_style == 'beauty_salon' %}checked{% endif %} style="margin:0;">
+                                    <strong style="font-size: 13px; color: white;">Glam Makeup Studio</strong>
+                                </div>
+                                <span style="font-size: 9px; font-weight: 800; color: #FB7185; background: rgba(225, 29, 72, 0.15); padding: 2px 6px; border-radius: 4px;">САЛОН</span>
+                            </div>
+                            <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(225,29,72,0.25); display: flex; overflow: hidden;">
+                                <div style="flex: 1.5; background: #100A0E;"></div>
+                                <div style="flex: 1; background: #E11D48;"></div>
+                                <div style="flex: 1; background: #FB7185;"></div>
+                            </div>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Профессиональная косметика визажистов, пудра и насыщенный пигмент." %}</span>
+                        </label>
+
+                        <!-- 5. Эко и травы: Herbal Ayurveda -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('beauty_organic', '#10B981', '#059669', '#090D0A', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'beauty_organic' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="radio" name="theme_style" value="beauty_organic" {% if store.theme_style == 'beauty_organic' %}checked{% endif %} style="margin:0;">
+                                    <strong style="font-size: 13px; color: white;">Pure Herbal Ayurveda</strong>
+                                </div>
+                                <span style="font-size: 9px; font-weight: 800; color: #34D399; background: rgba(16, 185, 129, 0.15); padding: 2px 6px; border-radius: 4px;">ЭКО ТРАВЫ</span>
+                            </div>
+                            <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(16,185,129,0.25); display: flex; overflow: hidden;">
+                                <div style="flex: 1.5; background: #090D0A;"></div>
+                                <div style="flex: 1; background: #10B981;"></div>
+                                <div style="flex: 1; background: #059669;"></div>
+                            </div>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Натуральные масла, аюрведические травы и чистая косметика." %}</span>
                         </label>
                     </div>
                 </div>
 
-                <!-- 7. НИША: ДЕТСКИЕ ТОВАРЫ (KIDS) -->
+                <!-- 7. НИША: ДЕТСКИЕ ТОВАРЫ (KIDS - 5 СТИЛЕЙ) -->
                 <div class="niche-theme-group" id="niche_themes_kids" style="display: {% if store.niche == 'kids' %}block{% else %}none{% endif %};">
-                    <div style="font-size: 12px; font-weight: 800; color: #EC4899; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-                        <span>🧸</span> {% trans "Эксклюзивные стили для детских товаров:" %}
+                    <div style="font-size: 12px; font-weight: 800; color: #F59E0B; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                        <span>🧸</span> {% trans "Эксклюзивные стили для детей (5 готовых дизайнов):" %}
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px;">
-                        <!-- Подростки: Anime Teen -->
-                        <label class="theme-preset-card" onclick="selectThemePreset('kids_anime', '#8B5CF6', '#F43F5E', '#0B0813', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'kids_anime' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                        <!-- 1. Подростки: Anime Gaming Kid -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('kids_anime', '#8B5CF6', '#F43F5E', '#0B0716', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'kids_anime' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <input type="radio" name="theme_style" value="kids_anime" {% if store.theme_style == 'kids_anime' %}checked{% endif %} style="margin:0;">
-                                    <strong style="font-size: 13px; color: white;">Anime Merch Teens</strong>
+                                    <strong style="font-size: 13px; color: white;">Anime Merch Kid</strong>
                                 </div>
-                                <span style="font-size: 9px; font-weight: 800; color: #8B5CF6; background: rgba(139, 92, 246, 0.15); padding: 2px 6px; border-radius: 4px;">ПОДРОСТКИ</span>
+                                <span style="font-size: 9px; font-weight: 800; color: #C084FC; background: rgba(139, 92, 246, 0.15); padding: 2px 6px; border-radius: 4px;">ПОДРОСТКИ</span>
                             </div>
                             <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(139,92,246,0.25); display: flex; overflow: hidden;">
-                                <div style="flex: 1.5; background: #0B0813;"></div>
+                                <div style="flex: 1.5; background: #0B0716;"></div>
                                 <div style="flex: 1; background: #8B5CF6;"></div>
                                 <div style="flex: 1; background: #F43F5E;"></div>
                             </div>
-                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Манга, мерч, фигурки Funko, трендовые худи и стикеры." %}</span>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Мерч аниме, комиксы, Roblox/Minecraft игрушки и поп-культура." %}</span>
                         </label>
 
-                        <!-- Состоятельные: Baby Boutique -->
-                        <label class="theme-preset-card" onclick="selectThemePreset('kids_boutique', '#F59E0B', '#60A5FA', '#0C0A08', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'kids_boutique' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                        <!-- 2. Состоятельные: Royal Baby Pastel -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('kids_boutique', '#F59E0B', '#60A5FA', '#0E0B06', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'kids_boutique' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <input type="radio" name="theme_style" value="kids_boutique" {% if store.theme_style == 'kids_boutique' %}checked{% endif %} style="margin:0;">
                                     <strong style="font-size: 13px; color: white;">Royal Baby Boutique</strong>
                                 </div>
-                                <span style="font-size: 9px; font-weight: 800; color: #F59E0B; background: rgba(245, 158, 11, 0.15); padding: 2px 6px; border-radius: 4px;">БОГАТЫЕ</span>
+                                <span style="font-size: 9px; font-weight: 800; color: #FBBF24; background: rgba(245, 158, 11, 0.15); padding: 2px 6px; border-radius: 4px;">БОГАТЫЕ</span>
                             </div>
                             <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(245,158,11,0.25); display: flex; overflow: hidden;">
-                                <div style="flex: 1.5; background: #0C0A08;"></div>
+                                <div style="flex: 1.5; background: #0E0B06;"></div>
                                 <div style="flex: 1; background: #F59E0B;"></div>
                                 <div style="flex: 1; background: #60A5FA;"></div>
                             </div>
-                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Коляски Cybex/Stokke, массив бука, органический хлопок." %}</span>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Премиум коляски Cybex, пастель, золотая вышивка и мягкость." %}</span>
                         </label>
 
-                        <!-- 30-летние: Montessori Joyful -->
-                        <label class="theme-preset-card" onclick="selectThemePreset('kids_playful', '#EC4899', '#06B6D4', '#0C0810', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'kids_playful' or store.theme_style == 'fashion_kids' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                        <!-- 3. 30-летние: Montessori Smart -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('kids_playful', '#EC4899', '#06B6D4', '#0F0914', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'kids_playful' or store.theme_style == 'fashion_kids' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <input type="radio" name="theme_style" value="kids_playful" {% if store.theme_style == 'kids_playful' or store.theme_style == 'fashion_kids' %}checked{% endif %} style="margin:0;">
-                                    <strong style="font-size: 13px; color: white;">Montessori Joyful</strong>
+                                    <strong style="font-size: 13px; color: white;">Montessori Smart Joy</strong>
                                 </div>
-                                <span style="font-size: 9px; font-weight: 800; color: #EC4899; background: rgba(236, 72, 153, 0.15); padding: 2px 6px; border-radius: 4px;">30 ЛЕТ</span>
+                                <span style="font-size: 9px; font-weight: 800; color: #F472B6; background: rgba(236, 72, 153, 0.15); padding: 2px 6px; border-radius: 4px;">30 ЛЕТ</span>
                             </div>
                             <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(236,72,153,0.25); display: flex; overflow: hidden;">
-                                <div style="flex: 1.5; background: #0C0810;"></div>
+                                <div style="flex: 1.5; background: #0F0914;"></div>
                                 <div style="flex: 1; background: #EC4899;"></div>
                                 <div style="flex: 1; background: #06B6D4;"></div>
                             </div>
-                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Развивающие игры, деревянные сортеры, яркие краски и радость." %}</span>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Деревянные игрушки, монтессори, развивающие наборы и книги." %}</span>
+                        </label>
+
+                        <!-- 4. Сказка и магия: Magic Kingdom -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('kids_disney', '#3B82F6', '#EC4899', '#0A0C14', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'kids_disney' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="radio" name="theme_style" value="kids_disney" {% if store.theme_style == 'kids_disney' %}checked{% endif %} style="margin:0;">
+                                    <strong style="font-size: 13px; color: white;">Magic Kingdom</strong>
+                                </div>
+                                <span style="font-size: 9px; font-weight: 800; color: #60A5FA; background: rgba(59, 130, 246, 0.15); padding: 2px 6px; border-radius: 4px;">СКАЗКА</span>
+                            </div>
+                            <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(59,130,246,0.25); display: flex; overflow: hidden;">
+                                <div style="flex: 1.5; background: #0A0C14;"></div>
+                                <div style="flex: 1; background: #3B82F6;"></div>
+                                <div style="flex: 1; background: #EC4899;"></div>
+                            </div>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Сказочные герои, замки, звёздное небо и детская магия." %}</span>
+                        </label>
+
+                        <!-- 5. Скейт и стрит: Teen Skater -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('kids_teen', '#84CC16', '#F97316', '#0B0E09', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'kids_teen' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="radio" name="theme_style" value="kids_teen" {% if store.theme_style == 'kids_teen' %}checked{% endif %} style="margin:0;">
+                                    <strong style="font-size: 13px; color: white;">Teen Skater Street</strong>
+                                </div>
+                                <span style="font-size: 9px; font-weight: 800; color: #A3E635; background: rgba(132, 204, 22, 0.15); padding: 2px 6px; border-radius: 4px;">СКЕЙТЕР</span>
+                            </div>
+                            <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(132,204,22,0.25); display: flex; overflow: hidden;">
+                                <div style="flex: 1.5; background: #0B0E09;"></div>
+                                <div style="flex: 1; background: #84CC16;"></div>
+                                <div style="flex: 1; background: #F97316;"></div>
+                            </div>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Скейтборды, ролики, яркие граффити и драйв для школьников." %}</span>
                         </label>
                     </div>
                 </div>
 
-                <!-- 8. НИША: СПОРТ И ОТДЫХ (SPORT) -->
+                <!-- 8. НИША: СПОРТ И ОТДЫХ (SPORT - 5 СТИЛЕЙ) -->
                 <div class="niche-theme-group" id="niche_themes_sport" style="display: {% if store.niche == 'sport' %}block{% else %}none{% endif %};">
-                    <div style="font-size: 12px; font-weight: 800; color: #EAB308; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-                        <span>🏆</span> {% trans "Эксклюзивные стили для спорта и фитнеса:" %}
+                    <div style="font-size: 12px; font-weight: 800; color: #10B981; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                        <span>⚡</span> {% trans "Эксклюзивные стили для спорта и отдыха (5 готовых дизайнов):" %}
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px;">
-                        <!-- Подростки: Voltage Energy -->
-                        <label class="theme-preset-card" onclick="selectThemePreset('sport_voltage', '#EAB308', '#EF4444', '#090906', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'sport_voltage' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                        <!-- 1. Подростки: Extreme Voltage -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('sport_voltage', '#EAB308', '#EF4444', '#0E0D06', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'sport_voltage' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <input type="radio" name="theme_style" value="sport_voltage" {% if store.theme_style == 'sport_voltage' %}checked{% endif %} style="margin:0;">
-                                    <strong style="font-size: 13px; color: white;">Voltage Skate Energy</strong>
+                                    <strong style="font-size: 13px; color: white;">Extreme Voltage Energy</strong>
                                 </div>
-                                <span style="font-size: 9px; font-weight: 800; color: #EAB308; background: rgba(234, 179, 8, 0.15); padding: 2px 6px; border-radius: 4px;">ПОДРОСТКИ</span>
+                                <span style="font-size: 9px; font-weight: 800; color: #FBBF24; background: rgba(234, 179, 8, 0.15); padding: 2px 6px; border-radius: 4px;">ПОДРОСТКИ</span>
                             </div>
                             <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(234,179,8,0.25); display: flex; overflow: hidden;">
-                                <div style="flex: 1.5; background: #090906;"></div>
+                                <div style="flex: 1.5; background: #0E0D06;"></div>
                                 <div style="flex: 1; background: #EAB308;"></div>
                                 <div style="flex: 1; background: #EF4444;"></div>
                             </div>
-                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Скейтборды, уличный воркаут, кроссовки и адреналин." %}</span>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Скейтборд, BMX, самокаты, Red Bull эстетика и чистый драйв." %}</span>
                         </label>
 
-                        <!-- Состоятельные: Yacht & Polo -->
-                        <label class="theme-preset-card" onclick="selectThemePreset('sport_luxury', '#D4AF37', '#1E3A8A', '#07080D', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'sport_luxury' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                        <!-- 2. Состоятельные: Yacht Club Prestige -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('sport_luxury', '#D4AF37', '#1E3A8A', '#070912', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'sport_luxury' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <input type="radio" name="theme_style" value="sport_luxury" {% if store.theme_style == 'sport_luxury' %}checked{% endif %} style="margin:0;">
-                                    <strong style="font-size: 13px; color: white;">Yacht & Golf Prestige</strong>
+                                    <strong style="font-size: 13px; color: white;">Yacht Club & Golf</strong>
                                 </div>
                                 <span style="font-size: 9px; font-weight: 800; color: #D4AF37; background: rgba(212, 175, 55, 0.15); padding: 2px 6px; border-radius: 4px;">БОГАТЫЕ</span>
                             </div>
                             <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(212,175,55,0.25); display: flex; overflow: hidden;">
-                                <div style="flex: 1.5; background: #07080D;"></div>
+                                <div style="flex: 1.5; background: #070912;"></div>
                                 <div style="flex: 1; background: #D4AF37;"></div>
                                 <div style="flex: 1; background: #1E3A8A;"></div>
                             </div>
-                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Поло, гольф, яхтинг, швейцарские лыжи и персональный фитнес." %}</span>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Теннис, гольф, парусный спорт, поло и элитная форма." %}</span>
                         </label>
 
-                        <!-- 30-летние: Trail & Pro -->
+                        <!-- 3. 30-летние: Trail Marathon -->
                         <label class="theme-preset-card" onclick="selectThemePreset('sport_pro', '#EA580C', '#059669', '#0B0C0E', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'sport_pro' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <input type="radio" name="theme_style" value="sport_pro" {% if store.theme_style == 'sport_pro' %}checked{% endif %} style="margin:0;">
-                                    <strong style="font-size: 13px; color: white;">Trail Pro Marathon</strong>
+                                    <strong style="font-size: 13px; color: white;">Trail Marathon Pro</strong>
                                 </div>
-                                <span style="font-size: 9px; font-weight: 800; color: #EA580C; background: rgba(234, 88, 12, 0.15); padding: 2px 6px; border-radius: 4px;">30 ЛЕТ</span>
+                                <span style="font-size: 9px; font-weight: 800; color: #FB923C; background: rgba(234, 88, 12, 0.15); padding: 2px 6px; border-radius: 4px;">30 ЛЕТ</span>
                             </div>
                             <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(234,88,12,0.25); display: flex; overflow: hidden;">
                                 <div style="flex: 1.5; background: #0B0C0E;"></div>
@@ -993,6 +1231,40 @@
                                 <div style="flex: 1; background: #059669;"></div>
                             </div>
                             <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Кроссовки Salomon, марафоны, горный трекинг и спорт-баланс." %}</span>
+                        </label>
+
+                        <!-- 4. Бойцовский клуб: Fight Club -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('sport_combat', '#B91C1C', '#EF4444', '#0F0A0A', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'sport_combat' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="radio" name="theme_style" value="sport_combat" {% if store.theme_style == 'sport_combat' %}checked{% endif %} style="margin:0;">
+                                    <strong style="font-size: 13px; color: white;">Fight Club Iron</strong>
+                                </div>
+                                <span style="font-size: 9px; font-weight: 800; color: #EF4444; background: rgba(185, 28, 28, 0.15); padding: 2px 6px; border-radius: 4px;">БОЙЦОВСКИЙ</span>
+                            </div>
+                            <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(185,28,28,0.25); display: flex; overflow: hidden;">
+                                <div style="flex: 1.5; background: #0F0A0A;"></div>
+                                <div style="flex: 1; background: #B91C1C;"></div>
+                                <div style="flex: 1; background: #EF4444;"></div>
+                            </div>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Бокс, ММА, тяжёлая атлетика, бескомпромиссная сила и сталь." %}</span>
+                        </label>
+
+                        <!-- 5. Горы и туризм: Alpine Trek Camp -->
+                        <label class="theme-preset-card" onclick="selectThemePreset('sport_outdoor', '#4F46E5', '#06B6D4', '#0B0E14', 'dark')" style="display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'sport_outdoor' %}var(--primary){% else %}var(--border){% endif %}; border-radius: 14px; cursor: pointer; transition: all 0.18s ease;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="radio" name="theme_style" value="sport_outdoor" {% if store.theme_style == 'sport_outdoor' %}checked{% endif %} style="margin:0;">
+                                    <strong style="font-size: 13px; color: white;">Alpine Trek Camp</strong>
+                                </div>
+                                <span style="font-size: 9px; font-weight: 800; color: #818CF8; background: rgba(79, 70, 229, 0.15); padding: 2px 6px; border-radius: 4px;">ТУРИЗМ</span>
+                            </div>
+                            <div style="height: 30px; border-radius: 8px; border: 1px solid rgba(79,70,229,0.25); display: flex; overflow: hidden;">
+                                <div style="flex: 1.5; background: #0B0E14;"></div>
+                                <div style="flex: 1; background: #4F46E5;"></div>
+                                <div style="flex: 1; background: #06B6D4;"></div>
+                            </div>
+                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">{% trans "Палатки, альпинизм, горные вершины и экспедиционное снаряжение." %}</span>
                         </label>
                     </div>
                 </div>

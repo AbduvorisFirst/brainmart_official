@@ -161,445 +161,732 @@
                     --radius-md: 12px;
                     --btn-gradient: linear-gradient(135deg, #D4AF37 0%, #AA7C11 100%);
                                 {% elif store.theme_style == 'fashion_genz' or store.theme_style == 'genz_neon' %}
-                    /* 1. Fashion: Streetwear / Cyber Drip (Для подростков) */
+                    /* 1.1 Fashion: Street Drip / Cyber (Для подростков) */
                     --primary: #00F0FF;
                     --primary-hover: #00B8C4;
                     --accent: #FF0055;
-                    --bg-app: #070712;
-                    --surface: #0E0E22;
-                    --surface-card: #14142E;
+                    --bg-app: #0B0C14;
+                    --surface: #121422;
+                    --surface-card: #171A2E;
                     --text-main: #FFFFFF;
                     --text-muted: #8E8DC5;
-                    --border: rgba(0, 240, 255, 0.28);
-                    --input-bg: #0A0A18;
-                    --card-shadow: 0 10px 30px rgba(0, 240, 255, 0.2);
-                    --badge-bg: rgba(14, 14, 34, 0.95);
-                    --header-bg: rgba(7, 7, 18, 0.92);
-                    --radius-lg: 20px;
-                    --radius-md: 14px;
+                    --border: rgba(0, 240, 255, 0.22);
+                    --input-bg: #0E101D;
+                    --card-shadow: 0 8px 26px rgba(0, 240, 255, 0.15);
+                    --badge-bg: rgba(23, 26, 46, 0.95);
+                    --header-bg: rgba(11, 12, 20, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
                     --btn-gradient: linear-gradient(135deg, #00F0FF 0%, #FF0055 100%);
                 {% elif store.theme_style == 'fashion_premium' or store.theme_style == 'premium_gold' %}
-                    /* 1. Fashion: Old Money / Luxury Silk (Для состоятельных) */
+                    /* 1.2 Fashion: Old Money / Luxury Silk (Для состоятельных) */
                     --primary: #D4AF37;
                     --primary-hover: #B89628;
                     --accent: #E2C974;
-                    --bg-app: #0A0908;
-                    --surface: #14120F;
-                    --surface-card: #1A1713;
+                    --bg-app: #0E0D0B;
+                    --surface: #161411;
+                    --surface-card: #1D1A16;
                     --text-main: #FCF9F2;
                     --text-muted: #A89C82;
-                    --border: rgba(212, 175, 55, 0.25);
-                    --input-bg: #0F0E0B;
-                    --card-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
-                    --badge-bg: rgba(20, 18, 15, 0.95);
-                    --header-bg: rgba(10, 9, 8, 0.92);
+                    --border: rgba(212, 175, 55, 0.22);
+                    --input-bg: #14120E;
+                    --card-shadow: 0 8px 26px rgba(212, 175, 55, 0.16);
+                    --badge-bg: rgba(29, 26, 22, 0.95);
+                    --header-bg: rgba(14, 13, 11, 0.92);
                     --radius-lg: 18px;
                     --radius-md: 12px;
                     --btn-gradient: linear-gradient(135deg, #D4AF37 0%, #AA7C11 100%);
                 {% elif store.theme_style == 'fashion_casual' %}
-                    /* 1. Fashion: Smart Casual / Urban (Для 30-летних) */
-                    --primary: #4F46E5;
-                    --primary-hover: #4338CA;
+                    /* 1.3 Fashion: Smart Casual / Urban (Для 30-летних) */
+                    --primary: #3B82F6;
+                    --primary-hover: #2563EB;
                     --accent: #06B6D4;
-                    --bg-app: #0C0E14;
-                    --surface: #141824;
-                    --surface-card: #1A1E2C;
+                    --bg-app: #0B0E16;
+                    --surface: #121724;
+                    --surface-card: #181E30;
                     --text-main: #FFFFFF;
                     --text-muted: #94A3B8;
-                    --border: rgba(79, 70, 229, 0.25);
-                    --input-bg: #0F121A;
-                    --card-shadow: 0 10px 30px rgba(79, 70, 229, 0.2);
-                    --badge-bg: rgba(20, 24, 36, 0.95);
-                    --header-bg: rgba(12, 14, 20, 0.92);
-                    --radius-lg: 20px;
-                    --radius-md: 14px;
-                    --btn-gradient: linear-gradient(135deg, #4F46E5 0%, #06B6D4 100%);
-
-                {% elif store.theme_style == 'auto_tuning' %}
-                    /* 2. Auto: Tuning & Drift JDM (Для подростков) */
-                    --primary: #FF1E27;
-                    --primary-hover: #D4141C;
-                    --accent: #00FF66;
-                    --bg-app: #060709;
-                    --surface: #0E1015;
-                    --surface-card: #141720;
-                    --text-main: #FFFFFF;
-                    --text-muted: #8E98A8;
-                    --border: rgba(255, 30, 39, 0.32);
-                    --input-bg: #0A0C10;
-                    --card-shadow: 0 10px 30px rgba(255, 30, 39, 0.22);
-                    --badge-bg: rgba(14, 16, 21, 0.95);
-                    --header-bg: rgba(6, 7, 9, 0.92);
-                    --radius-lg: 20px;
-                    --radius-md: 12px;
-                    --btn-gradient: linear-gradient(135deg, #FF1E27 0%, #FF6B00 100%);
-                {% elif store.theme_style == 'auto_premium' %}
-                    /* 2. Auto: Executive Motors & Detailing (Для состоятельных) */
-                    --primary: #C0C0C0;
-                    --primary-hover: #A0A0A0;
-                    --accent: #D4AF37;
-                    --bg-app: #050507;
-                    --surface: #0E0E12;
-                    --surface-card: #14141A;
-                    --text-main: #FFFFFF;
-                    --text-muted: #9E9EA8;
-                    --border: rgba(212, 175, 55, 0.28);
-                    --input-bg: #0A0A0D;
-                    --card-shadow: 0 10px 30px rgba(212, 175, 55, 0.18);
-                    --badge-bg: rgba(14, 14, 18, 0.95);
-                    --header-bg: rgba(5, 5, 7, 0.92);
+                    --border: rgba(59, 130, 246, 0.22);
+                    --input-bg: #0F1420;
+                    --card-shadow: 0 8px 26px rgba(59, 130, 246, 0.16);
+                    --badge-bg: rgba(24, 30, 48, 0.95);
+                    --header-bg: rgba(11, 14, 22, 0.92);
                     --radius-lg: 18px;
                     --radius-md: 12px;
-                    --btn-gradient: linear-gradient(135deg, #E0E0E0 0%, #8A8A8A 100%);
+                    --btn-gradient: linear-gradient(135deg, #3B82F6 0%, #06B6D4 100%);
+                {% elif store.theme_style == 'fashion_vintage' %}
+                    /* 1.4 Fashion: Retro Denim & Classic (Винтаж и ретро) */
+                    --primary: #EA580C;
+                    --primary-hover: #C2410C;
+                    --accent: #1E3A8A;
+                    --bg-app: #0E0C0A;
+                    --surface: #17130F;
+                    --surface-card: #1E1914;
+                    --text-main: #FAF5F0;
+                    --text-muted: #A89582;
+                    --border: rgba(234, 88, 12, 0.22);
+                    --input-bg: #14100D;
+                    --card-shadow: 0 8px 26px rgba(234, 88, 12, 0.16);
+                    --badge-bg: rgba(30, 25, 20, 0.95);
+                    --header-bg: rgba(14, 12, 10, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #EA580C 0%, #C2410C 100%);
+                {% elif store.theme_style == 'fashion_minimal' %}
+                    /* 1.5 Fashion: Cupertino Minimal & Monomode (Премиум минимал) */
+                    --primary: #94A3B8;
+                    --primary-hover: #CBD5E1;
+                    --accent: #38BDF8;
+                    --bg-app: #0B0C10;
+                    --surface: #12141C;
+                    --surface-card: #171924;
+                    --text-main: #FFFFFF;
+                    --text-muted: #8E92A4;
+                    --border: rgba(148, 163, 184, 0.2);
+                    --input-bg: #0F1018;
+                    --card-shadow: 0 8px 26px rgba(0, 0, 0, 0.35);
+                    --badge-bg: rgba(23, 25, 36, 0.95);
+                    --header-bg: rgba(11, 12, 16, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #64748B 0%, #38BDF8 100%);
+
+                {% elif store.theme_style == 'auto_tuning' %}
+                    /* 2.1 Auto: JDM Tuning & Speed Drift (Для подростков) */
+                    --primary: #EF4444;
+                    --primary-hover: #DC2626;
+                    --accent: #00FF66;
+                    --bg-app: #0D0E12;
+                    --surface: #14171E;
+                    --surface-card: #1B1E28;
+                    --text-main: #FFFFFF;
+                    --text-muted: #8E98A8;
+                    --border: rgba(239, 68, 68, 0.24);
+                    --input-bg: #101218;
+                    --card-shadow: 0 8px 26px rgba(239, 68, 68, 0.16);
+                    --badge-bg: rgba(27, 30, 40, 0.95);
+                    --header-bg: rgba(13, 14, 18, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #EF4444 0%, #FF6B00 100%);
+                {% elif store.theme_style == 'auto_premium' %}
+                    /* 2.2 Auto: Executive Motors & Detailing (Для состоятельных) */
+                    --primary: #A8A29E;
+                    --primary-hover: #D4AF37;
+                    --accent: #D4AF37;
+                    --bg-app: #0B0C0E;
+                    --surface: #131418;
+                    --surface-card: #191B20;
+                    --text-main: #FFFFFF;
+                    --text-muted: #9E9EA8;
+                    --border: rgba(212, 175, 55, 0.22);
+                    --input-bg: #101114;
+                    --card-shadow: 0 8px 26px rgba(212, 175, 55, 0.15);
+                    --badge-bg: rgba(25, 27, 32, 0.95);
+                    --header-bg: rgba(11, 12, 14, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #A8A29E 0%, #D4AF37 100%);
                 {% elif store.theme_style == 'auto_drive' %}
-                    /* 2. Auto: Pro Service & Practical SUV (Для 30-летних) */
-                    --primary: #FF6B00;
-                    --primary-hover: #E05E00;
+                    /* 2.3 Auto: Practical SUV & Pro Service (Для 30-летних) */
+                    --primary: #F97316;
+                    --primary-hover: #EA580C;
                     --accent: #2563EB;
                     --bg-app: #0B0D12;
-                    --surface: #121620;
-                    --surface-card: #171C28;
+                    --surface: #131722;
+                    --surface-card: #181E2C;
                     --text-main: #FFFFFF;
                     --text-muted: #94A3B8;
-                    --border: rgba(255, 107, 0, 0.25);
-                    --input-bg: #0E1118;
-                    --card-shadow: 0 10px 30px rgba(255, 107, 0, 0.18);
-                    --badge-bg: rgba(18, 22, 32, 0.95);
+                    --border: rgba(249, 115, 22, 0.22);
+                    --input-bg: #0F121B;
+                    --card-shadow: 0 8px 26px rgba(249, 115, 22, 0.16);
+                    --badge-bg: rgba(24, 30, 44, 0.95);
                     --header-bg: rgba(11, 13, 18, 0.92);
                     --radius-lg: 18px;
                     --radius-md: 12px;
-                    --btn-gradient: linear-gradient(135deg, #FF6B00 0%, #E11D48 100%);
+                    --btn-gradient: linear-gradient(135deg, #F97316 0%, #2563EB 100%);
                 {% elif store.theme_style == 'auto_brutal' %}
-                    /* 2. Auto: Brutal Garage */
-                    --primary: #EA580C;
-                    --primary-hover: #C2410C;
-                    --accent: #F97316;
-                    --bg-app: #0D0F12;
-                    --surface: #16181F;
-                    --surface-card: #1C2029;
+                    /* 2.4 Auto: Offroad 4x4 & Garage Power (Брутал 4x4) */
+                    --primary: #84CC16;
+                    --primary-hover: #65A30D;
+                    --accent: #EA580C;
+                    --bg-app: #0C0D0A;
+                    --surface: #141610;
+                    --surface-card: #1B1E14;
                     --text-main: #F1F5F9;
                     --text-muted: #94A3B8;
-                    --border: rgba(234, 88, 12, 0.3);
-                    --input-bg: #111318;
-                    --card-shadow: 0 10px 30px rgba(234, 88, 12, 0.22);
-                    --badge-bg: rgba(22, 24, 31, 0.95);
-                    --header-bg: rgba(13, 15, 18, 0.92);
-                    --radius-lg: 16px;
-                    --radius-md: 10px;
-                    --btn-gradient: linear-gradient(135deg, #EA580C 0%, #C2410C 100%);
-
-                {% elif store.theme_style == 'tech_gaming' %}
-                    /* 3. Tech: RGB Gaming Cyberpunk (Для подростков) */
-                    --primary: #9945FF;
-                    --primary-hover: #7E22CE;
-                    --accent: #14F195;
-                    --bg-app: #05050B;
-                    --surface: #0C0C18;
-                    --surface-card: #121224;
-                    --text-main: #FFFFFF;
-                    --text-muted: #9E9EB8;
-                    --border: rgba(153, 69, 255, 0.32);
-                    --input-bg: #090912;
-                    --card-shadow: 0 10px 30px rgba(153, 69, 255, 0.25);
-                    --badge-bg: rgba(12, 12, 24, 0.95);
-                    --header-bg: rgba(5, 5, 11, 0.92);
-                    --radius-lg: 20px;
-                    --radius-md: 12px;
-                    --btn-gradient: linear-gradient(135deg, #9945FF 0%, #14F195 100%);
-                {% elif store.theme_style == 'tech_minimal' %}
-                    /* 3. Tech: Smart Home & Clean Living (Для 30-летних) */
-                    --primary: #0EA5E9;
-                    --primary-hover: #0284C7;
-                    --accent: #6366F1;
-                    --bg-app: #090C15;
-                    --surface: #101626;
-                    --surface-card: #151D32;
-                    --text-main: #FFFFFF;
-                    --text-muted: #94A3B8;
-                    --border: rgba(14, 165, 233, 0.25);
-                    --input-bg: #0C111E;
-                    --card-shadow: 0 10px 30px rgba(14, 165, 233, 0.2);
-                    --badge-bg: rgba(16, 22, 38, 0.95);
-                    --header-bg: rgba(9, 12, 21, 0.92);
-                    --radius-lg: 20px;
-                    --radius-md: 14px;
-                    --btn-gradient: linear-gradient(135deg, #0EA5E9 0%, #6366F1 100%);
-
-                {% elif store.theme_style == 'food_pop' %}
-                    /* 4. Food: Snack Pop & Street Food (Для подростков) */
-                    --primary: #FF007A;
-                    --primary-hover: #DB0068;
-                    --accent: #FFD600;
-                    --bg-app: #0D0710;
-                    --surface: #180F1E;
-                    --surface-card: #201428;
-                    --text-main: #FFFFFF;
-                    --text-muted: #B898C5;
-                    --border: rgba(255, 0, 122, 0.28);
-                    --input-bg: #120A16;
-                    --card-shadow: 0 10px 30px rgba(255, 0, 122, 0.22);
-                    --badge-bg: rgba(24, 15, 30, 0.95);
-                    --header-bg: rgba(13, 7, 16, 0.92);
-                    --radius-lg: 22px;
-                    --radius-md: 14px;
-                    --btn-gradient: linear-gradient(135deg, #FF007A 0%, #FFD600 100%);
-                {% elif store.theme_style == 'food_gourmet' %}
-                    /* 4. Food: Gourmet Deli & Truffle Wine (Для состоятельных) */
-                    --primary: #B8860B;
-                    --primary-hover: #996F08;
-                    --accent: #800020;
-                    --bg-app: #0B0807;
-                    --surface: #16110E;
-                    --surface-card: #1D1713;
-                    --text-main: #FAF5EE;
-                    --text-muted: #A89886;
-                    --border: rgba(184, 134, 11, 0.25);
-                    --input-bg: #100C0A;
-                    --card-shadow: 0 10px 30px rgba(184, 134, 11, 0.2);
-                    --badge-bg: rgba(22, 17, 14, 0.95);
-                    --header-bg: rgba(11, 8, 7, 0.92);
+                    --border: rgba(132, 204, 22, 0.24);
+                    --input-bg: #10120D;
+                    --card-shadow: 0 8px 26px rgba(132, 204, 22, 0.16);
+                    --badge-bg: rgba(27, 30, 20, 0.95);
+                    --header-bg: rgba(12, 13, 10, 0.92);
                     --radius-lg: 18px;
                     --radius-md: 12px;
-                    --btn-gradient: linear-gradient(135deg, #B8860B 0%, #800020 100%);
+                    --btn-gradient: linear-gradient(135deg, #84CC16 0%, #EA580C 100%);
+                {% elif store.theme_style == 'auto_electric' %}
+                    /* 2.5 Auto: EV Next & Clean Mobility (Электрокары) */
+                    --primary: #06B6D4;
+                    --primary-hover: #0891B2;
+                    --accent: #3B82F6;
+                    --bg-app: #0A0D14;
+                    --surface: #101622;
+                    --surface-card: #151D2C;
+                    --text-main: #FFFFFF;
+                    --text-muted: #8EA0B8;
+                    --border: rgba(6, 182, 212, 0.22);
+                    --input-bg: #0D121B;
+                    --card-shadow: 0 8px 26px rgba(6, 182, 212, 0.16);
+                    --badge-bg: rgba(21, 29, 44, 0.95);
+                    --header-bg: rgba(10, 13, 20, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #06B6D4 0%, #3B82F6 100%);
+
+                {% elif store.theme_style == 'tech_gaming' %}
+                    /* 3.1 Tech: Esports RGB & Cyber Arena (Для подростков) */
+                    --primary: #8B5CF6;
+                    --primary-hover: #7C3AED;
+                    --accent: #10B981;
+                    --bg-app: #0C0B16;
+                    --surface: #141224;
+                    --surface-card: #1A1730;
+                    --text-main: #FFFFFF;
+                    --text-muted: #9E9EB8;
+                    --border: rgba(139, 92, 246, 0.24);
+                    --input-bg: #100E1C;
+                    --card-shadow: 0 8px 26px rgba(139, 92, 246, 0.18);
+                    --badge-bg: rgba(26, 23, 48, 0.95);
+                    --header-bg: rgba(12, 11, 22, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #8B5CF6 0%, #10B981 100%);
+                {% elif store.theme_style == 'tech_minimal' %}
+                    /* 3.2 Tech: Space Titanium Pro (Apple-стиль, премиум) */
+                    --primary: #0284C7;
+                    --primary-hover: #0369A1;
+                    --accent: #64748B;
+                    --bg-app: #0B0D12;
+                    --surface: #11151E;
+                    --surface-card: #161C28;
+                    --text-main: #FFFFFF;
+                    --text-muted: #94A3B8;
+                    --border: rgba(2, 132, 199, 0.22);
+                    --input-bg: #0E121A;
+                    --card-shadow: 0 8px 26px rgba(2, 132, 199, 0.16);
+                    --badge-bg: rgba(22, 28, 40, 0.95);
+                    --header-bg: rgba(11, 13, 18, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #0284C7 0%, #38BDF8 100%);
+                {% elif store.theme_style == 'tech_smarthome' %}
+                    /* 3.3 Tech: Smart Home & Clean Living (Для 30-летних) */
+                    --primary: #0D9488;
+                    --primary-hover: #0F766E;
+                    --accent: #6366F1;
+                    --bg-app: #0A0D12;
+                    --surface: #101620;
+                    --surface-card: #151D2A;
+                    --text-main: #FFFFFF;
+                    --text-muted: #8EA0B8;
+                    --border: rgba(13, 148, 136, 0.22);
+                    --input-bg: #0D121B;
+                    --card-shadow: 0 8px 26px rgba(13, 148, 136, 0.16);
+                    --badge-bg: rgba(21, 29, 42, 0.95);
+                    --header-bg: rgba(10, 13, 18, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #0D9488 0%, #6366F1 100%);
+                {% elif store.theme_style == 'tech_future' %}
+                    /* 3.4 Tech: AI Matrix & Quantum Grid (Будущее и ИИ) */
+                    --primary: #38BDF8;
+                    --primary-hover: #0284C7;
+                    --accent: #00F0FF;
+                    --bg-app: #080C14;
+                    --surface: #0E1422;
+                    --surface-card: #131C30;
+                    --text-main: #FFFFFF;
+                    --text-muted: #8EA8C5;
+                    --border: rgba(56, 189, 248, 0.24);
+                    --input-bg: #0A101C;
+                    --card-shadow: 0 8px 26px rgba(56, 189, 248, 0.18);
+                    --badge-bg: rgba(19, 28, 48, 0.95);
+                    --header-bg: rgba(8, 12, 20, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #38BDF8 0%, #00F0FF 100%);
+                {% elif store.theme_style == 'tech_audio' %}
+                    /* 3.5 Tech: Studio Acoustic & Hi-Fi Gold (Аудио и винил) */
+                    --primary: #F59E0B;
+                    --primary-hover: #D97706;
+                    --accent: #78716C;
+                    --bg-app: #0D0C0A;
+                    --surface: #15130F;
+                    --surface-card: #1C1914;
+                    --text-main: #FAF5EE;
+                    --text-muted: #A89C8E;
+                    --border: rgba(245, 158, 11, 0.22);
+                    --input-bg: #110F0C;
+                    --card-shadow: 0 8px 26px rgba(245, 158, 11, 0.16);
+                    --badge-bg: rgba(28, 25, 20, 0.95);
+                    --header-bg: rgba(13, 12, 10, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #F59E0B 0%, #B45309 100%);
+
+                {% elif store.theme_style == 'food_pop' %}
+                    /* 4.1 Food: Snack Pop & Street Food (Для подростков) */
+                    --primary: #F43F5E;
+                    --primary-hover: #E11D48;
+                    --accent: #FBBF24;
+                    --bg-app: #0F0B10;
+                    --surface: #18111A;
+                    --surface-card: #201724;
+                    --text-main: #FFFFFF;
+                    --text-muted: #B898C5;
+                    --border: rgba(244, 63, 94, 0.24);
+                    --input-bg: #130D15;
+                    --card-shadow: 0 8px 26px rgba(244, 63, 94, 0.16);
+                    --badge-bg: rgba(32, 23, 36, 0.95);
+                    --header-bg: rgba(15, 11, 16, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #F43F5E 0%, #FBBF24 100%);
+                {% elif store.theme_style == 'food_gourmet' %}
+                    /* 4.2 Food: Gourmet Deli & Truffle Wine (Для состоятельных) */
+                    --primary: #9F1239;
+                    --primary-hover: #881337;
+                    --accent: #D97706;
+                    --bg-app: #0E0A0C;
+                    --surface: #160F13;
+                    --surface-card: #1E151A;
+                    --text-main: #FAF5EE;
+                    --text-muted: #A89886;
+                    --border: rgba(217, 119, 6, 0.22);
+                    --input-bg: #120C0F;
+                    --card-shadow: 0 8px 26px rgba(217, 119, 6, 0.16);
+                    --badge-bg: rgba(30, 21, 26, 0.95);
+                    --header-bg: rgba(14, 10, 12, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #9F1239 0%, #D97706 100%);
                 {% elif store.theme_style == 'food_organic' %}
-                    /* 4. Food: Fresh Farm & Eco Bio (Для 30-летних) */
+                    /* 4.3 Food: Fresh Farm & Eco Bio (Для 30-летних) */
                     --primary: #16A34A;
                     --primary-hover: #15803D;
                     --accent: #F59E0B;
-                    --bg-app: #080D09;
-                    --surface: #0E1610;
-                    --surface-card: #141E16;
+                    --bg-app: #090D0A;
+                    --surface: #101712;
+                    --surface-card: #152018;
                     --text-main: #F0FDF4;
                     --text-muted: #8EA893;
-                    --border: rgba(22, 163, 74, 0.25);
-                    --input-bg: #0A110C;
-                    --card-shadow: 0 10px 30px rgba(22, 163, 74, 0.2);
-                    --badge-bg: rgba(14, 22, 16, 0.95);
-                    --header-bg: rgba(8, 13, 9, 0.92);
-                    --radius-lg: 20px;
-                    --radius-md: 14px;
-                    --btn-gradient: linear-gradient(135deg, #16A34A 0%, #EAB308 100%);
+                    --border: rgba(22, 163, 74, 0.22);
+                    --input-bg: #0D120E;
+                    --card-shadow: 0 8px 26px rgba(22, 163, 74, 0.16);
+                    --badge-bg: rgba(21, 32, 24, 0.95);
+                    --header-bg: rgba(9, 13, 10, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #16A34A 0%, #F59E0B 100%);
+                {% elif store.theme_style == 'food_bakery' %}
+                    /* 4.4 Food: Artisan Bakery & Coffee (Пекарня и кофе) */
+                    --primary: #D97706;
+                    --primary-hover: #B45309;
+                    --accent: #92400E;
+                    --bg-app: #0E0C09;
+                    --surface: #16130E;
+                    --surface-card: #1E1A13;
+                    --text-main: #FFFBEB;
+                    --text-muted: #A89B84;
+                    --border: rgba(217, 119, 6, 0.22);
+                    --input-bg: #120F0B;
+                    --card-shadow: 0 8px 26px rgba(217, 119, 6, 0.16);
+                    --badge-bg: rgba(30, 26, 19, 0.95);
+                    --header-bg: rgba(14, 12, 9, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #D97706 0%, #92400E 100%);
+                {% elif store.theme_style == 'food_asian' %}
+                    /* 4.5 Food: Asian Wok & Spice Bazaar (Паназия и вок) */
+                    --primary: #DC2626;
+                    --primary-hover: #B91C1C;
+                    --accent: #F59E0B;
+                    --bg-app: #0F0A0A;
+                    --surface: #181010;
+                    --surface-card: #201515;
+                    --text-main: #FEF2F2;
+                    --text-muted: #A88E8E;
+                    --border: rgba(220, 38, 38, 0.24);
+                    --input-bg: #130D0D;
+                    --card-shadow: 0 8px 26px rgba(220, 38, 38, 0.16);
+                    --badge-bg: rgba(32, 21, 21, 0.95);
+                    --header-bg: rgba(15, 10, 10, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #DC2626 0%, #F59E0B 100%);
 
                 {% elif store.theme_style == 'home_loft' %}
-                    /* 5. Home: Loft Neon & RGB Bedroom (Для подростков) */
-                    --primary: #8B5CF6;
-                    --primary-hover: #7C3AED;
+                    /* 5.1 Home: Loft Neon & RGB Bedroom (Для подростков) */
+                    --primary: #7C3AED;
+                    --primary-hover: #6D28D9;
                     --accent: #EC4899;
-                    --bg-app: #090710;
-                    --surface: #120F20;
-                    --surface-card: #18142A;
+                    --bg-app: #0C0A14;
+                    --surface: #141022;
+                    --surface-card: #1A152C;
                     --text-main: #FFFFFF;
                     --text-muted: #A89DC2;
-                    --border: rgba(139, 92, 246, 0.28);
-                    --input-bg: #0D0A17;
-                    --card-shadow: 0 10px 30px rgba(139, 92, 246, 0.22);
-                    --badge-bg: rgba(18, 15, 32, 0.95);
-                    --header-bg: rgba(9, 7, 16, 0.92);
-                    --radius-lg: 22px;
-                    --radius-md: 14px;
-                    --btn-gradient: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+                    --border: rgba(124, 58, 237, 0.24);
+                    --input-bg: #100D1C;
+                    --card-shadow: 0 8px 26px rgba(124, 58, 237, 0.16);
+                    --badge-bg: rgba(26, 21, 44, 0.95);
+                    --header-bg: rgba(12, 10, 20, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #7C3AED 0%, #EC4899 100%);
                 {% elif store.theme_style == 'home_luxury' %}
-                    /* 5. Home: Grand Villa & Italian Marble (Для состоятельных) */
+                    /* 5.2 Home: Grand Villa & Italian Marble (Для состоятельных) */
                     --primary: #C5A059;
                     --primary-hover: #AB8842;
                     --accent: #78716C;
-                    --bg-app: #0A0908;
-                    --surface: #141210;
-                    --surface-card: #1B1916;
+                    --bg-app: #0E0C0A;
+                    --surface: #161310;
+                    --surface-card: #1D1A15;
                     --text-main: #FAF7F2;
                     --text-muted: #A89E92;
-                    --border: rgba(197, 160, 89, 0.25);
-                    --input-bg: #0F0D0C;
-                    --card-shadow: 0 10px 30px rgba(197, 160, 89, 0.2);
-                    --badge-bg: rgba(20, 18, 16, 0.95);
-                    --header-bg: rgba(10, 9, 8, 0.92);
+                    --border: rgba(197, 160, 89, 0.22);
+                    --input-bg: #12100D;
+                    --card-shadow: 0 8px 26px rgba(197, 160, 89, 0.16);
+                    --badge-bg: rgba(29, 26, 21, 0.95);
+                    --header-bg: rgba(14, 12, 10, 0.92);
                     --radius-lg: 18px;
                     --radius-md: 12px;
                     --btn-gradient: linear-gradient(135deg, #C5A059 0%, #8C6D30 100%);
                 {% elif store.theme_style == 'home_nordic' %}
-                    /* 5. Home: Scandinavian Hygge & Wood (Для 30-летних) */
+                    /* 5.3 Home: Scandinavian Hygge & Wood (Для 30-летних) */
                     --primary: #059669;
                     --primary-hover: #047857;
                     --accent: #D97706;
-                    --bg-app: #080C0A;
-                    --surface: #0F1713;
-                    --surface-card: #15201A;
+                    --bg-app: #0A0D0B;
+                    --surface: #101613;
+                    --surface-card: #151E1A;
                     --text-main: #FFFFFF;
                     --text-muted: #8EA898;
-                    --border: rgba(5, 150, 105, 0.25);
-                    --input-bg: #0B120E;
-                    --card-shadow: 0 10px 30px rgba(5, 150, 105, 0.2);
-                    --badge-bg: rgba(15, 23, 19, 0.95);
-                    --header-bg: rgba(8, 12, 10, 0.92);
-                    --radius-lg: 20px;
-                    --radius-md: 14px;
-                    --btn-gradient: linear-gradient(135deg, #059669 0%, #D97706 100%);
-
-                {% elif store.theme_style == 'beauty_korean' %}
-                    /* 6. Beauty: K-Beauty Glow & Pastel Trend (Для подростков) */
-                    --primary: #F43F5E;
-                    --primary-hover: #E11D48;
-                    --accent: #A855F7;
-                    --bg-app: #0F070B;
-                    --surface: #1B0E14;
-                    --surface-card: #23121A;
-                    --text-main: #FFFFFF;
-                    --text-muted: #C098A8;
-                    --border: rgba(244, 63, 94, 0.28);
-                    --input-bg: #140A0F;
-                    --card-shadow: 0 10px 30px rgba(244, 63, 94, 0.22);
-                    --badge-bg: rgba(27, 14, 20, 0.95);
-                    --header-bg: rgba(15, 7, 11, 0.92);
-                    --radius-lg: 22px;
-                    --radius-md: 14px;
-                    --btn-gradient: linear-gradient(135deg, #F43F5E 0%, #A855F7 100%);
-                {% elif store.theme_style == 'beauty_luxury' %}
-                    /* 6. Beauty: Haute Parfumerie & Gold Spa (Для состоятельных) */
-                    --primary: #E5A93C;
-                    --primary-hover: #CA8E22;
-                    --accent: #BE185D;
-                    --bg-app: #0C0709;
-                    --surface: #170F12;
-                    --surface-card: #20151A;
-                    --text-main: #FCF7F2;
-                    --text-muted: #B0949D;
-                    --border: rgba(229, 169, 60, 0.25);
-                    --input-bg: #110A0D;
-                    --card-shadow: 0 10px 30px rgba(229, 169, 60, 0.2);
-                    --badge-bg: rgba(23, 15, 18, 0.95);
-                    --header-bg: rgba(12, 7, 9, 0.92);
+                    --border: rgba(5, 150, 105, 0.22);
+                    --input-bg: #0D120F;
+                    --card-shadow: 0 8px 26px rgba(5, 150, 105, 0.16);
+                    --badge-bg: rgba(21, 30, 26, 0.95);
+                    --header-bg: rgba(10, 13, 11, 0.92);
                     --radius-lg: 18px;
                     --radius-md: 12px;
-                    --btn-gradient: linear-gradient(135deg, #E5A93C 0%, #BE185D 100%);
+                    --btn-gradient: linear-gradient(135deg, #059669 0%, #D97706 100%);
+                {% elif store.theme_style == 'home_boho' %}
+                    /* 5.4 Home: Boho Chic & Warm Terracotta (Уют и бохо) */
+                    --primary: #EA580C;
+                    --primary-hover: #C2410C;
+                    --accent: #D97706;
+                    --bg-app: #0E0B09;
+                    --surface: #16120E;
+                    --surface-card: #1E1813;
+                    --text-main: #FFF7ED;
+                    --text-muted: #A89584;
+                    --border: rgba(234, 88, 12, 0.22);
+                    --input-bg: #130F0B;
+                    --card-shadow: 0 8px 26px rgba(234, 88, 12, 0.16);
+                    --badge-bg: rgba(30, 24, 19, 0.95);
+                    --header-bg: rgba(14, 11, 9, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #EA580C 0%, #D97706 100%);
+                {% elif store.theme_style == 'home_japanese' %}
+                    /* 5.5 Home: Japandi Zen & Modern Wabi-Sabi (Японский дзен) */
+                    --primary: #65A30D;
+                    --primary-hover: #4D7C0F;
+                    --accent: #84CC16;
+                    --bg-app: #0B0D0A;
+                    --surface: #121510;
+                    --surface-card: #181D14;
+                    --text-main: #F7FEE7;
+                    --text-muted: #95A884;
+                    --border: rgba(101, 163, 13, 0.22);
+                    --input-bg: #0F120D;
+                    --card-shadow: 0 8px 26px rgba(101, 163, 13, 0.16);
+                    --badge-bg: rgba(24, 29, 20, 0.95);
+                    --header-bg: rgba(11, 13, 10, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #65A30D 0%, #84CC16 100%);
+
+                {% elif store.theme_style == 'beauty_korean' %}
+                    /* 6.1 Beauty: K-Beauty Glow & Pastel Trend (Для подростков) */
+                    --primary: #FB7185;
+                    --primary-hover: #F43F5E;
+                    --accent: #A855F7;
+                    --bg-app: #100B0E;
+                    --surface: #181116;
+                    --surface-card: #20161E;
+                    --text-main: #FFFFFF;
+                    --text-muted: #C098A8;
+                    --border: rgba(251, 113, 133, 0.24);
+                    --input-bg: #140E12;
+                    --card-shadow: 0 8px 26px rgba(251, 113, 133, 0.16);
+                    --badge-bg: rgba(32, 22, 30, 0.95);
+                    --header-bg: rgba(16, 11, 14, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #FB7185 0%, #A855F7 100%);
+                {% elif store.theme_style == 'beauty_luxury' %}
+                    /* 6.2 Beauty: Haute Parfumerie & Gold Spa (Для состоятельных) */
+                    --primary: #D97706;
+                    --primary-hover: #B45309;
+                    --accent: #BE185D;
+                    --bg-app: #0E0A0D;
+                    --surface: #161014;
+                    --surface-card: #1E151C;
+                    --text-main: #FCF7F2;
+                    --text-muted: #B0949D;
+                    --border: rgba(217, 119, 6, 0.22);
+                    --input-bg: #120D10;
+                    --card-shadow: 0 8px 26px rgba(217, 119, 6, 0.16);
+                    --badge-bg: rgba(30, 21, 28, 0.95);
+                    --header-bg: rgba(14, 10, 13, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #D97706 0%, #BE185D 100%);
                 {% elif store.theme_style == 'beauty_wellness' %}
-                    /* 6. Beauty: Clean Derma & Botanical Eco (Для 30-летних) */
+                    /* 6.3 Beauty: Clean Derma & Botanical Eco (Для 30-летних) */
                     --primary: #0D9488;
                     --primary-hover: #0F766E;
                     --accent: #10B981;
-                    --bg-app: #060D0B;
-                    --surface: #0D1714;
-                    --surface-card: #12211C;
+                    --bg-app: #090D0C;
+                    --surface: #0F1614;
+                    --surface-card: #141E1C;
                     --text-main: #FFFFFF;
                     --text-muted: #86A89E;
-                    --border: rgba(13, 148, 136, 0.25);
-                    --input-bg: #091210;
-                    --card-shadow: 0 10px 30px rgba(13, 148, 136, 0.2);
-                    --badge-bg: rgba(13, 23, 20, 0.95);
-                    --header-bg: rgba(6, 13, 11, 0.92);
-                    --radius-lg: 20px;
-                    --radius-md: 14px;
+                    --border: rgba(13, 148, 136, 0.22);
+                    --input-bg: #0C1210;
+                    --card-shadow: 0 8px 26px rgba(13, 148, 136, 0.16);
+                    --badge-bg: rgba(20, 30, 28, 0.95);
+                    --header-bg: rgba(9, 13, 12, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
                     --btn-gradient: linear-gradient(135deg, #0D9488 0%, #10B981 100%);
+                {% elif store.theme_style == 'beauty_salon' %}
+                    /* 6.4 Beauty: Glam Studio & Pro Makeup (Салонный мейкап) */
+                    --primary: #E11D48;
+                    --primary-hover: #BE123C;
+                    --accent: #7C3AED;
+                    --bg-app: #100A0E;
+                    --surface: #180F16;
+                    --surface-card: #20141E;
+                    --text-main: #FFF1F2;
+                    --text-muted: #B890A0;
+                    --border: rgba(225, 29, 72, 0.24);
+                    --input-bg: #140C12;
+                    --card-shadow: 0 8px 26px rgba(225, 29, 72, 0.16);
+                    --badge-bg: rgba(32, 20, 30, 0.95);
+                    --header-bg: rgba(16, 10, 14, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #E11D48 0%, #7C3AED 100%);
+                {% elif store.theme_style == 'beauty_organic' %}
+                    /* 6.5 Beauty: Pure Herbal & Eco Ayurveda (Эко и травы) */
+                    --primary: #10B981;
+                    --primary-hover: #059669;
+                    --accent: #EAB308;
+                    --bg-app: #090D0A;
+                    --surface: #0F1611;
+                    --surface-card: #141E17;
+                    --text-main: #ECFDF5;
+                    --text-muted: #8AA896;
+                    --border: rgba(16, 185, 129, 0.22);
+                    --input-bg: #0C120E;
+                    --card-shadow: 0 8px 26px rgba(16, 185, 129, 0.16);
+                    --badge-bg: rgba(20, 30, 23, 0.95);
+                    --header-bg: rgba(9, 13, 10, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #10B981 0%, #EAB308 100%);
 
                 {% elif store.theme_style == 'kids_anime' %}
-                    /* 7. Kids: Anime Merch & Gaming Kid (Для подростков) */
+                    /* 7.1 Kids: Anime Merch & Gaming Kid (Для подростков) */
                     --primary: #8B5CF6;
                     --primary-hover: #7C3AED;
-                    --accent: #F43F5E;
-                    --bg-app: #0B0813;
+                    --accent: #EC4899;
+                    --bg-app: #0C0A14;
                     --surface: #141022;
-                    --surface-card: #1B152E;
+                    --surface-card: #1B152C;
                     --text-main: #FFFFFF;
                     --text-muted: #A89DC5;
-                    --border: rgba(139, 92, 246, 0.28);
-                    --input-bg: #0F0B1A;
-                    --card-shadow: 0 10px 30px rgba(139, 92, 246, 0.22);
-                    --badge-bg: rgba(20, 16, 34, 0.95);
-                    --header-bg: rgba(11, 8, 19, 0.92);
-                    --radius-lg: 22px;
-                    --radius-md: 14px;
-                    --btn-gradient: linear-gradient(135deg, #8B5CF6 0%, #F43F5E 100%);
+                    --border: rgba(139, 92, 246, 0.24);
+                    --input-bg: #100D1C;
+                    --card-shadow: 0 8px 26px rgba(139, 92, 246, 0.16);
+                    --badge-bg: rgba(27, 21, 44, 0.95);
+                    --header-bg: rgba(12, 10, 20, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
                 {% elif store.theme_style == 'kids_boutique' %}
-                    /* 7. Kids: Royal Baby & Pastel Boutique (Для состоятельных) */
+                    /* 7.2 Kids: Royal Baby & Pastel Boutique (Для состоятельных) */
                     --primary: #F59E0B;
                     --primary-hover: #D97706;
                     --accent: #60A5FA;
-                    --bg-app: #0C0A08;
+                    --bg-app: #0E0C09;
                     --surface: #16120E;
-                    --surface-card: #1E1914;
+                    --surface-card: #1D1813;
                     --text-main: #FAF6F0;
                     --text-muted: #A89C8E;
-                    --border: rgba(245, 158, 11, 0.25);
-                    --input-bg: #100E0A;
-                    --card-shadow: 0 10px 30px rgba(245, 158, 11, 0.18);
-                    --badge-bg: rgba(22, 18, 14, 0.95);
-                    --header-bg: rgba(12, 10, 8, 0.92);
-                    --radius-lg: 22px;
-                    --radius-md: 14px;
+                    --border: rgba(245, 158, 11, 0.22);
+                    --input-bg: #120F0B;
+                    --card-shadow: 0 8px 26px rgba(245, 158, 11, 0.16);
+                    --badge-bg: rgba(29, 24, 19, 0.95);
+                    --header-bg: rgba(14, 12, 9, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
                     --btn-gradient: linear-gradient(135deg, #F59E0B 0%, #60A5FA 100%);
                 {% elif store.theme_style == 'kids_playful' or store.theme_style == 'fashion_kids' %}
-                    /* 7. Kids: Montessori Smart & Bright Colors (Для 30-летних) */
-                    --primary: #EC4899;
-                    --primary-hover: #DB2777;
+                    /* 7.3 Kids: Montessori Smart & Bright Colors (Для 30-летних родителей) - Human-grade refined */
+                    --primary: #DB2777;
+                    --primary-hover: #BE185D;
                     --accent: #06B6D4;
-                    --bg-app: #0C0810;
-                    --surface: #171020;
-                    --surface-card: #20172C;
+                    --bg-app: #0F0D14;
+                    --surface: #171420;
+                    --surface-card: #1F1B2A;
                     --text-main: #FFFFFF;
                     --text-muted: #B89EC5;
-                    --border: rgba(236, 72, 153, 0.28);
-                    --input-bg: #120C18;
-                    --card-shadow: 0 10px 30px rgba(236, 72, 153, 0.22);
-                    --badge-bg: rgba(23, 16, 32, 0.95);
-                    --header-bg: rgba(12, 8, 16, 0.92);
-                    --radius-lg: 24px;
-                    --radius-md: 16px;
-                    --btn-gradient: linear-gradient(135deg, #EC4899 0%, #06B6D4 100%);
+                    --border: rgba(219, 39, 119, 0.24);
+                    --input-bg: #13101A;
+                    --card-shadow: 0 8px 26px rgba(219, 39, 119, 0.16);
+                    --badge-bg: rgba(31, 27, 42, 0.95);
+                    --header-bg: rgba(15, 13, 20, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #DB2777 0%, #06B6D4 100%);
+                {% elif store.theme_style == 'kids_disney' %}
+                    /* 7.4 Kids: Magic Kingdom & Fairytale (Сказка и магия) */
+                    --primary: #3B82F6;
+                    --primary-hover: #2563EB;
+                    --accent: #FBBF24;
+                    --bg-app: #0A0C14;
+                    --surface: #101422;
+                    --surface-card: #161B2E;
+                    --text-main: #EFF6FF;
+                    --text-muted: #8EA0C5;
+                    --border: rgba(59, 130, 246, 0.24);
+                    --input-bg: #0D101C;
+                    --card-shadow: 0 8px 26px rgba(59, 130, 246, 0.16);
+                    --badge-bg: rgba(22, 27, 46, 0.95);
+                    --header-bg: rgba(10, 12, 20, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #3B82F6 0%, #FBBF24 100%);
+                {% elif store.theme_style == 'kids_teen' %}
+                    /* 7.5 Kids: Teen Street & Skater Tribe (Скейт и стрит) */
+                    --primary: #84CC16;
+                    --primary-hover: #65A30D;
+                    --accent: #F97316;
+                    --bg-app: #0B0E09;
+                    --surface: #12160E;
+                    --surface-card: #181F13;
+                    --text-main: #F7FEE7;
+                    --text-muted: #94A884;
+                    --border: rgba(132, 204, 22, 0.24);
+                    --input-bg: #0F130B;
+                    --card-shadow: 0 8px 26px rgba(132, 204, 22, 0.16);
+                    --badge-bg: rgba(24, 31, 19, 0.95);
+                    --header-bg: rgba(11, 14, 9, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #84CC16 0%, #F97316 100%);
 
                 {% elif store.theme_style == 'sport_voltage' %}
-                    /* 8. Sport: Extreme Voltage & Skate Energy (Для подростков) */
+                    /* 8.1 Sport: Extreme Voltage & Skate Energy (Для подростков) */
                     --primary: #EAB308;
                     --primary-hover: #CA8A04;
                     --accent: #EF4444;
-                    --bg-app: #090906;
-                    --surface: #14140D;
-                    --surface-card: #1C1C12;
+                    --bg-app: #0E0D08;
+                    --surface: #15140C;
+                    --surface-card: #1D1A10;
                     --text-main: #FFFFFF;
                     --text-muted: #A8A88E;
-                    --border: rgba(234, 179, 8, 0.3);
-                    --input-bg: #0F0F0A;
-                    --card-shadow: 0 10px 30px rgba(234, 179, 8, 0.22);
-                    --badge-bg: rgba(20, 20, 13, 0.95);
-                    --header-bg: rgba(9, 9, 6, 0.92);
-                    --radius-lg: 20px;
+                    --border: rgba(234, 179, 8, 0.24);
+                    --input-bg: #121008;
+                    --card-shadow: 0 8px 26px rgba(234, 179, 8, 0.16);
+                    --badge-bg: rgba(29, 26, 16, 0.95);
+                    --header-bg: rgba(14, 13, 8, 0.92);
+                    --radius-lg: 18px;
                     --radius-md: 12px;
                     --btn-gradient: linear-gradient(135deg, #EAB308 0%, #EF4444 100%);
                 {% elif store.theme_style == 'sport_luxury' %}
-                    /* 8. Sport: Golf & Yacht Club Prestige (Для состоятельных) */
-                    --primary: #D4AF37;
-                    --primary-hover: #B89628;
-                    --accent: #1E3A8A;
-                    --bg-app: #07080D;
-                    --surface: #0E101A;
-                    --surface-card: #131624;
+                    /* 8.2 Sport: Golf & Yacht Club Prestige (Для состоятельных) */
+                    --primary: #1E3A8A;
+                    --primary-hover: #1E40AF;
+                    --accent: #D4AF37;
+                    --bg-app: #090B12;
+                    --surface: #0F131E;
+                    --surface-card: #141A28;
                     --text-main: #FAF8F2;
                     --text-muted: #8E96A8;
-                    --border: rgba(212, 175, 55, 0.25);
-                    --input-bg: #0A0C13;
-                    --card-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
-                    --badge-bg: rgba(14, 16, 26, 0.95);
-                    --header-bg: rgba(7, 8, 13, 0.92);
+                    --border: rgba(212, 175, 55, 0.22);
+                    --input-bg: #0C0F18;
+                    --card-shadow: 0 8px 26px rgba(212, 175, 55, 0.16);
+                    --badge-bg: rgba(20, 26, 40, 0.95);
+                    --header-bg: rgba(9, 11, 18, 0.92);
                     --radius-lg: 18px;
                     --radius-md: 12px;
-                    --btn-gradient: linear-gradient(135deg, #D4AF37 0%, #1E3A8A 100%);
+                    --btn-gradient: linear-gradient(135deg, #1E3A8A 0%, #D4AF37 100%);
                 {% elif store.theme_style == 'sport_pro' %}
-                    /* 8. Sport: Trail Marathon & Active Balance (Для 30-летних) */
+                    /* 8.3 Sport: Trail Marathon & Active Balance (Для 30-летних) */
                     --primary: #EA580C;
                     --primary-hover: #C2410C;
                     --accent: #059669;
-                    --bg-app: #0B0C0E;
-                    --surface: #121418;
-                    --surface-card: #181B20;
+                    --bg-app: #0E0C0A;
+                    --surface: #15130F;
+                    --surface-card: #1C1914;
                     --text-main: #FFFFFF;
                     --text-muted: #94A3B8;
-                    --border: rgba(234, 88, 12, 0.25);
-                    --input-bg: #0E1013;
-                    --card-shadow: 0 10px 30px rgba(234, 88, 12, 0.2);
-                    --badge-bg: rgba(18, 20, 24, 0.95);
-                    --header-bg: rgba(11, 12, 14, 0.92);
-                    --radius-lg: 20px;
-                    --radius-md: 14px;
+                    --border: rgba(234, 88, 12, 0.22);
+                    --input-bg: #110F0C;
+                    --card-shadow: 0 8px 26px rgba(234, 88, 12, 0.16);
+                    --badge-bg: rgba(28, 25, 20, 0.95);
+                    --header-bg: rgba(14, 12, 10, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
                     --btn-gradient: linear-gradient(135deg, #EA580C 0%, #059669 100%);
-
+                {% elif store.theme_style == 'sport_combat' %}
+                    /* 8.4 Sport: Fight Club & Heavy Iron (Единоборства и зал) */
+                    --primary: #B91C1C;
+                    --primary-hover: #991B1B;
+                    --accent: #475569;
+                    --bg-app: #0F0A0A;
+                    --surface: #171010;
+                    --surface-card: #1F1414;
+                    --text-main: #FEF2F2;
+                    --text-muted: #9E8C8C;
+                    --border: rgba(185, 28, 28, 0.24);
+                    --input-bg: #130D0D;
+                    --card-shadow: 0 8px 26px rgba(185, 28, 28, 0.16);
+                    --badge-bg: rgba(31, 20, 20, 0.95);
+                    --header-bg: rgba(15, 10, 10, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #B91C1C 0%, #475569 100%);
+                {% elif store.theme_style == 'sport_outdoor' %}
+                    /* 8.5 Sport: Alpine Trek & Mountain Camp (Горы и туризм) */
+                    --primary: #047857;
+                    --primary-hover: #065F46;
+                    --accent: #C2410C;
+                    --bg-app: #090D0B;
+                    --surface: #0E1612;
+                    --surface-card: #131F19;
+                    --text-main: #ECFDF5;
+                    --text-muted: #8AA898;
+                    --border: rgba(4, 120, 87, 0.22);
+                    --input-bg: #0C120F;
+                    --card-shadow: 0 8px 26px rgba(4, 120, 87, 0.16);
+                    --badge-bg: rgba(19, 31, 25, 0.95);
+                    --header-bg: rgba(9, 13, 11, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #047857 0%, #C2410C 100%);
                 {% else %}
                     /* fashion_casual / default_black — тёмный классический OLED для всех магазинов */
                     --primary: #4F46E5;
@@ -904,6 +1191,25 @@
             color: #FFFFFF;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
         }
+
+
+        /* Additional Signature Badges for All 40 Presets */
+        .badge-vintage .sig-text { background: linear-gradient(135deg, #FB923C 0%, #EA580C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; letter-spacing: 1.5px; }
+        .badge-minimal .sig-text { background: linear-gradient(135deg, #CBD5E1 0%, #94A3B8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; letter-spacing: 2px; }
+        .badge-electric .sig-text { background: linear-gradient(135deg, #22D3EE 0%, #3B82F6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; letter-spacing: 1.8px; }
+        .badge-smarthome .sig-text { background: linear-gradient(135deg, #2DD4BF 0%, #6366F1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; letter-spacing: 1.4px; }
+        .badge-future .sig-text { background: linear-gradient(135deg, #38BDF8 0%, #00F0FF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; letter-spacing: 1.8px; }
+        .badge-audio .sig-text { background: linear-gradient(135deg, #FCD34D 0%, #F59E0B 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; letter-spacing: 1.5px; }
+        .badge-bakery .sig-text { background: linear-gradient(135deg, #FBBF24 0%, #D97706 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; letter-spacing: 1.4px; }
+        .badge-asian .sig-text { background: linear-gradient(135deg, #F87171 0%, #DC2626 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; letter-spacing: 1.6px; }
+        .badge-boho .sig-text { background: linear-gradient(135deg, #FB923C 0%, #D97706 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; letter-spacing: 1.5px; }
+        .badge-japanese .sig-text { background: linear-gradient(135deg, #A3E635 0%, #65A30D 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; letter-spacing: 1.6px; }
+        .badge-salon .sig-text { background: linear-gradient(135deg, #FB7185 0%, #E11D48 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; letter-spacing: 1.6px; }
+        .badge-beauty-organic .sig-text { background: linear-gradient(135deg, #34D399 0%, #10B981 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; letter-spacing: 1.4px; }
+        .badge-disney .sig-text { background: linear-gradient(135deg, #60A5FA 0%, #FBBF24 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; letter-spacing: 1.5px; }
+        .badge-teen .sig-text { background: linear-gradient(135deg, #A3E635 0%, #F97316 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; letter-spacing: 1.8px; }
+        .badge-combat .sig-text { background: linear-gradient(135deg, #EF4444 0%, #B91C1C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; letter-spacing: 2px; }
+        .badge-outdoor .sig-text { background: linear-gradient(135deg, #34D399 0%, #047857 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; letter-spacing: 1.5px; }
 
     </style>
 </head>
