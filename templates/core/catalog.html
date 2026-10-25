@@ -23,20 +23,27 @@
         margin-bottom: 14px;
         padding: 12px 16px 14px;
         border-radius: var(--radius-lg, 18px);
-        background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.04) 0%, var(--surface-card, #12141A) 100%), var(--bg-app, #060709);
-        border: 1.5px solid var(--border, rgba(255, 255, 255, 0.12));
-        box-shadow: var(--card-shadow, 0 8px 26px rgba(0, 0, 0, 0.35)), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        background: var(--surface-card, #12141C);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
         display: flex;
         flex-direction: column;
         gap: 9px;
-        transition: border-color 0.25s ease, box-shadow 0.25s ease;
     }
     @media (min-width: 768px) {
         .store-header-hero {
-            padding: 16px 24px 18px;
-            margin-bottom: 16px;
-            border-radius: 20px;
-        }
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 14px;
+        padding: 12px 16px 14px;
+        border-radius: var(--radius-lg, 18px);
+        background: var(--surface-card, #12141C);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+    }
     }
 
     .store-hero-utility {
@@ -549,23 +556,29 @@
         white-space: nowrap;
         text-decoration: none;
         font-size: 12px;
-        font-weight: 700;
+        font-weight: 600;
         padding: 6px 14px;
         border-radius: 20px;
-        border: 1px solid var(--border);
-        background: var(--surface);
-        color: var(--text-main);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.04);
+        color: #E2E8F0;
         display: inline-flex;
         align-items: center;
         gap: 6px;
         transition: all 0.15s ease;
         flex-shrink: 0;
     }
+    .category-chip:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.16);
+        color: #FFFFFF;
+    }
     .category-chip.active {
-        background: var(--primary);
-        color: white;
-        border-color: var(--primary);
-        box-shadow: 0 4px 14px var(--border);
+        background: #FFFFFF !important;
+        color: #0B0E14 !important;
+        border-color: #FFFFFF !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
+        font-weight: 700 !important;
     }
     .category-chip:active { transform: scale(0.95); }
 
@@ -599,9 +612,9 @@
         position: relative;
     }
     .product-card:hover {
-        border-color: var(--primary);
-        transform: translateY(-4px);
-        box-shadow: 0 14px 38px rgba(0, 0, 0, 0.6), 0 0 18px var(--border);
+        border-color: rgba(255, 255, 255, 0.22);
+        transform: translateY(-3px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
     }
     .product-card:active { transform: scale(0.97); }
 
@@ -813,10 +826,10 @@
     }
     .product-price {
         font-size: 15px;
-        font-weight: 900;
-        color: var(--primary);
-        letter-spacing: -0.02em;
-        line-height: 1.1;
+        font-weight: 800;
+        color: #FFFFFF;
+        letter-spacing: -0.01em;
+        line-height: 1.15;
     }
     .btn-mini {
         width: 36px;
@@ -1090,13 +1103,13 @@
             <div class="store-hero-utility">
                 <div class="store-platform-pill">
                     <span class="platform-dot"></span>
-                    <span>brainmart • {% trans "Официальная витрина" %}</span>
+                    <span>{% trans "Официальная витрина бренда" %}</span>
                 </div>
 
                 <div class="store-hero-actions">
                     {% if current_store.show_global_market_button %}
-                        <a href="{{ global_market_url|default:'/?global=1' }}" class="btn-store-global" title="{% trans 'В глобальный маркет' %}">
-                            🌐 <span>{% trans "Глобальный маркет" %}</span>
+                        <a href="{{ global_market_url|default:'/?global=1' }}" class="btn-store-global" title="{% trans 'В маркет' %}">
+                            🌐 <span>{% trans "В маркет" %}</span>
                         </a>
                     {% endif %}
 
@@ -1159,17 +1172,19 @@
 
                     <p class="store-hero-bio">
                         {% if current_store.address %}
-                            📍 {{ current_store.address }} • {% trans "Официальный партнер brainmart" %}
+                            📍 {{ current_store.address|default:current_store.name }} • {% trans "Фирменный магазин бренда" %}
                         {% else %}
-                            {% trans "Официальный магазин на платформе brainmart. Гарантия качества, прямая отправка и сертифицированные товары." %}
+                            {% trans "Официальный фирменный магазин. Прямая отправка со склада, 100% гарантия качества и быстрая доставка." %}
                         {% endif %}
                     </p>
 
                     <div class="store-hero-trust-chips">
                         <span class="store-trust-chip">⭐ 4.9 (500+ {% trans "отзывов" %})</span>
-                        <span class="store-trust-chip">⚡ {% trans "Отправка 24ч" %}</span>
+                        <span class="store-trust-chip">⚡ {% trans "Отправка в день заказа" %}</span>
                         <span class="store-trust-chip">📦 1.2k+ {% trans "заказов" %}</span>
                         <span class="store-trust-chip">🛡️ {% trans "100% Оригинал" %}</span>
+                        <span class="store-trust-chip">🔄 {% trans "14 дней на возврат" %}</span>
+                        <span class="store-trust-chip">🚚 {% trans "Доставка курьером до двери" %}</span>
                         {% if current_store.telegram_bot_username and current_store.telegram_bot_active %}
                             <a href="https://t.me/{{ current_store.telegram_bot_username }}" target="_blank" class="store-contact-chip">
                                 💬 {% trans "Написать продавцу" %}
@@ -1262,7 +1277,7 @@
             <input type="hidden" name="category" value="{{ selected_category_id }}">
         {% endif %}
         <span class="search-icon">🔍</span>
-        <input type="text" name="q" class="search-input" value="{{ search_query }}" placeholder="{% trans 'Поиск по товарам и магазинам (напр: кроссовки, куртка)...' %}">
+        <input type="text" name="q" class="search-input" value="{{ search_query }}" placeholder="{% if current_store %}{% trans 'Поиск по товарам магазина' %} {{ current_store.name }}...{% else %}{% trans 'Поиск по товарам и магазинам (напр: кроссовки, куртка)...' %}{% endif %}">
         <button type="submit" class="search-btn"></button>
     </form>
 
@@ -1342,7 +1357,7 @@
             </div>
             <div>
                 <div style="font-size: 12px; font-weight: 800; color: #93C5FD; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
-                    ⚡ {% trans "Совет ИИ-помощника brainmart" %}
+                    ⚡ {% trans "Совет персонального консультанта" %}
                 </div>
                 <div style="font-size: 13.5px; color: var(--text-main); font-weight: 600; line-height: 1.45;">
                     {{ ai_advice }}
@@ -1361,59 +1376,60 @@
                         {% if product.main_image %}
                             <img src="{{ product.main_image.url }}" loading="lazy" alt="{{ product.name }}">
                         {% else %}
-                            <div class="no-image">??</div>
+                            <div class="no-image">📦</div>
                         {% endif %}
 
-                        <!-- Discount Tag (Uzum / WB style) -->
+                        <!-- Discount Tag (Clean, non-neon red) -->
                         <div class="badge-discount-tag">-{{ product.discount_percent|default:"17" }}%</div>
 
                         <!-- Interactive Favorite Heart Toggle -->
-                        <button type="button" class="btn-favorite-icon" onclick="event.preventDefault(); event.stopPropagation(); toggleFav(this, '{{ product.id }}');" aria-label="Favorite" title="{% trans '? ?????????' %}">
+                        <button type="button" class="btn-favorite-icon" onclick="event.preventDefault(); event.stopPropagation(); toggleFav(this, '{{ product.id }}');" aria-label="Favorite" title="{% trans 'В избранное' %}">
                             <svg class="heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                             </svg>
                         </button>
 
                         {% if not current_store %}
-                            <div class="store-badge" role="button" tabindex="0" onclick="event.preventDefault(); event.stopPropagation(); window.location.href='{{ product.store.get_subdomain_url }}';" title="{% trans '??????? ? ???????' %} {{ product.store.name }}" style="cursor: pointer;">
-                                ?? {{ product.store.name }} ?
+                            <div class="store-badge" role="button" tabindex="0" onclick="event.preventDefault(); event.stopPropagation(); window.location.href='{{ product.store.get_subdomain_url }}';" title="{% trans 'Перейти в магазин' %} {{ product.store.name }}" style="cursor: pointer;">
+                                🏪 {{ product.store.name }} →
                             </div>
                         {% endif %}
-                        <div class="stock-pill">? {% trans "? ???????" %}</div>
+                        <div class="stock-pill">✓ {% trans "В наличии" %}</div>
                     </div>
                     <div class="product-info">
                         <div class="product-title">{{ product.name }}</div>
 
+                        <!-- Rich description and quality tags -->
                         <div class="product-card-desc">
                             {% if product.description %}
                                 {{ product.description|striptags|truncatechars:65 }}
                             {% else %}
-                                {% trans "??????????? ???????? ?? ??????" %} {{ product.store.name }}
+                                {% trans "100% Оригинал • Премиальное качество бренда" %} {{ product.store.name }}
                             {% endif %}
                         </div>
 
                         <div class="product-meta-row">
-                            <span class="rating-star">?</span>
+                            <span class="rating-star" style="color: #F59E0B;">★</span>
                             <span class="rating-val">{{ product.average_rating|default:"4.9" }}</span>
                             {% if product.reviews_count %}
                                 <span class="reviews-count">({{ product.reviews_count }})</span>
                             {% endif %}
-                            <span class="meta-separator">?</span>
-                            <span class="meta-orders">140+ {% trans "???????" %}</span>
+                            <span class="meta-separator">•</span>
+                            <span class="meta-orders">140+ {% trans "заказов" %}</span>
                         </div>
                         <div class="product-fast-delivery">
-                            <span>?</span>
-                            <span>{% trans "??????? ????????" %}</span>
+                            <span>⚡</span>
+                            <span>{% trans "Быстрая доставка курьером 1 день" %}</span>
                         </div>
 
                         <div class="price-row">
                             <div class="price-stack">
                                 {% if product.old_price %}
-                                    <div class="product-old-price">{{ product.formatted_old_price|default:product.old_price }} {% trans "???" %}</div>
+                                    <div class="product-old-price">{{ product.formatted_old_price|default:product.old_price }} {% trans "сум" %}</div>
                                 {% endif %}
-                                <div class="product-price">{{ product.formatted_base_price|default:product.base_price }} {% trans "???" %}</div>
+                                <div class="product-price">{{ product.formatted_base_price|default:product.base_price }} {% trans "сум" %}</div>
                             </div>
-                            <button type="button" class="btn-mini" onclick="event.preventDefault(); event.stopPropagation(); quickAddToCart(this, '{{ product.id }}');" title="{% trans '???????? ? ???????' %}">
+                            <button type="button" class="btn-mini" onclick="event.preventDefault(); event.stopPropagation(); quickAddToCart(this, '{{ product.id }}');" title="{% trans 'Добавить в корзину' %}">
                                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <circle cx="9" cy="21" r="1"></circle>
                                     <circle cx="20" cy="21" r="1"></circle>
@@ -1522,7 +1538,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 {% endblock %}
 
-
 <div id="bmToastContainer" style="position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none;"></div>
 
 <script>
@@ -1530,8 +1545,8 @@ function showBmToast(msg, icon) {
     var c = document.getElementById('bmToastContainer');
     if (!c) return;
     var t = document.createElement('div');
-    t.style.cssText = 'background: rgba(15, 23, 42, 0.92); color: #FFFFFF; font-size: 12.5px; font-weight: 700; padding: 10px 18px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.18); backdrop-filter: blur(12px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 8px; pointer-events: auto; animation: toastSlideUp 0.25s ease;';
-    t.innerHTML = '<span>' + (icon || '?') + '</span><span>' + msg + '</span>';
+    t.style.cssText = 'background: rgba(15, 23, 42, 0.94); color: #FFFFFF; font-size: 12.5px; font-weight: 700; padding: 10px 18px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.18); backdrop-filter: blur(12px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 8px; pointer-events: auto; animation: toastSlideUp 0.25s ease;';
+    t.innerHTML = '<span>' + (icon || '✓') + '</span><span>' + msg + '</span>';
     c.appendChild(t);
     setTimeout(function() {
         t.style.opacity = '0';
@@ -1547,10 +1562,10 @@ function toggleFav(btn, productId) {
         var favs = JSON.parse(localStorage.getItem('bm_favs') || '[]');
         if (isFav) {
             if (favs.indexOf(productId) === -1) favs.push(productId);
-            showBmToast('????? ???????? ? ?????????', '??');
+            showBmToast('Товар добавлен в избранное', '❤️');
         } else {
             favs = favs.filter(function(id) { return id !== productId; });
-            showBmToast('??????? ?? ??????????', '??');
+            showBmToast('Удалено из избранного', '🤍');
         }
         localStorage.setItem('bm_favs', JSON.stringify(favs));
     } catch(e) {}
@@ -1559,8 +1574,8 @@ function toggleFav(btn, productId) {
 function quickAddToCart(btn, productId) {
     var origHtml = btn.innerHTML;
     btn.classList.add('added');
-    btn.innerHTML = '?';
-    showBmToast('????? ???????? ? ???????', '??');
+    btn.innerHTML = '✓';
+    showBmToast('Товар добавлен в корзину', '🛒');
     
     // Add to localStorage cart or dispatch event
     try {

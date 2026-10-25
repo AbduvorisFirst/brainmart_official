@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>brainmart — {% trans "Маркетплейс" %}</title>
+    <title>{% if current_store %}{{ current_store.name }} — {% trans "Официальный магазин" %}{% else %}brainmart — {% trans "Маркетплейс" %}{% endif %}</title>
     
     <!-- Favicon & Icons: Direct Data-URI for instant, 100% reliable zero-cache loading -->
     <link rel="icon" type="image/png" href="data:image/png;base64,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">
@@ -20,7 +20,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="brainmart">
+    <meta name="apple-mobile-web-app-title" content="{% if current_store %}{{ current_store.name }}{% else %}brainmart{% endif %}">
     <meta name="theme-color" content="#4F46E5">
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -44,7 +44,7 @@
                         {% endif %}
                         --text-main: #0F172A;
                         --text-muted: #64748B;
-                        --border: rgba(15, 23, 42, 0.08);
+                        --border: rgba(255, 255, 255, 0.08);
                         --input-bg: #F1F5F9;
                         --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
                         --badge-bg: rgba(255, 255, 255, 0.95);
@@ -61,7 +61,7 @@
                         {% endif %}
                         --text-main: #F8FAFC;
                         --text-muted: #94A3B8;
-                        --border: rgba(255, 255, 255, 0.09);
+                        --border: rgba(255, 255, 255, 0.08);
                         --input-bg: #101622;
                         --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
                         --badge-bg: rgba(20, 28, 43, 0.92);
@@ -98,7 +98,7 @@
                     --surface-card: #171822;
                     --text-main: #FFFFFF;
                     --text-muted: #94A3B8;
-                    --border: rgba(112, 0, 255, 0.25);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #111219;
                     --card-shadow: 0 10px 30px rgba(112, 0, 255, 0.2);
                     --badge-bg: rgba(23, 24, 34, 0.95);
@@ -116,7 +116,7 @@
                     --surface-card: #141C18;
                     --text-main: #FFFFFF;
                     --text-muted: #8FA396;
-                    --border: rgba(0, 168, 107, 0.22);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #0D1310;
                     --card-shadow: 0 10px 30px rgba(0, 168, 107, 0.18);
                     --badge-bg: rgba(20, 28, 24, 0.95);
@@ -134,7 +134,7 @@
                     --surface-card: #1C1916;
                     --text-main: #FFFFFF;
                     --text-muted: #A89F96;
-                    --border: rgba(255, 80, 0, 0.25);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #13110F;
                     --card-shadow: 0 10px 30px rgba(255, 80, 0, 0.2);
                     --badge-bg: rgba(28, 25, 22, 0.95);
@@ -152,7 +152,7 @@
                     --surface-card: #16151A;
                     --text-main: #FBF8F0;
                     --text-muted: #A39678;
-                    --border: rgba(212, 175, 55, 0.25);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #0E0D10;
                     --card-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
                     --badge-bg: rgba(22, 21, 26, 0.95);
@@ -170,9 +170,9 @@
                     --surface-card: #171A2E;
                     --text-main: #FFFFFF;
                     --text-muted: #8E8DC5;
-                    --border: rgba(0, 240, 255, 0.22);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #0E101D;
-                    --card-shadow: 0 8px 26px rgba(0, 240, 255, 0.15);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(23, 26, 46, 0.95);
                     --header-bg: rgba(11, 12, 20, 0.92);
                     --radius-lg: 18px;
@@ -188,9 +188,9 @@
                     --surface-card: #1D1A16;
                     --text-main: #FCF9F2;
                     --text-muted: #A89C82;
-                    --border: rgba(212, 175, 55, 0.22);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #14120E;
-                    --card-shadow: 0 8px 26px rgba(212, 175, 55, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(29, 26, 22, 0.95);
                     --header-bg: rgba(14, 13, 11, 0.92);
                     --radius-lg: 18px;
@@ -206,9 +206,9 @@
                     --surface-card: #181E30;
                     --text-main: #FFFFFF;
                     --text-muted: #94A3B8;
-                    --border: rgba(59, 130, 246, 0.22);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #0F1420;
-                    --card-shadow: 0 8px 26px rgba(59, 130, 246, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(24, 30, 48, 0.95);
                     --header-bg: rgba(11, 14, 22, 0.92);
                     --radius-lg: 18px;
@@ -224,9 +224,9 @@
                     --surface-card: #1E1914;
                     --text-main: #FAF5F0;
                     --text-muted: #A89582;
-                    --border: rgba(234, 88, 12, 0.22);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #14100D;
-                    --card-shadow: 0 8px 26px rgba(234, 88, 12, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(30, 25, 20, 0.95);
                     --header-bg: rgba(14, 12, 10, 0.92);
                     --radius-lg: 18px;
@@ -242,9 +242,9 @@
                     --surface-card: #171924;
                     --text-main: #FFFFFF;
                     --text-muted: #8E92A4;
-                    --border: rgba(148, 163, 184, 0.2);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #0F1018;
-                    --card-shadow: 0 8px 26px rgba(0, 0, 0, 0.35);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(23, 25, 36, 0.95);
                     --header-bg: rgba(11, 12, 16, 0.92);
                     --radius-lg: 18px;
@@ -261,9 +261,9 @@
                     --surface-card: #1B1E28;
                     --text-main: #FFFFFF;
                     --text-muted: #8E98A8;
-                    --border: rgba(239, 68, 68, 0.24);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #101218;
-                    --card-shadow: 0 8px 26px rgba(239, 68, 68, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(27, 30, 40, 0.95);
                     --header-bg: rgba(13, 14, 18, 0.92);
                     --radius-lg: 18px;
@@ -279,9 +279,9 @@
                     --surface-card: #191B20;
                     --text-main: #FFFFFF;
                     --text-muted: #9E9EA8;
-                    --border: rgba(212, 175, 55, 0.22);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #101114;
-                    --card-shadow: 0 8px 26px rgba(212, 175, 55, 0.15);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(25, 27, 32, 0.95);
                     --header-bg: rgba(11, 12, 14, 0.92);
                     --radius-lg: 18px;
@@ -297,9 +297,9 @@
                     --surface-card: #181E2C;
                     --text-main: #FFFFFF;
                     --text-muted: #94A3B8;
-                    --border: rgba(249, 115, 22, 0.22);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #0F121B;
-                    --card-shadow: 0 8px 26px rgba(249, 115, 22, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(24, 30, 44, 0.95);
                     --header-bg: rgba(11, 13, 18, 0.92);
                     --radius-lg: 18px;
@@ -315,9 +315,9 @@
                     --surface-card: #1B1E14;
                     --text-main: #F1F5F9;
                     --text-muted: #94A3B8;
-                    --border: rgba(132, 204, 22, 0.24);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #10120D;
-                    --card-shadow: 0 8px 26px rgba(132, 204, 22, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(27, 30, 20, 0.95);
                     --header-bg: rgba(12, 13, 10, 0.92);
                     --radius-lg: 18px;
@@ -333,9 +333,9 @@
                     --surface-card: #151D2C;
                     --text-main: #FFFFFF;
                     --text-muted: #8EA0B8;
-                    --border: rgba(6, 182, 212, 0.22);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #0D121B;
-                    --card-shadow: 0 8px 26px rgba(6, 182, 212, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(21, 29, 44, 0.95);
                     --header-bg: rgba(10, 13, 20, 0.92);
                     --radius-lg: 18px;
@@ -352,9 +352,9 @@
                     --surface-card: #1A1730;
                     --text-main: #FFFFFF;
                     --text-muted: #9E9EB8;
-                    --border: rgba(139, 92, 246, 0.24);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #100E1C;
-                    --card-shadow: 0 8px 26px rgba(139, 92, 246, 0.18);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(26, 23, 48, 0.95);
                     --header-bg: rgba(12, 11, 22, 0.92);
                     --radius-lg: 18px;
@@ -370,9 +370,9 @@
                     --surface-card: #161C28;
                     --text-main: #FFFFFF;
                     --text-muted: #94A3B8;
-                    --border: rgba(2, 132, 199, 0.22);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #0E121A;
-                    --card-shadow: 0 8px 26px rgba(2, 132, 199, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(22, 28, 40, 0.95);
                     --header-bg: rgba(11, 13, 18, 0.92);
                     --radius-lg: 18px;
@@ -388,9 +388,9 @@
                     --surface-card: #151D2A;
                     --text-main: #FFFFFF;
                     --text-muted: #8EA0B8;
-                    --border: rgba(13, 148, 136, 0.22);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #0D121B;
-                    --card-shadow: 0 8px 26px rgba(13, 148, 136, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(21, 29, 42, 0.95);
                     --header-bg: rgba(10, 13, 18, 0.92);
                     --radius-lg: 18px;
@@ -406,9 +406,9 @@
                     --surface-card: #131C30;
                     --text-main: #FFFFFF;
                     --text-muted: #8EA8C5;
-                    --border: rgba(56, 189, 248, 0.24);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #0A101C;
-                    --card-shadow: 0 8px 26px rgba(56, 189, 248, 0.18);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(19, 28, 48, 0.95);
                     --header-bg: rgba(8, 12, 20, 0.92);
                     --radius-lg: 18px;
@@ -424,9 +424,9 @@
                     --surface-card: #1C1914;
                     --text-main: #FAF5EE;
                     --text-muted: #A89C8E;
-                    --border: rgba(245, 158, 11, 0.22);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #110F0C;
-                    --card-shadow: 0 8px 26px rgba(245, 158, 11, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(28, 25, 20, 0.95);
                     --header-bg: rgba(13, 12, 10, 0.92);
                     --radius-lg: 18px;
@@ -443,9 +443,9 @@
                     --surface-card: #201724;
                     --text-main: #FFFFFF;
                     --text-muted: #B898C5;
-                    --border: rgba(244, 63, 94, 0.24);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #130D15;
-                    --card-shadow: 0 8px 26px rgba(244, 63, 94, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(32, 23, 36, 0.95);
                     --header-bg: rgba(15, 11, 16, 0.92);
                     --radius-lg: 18px;
@@ -461,9 +461,9 @@
                     --surface-card: #1E151A;
                     --text-main: #FAF5EE;
                     --text-muted: #A89886;
-                    --border: rgba(217, 119, 6, 0.22);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #120C0F;
-                    --card-shadow: 0 8px 26px rgba(217, 119, 6, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(30, 21, 26, 0.95);
                     --header-bg: rgba(14, 10, 12, 0.92);
                     --radius-lg: 18px;
@@ -479,9 +479,9 @@
                     --surface-card: #152018;
                     --text-main: #F0FDF4;
                     --text-muted: #8EA893;
-                    --border: rgba(22, 163, 74, 0.22);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #0D120E;
-                    --card-shadow: 0 8px 26px rgba(22, 163, 74, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(21, 32, 24, 0.95);
                     --header-bg: rgba(9, 13, 10, 0.92);
                     --radius-lg: 18px;
@@ -497,9 +497,9 @@
                     --surface-card: #1E1A13;
                     --text-main: #FFFBEB;
                     --text-muted: #A89B84;
-                    --border: rgba(217, 119, 6, 0.22);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #120F0B;
-                    --card-shadow: 0 8px 26px rgba(217, 119, 6, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(30, 26, 19, 0.95);
                     --header-bg: rgba(14, 12, 9, 0.92);
                     --radius-lg: 18px;
@@ -515,9 +515,9 @@
                     --surface-card: #201515;
                     --text-main: #FEF2F2;
                     --text-muted: #A88E8E;
-                    --border: rgba(220, 38, 38, 0.24);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #130D0D;
-                    --card-shadow: 0 8px 26px rgba(220, 38, 38, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(32, 21, 21, 0.95);
                     --header-bg: rgba(15, 10, 10, 0.92);
                     --radius-lg: 18px;
@@ -534,9 +534,9 @@
                     --surface-card: #1A152C;
                     --text-main: #FFFFFF;
                     --text-muted: #A89DC2;
-                    --border: rgba(124, 58, 237, 0.24);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #100D1C;
-                    --card-shadow: 0 8px 26px rgba(124, 58, 237, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(26, 21, 44, 0.95);
                     --header-bg: rgba(12, 10, 20, 0.92);
                     --radius-lg: 18px;
@@ -552,9 +552,9 @@
                     --surface-card: #1D1A15;
                     --text-main: #FAF7F2;
                     --text-muted: #A89E92;
-                    --border: rgba(197, 160, 89, 0.22);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #12100D;
-                    --card-shadow: 0 8px 26px rgba(197, 160, 89, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(29, 26, 21, 0.95);
                     --header-bg: rgba(14, 12, 10, 0.92);
                     --radius-lg: 18px;
@@ -570,9 +570,9 @@
                     --surface-card: #151E1A;
                     --text-main: #FFFFFF;
                     --text-muted: #8EA898;
-                    --border: rgba(5, 150, 105, 0.22);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #0D120F;
-                    --card-shadow: 0 8px 26px rgba(5, 150, 105, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(21, 30, 26, 0.95);
                     --header-bg: rgba(10, 13, 11, 0.92);
                     --radius-lg: 18px;
@@ -588,9 +588,9 @@
                     --surface-card: #1E1813;
                     --text-main: #FFF7ED;
                     --text-muted: #A89584;
-                    --border: rgba(234, 88, 12, 0.22);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #130F0B;
-                    --card-shadow: 0 8px 26px rgba(234, 88, 12, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(30, 24, 19, 0.95);
                     --header-bg: rgba(14, 11, 9, 0.92);
                     --radius-lg: 18px;
@@ -606,9 +606,9 @@
                     --surface-card: #181D14;
                     --text-main: #F7FEE7;
                     --text-muted: #95A884;
-                    --border: rgba(101, 163, 13, 0.22);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #0F120D;
-                    --card-shadow: 0 8px 26px rgba(101, 163, 13, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(24, 29, 20, 0.95);
                     --header-bg: rgba(11, 13, 10, 0.92);
                     --radius-lg: 18px;
@@ -625,9 +625,9 @@
                     --surface-card: #20161E;
                     --text-main: #FFFFFF;
                     --text-muted: #C098A8;
-                    --border: rgba(251, 113, 133, 0.24);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #140E12;
-                    --card-shadow: 0 8px 26px rgba(251, 113, 133, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(32, 22, 30, 0.95);
                     --header-bg: rgba(16, 11, 14, 0.92);
                     --radius-lg: 18px;
@@ -643,9 +643,9 @@
                     --surface-card: #1E151C;
                     --text-main: #FCF7F2;
                     --text-muted: #B0949D;
-                    --border: rgba(217, 119, 6, 0.22);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #120D10;
-                    --card-shadow: 0 8px 26px rgba(217, 119, 6, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(30, 21, 28, 0.95);
                     --header-bg: rgba(14, 10, 13, 0.92);
                     --radius-lg: 18px;
@@ -661,9 +661,9 @@
                     --surface-card: #141E1C;
                     --text-main: #FFFFFF;
                     --text-muted: #86A89E;
-                    --border: rgba(13, 148, 136, 0.22);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #0C1210;
-                    --card-shadow: 0 8px 26px rgba(13, 148, 136, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(20, 30, 28, 0.95);
                     --header-bg: rgba(9, 13, 12, 0.92);
                     --radius-lg: 18px;
@@ -679,9 +679,9 @@
                     --surface-card: #20141E;
                     --text-main: #FFF1F2;
                     --text-muted: #B890A0;
-                    --border: rgba(225, 29, 72, 0.24);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #140C12;
-                    --card-shadow: 0 8px 26px rgba(225, 29, 72, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(32, 20, 30, 0.95);
                     --header-bg: rgba(16, 10, 14, 0.92);
                     --radius-lg: 18px;
@@ -697,9 +697,9 @@
                     --surface-card: #141E17;
                     --text-main: #ECFDF5;
                     --text-muted: #8AA896;
-                    --border: rgba(16, 185, 129, 0.22);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #0C120E;
-                    --card-shadow: 0 8px 26px rgba(16, 185, 129, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(20, 30, 23, 0.95);
                     --header-bg: rgba(9, 13, 10, 0.92);
                     --radius-lg: 18px;
@@ -716,9 +716,9 @@
                     --surface-card: #1B152C;
                     --text-main: #FFFFFF;
                     --text-muted: #A89DC5;
-                    --border: rgba(139, 92, 246, 0.24);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #100D1C;
-                    --card-shadow: 0 8px 26px rgba(139, 92, 246, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(27, 21, 44, 0.95);
                     --header-bg: rgba(12, 10, 20, 0.92);
                     --radius-lg: 18px;
@@ -734,9 +734,9 @@
                     --surface-card: #1D1813;
                     --text-main: #FAF6F0;
                     --text-muted: #A89C8E;
-                    --border: rgba(245, 158, 11, 0.22);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #120F0B;
-                    --card-shadow: 0 8px 26px rgba(245, 158, 11, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(29, 24, 19, 0.95);
                     --header-bg: rgba(14, 12, 9, 0.92);
                     --radius-lg: 18px;
@@ -752,9 +752,9 @@
                     --surface-card: #1F1B2A;
                     --text-main: #FFFFFF;
                     --text-muted: #B89EC5;
-                    --border: rgba(219, 39, 119, 0.24);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #13101A;
-                    --card-shadow: 0 8px 26px rgba(219, 39, 119, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(31, 27, 42, 0.95);
                     --header-bg: rgba(15, 13, 20, 0.92);
                     --radius-lg: 18px;
@@ -770,9 +770,9 @@
                     --surface-card: #161B2E;
                     --text-main: #EFF6FF;
                     --text-muted: #8EA0C5;
-                    --border: rgba(59, 130, 246, 0.24);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #0D101C;
-                    --card-shadow: 0 8px 26px rgba(59, 130, 246, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(22, 27, 46, 0.95);
                     --header-bg: rgba(10, 12, 20, 0.92);
                     --radius-lg: 18px;
@@ -788,9 +788,9 @@
                     --surface-card: #181F13;
                     --text-main: #F7FEE7;
                     --text-muted: #94A884;
-                    --border: rgba(132, 204, 22, 0.24);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #0F130B;
-                    --card-shadow: 0 8px 26px rgba(132, 204, 22, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(24, 31, 19, 0.95);
                     --header-bg: rgba(11, 14, 9, 0.92);
                     --radius-lg: 18px;
@@ -807,9 +807,9 @@
                     --surface-card: #1D1A10;
                     --text-main: #FFFFFF;
                     --text-muted: #A8A88E;
-                    --border: rgba(234, 179, 8, 0.24);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #121008;
-                    --card-shadow: 0 8px 26px rgba(234, 179, 8, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(29, 26, 16, 0.95);
                     --header-bg: rgba(14, 13, 8, 0.92);
                     --radius-lg: 18px;
@@ -825,9 +825,9 @@
                     --surface-card: #141A28;
                     --text-main: #FAF8F2;
                     --text-muted: #8E96A8;
-                    --border: rgba(212, 175, 55, 0.22);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #0C0F18;
-                    --card-shadow: 0 8px 26px rgba(212, 175, 55, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(20, 26, 40, 0.95);
                     --header-bg: rgba(9, 11, 18, 0.92);
                     --radius-lg: 18px;
@@ -843,9 +843,9 @@
                     --surface-card: #1C1914;
                     --text-main: #FFFFFF;
                     --text-muted: #94A3B8;
-                    --border: rgba(234, 88, 12, 0.22);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #110F0C;
-                    --card-shadow: 0 8px 26px rgba(234, 88, 12, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(28, 25, 20, 0.95);
                     --header-bg: rgba(14, 12, 10, 0.92);
                     --radius-lg: 18px;
@@ -861,9 +861,9 @@
                     --surface-card: #1F1414;
                     --text-main: #FEF2F2;
                     --text-muted: #9E8C8C;
-                    --border: rgba(185, 28, 28, 0.24);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #130D0D;
-                    --card-shadow: 0 8px 26px rgba(185, 28, 28, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(31, 20, 20, 0.95);
                     --header-bg: rgba(15, 10, 10, 0.92);
                     --radius-lg: 18px;
@@ -879,9 +879,9 @@
                     --surface-card: #131F19;
                     --text-main: #ECFDF5;
                     --text-muted: #8AA898;
-                    --border: rgba(4, 120, 87, 0.22);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #0C120F;
-                    --card-shadow: 0 8px 26px rgba(4, 120, 87, 0.16);
+                    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
                     --badge-bg: rgba(19, 31, 25, 0.95);
                     --header-bg: rgba(9, 13, 11, 0.92);
                     --radius-lg: 18px;
@@ -896,7 +896,7 @@
                     --surface-card: #161D28;
                     --text-main: #F8FAFC;
                     --text-muted: #94A3B8;
-                    --border: rgba(255, 255, 255, 0.09);
+                    --border: rgba(255, 255, 255, 0.08);
                     --input-bg: #101622;
                     --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
                     --badge-bg: rgba(20, 28, 43, 0.92);
@@ -915,7 +915,7 @@
                 --surface-card: #0F131C;
                 --text-main: #FFFFFF;
                 --text-muted: #8FA0B8;
-                --border: rgba(0, 102, 255, 0.2);
+                --border: rgba(255, 255, 255, 0.08);
                 --input-bg: #090C12;
                 --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
                 --badge-bg: rgba(11, 16, 26, 0.95);
@@ -1215,7 +1215,7 @@
 </head>
 <body>
     <header>
-        <h2 class="header-logo">⚡️ brain<span>mart</span></h2>
+        {% if current_store %}<h2 class="header-logo">{{ current_store.name }}</h2>{% else %}<h2 class="header-logo">⚡️ brain<span>mart</span></h2>{% endif %}
 
         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
             {% if request.user.is_authenticated %}
