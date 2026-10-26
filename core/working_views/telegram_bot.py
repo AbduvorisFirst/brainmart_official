@@ -736,7 +736,7 @@ def notify_seller_about_approval(store: Store) -> None:
     )
     reply_markup = {
         "inline_keyboard": [
-            [{"text": "📊 Панель управления", "web_app": {"url": f"{settings.SITE_URL}/dashboard/"}}],
+            [{"text": "📊 Панель управления", "web_app": {"url": f"{settings.SITE_URL}/dashboard/?tg_auth={store.telegram_link_token}" if store.telegram_link_token else f"{settings.SITE_URL}/dashboard/"}}],
             [{"text": "🛍 Моя витрина", "web_app": {"url": f"{settings.SITE_URL}/ru/?store_id={store.id}"}}]
         ]
     }
@@ -1503,7 +1503,7 @@ class TelegramWebhookView(APIView):
             store_check = Store.objects.filter(telegram_chat_id=str(chat_id)).first()
             if store_check:
                 inline_kb = [
-                    [{"text": _nt(requested_lang, "btn_dashboard"), "web_app": {"url": f"{settings.SITE_URL}/dashboard/"}}],
+                    [{"text": _nt(requested_lang, "btn_dashboard"), "web_app": {"url": f"{settings.SITE_URL}/dashboard/?tg_auth={store_check.telegram_link_token}" if store_check.telegram_link_token else f"{settings.SITE_URL}/dashboard/"}}],
                     [{"text": _nt(requested_lang, "btn_storefront"), "web_app": {"url": f"{settings.SITE_URL}/{requested_lang}/?store_id={store_check.id}"}}],
                 ]
                 if not lang_token or lang_token == getattr(settings, "TELEGRAM_BOT_TOKEN", None):
@@ -1553,6 +1553,10 @@ class TelegramWebhookView(APIView):
                     if store.slug:
                         cache.set(f"username_pending_otp_{store.slug.lower()}", pending_otp, timeout=600)
 
+                fast_auth_url = f"{settings.SITE_URL}/dashboard/?tg_auth={store.telegram_link_token}" if store.telegram_link_token else None
+                kb_code = None
+                if fast_auth_url:
+                    kb_code = {"inline_keyboard": [[{"text": "🚀 Войти в 1 клик", "web_app": {"url": fast_auth_url}}]]}
                 _send_telegram_message(
                     chat_id,
                     f"🔐 ВАШ КОД ВХОДА В ПАНЕЛЬ BRAINMART:\n\n"
@@ -1560,7 +1564,8 @@ class TelegramWebhookView(APIView):
                     f"👤 Ваш логин: {store.owner.username}\n"
                     f"🏪 Магазин: «{store.name}»\n"
                     f"⏱ Код действует 10 минут.\n\n"
-                    f"💡 Введите этот 6-значный код и ваш логин на странице входа для мгновенного доступа в кабинет!"
+                    f"💡 Введите этот 6-значный код и ваш логин на сайте или нажмите кнопку ниже для входа в 1 клик!",
+                    reply_markup=kb_code
                 )
             else:
                 _send_telegram_message(
@@ -1961,7 +1966,7 @@ class TelegramWebhookView(APIView):
                     raise Store.DoesNotExist
                 store_lang = getattr(store, "telegram_notification_language", "uz") or "uz"
                 inline_kb = [
-                    [{"text": _t(chat_id, "btn_dashboard"), "web_app": {"url": f"{settings.SITE_URL}/dashboard/"}}],
+                    [{"text": _t(chat_id, "btn_dashboard"), "web_app": {"url": f"{settings.SITE_URL}/dashboard/?tg_auth={store.telegram_link_token}" if store.telegram_link_token else f"{settings.SITE_URL}/dashboard/"}}],
                     [{"text": _t(chat_id, "btn_storefront"), "web_app": {"url": f"{settings.SITE_URL}/{store_lang}/?store_id={store.id}"}}],
                 ]
                 if not bot_token or bot_token == getattr(settings, "TELEGRAM_BOT_TOKEN", None):
@@ -2136,7 +2141,7 @@ class TelegramWebhookView(APIView):
                 store_check = Store.objects.filter(telegram_chat_id=str(chat_id)).first()
                 if store_check:
                     inline_kb = [
-                        [{"text": _nt(lang, "btn_dashboard"), "web_app": {"url": f"{settings.SITE_URL}/dashboard/"}}],
+                        [{"text": _nt(lang, "btn_dashboard"), "web_app": {"url": f"{settings.SITE_URL}/dashboard/?tg_auth={store_check.telegram_link_token}" if store_check.telegram_link_token else f"{settings.SITE_URL}/dashboard/"}}],
                         [{"text": _nt(lang, "btn_storefront"), "web_app": {"url": f"{settings.SITE_URL}/{lang}/?store_id={store_check.id}"}}],
                     ]
                     if not ans_token or ans_token == getattr(settings, "TELEGRAM_BOT_TOKEN", None):
@@ -2569,7 +2574,7 @@ class StoreCustomTelegramWebhookView(APIView):
                 site_url = getattr(settings, "SITE_URL", "https://brainmart.uz")
                 kb = {
                     "inline_keyboard": [
-                        [{"text": "📊 Панель управления (Dashboard)", "web_app": {"url": f"{site_url}/dashboard/"}}],
+                        [{"text": "📊 Панель управления (Dashboard)", "web_app": {"url": f"{site_url}/dashboard/?tg_auth={store.telegram_link_token}" if store.telegram_link_token else f"{site_url}/dashboard/"}}],
                         [{"text": f"🛍 Моя витрина ({store.name})", "web_app": {"url": store_url}}],
                         [{"text": "➕ Добавить новый товар", "web_app": {"url": f"{site_url}/dashboard/products/add/"}}],
                     ]
@@ -2707,4 +2712,4 @@ class StoreCustomTelegramWebhookView(APIView):
                         ]
                     }
                     _send_telegram_message(chat_id, ai_reply, reply_markup=store_kb, bot_token=bot_token)
-
+

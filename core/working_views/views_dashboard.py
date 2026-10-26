@@ -43,10 +43,27 @@ from .services import generate_ai_store_insights, generate_ai_broadcast_copy, ge
 
 def _get_store_or_none(request):
     """
-    Небольшой помощник: возвращает Store текущего пользователя, либо None.
-    Синхронизирует активный язык панели управления с настройками продавца.
+    Возвращает Store текущего пользователя.
+    1. Если у пользователя есть свой Store (owner).
+    2. Если пользователь — менеджер магазина (StoreManager).
+    3. Если пользователь — суперпользователь (admin) или staff без личного магазина:
+       возвращает выбранный магазин (?store_id=...) или первый активный магазин,
+       чтобы администратор мог полноценно видеть и управлять кабинетом!
     """
+    if not request.user.is_authenticated:
+        return None
+
     store = getattr(request.user, "store", None)
+
+    if not store and (request.user.is_superuser or request.user.is_staff):
+        target_store_id = request.GET.get("store_id") or (request.session.get("admin_view_store_id") if hasattr(request, "session") else None)
+        if target_store_id:
+            store = Store.objects.filter(id=target_store_id).first()
+        if not store:
+            store = Store.objects.filter(is_active=True).first() or Store.objects.first()
+        if store and hasattr(request, "session"):
+            request.session["admin_view_store_id"] = store.id
+
     if store and hasattr(request, "session"):
         from django.utils import translation
         session_lang = request.session.get("django_language")
@@ -59,12 +76,6 @@ def _get_store_or_none(request):
 @login_required
 def dashboard_home(request):
     """Главная страница кабинета — сводка по магазину, реальный график, реальная AI-аналитика."""
-    # Если зашёл суперпользователь без привязанного магазина — направляем в платформенную панель
-    if request.user.is_superuser and (not hasattr(request.user, "store") or not request.user.store):
-        return redirect("platform-admin-dashboard")
-    if request.user.is_staff and (not hasattr(request.user, "store") or not request.user.store):
-        return redirect("/brainmart-secure-admin-panel/")
-
     store = _get_store_or_none(request)
     if store is None:
         if request.method == "POST" and request.POST.get("action") == "create_initial_store":
@@ -821,12 +832,24 @@ def seller_login_view(request):
     """
     Авторизация продавца:
     Поддерживает:
-    1. Моментальный вход по логину / телефону / поддомену + паролю (без блокировки 2FA!).
+    1. Моментальный вход по логину / телефону / поддомену + паролю.
     2. Вход по 6-значному коду из Telegram (/code в боте) без знания пароля.
     3. Запрос кода в Telegram по нажатию кнопки «Получить код в Telegram».
-    4. Полноценная поддержка мобильных телефонов (нечувствительность к регистру, пробелам в телефонах).
+    4. Автоматический вход по ?tg_auth=<token>.
+    5. Полноценная поддержка мобильных телефонов (нечувствительность к регистру, пробелам в телефонах).
     """
     import re
+
+    # Проверяем параметр tg_auth для 1-клик входа из Telegram
+    tg_auth = request.GET.get("tg_auth")
+    if tg_auth:
+        store = Store.objects.filter(telegram_link_token=tg_auth).select_related("owner").first()
+        if store and store.owner:
+            login(request, store.owner)
+            request.session.save()
+            messages.success(request, f"Вход выполнен через Telegram! Добро пожаловать, {store.name}!")
+            return redirect("seller-dashboard")
+
     if request.user.is_authenticated:
         return redirect("seller-dashboard")
 
@@ -834,6 +857,15 @@ def seller_login_view(request):
         action = request.POST.get("action", "login").strip()
         username_raw = request.POST.get("username", "").strip()
         password_raw = request.POST.get("password", "").strip()
+
+        # Получаем параметр next для безопасного редиректа
+        next_url = request.POST.get("next") or request.GET.get("next")
+        if not next_url or not next_url.startswith("/"):
+            next_url = None
+
+        # Проверка OTP-кандидата (6 цифр)
+        cleaned_code = password_raw.replace(" ", "").strip()
+        is_otp_candidate = bool(cleaned_code and len(cleaned_code) == 6 and cleaned_code.isdigit())
 
         # Поиск целевого пользователя (User) и магазина (Store)
         target_user = None
@@ -871,10 +903,13 @@ def seller_login_view(request):
                 if not store:
                     store = getattr(target_user, "store", None)
 
-        # Получаем параметр next для безопасного редиректа
-        next_url = request.POST.get("next") or request.GET.get("next")
-        if not next_url or not next_url.startswith("/"):
-            next_url = None
+        # Если target_user не найден по логину, но введен 6-значный OTP код:
+        if not target_user and is_otp_candidate:
+            user_id_from_otp = cache.get(f"otp_to_user_{cleaned_code}")
+            if user_id_from_otp:
+                target_user = User.objects.filter(id=user_id_from_otp).first()
+                if target_user:
+                    store = getattr(target_user, "store", None)
 
         # Действие: пользователь нажал кнопку «Получить код в Telegram»
         if action == "request_otp":
@@ -890,6 +925,7 @@ def seller_login_view(request):
             cache.set(f"store_pending_otp_{store.id if store else target_user.id}", otp_code, timeout=600)
             cache.set(f"user_login_otp_{target_user.id}", otp_code, timeout=600)
             cache.set(f"username_pending_otp_{target_user.username.lower()}", otp_code, timeout=600)
+            cache.set(f"otp_to_user_{otp_code}", target_user.id, timeout=600)
             if store and store.slug:
                 cache.set(f"username_pending_otp_{store.slug.lower()}", otp_code, timeout=600)
 
@@ -912,6 +948,10 @@ def seller_login_view(request):
                 try:
                     from core.working_views.telegram_bot import _send_telegram_message
                     time_str = timezone.localtime().strftime("%H:%M:%S")
+                    fast_link = f"{settings.SITE_URL}/dashboard/?tg_auth={store.telegram_link_token}" if (store and store.telegram_link_token) else None
+                    reply_markup = None
+                    if fast_link:
+                        reply_markup = {"inline_keyboard": [[{"text": "🚀 Войти в 1 клик", "web_app": {"url": fast_link}}]]}
                     _send_telegram_message(
                         chat_id,
                         f"🔐 ВАШ КОД ВХОДА В BRAINMART:\n\n"
@@ -920,7 +960,8 @@ def seller_login_view(request):
                         f"🏪 Магазин: «{store.name if store else 'Кабинет'}»\n"
                         f"🕒 Время: {time_str}\n"
                         f"⏱ Действует 10 минут.\n\n"
-                        f"💡 Введите этот 6-значный код в поле на сайте для входа!"
+                        f"💡 Введите этот 6-значный код на сайте или нажмите кнопку ниже для входа в 1 клик!",
+                        reply_markup=reply_markup
                     )
                     messages.success(request, "Код подтверждения отправлен в ваш Telegram! Введите его в поле ниже.")
                 except Exception as e:
@@ -936,9 +977,6 @@ def seller_login_view(request):
             })
 
         # --- СЦЕНАРИЙ А: Проверка входа по 6-значному коду из Telegram ---
-        cleaned_code = password_raw.replace(" ", "").strip()
-        is_otp_candidate = bool(cleaned_code and len(cleaned_code) == 6 and cleaned_code.isdigit())
-
         if target_user and is_otp_candidate:
             store_otp = str(cache.get(f"store_pending_otp_{store.id}") or "") if store else ""
             user_otp = str(cache.get(f"user_login_otp_{target_user.id}") or "")
@@ -948,8 +986,9 @@ def seller_login_view(request):
 
             valid_otps = {c for c in [store_otp, user_otp, uname_otp, slug_otp, session_otp] if c}
             is_db_valid = store.verify_login_otp(cleaned_code) if store else False
+            is_global_otp_valid = (cache.get(f"otp_to_user_{cleaned_code}") == target_user.id)
 
-            if (cleaned_code in valid_otps) or is_db_valid:
+            if (cleaned_code in valid_otps) or is_db_valid or is_global_otp_valid:
                 login(request, target_user)
                 request.session.save()
 
@@ -958,12 +997,9 @@ def seller_login_view(request):
                     store.clear_login_otp()
                 cache.delete(f"user_login_otp_{target_user.id}")
                 cache.delete(f"username_pending_otp_{target_user.username.lower()}")
+                cache.delete(f"otp_to_user_{cleaned_code}")
 
                 messages.success(request, f"Вход выполнен по коду подтверждения! Добро пожаловать, {store.name if store else target_user.username}!")
-                if target_user.is_superuser:
-                    return redirect(next_url or "platform-admin-dashboard")
-                if target_user.is_staff:
-                    return redirect(next_url or "/brainmart-secure-admin-panel/")
                 return redirect(next_url or "seller-dashboard")
 
         # --- СЦЕНАРИЙ Б: Авторизация по логину и паролю (МОМЕНТАЛЬНЫЙ ВХОД!) ---
@@ -974,24 +1010,15 @@ def seller_login_view(request):
             if is_otp_candidate and target_user:
                 messages.error(request, "Неверный код подтверждения из Telegram или срок его действия истёк. Нажмите «Получить код в Telegram» или отправьте /code боту.")
             else:
-                messages.error(request, "Неверный логин или пароль. Вы также можете войти по 6-значному коду из Telegram.")
+                messages.error(request, "Неверный логин или пароль. Вы также можете нажать «Получить код в Telegram» для входа без пароля.")
             return render(request, "dashboard/login.html", {"username": username_raw, "next": next_url})
 
         # Пользователь успешно прошёл аутентификацию по паролю! ВХОДИМ СРАЗУ!
         login(request, user)
         request.session.save()
 
-        store = getattr(user, "store", None)
-        messages.success(request, f"Вход выполнен! Добро пожаловать, {store.name if store else user.username}!")
-
-        # 1. Администратор (superuser / staff)
-        if user.is_superuser:
-            return redirect(next_url or "platform-admin-dashboard")
-
-        if user.is_staff:
-            return redirect(next_url or "/brainmart-secure-admin-panel/")
-
-        # 2. Продавец / Пользователь
+        store = _get_store_or_none(request)
+        messages.success(request, f"Вход выполнен! Добро пожаловать в панель управления, {store.name if store else user.username}!")
         return redirect(next_url or "seller-dashboard")
 
     return render(request, "dashboard/login.html")
