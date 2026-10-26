@@ -105,6 +105,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'core.middleware.DynamicCookieDomainMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     # LocaleMiddleware ДОЛЖЕН стоять после SessionMiddleware и до CommonMiddleware —
@@ -113,9 +114,9 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'core.middleware.TelegramAuthMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'core.middleware.DynamicCookieDomainMiddleware',
 ]
 
 ROOT_URLCONF = 'src.urls'
@@ -260,9 +261,11 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = is_https
     # Защита от кражи сессии через JavaScript (XSS)
     SESSION_COOKIE_HTTPONLY = True
-    # Браузер не отправит куки на сторонние сайты (защита от CSRF-атак)
-    SESSION_COOKIE_SAMESITE = "Lax"
-    CSRF_COOKIE_SAMESITE = "Lax"
+    # Для Telegram Mini App и мобильных WebViews требуется SameSite="None" и Secure=True:
+    # Иначе iOS Safari / WebKit блокирует куки в iframe / WebView (ITP),
+    # из-за чего после успешного входа пользователя выбрасывает обратно на /login/.
+    SESSION_COOKIE_SAMESITE = "None" if is_https else "Lax"
+    CSRF_COOKIE_SAMESITE = "None" if is_https else "Lax"
     # Заголовок X-Content-Type-Options: nosniff — браузер не будет «угадывать» тип файла
     SECURE_CONTENT_TYPE_NOSNIFF = True
     # Перенаправлять HTTP → HTTPS автоматически только если сайт работает по HTTPS
@@ -274,20 +277,13 @@ if not DEBUG:
         SECURE_HSTS_PRELOAD = True
     # Доверяем заголовку X-Forwarded-Proto от Nginx для работы HTTPS за прокси
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    # Для Telegram Mini App и встраивания витрины разрешаем фреймы (полный DENY ломает web.telegram.org)
-    X_FRAME_OPTIONS = "SAMEORIGIN"
+    # Для Telegram Mini App и встраивания витрины разрешаем фреймы
+    X_FRAME_OPTIONS = "ALLOWALL"
 
-    # Единая сессия на всех поддоменах: продавец входит один раз и видит свой кабинет на любом поддомене *.brainmart.uz
-    site_domain = os.getenv("SITE_DOMAIN", "").strip().lower()
-    if not site_domain and "brainmart.uz" in SITE_URL:
-        site_domain = "brainmart.uz"
-
-    if site_domain and "." in site_domain and not site_domain.replace(".", "").isdigit():
-        SESSION_COOKIE_DOMAIN = f".{site_domain}"
-        CSRF_COOKIE_DOMAIN = f".{site_domain}"
-    else:
-        SESSION_COOKIE_DOMAIN = None
-        CSRF_COOKIE_DOMAIN = None
+    # Host-Only cookie: Safari ITP и Telegram WebApp блокируют куки с domain=.brainmart.uz.
+    # Значение None делает куку привязанной только к хосту ответа, сохраняя сессию.
+    SESSION_COOKIE_DOMAIN = None
+    CSRF_COOKIE_DOMAIN = None
 
     # --- REST Framework: отключаем browsable API на проде ---
     REST_FRAMEWORK = {
@@ -295,3 +291,13 @@ if not DEBUG:
             'rest_framework.renderers.JSONRenderer',
         ],
     }
+else:
+    # Локальная разработка (HTTP)
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = "Lax"
+    CSRF_COOKIE_SAMESITE = "Lax"
+    SESSION_COOKIE_DOMAIN = None
+    CSRF_COOKIE_DOMAIN = None
+    X_FRAME_OPTIONS = "ALLOWALL"

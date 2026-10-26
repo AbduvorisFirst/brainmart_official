@@ -19,6 +19,7 @@ urlpatterns = [
     path("branches/", seller_branches_view, name="seller-branches"),
 
     path("login/", views_dashboard.seller_login_view, name="seller-login"),
+    path("login/telegram-init-auth/", views_dashboard.telegram_init_auth_api, name="api-telegram-init-auth"),
     path("login/verify-otp/", views_dashboard.seller_verify_otp_view, name="seller-verify-otp"),
     path("login/resend-otp/", views_dashboard.seller_resend_otp_view, name="seller-resend-otp"),
     path("login/check-tg-status/", views_dashboard.seller_check_tg_status_api, name="seller-check-tg-status"),

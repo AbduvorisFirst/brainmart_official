@@ -2576,7 +2576,7 @@ class StoreCustomTelegramWebhookView(APIView):
                     "inline_keyboard": [
                         [{"text": "📊 Панель управления (Dashboard)", "web_app": {"url": f"{site_url}/dashboard/?tg_auth={store.telegram_link_token}" if store.telegram_link_token else f"{site_url}/dashboard/"}}],
                         [{"text": f"🛍 Моя витрина ({store.name})", "web_app": {"url": store_url}}],
-                        [{"text": "➕ Добавить новый товар", "web_app": {"url": f"{site_url}/dashboard/products/add/"}}],
+                        [{"text": "➕ Добавить новый товар", "web_app": {"url": f"{site_url}/dashboard/products/add/?tg_auth={store.telegram_link_token}" if store.telegram_link_token else f"{site_url}/dashboard/products/add/"}}],
                     ]
                 }
                 _send_telegram_message(

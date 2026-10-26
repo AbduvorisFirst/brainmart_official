@@ -18,6 +18,7 @@ import secrets
 from datetime import timedelta
 
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.conf import settings
@@ -828,6 +829,120 @@ def product_inventory_edit_view(request, product_id):
     return HttpResponse(template.render({"product": product, "request": request}, request))
 
 
+@csrf_exempt
+def telegram_init_auth_api(request):
+    """
+    Автоматический 1-клик вход для пользователей Telegram Mini App через initData.
+    Получает init_data из JavaScript window.Telegram.WebApp.initData,
+    проверяет криптографическую подпись HMAC-SHA256 и авторизует владельца магазина.
+    """
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "method_not_allowed"}, status=405)
+
+    try:
+        data = json.loads(request.body.decode("utf-8")) if request.body else {}
+    except Exception:
+        data = {}
+
+    init_data_raw = data.get("init_data") or request.POST.get("init_data", "")
+    next_url = data.get("next") or request.POST.get("next") or "/dashboard/"
+    if not next_url or not next_url.startswith("/") or "/login" in next_url or "/logout" in next_url:
+        next_url = "/dashboard/"
+
+    if not init_data_raw:
+        return JsonResponse({"success": False, "error": "empty_init_data"}, status=400)
+
+    import urllib.parse
+    import hmac
+    import hashlib
+
+    parsed_data = dict(urllib.parse.parse_qsl(init_data_raw, keep_blank_values=True))
+    received_hash = parsed_data.pop("hash", "")
+    bot_token = getattr(settings, "TELEGRAM_BOT_TOKEN", "") or ""
+
+    # Валидация подписи Telegram, если бот-токен настроен
+    is_valid = True
+    if bot_token and received_hash:
+        data_check_string = "\n".join(f"{k}={v}" for k, v in sorted(parsed_data.items()))
+        secret_key = hmac.new(b"WebAppData", bot_token.encode(), hashlib.sha256).digest()
+        calc_hash = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).hexdigest()
+        is_valid = hmac.compare_digest(calc_hash, received_hash)
+
+    if not is_valid:
+        logger.warning("Недействительная HMAC-подпись initData от Telegram")
+        return JsonResponse({"success": False, "error": "invalid_signature"}, status=403)
+
+    user_raw = parsed_data.get("user")
+    if not user_raw:
+        return JsonResponse({"success": False, "error": "no_user_in_init_data"}, status=400)
+
+    try:
+        user_info = json.loads(user_raw)
+    except Exception:
+        return JsonResponse({"success": False, "error": "invalid_user_json"}, status=400)
+
+    tg_id = user_info.get("id")
+    tg_uname = (user_info.get("username") or "").strip().lstrip("@")
+
+    target_user = None
+    store = None
+
+    # 1. Поиск Store по chat_id
+    if tg_id:
+        store = Store.objects.filter(telegram_chat_id=str(tg_id)).select_related("owner").first()
+        if store and store.owner:
+            target_user = store.owner
+
+    # 2. Поиск Store по owner_telegram_username
+    if not target_user and tg_uname:
+        store = Store.objects.filter(owner_telegram_username__iexact=tg_uname).select_related("owner").first()
+        if store and store.owner:
+            target_user = store.owner
+
+    # 3. Поиск User по username
+    if not target_user and tg_uname:
+        target_user = User.objects.filter(username__iexact=tg_uname).first()
+        if target_user:
+            store = getattr(target_user, "store", None)
+
+    # 4. Поиск по Customer telegram_chat_id
+    if not target_user and tg_id:
+        customer = Customer.objects.filter(telegram_chat_id=str(tg_id)).first()
+        if customer and customer.telegram_username:
+            store = Store.objects.filter(owner_telegram_username__iexact=customer.telegram_username.lstrip("@")).select_related("owner").first()
+            if store and store.owner:
+                target_user = store.owner
+
+    # 5. Поиск суперпользователя платформы
+    if not target_user and tg_uname:
+        from core.models import PlatformSettings
+        ps = PlatformSettings.objects.first()
+        if ps and ps.superadmin_telegram_username and ps.superadmin_telegram_username.lower().lstrip("@") == tg_uname.lower():
+            target_user = User.objects.filter(is_superuser=True).first()
+
+    if not target_user:
+        return JsonResponse({
+            "success": False,
+            "error": "user_not_found",
+            "message": "Пользователь Telegram еще не привязан к магазину",
+            "telegram_id": tg_id,
+            "telegram_username": tg_uname
+        }, status=200)
+
+    # Успешная авторизация!
+    login(request, target_user)
+    request.session.save()
+    messages.success(request, f"Вход выполнен через Telegram! Добро пожаловать, {store.name if store else target_user.username}!")
+    logger.info("Успешный 1-клик вход через Telegram WebApp initData: user=%s (tg_id=%s)", target_user.username, tg_id)
+
+    return JsonResponse({
+        "success": True,
+        "redirect_url": next_url,
+        "username": target_user.username,
+        "store": store.name if store else None
+    })
+
+
 def seller_login_view(request):
     """
     Авторизация продавца:
@@ -860,7 +975,7 @@ def seller_login_view(request):
 
         # Получаем параметр next для безопасного редиректа
         next_url = request.POST.get("next") or request.GET.get("next")
-        if not next_url or not next_url.startswith("/"):
+        if not next_url or not next_url.startswith("/") or "/login" in next_url or "/logout" in next_url:
             next_url = None
 
         # Проверка OTP-кандидата (6 цифр)
@@ -1000,7 +1115,8 @@ def seller_login_view(request):
                 cache.delete(f"otp_to_user_{cleaned_code}")
 
                 messages.success(request, f"Вход выполнен по коду подтверждения! Добро пожаловать, {store.name if store else target_user.username}!")
-                return redirect(next_url or "seller-dashboard")
+                dest = next_url if (next_url and "/login" not in next_url and "/logout" not in next_url) else "seller-dashboard"
+                return redirect(dest)
 
         # --- СЦЕНАРИЙ Б: Авторизация по логину и паролю (МОМЕНТАЛЬНЫЙ ВХОД!) ---
         auth_username = target_user.username if target_user else username_raw
@@ -1019,7 +1135,8 @@ def seller_login_view(request):
 
         store = _get_store_or_none(request)
         messages.success(request, f"Вход выполнен! Добро пожаловать в панель управления, {store.name if store else user.username}!")
-        return redirect(next_url or "seller-dashboard")
+        dest = next_url if (next_url and "/login" not in next_url and "/logout" not in next_url) else "seller-dashboard"
+        return redirect(dest)
 
     return render(request, "dashboard/login.html")
 
