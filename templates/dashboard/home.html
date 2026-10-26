@@ -1,5 +1,6 @@
 {% extends "dashboard/base.html" %}
 {% load i18n %}
+{% load humanize %}
 
 {% block content %}
 <style>
@@ -143,7 +144,7 @@
                 <span class="metric-label">{% trans "Выручка (Всего)" %}</span>
                 <div class="metric-icon-pill">💳</div>
             </div>
-            <div class="metric-value">{{ total_revenue|floatformat:0 }} <small style="font-size: 14px; font-weight: 600; color: var(--text-muted);">{% trans "сум" %}</small></div>
+            <div class="metric-value">{{ total_revenue|floatformat:0|intcomma }} <small style="font-size: 14px; font-weight: 600; color: var(--text-muted);">{% trans "сум" %}</small></div>
             <div class="metric-sub" style="color: #30D158;">
                 <span>↑ 100%</span> <span style="color: var(--text-muted);">{% trans "за весь период" %}</span>
             </div>

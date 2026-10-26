@@ -32,20 +32,21 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
-        padding: 10px 14px;
+        gap: 8px;
+        padding: 8px 12px;
         margin-bottom: 16px;
-        border-radius: 14px;
+        border-radius: 16px;
         background: var(--surface-card, #131722);
         border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
     }
 
     .nav-left {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
         min-width: 0;
+        flex: 1;
     }
     .btn-back {
         width: 34px;
@@ -75,45 +76,57 @@
         text-decoration: none;
         color: inherit;
         overflow: hidden;
+        min-width: 0;
     }
     .store-nav-avatar {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
         background: var(--surface, #181D2A);
         border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
-        object-fit: cover;
+        overflow: hidden;
         flex-shrink: 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 800;
         color: #FFFFFF;
     }
+    .store-nav-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
     .store-nav-name {
-        font-size: 13.5px;
+        font-size: 13px;
         font-weight: 700;
         color: var(--text-main, #FFFFFF);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        max-width: 140px;
     }
     .store-nav-verified {
-        font-size: 10px;
+        font-size: 9.5px;
         font-weight: 700;
-        color: var(--primary, #60A5FA);
-        background: rgba(37, 99, 235, 0.12);
-        border: 1px solid var(--border, rgba(37, 99, 235, 0.25));
-        padding: 1px 6px;
+        color: #38BDF8;
+        background: rgba(56, 189, 248, 0.12);
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        padding: 1px 5px;
         border-radius: 4px;
         white-space: nowrap;
+    }
+    @media (max-width: 480px) {
+        .store-nav-verified { display: none; }
+        .store-nav-name { max-width: 110px; }
     }
 
     .nav-right {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         flex-shrink: 0;
     }
     .nav-lang-group {
@@ -158,31 +171,56 @@
         }
     }
 
-    /* Left Column: Gallery */
+    /* Left Column: Uzum / Wildberries Swipeable Gallery */
     .product-gallery-box {
         position: relative;
     }
-    .main-image-wrap {
+    .gallery-slider-viewport {
+        position: relative;
         width: 100%;
         aspect-ratio: 1 / 1;
-        position: relative;
-        background: var(--surface-card, #131722);
-        border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
-        border-radius: 18px;
+        border-radius: 20px;
         overflow: hidden;
-        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+        background: #0D111A;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+        touch-action: pan-y pinch-zoom;
+        user-select: none;
+        -webkit-user-select: none;
     }
-    .main-image-wrap img, .main-image-wrap .no-image {
+    .gallery-slider-track {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    .gallery-slider-track::-webkit-scrollbar {
+        display: none;
+    }
+    .gallery-slide {
+        flex: 0 0 100%;
+        width: 100%;
+        height: 100%;
+        scroll-snap-align: center;
+        scroll-snap-stop: always;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    .gallery-slide img {
         width: 100%;
         height: 100%;
         object-fit: cover;
         display: block;
-        transition: transform 0.3s ease;
+        pointer-events: none;
     }
-    .main-image-wrap:hover img {
-        transform: scale(1.02);
-    }
-    .main-image-wrap .no-image {
+    .gallery-slide .no-image {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -196,14 +234,104 @@
         left: 12px;
         background: #EF4444;
         color: #FFFFFF;
-        font-size: 12px;
+        font-size: 11.5px;
         font-weight: 800;
         padding: 4px 8px;
-        border-radius: 6px;
-        z-index: 3;
+        border-radius: 8px;
+        z-index: 5;
         letter-spacing: 0.3px;
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
     }
 
+    /* Counter Pill (e.g. 1 / 5) */
+    .gallery-counter-pill {
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
+        background: rgba(10, 14, 23, 0.75);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        color: #FFFFFF;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        z-index: 5;
+        pointer-events: none;
+    }
+
+    /* Animated Dot Bar (Uzum & WB style) */
+    .gallery-dots-bar {
+        position: absolute;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        z-index: 5;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        padding: 4px 8px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .gallery-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.35);
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .gallery-dot.active {
+        width: 16px;
+        border-radius: 4px;
+        background: #FFFFFF;
+        box-shadow: 0 0 6px rgba(255, 255, 255, 0.7);
+    }
+
+    /* Navigation Arrows for Laptops & Desktop */
+    .gallery-nav-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: rgba(15, 20, 30, 0.8);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        color: #FFFFFF;
+        font-size: 22px;
+        line-height: 1;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 5;
+        transition: all 0.18s ease;
+        opacity: 0;
+    }
+    .gallery-slider-viewport:hover .gallery-nav-arrow {
+        opacity: 1;
+    }
+    @media (hover: none) {
+        .gallery-nav-arrow { display: none !important; }
+    }
+    .gallery-nav-arrow:hover {
+        background: var(--primary, #2563EB);
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: translateY(-50%) scale(1.08);
+    }
+    .gallery-nav-arrow.arrow-prev { left: 10px; }
+    .gallery-nav-arrow.arrow-next { right: 10px; }
+
+    /* Thumbnails */
     .gallery-thumbnails-row {
         display: flex;
         gap: 8px;
@@ -214,24 +342,42 @@
     }
     .gallery-thumbnails-row::-webkit-scrollbar { display: none; }
     .gallery-thumb-item {
-        width: 58px;
-        height: 58px;
-        border-radius: 10px;
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
         overflow: hidden;
         border: 1.5px solid var(--border, rgba(255, 255, 255, 0.1));
         cursor: pointer;
         flex-shrink: 0;
         background: var(--surface-card, #131722);
         transition: all 0.15s ease;
+        position: relative;
     }
     .gallery-thumb-item:hover, .gallery-thumb-item.active {
         border-color: var(--primary, #2563EB);
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.4);
         transform: translateY(-2px);
     }
     .gallery-thumb-item img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        display: block;
+    }
+    .thumb-color-tag {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(10, 14, 23, 0.88);
+        color: #E2E8F0;
+        font-size: 8.5px;
+        font-weight: 700;
+        text-align: center;
+        padding: 1px 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     /* Right Column: Info & Actions */
@@ -693,30 +839,49 @@
     <!-- 2. RESPONSIVE PRODUCT MAIN LAYOUT -->
     <div class="product-main-grid">
 
-        <!-- Left Column: Gallery -->
+        <!-- Left Column: Uzum / Wildberries Swipeable Gallery -->
         <div class="product-gallery-box">
-            <div class="main-image-wrap">
-                {% if product.main_image %}
-                    <img src="{{ product.main_image.url }}" id="main-product-image" alt="{{ product.name }}">
-                {% else %}
-                    <div class="no-image" id="main-product-image">📦</div>
-                {% endif %}
+            <div class="gallery-slider-viewport" id="gallerySliderViewport">
+                <div class="gallery-slider-track" id="gallerySliderTrack">
+                    {% for img_item in gallery_images %}
+                        <div class="gallery-slide" data-index="{{ forloop.counter0 }}" data-color="{{ img_item.color|default:'' }}">
+                            <img src="{{ img_item.url }}" alt="{{ img_item.title }}" loading="{% if forloop.first %}eager{% else %}lazy{% endif %}" {% if forloop.first %}id="main-product-image"{% endif %} onerror="this.parentElement.style.display='none';">
+                        </div>
+                    {% empty %}
+                        <div class="gallery-slide">
+                            <div class="no-image" id="main-product-image">📦</div>
+                        </div>
+                    {% endfor %}
+                </div>
                 <div class="gallery-badge-discount">-{{ product.discount_percent|default:"17" }}%</div>
+
+                {% if gallery_images|length > 1 %}
+                    <div class="gallery-counter-pill" id="galleryCounterPill">
+                        <span id="galleryCurrentNum">1</span> / <span id="galleryTotalNum">{{ gallery_images|length }}</span>
+                    </div>
+                    <div class="gallery-dots-bar" id="galleryDotsBar">
+                        {% for img_item in gallery_images %}
+                            <span class="gallery-dot {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}" onclick="goToGallerySlide({{ forloop.counter0 }})"></span>
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="gallery-nav-arrow arrow-prev" onclick="navigateGallerySlide(-1)" aria-label="Предыдущее фото">‹</button>
+                    <button type="button" class="gallery-nav-arrow arrow-next" onclick="navigateGallerySlide(1)" aria-label="Следующее фото">›</button>
+                {% endif %}
             </div>
 
             <!-- Thumbnail Row -->
-            <div class="gallery-thumbnails-row">
-                {% if product.main_image %}
-                    <div class="gallery-thumb-item active" onclick="switchMainImage('{{ product.main_image.url }}', this)">
-                        <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
-                    </div>
-                {% endif %}
-                {% for img in product.images.all %}
-                    <div class="gallery-thumb-item" onclick="switchMainImage('{{ img.image.url }}', this)">
-                        <img src="{{ img.image.url }}" alt="{{ product.name }}">
-                    </div>
-                {% endfor %}
-            </div>
+            {% if gallery_images|length > 1 %}
+                <div class="gallery-thumbnails-row" id="galleryThumbnailsRow">
+                    {% for img_item in gallery_images %}
+                        <div class="gallery-thumb-item {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}" data-color="{{ img_item.color|default:'' }}" onclick="goToGallerySlide({{ forloop.counter0 }})">
+                            <img src="{{ img_item.url }}" alt="{{ img_item.title }}" loading="lazy" onerror="this.parentElement.style.display='none';">
+                            {% if img_item.color %}
+                                <span class="thumb-color-tag">{{ img_item.color }}</span>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
 
         <!-- Right Column: Product Buy Box -->
@@ -925,14 +1090,110 @@
 </div>
 
 <script>
-    function switchMainImage(url, thumbEl) {
-        var img = document.getElementById('main-product-image');
-        if (img && url) {
-            img.src = url;
-            document.querySelectorAll('.gallery-thumb-item').forEach(function(el) {
-                el.classList.remove('active');
+    // Uzum / Wildberries Interactive Gallery Controller
+    var currentSlideIndex = 0;
+    var isProgrammaticScroll = false;
+    var scrollTimeout = null;
+
+    function getGalleryElements() {
+        return {
+            track: document.getElementById('gallerySliderTrack'),
+            slides: document.querySelectorAll('.gallery-slide'),
+            dots: document.querySelectorAll('.gallery-dot'),
+            thumbs: document.querySelectorAll('.gallery-thumb-item'),
+            curNum: document.getElementById('galleryCurrentNum'),
+            totNum: document.getElementById('galleryTotalNum')
+        };
+    }
+
+    function updateGalleryUI(idx) {
+        var g = getGalleryElements();
+        currentSlideIndex = idx;
+        if (g.curNum) g.curNum.innerText = (idx + 1);
+
+        if (g.dots) {
+            g.dots.forEach(function(dot, i) {
+                if (i === idx) dot.classList.add('active');
+                else dot.classList.remove('active');
             });
-            if (thumbEl) thumbEl.classList.add('active');
+        }
+
+        if (g.thumbs) {
+            g.thumbs.forEach(function(thumb, i) {
+                if (i === idx) {
+                    thumb.classList.add('active');
+                    try {
+                        thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                    } catch(e) {}
+                } else {
+                    thumb.classList.remove('active');
+                }
+            });
+        }
+    }
+
+    function goToGallerySlide(idx, syncColor) {
+        if (syncColor === undefined) syncColor = true;
+        var g = getGalleryElements();
+        if (!g.track || !g.slides || g.slides.length === 0) return;
+        if (idx < 0) idx = 0;
+        if (idx >= g.slides.length) idx = g.slides.length - 1;
+
+        isProgrammaticScroll = true;
+        updateGalleryUI(idx);
+
+        var targetSlide = g.slides[idx];
+        if (targetSlide) {
+            g.track.scrollTo({
+                left: targetSlide.offsetLeft,
+                behavior: 'smooth'
+            });
+        }
+
+        setTimeout(function() {
+            isProgrammaticScroll = false;
+        }, 350);
+
+        if (syncColor && targetSlide && targetSlide.dataset && targetSlide.dataset.color) {
+            var slideColor = targetSlide.dataset.color.trim();
+            if (slideColor && window.selectColorByName) {
+                window.selectColorByName(slideColor, false);
+            }
+        }
+    }
+
+    function navigateGallerySlide(delta) {
+        var g = getGalleryElements();
+        if (!g.slides || g.slides.length === 0) return;
+        var nextIdx = currentSlideIndex + delta;
+        if (nextIdx < 0) nextIdx = g.slides.length - 1;
+        else if (nextIdx >= g.slides.length) nextIdx = 0;
+        goToGallerySlide(nextIdx, true);
+    }
+
+    function scrollToColorSlide(colorName) {
+        if (!colorName) return;
+        var g = getGalleryElements();
+        if (!g.slides || g.slides.length === 0) return;
+        var targetCol = colorName.trim().toLowerCase();
+        for (var i = 0; i < g.slides.length; i++) {
+            var sc = (g.slides[i].dataset.color || '').trim().toLowerCase();
+            if (sc && sc === targetCol) {
+                goToGallerySlide(i, false);
+                return;
+            }
+        }
+    }
+
+    function switchMainImage(url, thumbEl) {
+        var g = getGalleryElements();
+        if (!g.slides) return;
+        for (var i = 0; i < g.slides.length; i++) {
+            var img = g.slides[i].querySelector('img');
+            if (img && img.src && (img.src === url || img.src.indexOf(url) !== -1)) {
+                goToGallerySlide(i, true);
+                return;
+            }
         }
     }
 
@@ -948,6 +1209,33 @@
                 .replace(/&apos;/g, "'")
                 .replace(/&quot;/g, '"')
                 .replace(/&amp;/g, '&');
+        }
+
+        // Swipe Scroll Listener on Gallery Track
+        const galleryTrack = document.getElementById('gallerySliderTrack');
+        if (galleryTrack) {
+            galleryTrack.addEventListener('scroll', function() {
+                if (isProgrammaticScroll) return;
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(function() {
+                    const width = galleryTrack.clientWidth || 1;
+                    const scrollLeft = galleryTrack.scrollLeft;
+                    const idx = Math.round(scrollLeft / width);
+                    if (idx !== currentSlideIndex) {
+                        const g = getGalleryElements();
+                        if (idx >= 0 && idx < g.slides.length) {
+                            updateGalleryUI(idx);
+                            const targetSlide = g.slides[idx];
+                            if (targetSlide && targetSlide.dataset && targetSlide.dataset.color) {
+                                const slideColor = targetSlide.dataset.color.trim();
+                                if (slideColor && window.selectColorByName) {
+                                    window.selectColorByName(slideColor, false);
+                                }
+                            }
+                        }
+                    }
+                }, 50);
+            }, { passive: true });
         }
 
         const variantsData = [
@@ -980,7 +1268,7 @@
         const urlColor = urlParams.get('color');
 
         let selectedColor = uniqueColors.length > 0 ? uniqueColors[0].name : '';
-        if (urlColor && uniqueColors.some(function(c) { return c.name === urlColor; })) {
+        if (urlColor && uniqueColors.some(function(c) { return c.name.toLowerCase() === urlColor.toLowerCase(); })) {
             selectedColor = urlColor;
         }
         let selectedVariantId = null;
@@ -994,40 +1282,46 @@
         const priceMobile = document.getElementById('mobile-display-price');
         const priceOld = document.getElementById('display-old-price');
 
-        function renderColors() {
+        window.selectColorByName = function(colorName, scrollGallery) {
+            if (!colorName) return;
+            const match = uniqueColors.find(function(c) { return c.name.toLowerCase() === colorName.toLowerCase(); });
+            if (!match) return;
+            selectedColor = match.name;
+            selectedVariantId = null;
+            const newUrl = new URL(window.location);
+            newUrl.searchParams.set('color', match.name);
+            window.history.replaceState({}, '', newUrl);
+            renderColors(false);
+            renderSizes();
+            if (scrollGallery !== false) {
+                scrollToColorSlide(match.name);
+            }
+        };
+
+        function renderColors(shouldScrollGallery) {
             if (!colorContainer) return;
             colorContainer.innerHTML = '';
             if (colorLabel) colorLabel.innerText = cleanText(selectedColor);
 
-            const mainImg = document.getElementById('main-product-image');
-            if (mainImg) {
-                const colorPhoto = colorsMap.get(selectedColor);
-                if (colorPhoto && mainImg.tagName === 'IMG') {
-                    mainImg.src = colorPhoto;
-                }
-            }
-
             uniqueColors.forEach(function(c) {
                 let btn = document.createElement('div');
                 if (c.image) {
-                    btn.className = 'color-btn' + (c.name === selectedColor ? ' active' : '');
+                    btn.className = 'color-btn' + (c.name.toLowerCase() === selectedColor.toLowerCase() ? ' active' : '');
                     btn.style.backgroundImage = "url('" + c.image + "')";
                 } else {
-                    btn.className = 'color-btn text-fallback' + (c.name === selectedColor ? ' active' : '');
+                    btn.className = 'color-btn text-fallback' + (c.name.toLowerCase() === selectedColor.toLowerCase() ? ' active' : '');
                     btn.innerText = cleanText(c.name);
                 }
 
                 btn.onclick = function() {
-                    selectedColor = c.name;
-                    selectedVariantId = null;
-                    const newUrl = new URL(window.location);
-                    newUrl.searchParams.set('color', c.name);
-                    window.history.replaceState({}, '', newUrl);
-                    renderColors();
-                    renderSizes();
+                    window.selectColorByName(c.name, true);
                 };
                 colorContainer.appendChild(btn);
             });
+
+            if (shouldScrollGallery !== false && selectedColor) {
+                scrollToColorSlide(selectedColor);
+            }
         }
 
         function renderSizes() {
@@ -1111,9 +1405,9 @@
         }
 
         if (variantsData.length > 0) {
-            renderColors();
+            renderColors(true);
             renderSizes();
-            let firstAvail = variantsData.find(function(v) { return v.color === selectedColor && v.in_stock && v.qty > 0; }) || variantsData[0];
+            let firstAvail = variantsData.find(function(v) { return v.color.toLowerCase() === selectedColor.toLowerCase() && v.in_stock && v.qty > 0; }) || variantsData[0];
             if (firstAvail) {
                 selectedVariantId = firstAvail.id;
                 selectedVariantPrice = firstAvail.price;

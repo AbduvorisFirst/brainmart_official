@@ -271,10 +271,56 @@ def product_detail_view(request, product_id):
     )
     reviews = product.reviews.filter(is_visible=True).order_by("-created_at")
     effective_bot = product.store.telegram_bot_username if (product.store.telegram_bot_username and product.store.telegram_bot_active) else settings.TELEGRAM_BOT_USERNAME
+
+    # Собираем все фото товара и его вариантов (Uzum / Wildberries стиль)
+    gallery_images = []
+    seen_urls = set()
+
+    # 1. Главное фото
+    if product.main_image:
+        try:
+            m_url = product.main_image.url
+            if m_url not in seen_urls:
+                gallery_images.append({
+                    "url": m_url,
+                    "color": getattr(product, "color", "") or "",
+                    "title": product.name,
+                })
+                seen_urls.add(m_url)
+        except Exception:
+            pass
+
+    # 2. Дополнительные фото из ProductImage
+    for p_img in product.images.all():
+        try:
+            if p_img.image and p_img.image.url not in seen_urls:
+                gallery_images.append({
+                    "url": p_img.image.url,
+                    "color": p_img.color or "",
+                    "title": f"{product.name} ({p_img.color})" if p_img.color else product.name,
+                })
+                seen_urls.add(p_img.image.url)
+        except Exception:
+            pass
+
+    # 3. Фото вариантов по цветам (ProductVariant.image)
+    for v in product.variants.all():
+        try:
+            if v.image and v.image.url not in seen_urls:
+                gallery_images.append({
+                    "url": v.image.url,
+                    "color": v.color or "",
+                    "title": f"{product.name} - {v.color}" if v.color else product.name,
+                })
+                seen_urls.add(v.image.url)
+        except Exception:
+            pass
+
     context = {
         "product": product,
         "current_store": product.store,
         "variants": product.variants.all(),
+        "gallery_images": gallery_images,
         "reviews": reviews,
         "reviews_count": reviews.count(),
         "average_rating": product.average_rating,

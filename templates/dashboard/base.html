@@ -85,18 +85,21 @@
         }
 
         /* ─── МОБИЛЬНАЯ ШАПКА (только мобильные экраны < 900px) ─── */
+        .desktop-sidebar { display: none !important; }
+        .desktop-topbar { display: none !important; }
+
         .top-header {
             position: sticky; top: 0;
-            background: rgba(8, 9, 13, 0.85);
-            backdrop-filter: blur(24px) saturate(180%);
-            -webkit-backdrop-filter: blur(24px) saturate(180%);
-            padding: 12px 18px;
+            background: rgba(8, 9, 13, 0.92);
+            backdrop-filter: blur(28px) saturate(200%);
+            -webkit-backdrop-filter: blur(28px) saturate(200%);
+            padding: 10px 14px;
             display: flex; justify-content: space-between; align-items: center;
             border-bottom: 1px solid var(--border);
             z-index: 100;
         }
         .top-header h3 {
-            margin: 0; font-size: 15px; color: white; display: flex; align-items: center; gap: 8px; font-weight: 800; letter-spacing: -0.02em;
+            margin: 0; font-size: 14px; color: white; display: flex; align-items: center; gap: 8px; font-weight: 800; letter-spacing: -0.02em;
         }
 
         main {
@@ -217,8 +220,10 @@
             body { padding-bottom: 0; display: flex; min-height: 100vh; background: var(--bg); }
 
             /* Скрываем мобильную шапку и мобильный dock */
-            .top-header { display: none; }
-            .bottom-nav { display: none; }
+            .top-header { display: none !important; }
+            .bottom-nav { display: none !important; }
+            .desktop-sidebar { display: flex !important; }
+            .desktop-topbar { display: flex !important; }
 
             /* Боковой сайдбар (Apple Dark Slate) */
             .desktop-sidebar {
@@ -444,19 +449,24 @@
     </aside>
 
     <!-- ─── МОБИЛЬНАЯ ШАПКА ─── -->
-    <div class="top-header">
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <h3 style="margin: 0; font-size: 14.5px; font-weight: 800;">⚡ {{ user.store.name }}</h3>
-            <span style="background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--text-muted); padding: 2px 6px; border-radius: 5px; font-size: 9px; font-weight: 800;">CRM</span>
+    <header class="top-header">
+        <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
+            <div style="width: 32px; height: 32px; border-radius: 10px; background: linear-gradient(135deg, rgba(37, 99, 235, 0.35), rgba(16, 185, 129, 0.3)); border: 1px solid rgba(255,255,255,0.14); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
+                ⚡
+            </div>
+            <div style="display: flex; flex-direction: column; min-width: 0;">
+                <span style="font-size: 13.5px; font-weight: 800; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.01em;">{{ user.store.name }}</span>
+                <span style="font-size: 10px; color: #30D158; font-weight: 700; display: inline-flex; align-items: center; gap: 3px;">
+                    <span style="width: 5px; height: 5px; border-radius: 50%; background: #30D158; display: inline-block;"></span> {% trans "Активен" %}
+                </span>
+            </div>
         </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <a href="{% url 'seller-product-add' %}" style="background: var(--primary); color: white; font-size: 11px; font-weight: 800; text-decoration: none; padding: 5px 10px; border-radius: 8px; display: inline-flex; align-items: center; gap: 4px;">
-                ➕ {% trans "Товар" %}
+
+        <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+            <a href="/{{ CURRENT_LANG|default:'ru' }}/?store_id={{ user.store.id }}" target="_blank" style="background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: #FFFFFF; font-size: 11px; font-weight: 700; text-decoration: none; padding: 6px 10px; border-radius: 9px; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s ease;">
+                👁️ {% trans "Витрина" %} ↗
             </a>
-            <a href="/{{ CURRENT_LANG|default:'ru' }}/?store_id={{ user.store.id }}" target="_blank" style="background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: #FFFFFF; font-size: 11px; font-weight: 700; text-decoration: none; padding: 5px 9px; border-radius: 8px; display: inline-flex; align-items: center; gap: 4px;">
-                👁️ ↗
-            </a>
-            <div class="apple-lang-control" style="padding: 1px;">
+            <div class="apple-lang-control" style="padding: 2px;">
                 {% get_current_language as CURRENT_LANG %}
                 {% get_available_languages as LANGUAGES %}
                 {% for lang_code, lang_name in LANGUAGES %}
@@ -464,61 +474,41 @@
                         {% csrf_token %}
                         <input name="next" type="hidden" value="{{ request.get_full_path }}">
                         <input name="language" type="hidden" value="{{ lang_code }}">
-                        <button type="submit" class="{% if lang_code == CURRENT_LANG %}active{% endif %}" style="padding: 3px 6px; font-size: 9.5px;">
+                        <button type="submit" class="{% if lang_code == CURRENT_LANG %}active{% endif %}" style="padding: 3px 6px; font-size: 10px; font-weight: 800;">
                             {% if lang_code == 'ru' %}RU{% elif lang_code == 'uz' %}UZ{% else %}EN{% endif %}
                         </button>
                     </form>
                 {% endfor %}
             </div>
-            <a href="{% url 'seller-logout' %}" style="color: var(--text-muted); text-decoration: none; font-size: 18px; line-height: 1;">🚪</a>
+            <a href="{% url 'seller-logout' %}" title="{% trans 'Выйти' %}" style="color: var(--text-muted); text-decoration: none; font-size: 16px; padding: 5px 7px; border-radius: 9px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.04); border: 1px solid var(--border);">🚪</a>
         </div>
-    </div>
+    </header>
 
     <!-- ─── МОБИЛЬНОЕ НИЖНЕЕ МЕНЮ (Apple Dock) ─── -->
     <nav class="bottom-nav">
-        <a href="{% url 'seller-dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-dashboard' %}active{% endif %}">
+        <a href="{% url 'seller-dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-dashboard' %}active{% endif %}" style="flex: 1; min-width: 0; padding: 6px 2px;">
             <span class="nav-icon">📊</span>
             <span>{% trans "Главная" %}</span>
         </a>
-        <a href="{% url 'seller-products' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-products' or request.resolver_match.url_name == 'seller-product-add' %}active{% endif %}">
+        <a href="{% url 'seller-products' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-products' or request.resolver_match.url_name == 'seller-product-add' %}active{% endif %}" style="flex: 1; min-width: 0; padding: 6px 2px;">
             <span class="nav-icon">📦</span>
             <span>{% trans "Товары" %}</span>
         </a>
-        <a href="javascript:void(0)" onclick="showPosUnderDevModal()" class="nav-item">
-            <span class="nav-icon">📟</span>
-            <span>{% trans "POS" %}</span>
-        </a>
-        <a href="{% url 'seller-orders' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-orders' %}active{% endif %}">
+        <a href="{% url 'seller-orders' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-orders' %}active{% endif %}" style="flex: 1; min-width: 0; padding: 6px 2px;">
             <span class="nav-icon">🚚</span>
             <span>{% trans "Заказы" %}</span>
         </a>
-        <a href="{% url 'seller-finance' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-finance' %}active{% endif %}">
+        <a href="{% url 'seller-finance' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-finance' %}active{% endif %}" style="flex: 1; min-width: 0; padding: 6px 2px;">
             <span class="nav-icon">💰</span>
             <span>{% trans "Финансы" %}</span>
         </a>
-        <a href="{% url 'seller-customers' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-customers' %}active{% endif %}">
+        <a href="{% url 'seller-customers' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-customers' %}active{% endif %}" style="flex: 1; min-width: 0; padding: 6px 2px;">
             <span class="nav-icon">👥</span>
             <span>{% trans "Клиенты" %}</span>
         </a>
-        <a href="{% url 'seller-waitlist' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-waitlist' %}active{% endif %}">
-            <span class="nav-icon">⏳</span>
-            <span>{% trans "Ожидание" %}</span>
-        </a>
-        <a href="{% url 'seller-broadcasts' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-broadcasts' %}active{% endif %}">
-            <span class="nav-icon">📢</span>
-            <span>{% trans "Рассылки" %}</span>
-        </a>
-        <a href="{% url 'seller-reviews' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-reviews' %}active{% endif %}">
-            <span class="nav-icon">⭐</span>
-            <span>{% trans "Отзывы" %}</span>
-        </a>
-        <a href="{% url 'seller-branches' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-branches' %}active{% endif %}">
-            <span class="nav-icon">🏢</span>
-            <span>{% trans "Точки" %}</span>
-        </a>
-        <a href="{% url 'seller-settings' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-settings' %}active{% endif %}">
+        <a href="{% url 'seller-settings' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-settings' or request.resolver_match.url_name == 'seller-branches' or request.resolver_match.url_name == 'seller-reviews' %}active{% endif %}" style="flex: 1; min-width: 0; padding: 6px 2px;">
             <span class="nav-icon">⚙️</span>
-            <span>{% trans "Настройки" %}</span>
+            <span>{% trans "Меню" %}</span>
         </a>
     </nav>
 
