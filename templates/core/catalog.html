@@ -7,7 +7,7 @@
     header { display: none !important; }
 
     .catalog-container {
-        padding: 12px 14px 40px;
+        padding: 12px 14px calc(85px + env(safe-area-inset-bottom));
         max-width: 100%;
         width: 100%;
         margin: 0 auto;
@@ -886,6 +886,107 @@
         from { opacity: 0; transform: translateY(14px); }
         to { opacity: 1; transform: translateY(0); }
     }
+
+    /* Mobile Quick Contacts for Clothing Stores */
+    .store-quick-contacts-mobile {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 6px;
+    }
+    .store-contact-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11.5px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 20px;
+        text-decoration: none;
+        transition: all 0.15s ease;
+    }
+    .store-contact-pill.tg {
+        background: rgba(37, 99, 235, 0.14);
+        color: #60A5FA;
+        border: 1px solid rgba(37, 99, 235, 0.3);
+    }
+    .store-contact-pill.phone {
+        background: rgba(16, 185, 129, 0.14);
+        color: #34D399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .store-contact-pill.insta {
+        background: rgba(236, 72, 153, 0.14);
+        color: #F472B6;
+        border: 1px solid rgba(236, 72, 153, 0.3);
+    }
+
+    /* Search Clear Button */
+    .search-clear-btn {
+        background: none;
+        border: none;
+        color: #94A3B8;
+        font-size: 15px;
+        cursor: pointer;
+        padding: 6px 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Fixed Mobile Bottom Navigation Bar */
+    .mobile-store-bottom-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(13, 17, 24, 0.94);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
+        z-index: 998;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+    }
+    @media (min-width: 900px) {
+        .mobile-store-bottom-bar { display: none !important; }
+    }
+    .mob-bottom-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        color: #94A3B8;
+        text-decoration: none;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 4px 8px;
+        border-radius: 10px;
+        transition: all 0.15s ease;
+        min-width: 52px;
+        cursor: pointer;
+    }
+    .mob-bottom-item:active { transform: scale(0.92); }
+    .mob-bottom-item.active { color: #FFFFFF; }
+    .mob-bottom-icon { font-size: 18px; line-height: 1; }
+    .mob-cart-badge {
+        position: absolute;
+        top: -6px;
+        right: -10px;
+        background: #EF4444;
+        color: #FFFFFF;
+        font-size: 9.5px;
+        font-weight: 800;
+        padding: 1px 5px;
+        border-radius: 10px;
+        line-height: 1.2;
+        box-shadow: 0 2px 6px rgba(239, 68, 68, 0.5);
+    }
 </style>
 
 <div class="catalog-container">
@@ -912,6 +1013,23 @@
                         </div>
                         <div class="store-sub-desc">
                             {% if current_store.address %}📍 {{ current_store.address }}{% else %}{% trans "Фирменный магазин • Прямая отправка со склада за 24 часа" %}{% endif %}
+                        </div>
+                        <div class="store-quick-contacts-mobile">
+                            {% if current_store.telegram_bot_username and current_store.telegram_bot_active %}
+                                <a href="https://t.me/{{ current_store.telegram_bot_username }}" target="_blank" class="store-contact-pill tg">
+                                    <span>💬</span> <span>Telegram</span>
+                                </a>
+                            {% endif %}
+                            {% if current_store.phone_number %}
+                                <a href="tel:{{ current_store.phone_number }}" class="store-contact-pill phone">
+                                    <span>📞</span> <span>{{ current_store.phone_number }}</span>
+                                </a>
+                            {% endif %}
+                            {% if current_store.instagram_username %}
+                                <a href="https://instagram.com/{{ current_store.instagram_username|cut:'@' }}" target="_blank" class="store-contact-pill insta">
+                                    <span>📸</span> <span>@{{ current_store.instagram_username|cut:'@' }}</span>
+                                </a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -1037,7 +1155,7 @@
     {% endif %}
 
     <!-- Search Form -->
-    <form method="get" class="search-container">
+    <form method="get" class="search-container" id="catalogSearchForm">
         {% if current_store_id %}
             <input type="hidden" name="store_id" value="{{ current_store_id }}">
         {% endif %}
@@ -1045,7 +1163,10 @@
             <input type="hidden" name="category" value="{{ selected_category_id }}">
         {% endif %}
         <span class="search-icon">🔍</span>
-        <input type="text" name="q" class="search-input" value="{{ search_query }}" placeholder="{% if current_store %}{% trans 'Поиск по каталогу' %} {{ current_store.name }}...{% else %}{% trans 'Поиск товаров и брендов (напр: кроссовки, куртка)...' %}{% endif %}">
+        <input type="text" id="catalogSearchInput" name="q" class="search-input" value="{{ search_query }}" placeholder="{% if current_store %}{% trans 'Поиск по каталогу' %} {{ current_store.name }}...{% else %}{% trans 'Поиск товаров и брендов (напр: кроссовки, куртка)...' %}{% endif %}" autocomplete="off">
+        {% if search_query %}
+            <button type="button" class="search-clear-btn" onclick="clearCatalogSearch()" title="{% trans 'Очистить' %}">✕</button>
+        {% endif %}
         <button type="submit" class="search-btn"></button>
     </form>
 
@@ -1206,6 +1327,83 @@
             <p class="empty-desc">{% trans "В этой витрине пока нет товаров. Загляните позже или посетите глобальный маркет." %}</p>
         </div>
     {% endif %}
+
+    
+    <!-- ==========================================================================
+         MOBILE FIXED BOTTOM BAR (Apple / Uzum style, thumb-friendly navigation)
+         ========================================================================== -->
+    <nav class="mobile-store-bottom-bar" id="mobileBottomBar">
+        {% if current_store %}
+            <a href="javascript:void(0)" onclick="window.scrollTo({top: 0, behavior: 'smooth'});" class="mob-bottom-item active">
+                <span class="mob-bottom-icon">🏪</span>
+                <span class="mob-bottom-label">{% trans "Витрина" %}</span>
+            </a>
+            <a href="javascript:void(0)" onclick="focusSearch();" class="mob-bottom-item">
+                <span class="mob-bottom-icon">🔍</span>
+                <span class="mob-bottom-label">{% trans "Поиск" %}</span>
+            </a>
+            <a href="javascript:void(0)" onclick="openCartModal();" class="mob-bottom-item mob-cart-item">
+                <span class="mob-bottom-icon" style="position: relative;">
+                    🛍️
+                    <span class="mob-cart-badge" id="mobBottomCartBadge" style="display: none;">0</span>
+                </span>
+                <span class="mob-bottom-label">{% trans "Корзина" %}</span>
+            </a>
+            {% if current_store.telegram_bot_username and current_store.telegram_bot_active %}
+                <a href="https://t.me/{{ current_store.telegram_bot_username }}" target="_blank" class="mob-bottom-item">
+                    <span class="mob-bottom-icon">💬</span>
+                    <span class="mob-bottom-label">{% trans "Telegram" %}</span>
+                </a>
+            {% elif current_store.phone_number %}
+                <a href="tel:{{ current_store.phone_number }}" class="mob-bottom-item">
+                    <span class="mob-bottom-icon">📞</span>
+                    <span class="mob-bottom-label">{% trans "Звонок" %}</span>
+                </a>
+            {% endif %}
+            {% if request.user.is_authenticated and request.user.store and request.user.store == current_store %}
+                <a href="{% url 'seller-dashboard' %}" class="mob-bottom-item">
+                    <span class="mob-bottom-icon">⚙️</span>
+                    <span class="mob-bottom-label">{% trans "Кабинет" %}</span>
+                </a>
+            {% else %}
+                <a href="{% url 'seller-login' %}" class="mob-bottom-item">
+                    <span class="mob-bottom-icon">🔑</span>
+                    <span class="mob-bottom-label">{% trans "Войти" %}</span>
+                </a>
+            {% endif %}
+        {% else %}
+            <a href="javascript:void(0)" onclick="window.scrollTo({top: 0, behavior: 'smooth'});" class="mob-bottom-item active">
+                <span class="mob-bottom-icon">⚡</span>
+                <span class="mob-bottom-label">{% trans "Главная" %}</span>
+            </a>
+            <a href="javascript:void(0)" onclick="focusSearch();" class="mob-bottom-item">
+                <span class="mob-bottom-icon">🔍</span>
+                <span class="mob-bottom-label">{% trans "Поиск" %}</span>
+            </a>
+            <a href="javascript:void(0)" onclick="openCartModal();" class="mob-bottom-item mob-cart-item">
+                <span class="mob-bottom-icon" style="position: relative;">
+                    🛍️
+                    <span class="mob-cart-badge" id="mobBottomCartBadge" style="display: none;">0</span>
+                </span>
+                <span class="mob-bottom-label">{% trans "Корзина" %}</span>
+            </a>
+            <a href="{% url 'become-seller' %}" class="mob-bottom-item">
+                <span class="mob-bottom-icon">🚀</span>
+                <span class="mob-bottom-label">{% trans "Продавать" %}</span>
+            </a>
+            {% if request.user.is_authenticated %}
+                <a href="{% url 'seller-dashboard' %}" class="mob-bottom-item">
+                    <span class="mob-bottom-icon">👤</span>
+                    <span class="mob-bottom-label">{% trans "Кабинет" %}</span>
+                </a>
+            {% else %}
+                <a href="{% url 'seller-login' %}" class="mob-bottom-item">
+                    <span class="mob-bottom-icon">🔑</span>
+                    <span class="mob-bottom-label">{% trans "Войти" %}</span>
+                </a>
+            {% endif %}
+        {% endif %}
+    </nav>
 
     <!-- Customer Assurance & Trust Section ("Много написано" for Real Buyer Confidence) -->
     <div class="market-trust-footer">

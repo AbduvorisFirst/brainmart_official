@@ -22,6 +22,11 @@
         opacity: 0;
         backdrop-filter: blur(16px);
     }
+    @media (max-width: 899px) {
+        #floating-cart-bar {
+            bottom: calc(66px + env(safe-area-inset-bottom));
+        }
+    }
     #floating-cart-bar.visible {
         transform: translateX(-50%) translateY(0);
         opacity: 1;

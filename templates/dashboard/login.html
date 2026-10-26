@@ -2,23 +2,16 @@
 {% load i18n %}
 
 {% block content %}
-<div style="min-height: 75vh; display: flex; align-items: center; justify-content: center; padding: 20px 10px;">
-    <div class="card" style="max-width: 420px; width: 100%; margin: 0 auto; border-radius: 28px; padding: 32px 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.1);">
+<div style="min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 16px 12px;">
+    <div class="card" style="max-width: 440px; width: 100%; margin: 0 auto; border-radius: 26px; padding: 32px 24px; box-shadow: 0 20px 45px rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.1); background: #11141C;">
         
-        <div style="text-align: center; margin-bottom: 24px;">
-            <div style="width: 64px; height: 64px; border-radius: 20px; background: linear-gradient(135deg, rgba(79, 70, 229, 0.2), rgba(16, 185, 129, 0.2)); border: 1px solid rgba(255,255,255,0.15); display: inline-flex; align-items: center; justify-content: center; font-size: 30px; margin-bottom: 14px; box-shadow: 0 8px 20px rgba(0,0,0,0.25);">
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: 22px;">
+            <div style="width: 62px; height: 62px; border-radius: 20px; background: linear-gradient(135deg, rgba(37, 99, 235, 0.25), rgba(16, 185, 129, 0.2)); border: 1px solid rgba(255,255,255,0.15); display: inline-flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
                 🔐
             </div>
-            <h2 style="margin: 0 0 6px 0; font-size: 22px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em;">Вход в BrainMart</h2>
-            <p style="margin: 0; font-size: 14px; color: var(--text-muted); line-height: 1.4;">Панель управления интернет-магазином</p>
-        </div>
-
-        <!-- 2FA Защитный Бейдж -->
-        <div style="background: rgba(79, 70, 229, 0.12); border: 1px solid rgba(99, 102, 241, 0.35); border-radius: 16px; padding: 12px 14px; margin-bottom: 22px; display: flex; align-items: center; gap: 12px;">
-            <div style="font-size: 20px; line-height: 1;">🛡️</div>
-            <div style="font-size: 12.5px; color: #C7D2FE; line-height: 1.4;">
-                <strong style="color: #FFFFFF;">Двухфакторная защита (OTP):</strong> После ввода логина и пароля проверочный код будет отправлен в Telegram владельца.
-            </div>
+            <h2 style="margin: 0 0 5px 0; font-size: 22px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em;">{% trans "Вход в панель управления" %}</h2>
+            <p style="margin: 0; font-size: 13.5px; color: var(--text-muted); line-height: 1.4;">{% trans "Управление магазином, товарами и заказами" %}</p>
         </div>
 
         {% if messages %}
@@ -32,68 +25,134 @@
             </div>
         {% endif %}
 
-        <form method="post" action="{% url 'seller-login' %}" style="display: flex; flex-direction: column; gap: 4px;">
+        <!-- Quick Mode Switcher Tabs for Mobile -->
+        <div style="display: flex; background: rgba(255,255,255,0.06); padding: 4px; border-radius: 14px; margin-bottom: 20px; gap: 4px; border: 1px solid rgba(255,255,255,0.08);">
+            <button type="button" id="tab-pass" onclick="switchLoginMode('pass')" style="flex: 1; padding: 10px; border-radius: 11px; font-size: 13px; font-weight: 700; border: none; cursor: pointer; transition: all 0.2s; background: var(--primary, #2563EB); color: #FFFFFF;">
+                🔑 {% trans "По паролю" %}
+            </button>
+            <button type="button" id="tab-tg" onclick="switchLoginMode('tg')" style="flex: 1; padding: 10px; border-radius: 11px; font-size: 13px; font-weight: 700; border: none; cursor: pointer; transition: all 0.2s; background: transparent; color: #94A3B8;">
+                📲 {% trans "Код Telegram" %}
+            </button>
+        </div>
+
+        <form method="post" action="{% url 'seller-login' %}" id="loginForm" style="display: flex; flex-direction: column; gap: 4px;">
             {% csrf_token %}
             {% if request.GET.next or next %}
                 <input type="hidden" name="next" value="{{ next|default:request.GET.next }}">
             {% endif %}
 
+            <!-- Username / Phone / Store Input -->
             <div>
-                <label for="id_username" style="display: block; font-size: 13px; font-weight: 700; color: #CBD5E1; margin-bottom: 4px;">{% trans "Логин / Ник магазина / Поддомен" %}</label>
+                <label for="id_username" style="display: block; font-size: 13px; font-weight: 700; color: #CBD5E1; margin-bottom: 4px;">
+                    {% trans "Логин / Телефон / Ник магазина" %}
+                </label>
                 <div style="position: relative;">
-                    <input type="text" id="id_username" name="username" value="{{ username|default:'' }}" required autocomplete="username" placeholder="{% trans "Например: sultan_wear или sultan" %}" style="width: 100%; box-sizing: border-box; padding: 14px 16px 14px 42px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.12); color: white; border-radius: 16px; font-size: 15px; margin: 4px 0 16px; transition: all 0.2s;">
-                    <span style="position: absolute; left: 14px; top: 16px; font-size: 17px; opacity: 0.6;">👤</span>
+                    <input type="text" id="id_username" name="username" value="{{ username|default:'' }}" required autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="text" placeholder="{% trans 'sultan_wear или +998901234567' %}" style="width: 100%; box-sizing: border-box; padding: 14px 16px 14px 44px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.14); color: white; border-radius: 16px; font-size: 16px !important; min-height: 48px; margin: 4px 0 16px; transition: all 0.2s;">
+                    <span style="position: absolute; left: 14px; top: 16px; font-size: 18px; opacity: 0.6;">👤</span>
                 </div>
             </div>
 
+            <!-- Password / OTP Field -->
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; flex-wrap: wrap; gap: 6px;">
-                    <label for="id_password" style="font-size: 13px; font-weight: 700; color: #CBD5E1; margin: 0;">{% trans "Пароль или 6-значный код Telegram" %}</label>
-                    <button type="submit" name="action" value="request_otp" formnovalidate style="background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); color: #38BDF8; font-size: 12px; font-weight: 700; cursor: pointer; padding: 4px 10px; border-radius: 8px; transition: all 0.2s;" title="{% trans 'Отправить 6-значный код в ваш Telegram-бот' %}">
+                    <label id="pwd-label" for="id_password" style="font-size: 13px; font-weight: 700; color: #CBD5E1; margin: 0;">
+                        {% trans "Пароль" %}
+                    </label>
+                    <button type="submit" name="action" value="request_otp" formnovalidate id="btn-request-otp" style="display: none; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); color: #38BDF8; font-size: 12px; font-weight: 700; cursor: pointer; padding: 4px 10px; border-radius: 8px; transition: all 0.2s;">
                         📲 {% trans "Получить код в Telegram" %}
                     </button>
                 </div>
                 <div style="position: relative;">
-                    <input type="text" id="id_password" name="password" required autocomplete="current-password" placeholder="{% trans "Пароль или код (например 123456)" %}" style="width: 100%; box-sizing: border-box; padding: 14px 44px 14px 42px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.12); color: white; border-radius: 16px; font-size: 15px; margin: 4px 0 10px; transition: all 0.2s;">
-                    <span style="position: absolute; left: 14px; top: 16px; font-size: 17px; opacity: 0.6;">🔑</span>
-                    <button type="button" onclick="togglePasswordVisibility()" style="position: absolute; right: 14px; top: 16px; background: none; border: none; font-size: 16px; cursor: pointer; opacity: 0.7; padding: 0;" title="{% trans 'Показать / скрыть' %}">👁️</button>
+                    <input type="password" id="id_password" name="password" required autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="{% trans 'Введите ваш пароль' %}" style="width: 100%; box-sizing: border-box; padding: 14px 44px 14px 44px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.14); color: white; border-radius: 16px; font-size: 16px !important; min-height: 48px; margin: 4px 0 10px; transition: all 0.2s;">
+                    <span id="pwd-icon" style="position: absolute; left: 14px; top: 16px; font-size: 18px; opacity: 0.6;">🔑</span>
+                    <button type="button" onclick="togglePasswordVisibility()" id="btn-eye" style="position: absolute; right: 14px; top: 16px; background: none; border: none; font-size: 18px; cursor: pointer; opacity: 0.7; padding: 0;" title="{% trans 'Показать / скрыть' %}">👁️</button>
                 </div>
-                <div style="font-size: 11.5px; color: #94A3B8; margin-bottom: 18px; line-height: 1.4;">
-                    💡 {% trans "Если у вас есть 6-значный код из Telegram (команда /code в боте) — введите его сюда вместо пароля для моментального входа!" %}
+                
+                <div id="pwd-hint" style="font-size: 12px; color: #94A3B8; margin-bottom: 18px; line-height: 1.4;">
+                    💡 {% trans "Введите пароль для моментального входа в кабинет." %}
+                </div>
+                <div id="otp-hint" style="display: none; font-size: 12px; color: #93C5FD; margin-bottom: 18px; line-height: 1.4;">
+                    📲 {% trans "Введите 6-значный код безопасности (команда /code в вашем Telegram-боте)." %}
                 </div>
             </div>
 
-            <button type="submit" name="action" value="login" class="btn" style="width: 100%; border-radius: 16px; padding: 15px; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, #4F46E5, #4338CA); box-shadow: 0 4px 16px rgba(79, 70, 229, 0.4); margin-top: 4px;">
-                {% trans "Войти в панель магазина" %} ➔
+            <!-- Submit Button -->
+            <button type="submit" name="action" value="login" id="btn-submit" class="btn" style="width: 100%; border-radius: 16px; padding: 16px; font-size: 16px; font-weight: 800; background: linear-gradient(135deg, #2563EB, #1D4ED8); box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4); border: none; color: white; cursor: pointer; margin-top: 4px; min-height: 50px;">
+                {% trans "Войти в кабинет" %} ➔
             </button>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; font-size: 12.5px;">
-                <a href="{% url 'seller-forgot-password' %}" style="color: #818CF8; text-decoration: none; font-weight: 600;" onmouseover="this.style.color='#A5B4FC'" onmouseout="this.style.color='#818CF8'">
+            <!-- Links footer -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; font-size: 13px;">
+                <a href="{% url 'seller-forgot-password' %}" style="color: #60A5FA; text-decoration: none; font-weight: 600;">
                     🔐 {% trans "Забыли пароль?" %}
                 </a>
-                <span style="color: var(--text-muted);">
+                <a href="javascript:void(0)" onclick="switchLoginMode('tg')" style="color: #94A3B8; text-decoration: none;">
                     Telegram: <b>/code</b>
-                </span>
+                </a>
             </div>
         </form>
 
         <script>
-            function togglePasswordVisibility() {
-                var inp = document.getElementById('id_password');
-                if (inp.type === 'password') {
-                    inp.type = 'text';
+            let currentMode = 'pass';
+            function switchLoginMode(mode) {
+                currentMode = mode;
+                const tabPass = document.getElementById('tab-pass');
+                const tabTg = document.getElementById('tab-tg');
+                const pwdLabel = document.getElementById('pwd-label');
+                const pwdInp = document.getElementById('id_password');
+                const pwdIcon = document.getElementById('pwd-icon');
+                const pwdHint = document.getElementById('pwd-hint');
+                const otpHint = document.getElementById('otp-hint');
+                const btnReqOtp = document.getElementById('btn-request-otp');
+                const btnEye = document.getElementById('btn-eye');
+
+                if (mode === 'tg') {
+                    tabPass.style.background = 'transparent';
+                    tabPass.style.color = '#94A3B8';
+                    tabTg.style.background = 'var(--primary, #2563EB)';
+                    tabTg.style.color = '#FFFFFF';
+
+                    pwdLabel.textContent = '{% trans "6-значный код Telegram" %}';
+                    pwdInp.placeholder = '{% trans "Например: 123456" %}';
+                    pwdInp.type = 'number';
+                    pwdInp.inputMode = 'numeric';
+                    pwdInp.maxLength = 6;
+                    pwdIcon.textContent = '📲';
+                    pwdHint.style.display = 'none';
+                    otpHint.style.display = 'block';
+                    btnReqOtp.style.display = 'inline-block';
+                    btnEye.style.display = 'none';
                 } else {
-                    inp.type = 'password';
+                    tabTg.style.background = 'transparent';
+                    tabTg.style.color = '#94A3B8';
+                    tabPass.style.background = 'var(--primary, #2563EB)';
+                    tabPass.style.color = '#FFFFFF';
+
+                    pwdLabel.textContent = '{% trans "Пароль" %}';
+                    pwdInp.placeholder = '{% trans "Введите ваш пароль" %}';
+                    pwdInp.type = 'password';
+                    pwdInp.inputMode = 'text';
+                    pwdIcon.textContent = '🔑';
+                    pwdHint.style.display = 'block';
+                    otpHint.style.display = 'none';
+                    btnReqOtp.style.display = 'none';
+                    btnEye.style.display = 'inline-block';
                 }
+            }
+
+            function togglePasswordVisibility() {
+                const inp = document.getElementById('id_password');
+                inp.type = (inp.type === 'password') ? 'text' : 'password';
             }
         </script>
 
+        <!-- Registration Link -->
         <div style="text-align: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.08);">
             <p style="margin: 0; font-size: 13.5px; color: var(--text-muted);">
-                Ещё нет магазина на BrainMart?
+                {% trans "Ещё нет магазина?" %}
                 <br>
-                <a href="{% url 'seller-register' %}" style="color: #818CF8; font-weight: 700; text-decoration: none; display: inline-block; margin-top: 6px;">
-                    ✨ Открыть магазин бесплатно
+                <a href="{% url 'seller-register' %}" style="color: #60A5FA; font-weight: 700; text-decoration: none; display: inline-block; margin-top: 6px;">
+                    ✨ {% trans "Открыть магазин бесплатно" %}
                 </a>
             </p>
         </div>
