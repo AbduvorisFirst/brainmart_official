@@ -1430,18 +1430,37 @@
                 } catch(e) {}
 
                 let found = false;
+                let activeVar = variantsData.find(function(v) { return v.id == targetId; }) || {};
+                let varName = activeVar.name || "{{ product.name|escapejs }}";
+                let varPrice = activeVar.price || parseInt("{{ product.base_price|floatformat:0 }}", 10);
+                let varImg = activeVar.image_url || "{% if product.main_image %}{{ product.main_image.url }}{% endif %}";
+
                 for (var i = 0; i < cart.length; i++) {
-                    if (cart[i].id == targetId) {
-                        cart[i].qty = (cart[i].qty || 1) + 1;
+                    if (cart[i].variant_id == targetId || cart[i].id == targetId) {
+                        cart[i].quantity = (cart[i].quantity || cart[i].qty || 1) + 1;
+                        cart[i].qty = cart[i].quantity;
                         found = true;
                         break;
                     }
                 }
                 if (!found) {
-                    cart.push({ id: targetId, qty: 1 });
+                    cart.push({
+                        id: '{{ product.id }}',
+                        variant_id: parseInt(targetId, 10),
+                        name: varName,
+                        price: varPrice,
+                        quantity: 1,
+                        qty: 1,
+                        image: varImg,
+                        store_id: '{{ product.store.id }}'
+                    });
                 }
-                localStorage.setItem('bm_cart', JSON.stringify(cart));
+                let jsonStr = JSON.stringify(cart);
+                localStorage.setItem('brainmart_cart', jsonStr);
+                localStorage.setItem('bm_cart', jsonStr);
+                localStorage.setItem('tg_cart', jsonStr);
                 window.dispatchEvent(new Event('cart-updated'));
+                window.dispatchEvent(new Event('cartUpdated'));
                 if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
                 updateActionUI();
             });

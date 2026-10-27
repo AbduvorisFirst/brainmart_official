@@ -671,7 +671,7 @@
     .uzum-btn-delivery {
         width: 100%;
         height: 36px;
-        background: #7000FF;
+        background: var(--primary, #7000FF);
         color: #FFFFFF;
         border: none;
         border-radius: 10px;
@@ -686,7 +686,7 @@
         box-shadow: 0 4px 12px rgba(112, 0, 255, 0.3);
     }
     .uzum-btn-delivery:hover {
-        background: #5B00D1;
+        filter: brightness(1.1);
         transform: translateY(-1px);
         box-shadow: 0 6px 16px rgba(112, 0, 255, 0.4);
     }
@@ -1187,7 +1187,16 @@
 
                     <!-- Uzum Signature Delivery / Cart Button (🛍️ Завтра) -->
                     <div class="uzum-card-action">
-                        <button type="button" class="uzum-btn-delivery" onclick="event.preventDefault(); event.stopPropagation(); quickAddToCart(this, '{{ product.id }}');" title="{% trans 'Добавить в корзину' %}">
+                        <button type="button" 
+                                class="uzum-btn-delivery" 
+                                data-id="{{ product.id }}"
+                                data-variant-id="{{ product.variant_id|default:product.id }}"
+                                data-name="{{ product.name|escape }}"
+                                data-price="{{ product.base_price }}"
+                                data-image="{% if product.main_image %}{{ product.main_image.url }}{% endif %}"
+                                data-store-id="{{ product.store.id|default:current_store_id|default:'' }}"
+                                onclick="event.preventDefault(); event.stopPropagation(); quickAddToCart(this);" 
+                                title="{% trans 'Добавить в корзину' %}">
                             <span class="btn-icon">🛍️</span>
                             <span class="btn-caption">{% trans "Завтра" %}</span>
                         </button>
@@ -1411,30 +1420,59 @@ function toggleFav(btn, productId) {
     } catch(e) {}
 }
 
-function quickAddToCart(btn, productId) {
+function quickAddToCart(btn, optionalPid) {
+    var productId = btn.getAttribute('data-id') || optionalPid;
+    var variantId = btn.getAttribute('data-variant-id') || productId;
+    var name = btn.getAttribute('data-name') || 'Товар';
+    var price = parseInt(btn.getAttribute('data-price') || 0, 10);
+    var image = btn.getAttribute('data-image') || '';
+    var storeId = btn.getAttribute('data-store-id') || '';
+
+    var cart = [];
+    try {
+        var raw = localStorage.getItem('brainmart_cart') || localStorage.getItem('bm_cart') || localStorage.getItem('tg_cart');
+        cart = JSON.parse(raw || '[]');
+        if (!Array.isArray(cart)) cart = [];
+    } catch(e) { cart = []; }
+
+    var found = false;
+    for (var i = 0; i < cart.length; i++) {
+        var itemVarId = cart[i].variant_id || cart[i].id;
+        if (itemVarId == variantId || (cart[i].id == productId && !cart[i].variant_id)) {
+            var curQ = parseInt(cart[i].quantity || cart[i].qty || 1, 10);
+            cart[i].quantity = curQ + 1;
+            cart[i].qty = cart[i].quantity;
+            found = true;
+            break;
+        }
+    }
+    if (!found) {
+        cart.push({
+            id: productId,
+            variant_id: parseInt(variantId, 10),
+            name: name,
+            price: price,
+            quantity: 1,
+            qty: 1,
+            image: image,
+            store_id: storeId
+        });
+    }
+
+    var json = JSON.stringify(cart);
+    localStorage.setItem('brainmart_cart', json);
+    localStorage.setItem('bm_cart', json);
+    localStorage.setItem('tg_cart', json);
+
+    window.dispatchEvent(new Event('cartUpdated'));
+    window.dispatchEvent(new Event('cart-updated'));
+    updateCartBadges();
+
     var caption = btn.querySelector('.btn-caption');
     var origText = caption ? caption.textContent : btn.innerHTML;
     btn.classList.add('added');
     if (caption) caption.textContent = '{% trans "В корзине" %} ✓';
     showBmToast('{% trans "Товар добавлен в корзину" %}', '🛍️');
-
-    try {
-        var cart = JSON.parse(localStorage.getItem('bm_cart') || '[]');
-        var found = false;
-        for (var i = 0; i < cart.length; i++) {
-            if (cart[i].id == productId) {
-                cart[i].qty = (cart[i].qty || 1) + 1;
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            cart.push({ id: productId, qty: 1 });
-        }
-        localStorage.setItem('bm_cart', JSON.stringify(cart));
-        window.dispatchEvent(new Event('cart-updated'));
-        updateCartBadges();
-    } catch(e) {}
 
     setTimeout(function() {
         if (caption) caption.textContent = origText;
@@ -1444,8 +1482,14 @@ function quickAddToCart(btn, productId) {
 
 function updateCartBadges() {
     try {
-        var cart = JSON.parse(localStorage.getItem('bm_cart') || '[]');
-        var total = cart.reduce(function(acc, item) { return acc + (item.qty || 1); }, 0);
+        var raw = localStorage.getItem('brainmart_cart') || localStorage.getItem('bm_cart') || localStorage.getItem('tg_cart');
+        var cart = JSON.parse(raw || '[]');
+        var total = 0;
+        if (Array.isArray(cart)) {
+            cart.forEach(function(item) {
+                total += parseInt(item.quantity || item.qty || 1, 10);
+            });
+        }
         var badge = document.getElementById('mobBottomCartBadge');
         if (badge) {
             if (total > 0) {
@@ -1455,8 +1499,13 @@ function updateCartBadges() {
                 badge.style.display = 'none';
             }
         }
+        var fcBadge = document.getElementById('fc-badge-count');
+        if (fcBadge) fcBadge.innerText = total;
     } catch(e) {}
 }
+
+window.addEventListener('cartUpdated', updateCartBadges);
+window.addEventListener('cart-updated', updateCartBadges);
 
 document.addEventListener('DOMContentLoaded', function() {
     updateCartBadges();

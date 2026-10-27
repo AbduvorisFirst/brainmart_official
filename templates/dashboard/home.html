@@ -449,6 +449,110 @@
         </div>
     {% endif %}
 
+    <!-- ─── ГОТОВОЕ ОФОРМЛЕНИЕ МАГАЗИНА (1 КЛИК ДЛЯ ОФОРМЛЕНИЯ ВИТРИНЫ) ─── -->
+    <div class="insta-profile-card" style="margin-bottom: 22px; padding: 18px 20px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <div>
+                <div style="font-size: 16px; font-weight: 800; color: #FFFFFF; display: flex; align-items: center; gap: 8px;">
+                    <span>🎨</span> <span>{% trans "Готовые стили оформления магазина" %}</span>
+                </div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
+                    {% trans "Выберите готовый дизайн — стиль витрины применится мгновенно в 1 клик:" %}
+                </div>
+            </div>
+            {% get_current_language as CURRENT_LANG %}
+            <a href="/{{ CURRENT_LANG|default:'ru' }}/?store_id={{ store.id }}" target="_blank" style="font-size: 12px; font-weight: 700; color: var(--primary, #7000FF); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; background: rgba(112, 0, 255, 0.12); border: 1px solid rgba(112, 0, 255, 0.25); padding: 5px 12px; border-radius: 9px;">
+                👁️ {% trans "Витрина" %} ↗
+            </a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
+            <!-- 1. Uzum Market Signature -->
+            <div class="theme-quick-card {% if store.theme_style == 'uzum_violet' or not store.theme_style or store.theme_style == 'default_black' %}active{% endif %}" onclick="applyFastTheme('uzum_violet', this)" data-theme="uzum_violet" style="background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'uzum_violet' or not store.theme_style or store.theme_style == 'default_black' %}#7000FF{% else %}var(--border){% endif %}; border-radius: 14px; padding: 12px; cursor: pointer; transition: all 0.18s ease; display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong style="font-size: 13px; color: #FFFFFF;">🟣 Uzum Market</strong>
+                    <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #A855F7; background: rgba(168, 85, 247, 0.15); padding: 2px 6px; border-radius: 4px;">TOP 1</span>
+                </div>
+                <div style="height: 18px; border-radius: 6px; display: flex; overflow: hidden; border: 1px solid rgba(112, 0, 255, 0.3);">
+                    <div style="flex: 2; background: #0B0C10;"></div>
+                    <div style="flex: 1.5; background: #7000FF;"></div>
+                    <div style="flex: 1; background: #FFDF00;"></div>
+                </div>
+                <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Фирменный фиолетовый, желтая рассрочка, как в Uzum</span>
+            </div>
+
+            <!-- 2. Apple Cupertino Titanium -->
+            <div class="theme-quick-card {% if store.theme_style == 'apple_hightech' %}active{% endif %}" onclick="applyFastTheme('apple_hightech', this)" data-theme="apple_hightech" style="background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'apple_hightech' %}#2997FF{% else %}var(--border){% endif %}; border-radius: 14px; padding: 12px; cursor: pointer; transition: all 0.18s ease; display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong style="font-size: 13px; color: #FFFFFF;">🖤 Apple Titanium</strong>
+                    <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #2997FF; background: rgba(41, 151, 255, 0.15); padding: 2px 6px; border-radius: 4px;">APPLE</span>
+                </div>
+                <div style="height: 18px; border-radius: 6px; display: flex; overflow: hidden; border: 1px solid rgba(41, 151, 255, 0.3);">
+                    <div style="flex: 2; background: #000000;"></div>
+                    <div style="flex: 1.5; background: #2997FF;"></div>
+                    <div style="flex: 1; background: #30D158;"></div>
+                </div>
+                <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Чистый черный OLED, электроника и минимализм</span>
+            </div>
+
+            <!-- 3. Old Money / Luxury Silk -->
+            <div class="theme-quick-card {% if store.theme_style == 'fashion_premium' %}active{% endif %}" onclick="applyFastTheme('fashion_premium', this)" data-theme="fashion_premium" style="background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'fashion_premium' %}#D4AF37{% else %}var(--border){% endif %}; border-radius: 14px; padding: 12px; cursor: pointer; transition: all 0.18s ease; display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong style="font-size: 13px; color: #FFFFFF;">👑 Old Money Gold</strong>
+                    <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #D4AF37; background: rgba(212, 175, 55, 0.15); padding: 2px 6px; border-radius: 4px;">LUXURY</span>
+                </div>
+                <div style="height: 18px; border-radius: 6px; display: flex; overflow: hidden; border: 1px solid rgba(212, 175, 55, 0.3);">
+                    <div style="flex: 2; background: #0A0908;"></div>
+                    <div style="flex: 1.5; background: #D4AF37;"></div>
+                    <div style="flex: 1; background: #E2C974;"></div>
+                </div>
+                <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Шерсть, шелк, золото и тихая роскошь для бутиков</span>
+            </div>
+
+            <!-- 4. Street Drip / Cyber -->
+            <div class="theme-quick-card {% if store.theme_style == 'fashion_genz' %}active{% endif %}" onclick="applyFastTheme('fashion_genz', this)" data-theme="fashion_genz" style="background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'fashion_genz' %}#00F0FF{% else %}var(--border){% endif %}; border-radius: 14px; padding: 12px; cursor: pointer; transition: all 0.18s ease; display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong style="font-size: 13px; color: #FFFFFF;">⚡ Street Cyber</strong>
+                    <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #00F0FF; background: rgba(0, 240, 255, 0.15); padding: 2px 6px; border-radius: 4px;">DRIP</span>
+                </div>
+                <div style="height: 18px; border-radius: 6px; display: flex; overflow: hidden; border: 1px solid rgba(0, 240, 255, 0.3);">
+                    <div style="flex: 2; background: #070712;"></div>
+                    <div style="flex: 1.5; background: #00F0FF;"></div>
+                    <div style="flex: 1; background: #FF0055;"></div>
+                </div>
+                <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Неоновый стритвир, оверсайз худи и кроссовки</span>
+            </div>
+
+            <!-- 5. Shopify Nordic Mint -->
+            <div class="theme-quick-card {% if store.theme_style == 'shopify_mint' %}active{% endif %}" onclick="applyFastTheme('shopify_mint', this)" data-theme="shopify_mint" style="background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'shopify_mint' %}#00A86B{% else %}var(--border){% endif %}; border-radius: 14px; padding: 12px; cursor: pointer; transition: all 0.18s ease; display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong style="font-size: 13px; color: #FFFFFF;">🌿 Nordic Mint</strong>
+                    <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #00A86B; background: rgba(0, 168, 107, 0.15); padding: 2px 6px; border-radius: 4px;">MINT</span>
+                </div>
+                <div style="height: 18px; border-radius: 6px; display: flex; overflow: hidden; border: 1px solid rgba(0, 168, 107, 0.3);">
+                    <div style="flex: 2; background: #090D0B;"></div>
+                    <div style="flex: 1.5; background: #00A86B;"></div>
+                    <div style="flex: 1; background: #10B981;"></div>
+                </div>
+                <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Чистый мятный сканди-стиль Shopify для косметики и эко</span>
+            </div>
+
+            <!-- 6. Sunset Orange -->
+            <div class="theme-quick-card {% if store.theme_style == 'alibaba_orange' %}active{% endif %}" onclick="applyFastTheme('alibaba_orange', this)" data-theme="alibaba_orange" style="background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'alibaba_orange' %}#FF5000{% else %}var(--border){% endif %}; border-radius: 14px; padding: 12px; cursor: pointer; transition: all 0.18s ease; display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong style="font-size: 13px; color: #FFFFFF;">🟠 Sunset Orange</strong>
+                    <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #FF5000; background: rgba(255, 80, 0, 0.15); padding: 2px 6px; border-radius: 4px;">GLOBAL</span>
+                </div>
+                <div style="height: 18px; border-radius: 6px; display: flex; overflow: hidden; border: 1px solid rgba(255, 80, 0, 0.3);">
+                    <div style="flex: 2; background: #0D0C0B;"></div>
+                    <div style="flex: 1.5; background: #FF5000;"></div>
+                    <div style="flex: 1; background: #FF8C00;"></div>
+                </div>
+                <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Энергичный оранжевый стиль международных продаж</span>
+            </div>
+        </div>
+    </div>
+
     <!-- ─── 4 ФЛАГМАНСКИХ МЕТРИКИ (Apple / Stripe High-Tech Metric Grid) ─── -->
     <div class="stats-grid">
         <!-- 1. Выручка -->

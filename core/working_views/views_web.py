@@ -222,6 +222,7 @@ def catalog_view(request):
             inst_p = int(final_p / 12) if final_p else 0
             cards.append({
                 "id": v.product.id,
+                "variant_id": v.id,
                 "color": v.color,
                 "name": f"{v.product.name} ({v.color})" if v.color else v.product.name,
                 "base_price": final_p,
@@ -366,6 +367,23 @@ def submit_product_review(request, product_id):
 
 
 @csrf_exempt
+def _resolve_cart_variant(item):
+    """Надежно находит ProductVariant по variant_id или id (product_id)."""
+    if not isinstance(item, dict):
+        return None
+    v_id = item.get("variant_id") or item.get("id")
+    if not v_id:
+        return None
+    try:
+        v_id_int = int(v_id)
+    except (ValueError, TypeError):
+        return None
+    v = ProductVariant.objects.select_related("product__store").filter(id=v_id_int).first()
+    if not v:
+        v = ProductVariant.objects.select_related("product__store").filter(product_id=v_id_int).first()
+    return v
+
+
 def create_telegram_order(request):
     """Принимает корзину, создает заказ и запускает опрос геопозиции в боте."""
     if request.method != "POST":
@@ -411,9 +429,8 @@ def create_telegram_order(request):
         # Синхронизируем язык для всех записей этого chat_id
         Customer.objects.filter(telegram_chat_id=str(chat_id)).update(language=site_lang)
 
-        try:
-            first_variant = ProductVariant.objects.get(id=cart_items[0]["variant_id"])
-        except (ProductVariant.DoesNotExist, ValueError, KeyError):
+        first_variant = _resolve_cart_variant(cart_items[0])
+        if not first_variant:
             return JsonResponse({"success": False, "error": "Один из товаров в корзине не найден на складе. Пожалуйста, очистите корзину и выберите заново."})
 
         from core.working_views.views_branches import find_nearest_branch
@@ -557,9 +574,8 @@ def create_web_order(request):
                 if chat_id:
                     Customer.objects.filter(telegram_chat_id=str(chat_id)).update(language=site_lang)
 
-        try:
-            first_variant = ProductVariant.objects.select_related("product__store").get(id=cart_items[0]["variant_id"])
-        except (ProductVariant.DoesNotExist, ValueError, KeyError):
+        first_variant = _resolve_cart_variant(cart_items[0])
+        if not first_variant:
             return JsonResponse({"success": False, "error": _("Один из товаров в корзине больше не доступен на складе.")})
 
         target_store = first_variant.product.store
@@ -584,9 +600,8 @@ def create_web_order(request):
         )
 
         for item in cart_items:
-            try:
-                variant = ProductVariant.objects.select_for_update().get(id=item["variant_id"])
-            except (ProductVariant.DoesNotExist, ValueError, KeyError):
+            variant = _resolve_cart_variant(item)
+            if not variant:
                 return JsonResponse({"success": False, "error": _("Товар не найден на складе.")})
 
             qty = max(1, int(item.get("quantity", 1)))

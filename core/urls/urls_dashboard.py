@@ -66,4 +66,5 @@ urlpatterns = [
     path('broadcasts/', views_dashboard.seller_broadcasts_view, name='seller-broadcasts'),
     path('api/ai-generate-broadcast/', views_dashboard.ai_generate_broadcast_view, name='api-ai-generate-broadcast'),
     path('api/ai-generate-description/', views_dashboard.ai_generate_description_view, name='api-ai-generate-description'),
+    path('api/set-theme/', views_dashboard.set_store_theme_view, name='api-set-store-theme'),
 ]

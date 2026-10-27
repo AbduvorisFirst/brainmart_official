@@ -1718,8 +1718,8 @@ def seller_register_view(request):
                     payout_card=payout_card,
                     payout_card_holder=payout_card_holder,
                     telegram_link_token=secrets.token_hex(16),
-                    is_active=False,
-                    verification_status=Store.VerificationStatus.PENDING,
+                    is_active=True,
+                    verification_status=Store.VerificationStatus.APPROVED,
                 )
 
                 # Автоматически создаем 1-ю базовую точку на карте
@@ -2465,3 +2465,48 @@ def seller_waitlist_view(request):
     }
     return render(request, "dashboard/waitlist.html", context)
 
+
+
+@login_required
+def set_store_theme_view(request):
+    """Быстрое 1-клик переключение готового оформления магазина из Dashboard."""
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "Only POST allowed"}, status=405)
+    store = _get_store_or_none(request)
+    if not store:
+        return JsonResponse({"success": False, "error": "Store not found"}, status=404)
+
+    import json
+    try:
+        data = json.loads(request.body) if request.body else request.POST
+    except Exception:
+        data = request.POST
+
+    theme_style = data.get("theme_style", "uzum_violet").strip()
+
+    THEME_PALETTES = {
+        "uzum_violet": {"primary": "#7000FF", "accent": "#00C853", "bg": "#0B0C10", "mode": "dark", "name": "Uzum Market"},
+        "apple_hightech": {"primary": "#2997FF", "accent": "#30D158", "bg": "#000000", "mode": "dark", "name": "Apple Titanium"},
+        "fashion_premium": {"primary": "#D4AF37", "accent": "#E2C974", "bg": "#0A0908", "mode": "dark", "name": "Old Money / Silk"},
+        "fashion_genz": {"primary": "#00F0FF", "accent": "#FF0055", "bg": "#070712", "mode": "dark", "name": "Street Drip / Cyber"},
+        "shopify_mint": {"primary": "#00A86B", "accent": "#10B981", "bg": "#090D0B", "mode": "dark", "name": "Nordic Mint"},
+        "alibaba_orange": {"primary": "#FF5000", "accent": "#FF8C00", "bg": "#0D0C0B", "mode": "dark", "name": "Sunset Orange"},
+        "midnight_gold": {"primary": "#D4AF37", "accent": "#F59E0B", "bg": "#080709", "mode": "dark", "name": "Midnight Luxury"},
+        "fashion_casual": {"primary": "#4F46E5", "accent": "#06B6D4", "bg": "#0C0E14", "mode": "dark", "name": "Smart Casual"},
+    }
+
+    palette = THEME_PALETTES.get(theme_style, THEME_PALETTES["uzum_violet"])
+    store.theme_style = theme_style
+    store.primary_color = palette["primary"]
+    store.accent_color = palette["accent"]
+    store.bg_color = palette["bg"]
+    store.theme_mode = palette["mode"]
+    store.save(update_fields=["theme_style", "primary_color", "accent_color", "bg_color", "theme_mode"])
+
+    return JsonResponse({
+        "success": True,
+        "theme_style": theme_style,
+        "theme_name": palette["name"],
+        "primary_color": store.primary_color,
+        "message": f"Оформление «{palette['name']}» успешно применено к вашей витрине!"
+    })
