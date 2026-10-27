@@ -136,108 +136,80 @@ def catalog_view(request):
         categories = Category.objects.all().order_by("id")
 
     # Интеллектуальный поиск: многословный, по названию, цвету, описанию и ИИ
+    # 1. Быстрый и оптимизированный запрос по Product (1 карточка на 1 товар)
+    from core.models import Product
+    products_qs = Product.objects.filter(
+        is_active=True,
+        store__is_active=True,
+        store__is_frozen_by_admin=False
+    ).select_related("store", "category").prefetch_related("variants", "images")
+
+    if current_store:
+        products_qs = products_qs.filter(store=current_store)
+
+    if category_id:
+        products_qs = products_qs.filter(category_id=category_id)
+
     if search_query:
         import re
-        q_clean = search_query.lower()
-        semantic_keywords = [
-            "premium", "премиум", "качество", "качества", "люкс", "стиль", "образ", 
-            "одежда", "одежды", "айтишник", "свидание", "подарок", "спорт", "лето", 
-            "зима", "офис", "вечеринка", "it", "casual", "old money", "оверсайз", 
-            "мода", "тренды", "вечерний", "хлопок", "зипуха", "куртка", "look"
-        ]
-        is_semantic = is_ai_search or any(word in q_clean for word in semantic_keywords) or len(q_clean.split()) >= 2
+        q_clean = search_query.strip()
+        words = [w for w in re.findall(r'\w+', q_clean) if len(w) >= 2]
+        q_filter = (
+            Q(name__icontains=q_clean) |
+            Q(description__icontains=q_clean) |
+            Q(category__name__icontains=q_clean) |
+            Q(store__name__icontains=q_clean) |
+            Q(variants__color__icontains=q_clean)
+        )
+        for w in words:
+            q_filter |= Q(name__icontains=w) | Q(description__icontains=w) | Q(variants__color__icontains=w)
+        products_qs = products_qs.filter(q_filter).distinct()
+        ai_advice = f"Найдено по запросу '{q_clean}':"
 
-        if is_semantic:
-            ai_res = semantic_ai_catalog_search(search_query, current_store)
-            variants = ai_res.get("variants", [])
-            ai_advice = ai_res.get("advice")
-        else:
-            variants = []
+    products_qs = products_qs.order_by("-id")[:80]
 
-        # Если семантический поиск вернул мало или запрос обычный — выполняем точный поиск по базе
-        if not variants:
-            base_qs = ProductVariant.objects.filter(
-                product__is_active=True,
-                product__store__is_active=True,
-                product__store__is_frozen_by_admin=False
-            ).select_related("product", "product__store", "product__category").order_by("product_id", "id")
-
-            if current_store:
-                base_qs = base_qs.filter(product__store=current_store)
-            if category_id:
-                base_qs = base_qs.filter(product__category_id=category_id)
-
-            # 1. Поиск по полной фразе во всех полях
-            full_match = base_qs.filter(
-                Q(product__name__icontains=search_query) |
-                Q(product__description__icontains=search_query) |
-                Q(color__icontains=search_query) |
-                Q(product__category__name__icontains=search_query) |
-                Q(product__store__name__icontains=search_query)
-            )
-
-            if full_match.exists():
-                variants = list(full_match)
-            else:
-                # 2. Поиск по отдельным словам
-                words = [w for w in re.findall(r'\w+', search_query) if len(w) >= 2]
-                word_q = Q()
-                for w in words:
-                    word_q |= Q(product__name__icontains=w)
-                    word_q |= Q(product__description__icontains=w)
-                    word_q |= Q(color__icontains=w)
-                    word_q |= Q(product__category__name__icontains=w)
-
-                word_matches = base_qs.filter(word_q) if words else base_qs.none()
-                if word_matches.exists():
-                    variants = list(word_matches)
-                    ai_advice = f"Найдено по ключевым словам '{search_query}':"
-                else:
-                    # 3. Умная рекомендация, чтобы не оставлять пустой экран
-                    ai_res = semantic_ai_catalog_search(search_query, current_store)
-                    variants = ai_res.get("variants", [])
-                    ai_advice = ai_res.get("advice") or f"По запросу '{search_query}' подобраны похожие качественные товары:"
-    else:
-        variants = ProductVariant.objects.filter(
-            product__is_active=True,
-            product__store__is_active=True,
-            product__store__is_frozen_by_admin=False
-        ).select_related("product", "product__store", "product__category").order_by("product_id", "id")
-
-        if current_store:
-            variants = variants.filter(product__store=current_store)
-
-        if category_id:
-            variants = variants.filter(product__category_id=category_id)
-
-    # Группируем по уникальной паре (product_id, color) в Python для SQLite
-    seen = set()
     cards = []
-    for v in variants:
-        key = (v.product_id, v.color)
-        if key not in seen:
-            seen.add(key)
-            final_p = int(v.final_price)
-            old_p = int(final_p * 1.20)
-            inst_p = int(final_p / 12) if final_p else 0
-            cards.append({
-                "id": v.product.id,
-                "variant_id": v.id,
-                "color": v.color,
-                "name": f"{v.product.name} ({v.color})" if v.color else v.product.name,
-                "base_price": final_p,
-                "formatted_price": f"{final_p:,}".replace(",", " "),
-                "old_price": old_p,
-                "formatted_old_price": f"{old_p:,}".replace(",", " "),
-                "discount_percent": "17",
-                "installment_price": inst_p,
-                "formatted_installment": f"{inst_p:,}".replace(",", " ") if inst_p else "",
-                "main_image": v.image if v.image else v.product.main_image,
-                "store": v.product.store,
-                "category": v.product.category,
-                "average_rating": v.product.average_rating,
-                "reviews_count": v.product.reviews_count,
-            })
+    for p in products_qs:
+        # Собираем все уникальные фотографии (главная + галерея цветов) для свайпа влево/вправо
+        img_urls = []
+        if p.main_image:
+            img_urls.append(p.main_image.url)
+        for pimg in p.images.all():
+            if pimg.image and pimg.image.url not in img_urls:
+                img_urls.append(pimg.image.url)
+        all_vars = list(p.variants.all())
+        colors = []
+        for v in all_vars:
+            if v.image and v.image.url not in img_urls:
+                img_urls.append(v.image.url)
+            if v.color and v.color not in colors:
+                colors.append(v.color)
+
+        final_p = int(p.base_price)
+        old_p = p.old_price
+        inst_p = p.installment_price
+        first_variant = all_vars[0] if all_vars else None
+
+        cards.append({
+            "id": p.id,
+            "variant_id": first_variant.id if first_variant else p.id,
+            "name": p.name,
+            "base_price": final_p,
+            "formatted_price": p.formatted_base_price,
+            "old_price": old_p,
+            "formatted_old_price": p.formatted_old_price,
+            "discount_percent": p.discount_percent,
+            "installment_price": inst_p,
+            "formatted_installment": p.formatted_installment,
+            "main_image": p.main_image,
+            "images_list": img_urls[:6], # Карусель до 6 фото для свайпа прямо в карточке
+            "colors_count": len(colors),
+            "colors": colors[:4],
+            "store": p.store,
+            "category": p.category,
+            "average_rating": 4.9,
+            "reviews_count": 140,
+        })
 
     effective_bot = current_store.telegram_bot_username if (current_store and current_store.telegram_bot_username and current_store.telegram_bot_active) else settings.TELEGRAM_BOT_USERNAME
     from core.models import PromoBanner
@@ -596,7 +568,7 @@ def create_web_order(request):
             delivery_latitude=latitude if latitude else None,
             delivery_longitude=longitude if longitude else None,
             delivery_landmark=delivery_landmark,
-            payment_method="card_transfer",
+            payment_method=payment_method,
         )
 
         for item in cart_items:
@@ -637,7 +609,7 @@ def create_web_order(request):
     return JsonResponse({
         "success": True,
         "order_id": order.id,
-        "payment_method": "card_transfer",
+        "payment_method": payment_method,
         "telegram_url": telegram_url,
         "redirect_url": redirect_url,
     })

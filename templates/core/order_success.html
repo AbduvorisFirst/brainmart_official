@@ -104,6 +104,40 @@
         </div>
     {% endif %}
 
+    <!-- ОПЛАТА ПРИ ПОЛУЧЕНИИ -->
+    {% if order.payment_method == 'cash_on_delivery' %}
+        <div style="background: rgba(34, 197, 94, 0.15); border: 1.5px solid #22C55E; border-radius: 20px; padding: 24px; margin: 18px 0; text-align: center;">
+            <div style="font-size: 38px; margin-bottom: 8px;">💵</div>
+            <strong style="color: #4ADE80; font-size: 19px; display: block;">{% trans "Оплата при получении" %}</strong>
+            <p style="color: #DCFCE7; font-size: 13.5px; margin: 8px 0 16px; line-height: 1.5;">
+                {% trans "Ваш заказ принят в обработку! Оплатить можно наличными или картой курьеру при вручении заказа." %}
+            </p>
+            <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 13px; color: #94A3B8;">{% trans "Сумма к оплате курьеру:" %}</span>
+                <strong style="font-size: 18px; color: #4ADE80; font-weight: 900;">{{ order.total_price|floatformat:"0" }} {% trans "сум" %}</strong>
+            </div>
+            {% if contact_username %}
+                <div style="background: rgba(15, 23, 42, 0.7); border: 1.5px solid rgba(99, 102, 241, 0.35); border-radius: 16px; padding: 16px; text-align: left; margin-top: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                        <span style="font-size: 22px;">👨‍💼</span>
+                        <div>
+                            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #94A3B8; font-weight: 700;">
+                                {% if contact_type == 'manager' %}{% trans "Менеджер заказа" %}{% else %}{% trans "Владелец магазина" %}{% endif %}
+                            </div>
+                            <div style="font-size: 14.5px; font-weight: 800; color: #FFFFFF;">{{ contact_name }}</div>
+                        </div>
+                    </div>
+                    <p style="font-size: 12.5px; color: #CBD5E1; margin: 0 0 12px; line-height: 1.4;">
+                        {% trans "Менеджер магазина свяжется с вами для подтверждения адреса доставки." %}
+                    </p>
+                    <a href="https://t.me/{{ contact_username }}" target="_blank" class="btn" style="background: linear-gradient(135deg, #4F46E5, #4338CA); color: white; text-decoration: none; border-radius: 12px; padding: 12px 16px; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);">
+                        <span>✈️ {% trans "Написать менеджеру в Telegram" %} (@{{ contact_username }})</span>
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+
     <!-- РЕКВИЗИТЫ ДЛЯ ПЕРЕВОДА НА КАРТУ ПРОДАВЦА -->
     {% if order.payment_method == 'card_transfer' or not order.payment_method %}
         <div class="seller-card-box">

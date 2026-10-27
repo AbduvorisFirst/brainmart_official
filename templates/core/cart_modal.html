@@ -205,21 +205,27 @@
         border-color: var(--primary);
     }
 
-    .taxi-warning-banner {
-        background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.08) 100%);
-        border: 1.5px solid rgba(245, 158, 11, 0.4);
+    .delivery-reassurance-banner {
+        background: linear-gradient(135deg, rgba(112, 0, 255, 0.12) 0%, rgba(59, 130, 246, 0.08) 100%);
+        border: 1.5px solid rgba(112, 0, 255, 0.25);
         border-radius: 14px;
         padding: 12px 14px;
         margin-bottom: 14px;
         display: flex;
-        align-items: flex-start;
-        gap: 10px;
+        align-items: center;
+        gap: 12px;
     }
-    .taxi-warning-text {
-        font-size: 12.5px;
+    .delivery-reassurance-text {
+        font-size: 13px;
         font-weight: 700;
-        color: #FBBF24;
+        color: var(--text-main);
         line-height: 1.4;
+    }
+    .delivery-reassurance-sub {
+        font-size: 11.5px;
+        color: var(--text-muted);
+        font-weight: 500;
+        margin-top: 1px;
     }
 
     .btn-checkout-main {
@@ -323,17 +329,18 @@
             </div>
         </div>
 
-        <!-- БЛОК ДОСТАВКИ И ТАКСИ-КУРЬЕРА -->
+        <!-- БЛОК ДОСТАВКИ -->
         <div id="checkout-details-section" style="margin-bottom: 16px;">
             <div style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 12px;">
-                🚚 {% trans "Данные для доставки такси" %}
+                📍 {% trans "Данные для быстрой доставки" %}
             </div>
 
-            <!-- ВАЖНОЕ ПРЕДУПРЕЖДЕНИЕ О ТАКСИ -->
-            <div class="taxi-warning-banner">
-                <span style="font-size: 20px;">⚠️</span>
-                <div class="taxi-warning-text">
-                    {% trans "ВАЖНО: Продавец в этой локации закажет такси, поэтому вы должны указать её максимально точно!" %}
+            <!-- УСПОКАИВАЮЩИЙ БАННЕР ДОСТАВКИ -->
+            <div class="delivery-reassurance-banner">
+                <span style="font-size: 24px;">🚀</span>
+                <div>
+                    <div class="delivery-reassurance-text">{% trans "Быстрая экспресс-доставка прямо до вашей двери" %}</div>
+                    <div class="delivery-reassurance-sub">{% trans "Курьер доставит ваш заказ бережно и точно в срок" %}</div>
                 </div>
             </div>
 
@@ -349,49 +356,49 @@
 
             <!-- КНОПКА ГЕОЛОКАЦИИ ПО GPS -->
             <div style="margin-bottom: 12px;">
-                <button type="button" id="btn-detect-gps" onclick="detectUserLocation()" style="width: 100%; background: rgba(59, 130, 246, 0.15); border: 1.5px solid rgba(59, 130, 246, 0.35); color: #60A5FA; padding: 10px 14px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    📍 <span id="gps-status-text">{% trans "Определить где я по GPS (Точно)" %}</span>
+                <button type="button" id="btn-detect-gps" onclick="detectUserLocation()" style="width: 100%; background: rgba(112, 0, 255, 0.12); border: 1.5px solid rgba(112, 0, 255, 0.35); color: #C4B5FD; padding: 11px 14px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    📍 <span id="gps-status-text">{% trans "Определить адрес по GPS (1 нажатие)" %}</span>
                 </button>
             </div>
 
             <div class="checkout-input-group">
-                <label class="checkout-label">{% trans "Адрес доставки (улица, дом / квартира)" %}</label>
+                <label class="checkout-label">{% trans "Адрес доставки (город, улица, дом / кв.)" %}</label>
                 <input type="text" id="web-order-address" class="checkout-input" placeholder="{% trans 'Ташкент, ул. Навои, 14, кв. 28' %}">
             </div>
 
             <div class="checkout-input-group">
-                <label class="checkout-label">{% trans "Ориентир для такси (подъезд, этаж, вывеска рядом)" %}</label>
-                <input type="text" id="web-order-landmark" class="checkout-input" placeholder="{% trans 'Подъезд 3, домофон 28, рядом с Korzinka' %}">
+                <label class="checkout-label">{% trans "Ориентир / комментарий для курьера" %}</label>
+                <input type="text" id="web-order-landmark" class="checkout-input" placeholder="{% trans 'Подъезд 3, этаж 4, домофон 28' %}">
             </div>
 
             <div class="checkout-input-group">
                 <label class="checkout-label">{% trans "Способ оплаты" %}</label>
                 <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <!-- Способ 1: Прямой перевод на карту продавца (Основной и безопасный способ) -->
+                    <!-- Способ 1: Перевод на карту (Uzcard / Humo) -->
                     <label id="payment-opt-card" class="pay-option-card active" onclick="selectPaymentMethod('card_transfer')">
                         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <input type="radio" name="payment_choice" id="pay-choice-card" value="card_transfer" checked style="margin: 0; cursor: pointer;">
                                 <div>
-                                    <div style="font-size: 13.5px; font-weight: 800; color: var(--text-main);">💳 {% trans "Перевод на карту продавца (с чеком)" %}</div>
-                                    <div style="font-size: 11.5px; color: var(--text-muted);">{% trans "Uzcard / Humo с прикреплением фото чека" %}</div>
+                                    <div style="font-size: 13.5px; font-weight: 800; color: var(--text-main);">💳 {% trans "Перевод на карту (Uzcard / Humo)" %}</div>
+                                    <div style="font-size: 11.5px; color: var(--text-muted);">{% trans "Номер карты продавца с прикреплением чека" %}</div>
                                 </div>
                             </div>
-                            <span style="font-size: 11px; background: rgba(34, 197, 94, 0.15); color: #22c55e; padding: 3px 8px; border-radius: 8px; font-weight: 700;">{% trans "Основной" %}</span>
+                            <span style="font-size: 11px; background: rgba(112, 0, 255, 0.15); color: #A78BFA; padding: 3px 8px; border-radius: 8px; font-weight: 700;">{% trans "Основной" %}</span>
                         </div>
                     </label>
 
-                    <!-- Способ 2: Автоматический эквайринг (ЗАМОРОЖЕН НА ТЕХНИЧЕСКУЮ ДОРАБОТКУ) -->
-                    <label id="payment-opt-auto" class="pay-option-card" style="opacity: 0.55; cursor: not-allowed; border-style: dashed; background: rgba(255,255,255,0.02);" onclick="showAcquiringUnderDevNotice(event)">
+                    <!-- Способ 2: Оплата при получении -->
+                    <label id="payment-opt-cash" class="pay-option-card" onclick="selectPaymentMethod('cash_on_delivery')">
                         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
                             <div style="display: flex; align-items: center; gap: 10px;">
-                                <input type="radio" name="payment_choice" id="pay-choice-auto" value="auto_acquiring" disabled style="margin: 0; cursor: not-allowed;">
+                                <input type="radio" name="payment_choice" id="pay-choice-cash" value="cash_on_delivery" style="margin: 0; cursor: pointer;">
                                 <div>
-                                    <div style="font-size: 13px; font-weight: 700; color: var(--text-muted);">🔒 {% trans "Онлайн-эквайринг картой (Click/Payme)" %}</div>
-                                    <div style="font-size: 11px; color: #f59e0b; margin-top: 2px;">⚠️ {% trans "Временно на доработке (Скоро)" %}</div>
+                                    <div style="font-size: 13.5px; font-weight: 800; color: var(--text-main);">💵 {% trans "При получении заказа" %}</div>
+                                    <div style="font-size: 11.5px; color: var(--text-muted);">{% trans "Оплата наличными или картой курьеру" %}</div>
                                 </div>
                             </div>
-                            <span style="font-size: 10.5px; background: rgba(245, 158, 11, 0.15); color: #f59e0b; padding: 2px 7px; border-radius: 6px; font-weight: 700;">{% trans "В разработке" %}</span>
+                            <span style="font-size: 11px; background: rgba(34, 197, 94, 0.15); color: #22C55E; padding: 3px 8px; border-radius: 8px; font-weight: 700;">{% trans "Удобно" %}</span>
                         </div>
                     </label>
                 </div>
@@ -400,8 +407,8 @@
         </div>
 
         <!-- Кнопки оформления -->
-        <button class="btn-checkout-main" id="btn-submit-order" onclick="submitDirectWebOrder()">
-            🚀 {% trans "Получить карту продавца и прикрепить чек" %}
+        <button class="btn-checkout-main" id="btn-submit-order" onclick="submitDirectWebOrder()" style="background: linear-gradient(135deg, #7000FF 0%, #5B00D1 100%); border-radius: 16px; padding: 15px; font-size: 15px; font-weight: 800; box-shadow: 0 4px 16px rgba(112, 0, 255, 0.35);">
+            🛍️ {% trans "Оформить заказ" %}
         </button>
 
         <button class="btn-tg-checkout" id="btn-tg-order" onclick="proceedToBotCheckout()">
@@ -670,26 +677,28 @@
 
     /* ─── ВЫБОР СПОСОБА ОПЛАТЫ ─── */
     function selectPaymentMethod(method) {
-        // Автоматический эквайринг заморожен
-        if (method === 'auto_acquiring') {
-            showAcquiringUnderDevNotice();
-            return;
-        }
-
         const hiddenInput = document.getElementById('web-order-payment');
-        if (hiddenInput) hiddenInput.value = 'card_transfer';
+        if (hiddenInput) hiddenInput.value = method;
 
-        const optAuto = document.getElementById('payment-opt-auto');
         const optCard = document.getElementById('payment-opt-card');
-        const radioAuto = document.getElementById('pay-choice-auto');
+        const optCash = document.getElementById('payment-opt-cash');
         const radioCard = document.getElementById('pay-choice-card');
+        const radioCash = document.getElementById('pay-choice-cash');
         const btn = document.getElementById('btn-submit-order');
 
-        if (optCard) optCard.classList.add('active');
-        if (optAuto) optAuto.classList.remove('active');
-        if (radioCard) radioCard.checked = true;
-        if (radioAuto) radioAuto.checked = false;
-        if (btn) btn.innerHTML = `🚀 ${I18N_CART.btnCardTransfer}`;
+        if (method === 'cash_on_delivery') {
+            if (optCash) optCash.classList.add('active');
+            if (optCard) optCard.classList.remove('active');
+            if (radioCash) radioCash.checked = true;
+            if (radioCard) radioCard.checked = false;
+            if (btn) btn.innerHTML = `💵 {% filter escapejs %}{% trans "Оформить заказ (При получении)" %}{% endfilter %}`;
+        } else {
+            if (optCard) optCard.classList.add('active');
+            if (optCash) optCash.classList.remove('active');
+            if (radioCard) radioCard.checked = true;
+            if (radioCash) radioCash.checked = false;
+            if (btn) btn.innerHTML = `🛍️ {% filter escapejs %}{% trans "Оформить заказ" %}{% endfilter %}`;
+        }
     }
 
     /* ─── ПРЯМОЙ ЧЕКАУТ НА САЙТЕ ─── */

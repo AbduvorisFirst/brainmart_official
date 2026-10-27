@@ -442,6 +442,47 @@
         color: #475569;
     }
 
+    /* Swipeable Image Gallery for Multi-photo / Multi-color Products (Uzum/Wildberries style) */
+    .uzum-img-gallery {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        position: relative;
+        z-index: 1;
+    }
+    .uzum-img-gallery::-webkit-scrollbar {
+        display: none;
+    }
+    .uzum-img-slide {
+        flex: 0 0 100%;
+        width: 100%;
+        height: 100%;
+        scroll-snap-align: start;
+        position: relative;
+    }
+    .uzum-colors-badge {
+        position: absolute;
+        top: 8px;
+        right: 46px;
+        background: rgba(15, 23, 42, 0.75);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: #FFFFFF;
+        font-size: 9.5px;
+        font-weight: 700;
+        padding: 3px 6px;
+        border-radius: 6px;
+        z-index: 3;
+        pointer-events: none;
+    }
+
     /* Uzum АКЦИЯ Badge (Signature Purple) */
     .uzum-badge-promo {
         position: absolute;
@@ -1120,14 +1161,30 @@
                 <div class="uzum-card" data-product-id="{{ product.id }}">
                     <a href="{% url 'product-detail' product.id %}{% if product.color %}?color={{ product.color }}{% endif %}" class="uzum-card-link">
                         <div class="uzum-img-box">
-                            {% if product.main_image %}
-                                <img src="{{ product.main_image.url }}" alt="{{ product.name }}" loading="lazy" class="uzum-img">
-                            {% else %}
-                                <div class="uzum-img-empty">📦</div>
-                            {% endif %}
+                            <!-- Swipeable Photo Gallery (Left/Right swipe on mobile & desktop) -->
+                            <div class="uzum-img-gallery" id="gallery-{{ product.id }}" onscroll="updateCardGalleryDots(this, '{{ product.id }}')">
+                                {% if product.images_list %}
+                                    {% for img_url in product.images_list %}
+                                        <div class="uzum-img-slide">
+                                            <img src="{{ img_url }}" alt="{{ product.name }}" loading="lazy" class="uzum-img">
+                                        </div>
+                                    {% endfor %}
+                                {% elif product.main_image %}
+                                    <div class="uzum-img-slide">
+                                        <img src="{{ product.main_image.url }}" alt="{{ product.name }}" loading="lazy" class="uzum-img">
+                                    </div>
+                                {% else %}
+                                    <div class="uzum-img-slide uzum-img-empty">📦</div>
+                                {% endif %}
+                            </div>
 
                             <!-- Uzum АКЦИЯ Signature Purple Badge -->
                             <span class="uzum-badge-promo">{% trans "АКЦИЯ" %}</span>
+
+                            <!-- Colors count badge if > 1 -->
+                            {% if product.colors_count and product.colors_count > 1 %}
+                                <span class="uzum-colors-badge">🎨 {{ product.colors_count }} {% trans "цвета" %}</span>
+                            {% endif %}
 
                             <!-- Favorite Heart Button -->
                             <button type="button" class="uzum-btn-fav btn-favorite-icon" onclick="event.preventDefault(); event.stopPropagation(); toggleFav(this, '{{ product.id }}');" aria-label="Favorite" title="{% trans 'В избранное' %}">
@@ -1142,12 +1199,14 @@
                                 <span class="uzum-tag-lowprice">{% trans "ГАРАНТИЯ НИЗКОЙ ЦЕНЫ" %}</span>
                             </div>
 
-                            <!-- Carousel dots indicator -->
-                            <div class="uzum-photo-dots">
-                                <span class="dot active"></span>
-                                <span class="dot"></span>
-                                <span class="dot"></span>
-                            </div>
+                            <!-- Dynamic carousel dots indicator -->
+                            {% if product.images_list|length > 1 %}
+                                <div class="uzum-photo-dots" id="dots-{{ product.id }}">
+                                    {% for img in product.images_list %}
+                                        <span class="dot {% if forloop.first %}active{% endif %}"></span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
 
                         <div class="uzum-card-details">
@@ -1249,77 +1308,147 @@
      8. MOBILE BOTTOM BAR (UZUM APP STYLE NAVIGATION)
      ========================================================================== -->
 <nav class="uzum-bottom-bar" id="mobileBottomBar">
-    {% if current_store %}
-        <a href="javascript:void(0)" onclick="window.scrollTo({top: 0, behavior: 'smooth'});" class="uzum-bottom-item active">
-            <span class="uzum-bottom-icon">🏪</span>
-            <span>{% trans "Витрина" %}</span>
-        </a>
-        <a href="javascript:void(0)" onclick="focusSearch();" class="uzum-bottom-item">
-            <span class="uzum-bottom-icon">🔍</span>
-            <span>{% trans "Поиск" %}</span>
-        </a>
-        <a href="javascript:void(0)" onclick="openCartModal();" class="uzum-bottom-item">
-            <span class="uzum-bottom-icon">
-                🛍️
-                <span class="uzum-cart-badge" id="mobBottomCartBadge" style="display: none;">0</span>
-            </span>
-            <span>{% trans "Корзина" %}</span>
-        </a>
-        {% if current_store.telegram_bot_username and current_store.telegram_bot_active %}
-            <a href="https://t.me/{{ current_store.telegram_bot_username }}" target="_blank" class="uzum-bottom-item">
-                <span class="uzum-bottom-icon">💬</span>
-                <span>Telegram</span>
-            </a>
-        {% elif current_store.phone_number %}
-            <a href="tel:{{ current_store.phone_number }}" class="uzum-bottom-item">
-                <span class="uzum-bottom-icon">📞</span>
-                <span>{% trans "Звонок" %}</span>
-            </a>
-        {% endif %}
-        {% if request.user.is_authenticated and request.user.store and request.user.store == current_store %}
-            <a href="{% url 'seller-dashboard' %}" class="uzum-bottom-item">
-                <span class="uzum-bottom-icon">⚙️</span>
-                <span>{% trans "Кабинет" %}</span>
-            </a>
-        {% else %}
-            <a href="{% url 'seller-login' %}" class="uzum-bottom-item">
-                <span class="uzum-bottom-icon">🔑</span>
-                <span>{% trans "Войти" %}</span>
-            </a>
-        {% endif %}
-    {% else %}
-        <a href="javascript:void(0)" onclick="window.scrollTo({top: 0, behavior: 'smooth'});" class="uzum-bottom-item active">
-            <span class="uzum-bottom-icon">⚡</span>
-            <span>{% trans "Главная" %}</span>
-        </a>
-        <a href="javascript:void(0)" onclick="focusSearch();" class="uzum-bottom-item">
-            <span class="uzum-bottom-icon">🔍</span>
-            <span>{% trans "Поиск" %}</span>
-        </a>
-        <a href="javascript:void(0)" onclick="openCartModal();" class="uzum-bottom-item">
-            <span class="uzum-bottom-icon">
-                🛍️
-                <span class="uzum-cart-badge" id="mobBottomCartBadge" style="display: none;">0</span>
-            </span>
-            <span>{% trans "Корзина" %}</span>
-        </a>
-        <a href="{% url 'become-seller' %}" class="uzum-bottom-item">
-            <span class="uzum-bottom-icon">🚀</span>
-            <span>{% trans "Продавать" %}</span>
-        </a>
-        {% if request.user.is_authenticated %}
-            <a href="{% url 'seller-dashboard' %}" class="uzum-bottom-item">
-                <span class="uzum-bottom-icon">👤</span>
-                <span>{% trans "Кабинет" %}</span>
-            </a>
-        {% else %}
-            <a href="{% url 'seller-login' %}" class="uzum-bottom-item">
-                <span class="uzum-bottom-icon">🔑</span>
-                <span>{% trans "Войти" %}</span>
-            </a>
-        {% endif %}
-    {% endif %}
+    <a href="javascript:void(0)" onclick="resetProductFilters(); window.scrollTo({top: 0, behavior: 'smooth'});" class="uzum-bottom-item active" id="btn-bottom-home">
+        <span class="uzum-bottom-icon">{% if current_store %}🏪{% else %}🏠{% endif %}</span>
+        <span>{% if current_store %}{% trans "Витрина" %}{% else %}{% trans "Главная" %}{% endif %}</span>
+    </a>
+    <a href="javascript:void(0)" onclick="focusSearch();" class="uzum-bottom-item" id="btn-bottom-search">
+        <span class="uzum-bottom-icon">🔍</span>
+        <span>{% trans "Поиск" %}</span>
+    </a>
+    <a href="javascript:void(0)" onclick="openCartModal();" class="uzum-bottom-item" id="btn-bottom-cart">
+        <span class="uzum-bottom-icon">
+            🛍️
+            <span class="uzum-cart-badge" id="mobBottomCartBadge" style="display: none;">0</span>
+        </span>
+        <span>{% trans "Корзина" %}</span>
+    </a>
+    <a href="javascript:void(0)" onclick="toggleFavoritesFilter();" class="uzum-bottom-item" id="btn-bottom-fav">
+        <span class="uzum-bottom-icon">🤍</span>
+        <span>{% trans "Избранное" %}</span>
+    </a>
+    <a href="javascript:void(0)" onclick="openSettingsSheet();" class="uzum-bottom-item" id="btn-bottom-settings">
+        <span class="uzum-bottom-icon">⚙️</span>
+        <span>{% trans "Настройки" %}</span>
+    </a>
 </nav>
+
+<!-- Settings & Menu Bottom Sheet Modal (Стать продавцом спрятано внутри настроек) -->
+<div id="settings-sheet-overlay" onclick="closeSettingsSheetOnOverlay(event)" style="position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); z-index: 10001; display: none; align-items: flex-end; justify-content: center; opacity: 0; transition: opacity 0.25s ease;">
+    <div id="settings-sheet" style="background: #111520; color: #FFFFFF; width: 100%; max-width: 520px; max-height: 85vh; border-radius: 28px 28px 0 0; padding: 22px 20px 36px; box-sizing: border-box; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);">
+        
+        <!-- Sheet Handle -->
+        <div style="width: 40px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin: 0 auto 16px;"></div>
+
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 22px;">⚙️</span>
+                <div>
+                    <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: #FFFFFF;">{% trans "Меню и настройки" %}</h3>
+                    <p style="margin: 0; font-size: 12px; color: #94A3B8;">{% trans "Управление витриной и сервисы" %}</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeSettingsSheet()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); width: 34px; height: 34px; border-radius: 50%; font-size: 14px; font-weight: 700; color: #94A3B8; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>
+        </div>
+
+        <!-- SELLER ONBOARDING / DASHBOARD SECTION (СПРЯТАНО В НАСТРОЙКАХ) -->
+        <div style="margin-bottom: 20px;">
+            {% if request.user.is_authenticated and request.user.store %}
+                <!-- Seller is logged in -->
+                <div style="background: linear-gradient(135deg, rgba(112, 0, 255, 0.18) 0%, rgba(59, 130, 246, 0.12) 100%); border: 1.5px solid rgba(112, 0, 255, 0.35); border-radius: 18px; padding: 16px; margin-bottom: 12px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 40px; height: 40px; border-radius: 12px; background: #7000FF; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800;">🏪</div>
+                            <div>
+                                <div style="font-size: 15px; font-weight: 800; color: #FFFFFF;">{{ request.user.store.name }}</div>
+                                <div style="font-size: 12px; color: #A78BFA;">{% trans "Вы вошли как продавец" %}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <a href="{% url 'seller-dashboard' %}" style="background: #7000FF; color: #FFFFFF; padding: 11px 12px; border-radius: 12px; text-decoration: none; font-size: 13px; font-weight: 700; text-align: center; display: block; box-shadow: 0 4px 12px rgba(112, 0, 255, 0.3);">
+                            📊 {% trans "В кабинет" %}
+                        </a>
+                        <a href="{% url 'dashboard-product-create' %}" style="background: rgba(255,255,255,0.08); color: #FFFFFF; padding: 11px 12px; border-radius: 12px; text-decoration: none; font-size: 13px; font-weight: 700; text-align: center; display: block; border: 1px solid rgba(255,255,255,0.12);">
+                            ➕ {% trans "Добавить товар" %}
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <!-- GUEST / BUYER: BECOME A SELLER PROMO (СПРЯТАНО В НАСТРОЙКАХ) -->
+                <div style="background: linear-gradient(135deg, rgba(112, 0, 255, 0.16) 0%, rgba(245, 158, 11, 0.12) 100%); border: 1.5px solid rgba(112, 0, 255, 0.35); border-radius: 18px; padding: 16px; margin-bottom: 12px;">
+                    <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px;">
+                        <div style="width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #7000FF 0%, #E60049 100%); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">🚀</div>
+                        <div>
+                            <div style="font-size: 15px; font-weight: 800; color: #FFFFFF; margin-bottom: 4px;">{% trans "Стать продавцом на BrainMart" %}</div>
+                            <div style="font-size: 12.5px; color: #CBD5E1; line-height: 1.4;">{% trans "Откройте свой интернет-магазин бесплатно за 2 минуты и продавайте товары по всей стране!" %}</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <a href="{% url 'become-seller' %}" style="flex: 1; background: #7000FF; color: #FFFFFF; padding: 12px 14px; border-radius: 12px; text-decoration: none; font-size: 13.5px; font-weight: 800; text-align: center; display: block; box-shadow: 0 4px 14px rgba(112, 0, 255, 0.35);">
+                            ✨ {% trans "Открыть магазин" %}
+                        </a>
+                        <a href="{% url 'seller-login' %}" style="background: rgba(255,255,255,0.06); color: #E2E8F0; padding: 12px 14px; border-radius: 12px; text-decoration: none; font-size: 13.5px; font-weight: 700; text-align: center; display: block; border: 1px solid rgba(255,255,255,0.12);">
+                            🔑 {% trans "Войти" %}
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- BUYER TOOLS -->
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 6px; margin-bottom: 16px;">
+            <div onclick="closeSettingsSheet(); toggleFavoritesFilter();" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-radius: 12px; cursor: pointer; transition: background 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 18px;">🤍</span>
+                    <span style="font-size: 14px; font-weight: 700; color: #FFFFFF;">{% trans "Избранные товары" %}</span>
+                </div>
+                <span style="font-size: 13px; color: #64748B;">➔</span>
+            </div>
+            
+            <div onclick="closeSettingsSheet(); openCartModal();" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-radius: 12px; cursor: pointer; transition: background 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 18px;">🛍️</span>
+                    <span style="font-size: 14px; font-weight: 700; color: #FFFFFF;">{% trans "Корзина покупок" %}</span>
+                </div>
+                <span style="font-size: 13px; color: #64748B;">➔</span>
+            </div>
+        </div>
+
+        <!-- LANGUAGE SELECTOR -->
+        <div style="margin-bottom: 16px;">
+            <div style="font-size: 12px; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; padding-left: 4px;">
+                🌐 {% trans "Язык интерфейса" %}
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                <a href="/ru/{% if current_store %}store/{{ current_store.slug }}/{% endif %}" style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 700; text-decoration: none; {% if LANGUAGE_CODE == 'ru' %}background: #7000FF; color: #FFFFFF; border: 1.5px solid #7000FF;{% else %}background: rgba(255,255,255,0.05); color: #CBD5E1; border: 1px solid rgba(255,255,255,0.08);{% endif %}">
+                    <span>🇷🇺</span> Русский
+                </a>
+                <a href="/uz/{% if current_store %}store/{{ current_store.slug }}/{% endif %}" style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 700; text-decoration: none; {% if LANGUAGE_CODE == 'uz' %}background: #7000FF; color: #FFFFFF; border: 1.5px solid #7000FF;{% else %}background: rgba(255,255,255,0.05); color: #CBD5E1; border: 1px solid rgba(255,255,255,0.08);{% endif %}">
+                    <span>🇺🇿</span> O'zbek
+                </a>
+                <a href="/en/{% if current_store %}store/{{ current_store.slug }}/{% endif %}" style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 700; text-decoration: none; {% if LANGUAGE_CODE == 'en' %}background: #7000FF; color: #FFFFFF; border: 1.5px solid #7000FF;{% else %}background: rgba(255,255,255,0.05); color: #CBD5E1; border: 1px solid rgba(255,255,255,0.08);{% endif %}">
+                    <span>🇬🇧</span> English
+                </a>
+            </div>
+        </div>
+
+        <!-- SUPPORT AND CONTACT -->
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 20px;">💬</span>
+                <div>
+                    <div style="font-size: 13.5px; font-weight: 700; color: #FFFFFF;">{% trans "Служба поддержки" %}</div>
+                    <div style="font-size: 11.5px; color: #94A3B8;">{% trans "Ответим на любые вопросы в Telegram" %}</div>
+                </div>
+            </div>
+            <a href="https://t.me/{{ effective_bot|default:'brainmart_support' }}" target="_blank" style="background: #2563EB; color: #FFFFFF; text-decoration: none; padding: 8px 14px; border-radius: 10px; font-size: 12.5px; font-weight: 700;">
+                Telegram ➔
+            </a>
+        </div>
+    </div>
+</div>
 
 <!-- Floating Toast Container -->
 <div id="bmToastContainer" style="position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none;"></div>
@@ -1520,5 +1649,132 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     } catch(e) {}
 });
+
+/* ─── CARD GALLERY DOTS & DRAG HANDLING ─── */
+function updateCardGalleryDots(galleryEl, productId) {
+    var dotsContainer = document.getElementById('dots-' + productId);
+    if (!dotsContainer) return;
+    var scrollLeft = galleryEl.scrollLeft;
+    var width = galleryEl.clientWidth || 1;
+    var index = Math.round(scrollLeft / width);
+    var dots = dotsContainer.querySelectorAll('.dot');
+    dots.forEach(function(dot, idx) {
+        if (idx === index) {
+            dot.classList.add('active');
+        } else {
+            dot.classList.remove('active');
+        }
+    });
+}
+
+/* ─── SETTINGS BOTTOM SHEET CONTROLS ─── */
+function openSettingsSheet() {
+    var overlay = document.getElementById('settings-sheet-overlay');
+    var sheet = document.getElementById('settings-sheet');
+    if (!overlay || !sheet) return;
+    overlay.style.display = 'flex';
+    setTimeout(function() {
+        overlay.style.opacity = '1';
+        sheet.style.transform = 'translateY(0)';
+    }, 10);
+    document.body.style.overflow = 'hidden';
+}
+
+function closeSettingsSheet() {
+    var overlay = document.getElementById('settings-sheet-overlay');
+    var sheet = document.getElementById('settings-sheet');
+    if (!overlay || !sheet) return;
+    sheet.style.transform = 'translateY(100%)';
+    overlay.style.opacity = '0';
+    setTimeout(function() {
+        overlay.style.display = 'none';
+        document.body.style.overflow = '';
+    }, 250);
+}
+
+function closeSettingsSheetOnOverlay(e) {
+    if (e.target.id === 'settings-sheet-overlay') {
+        closeSettingsSheet();
+    }
+}
+
+/* ─── FAVORITES FILTER TOGGLE ─── */
+var isFavoritesFilterActive = false;
+function toggleFavoritesFilter() {
+    var cards = document.querySelectorAll('.uzum-card');
+    var favBtn = document.getElementById('btn-bottom-fav');
+    var homeBtn = document.getElementById('btn-bottom-home');
+    var favs = [];
+    try {
+        favs = JSON.parse(localStorage.getItem('bm_favs') || '[]');
+    } catch(e) { favs = []; }
+
+    if (!isFavoritesFilterActive) {
+        if (favs.length === 0) {
+            showBmToast('{% trans "В избранном пока нет товаров" %}', '🤍');
+            return;
+        }
+        var count = 0;
+        cards.forEach(function(card) {
+            var pid = card.getAttribute('data-product-id');
+            if (favs.indexOf(pid) !== -1 || favs.indexOf(parseInt(pid, 10)) !== -1) {
+                card.style.display = '';
+                count++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        isFavoritesFilterActive = true;
+        if (favBtn) favBtn.classList.add('active');
+        if (homeBtn) homeBtn.classList.remove('active');
+        showBmToast('{% trans "Показано избранное" %} (' + count + ')', '🤍');
+    } else {
+        resetProductFilters();
+    }
+}
+
+function resetProductFilters() {
+    var cards = document.querySelectorAll('.uzum-card');
+    var favBtn = document.getElementById('btn-bottom-fav');
+    var homeBtn = document.getElementById('btn-bottom-home');
+    cards.forEach(function(card) {
+        card.style.display = '';
+    });
+    isFavoritesFilterActive = false;
+    if (favBtn) favBtn.classList.remove('active');
+    if (homeBtn) homeBtn.classList.add('active');
+}
+
+/* ─── PREVENT CARD LINK NAVIGATION DURING HORIZONTAL SWIPE ─── */
+document.addEventListener('DOMContentLoaded', function() {
+    var galleries = document.querySelectorAll('.uzum-img-gallery');
+    galleries.forEach(function(gallery) {
+        var startX = 0;
+        var startY = 0;
+        var isHorizontalSwipe = false;
+
+        gallery.addEventListener('touchstart', function(e) {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            isHorizontalSwipe = false;
+        }, { passive: true });
+
+        gallery.addEventListener('touchmove', function(e) {
+            var diffX = Math.abs(e.touches[0].clientX - startX);
+            var diffY = Math.abs(e.touches[0].clientY - startY);
+            if (diffX > 10 && diffX > diffY) {
+                isHorizontalSwipe = true;
+            }
+        }, { passive: true });
+
+        gallery.addEventListener('click', function(e) {
+            if (isHorizontalSwipe) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        });
+    });
+});
+
 </script>
 {% endblock %}
