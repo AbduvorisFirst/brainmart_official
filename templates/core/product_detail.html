@@ -794,7 +794,7 @@
     <!-- 1. NAVIGATION TOP BAR -->
     <div class="product-nav-header">
         <div class="nav-left">
-            <a href="{% if current_store %}{{ current_store.get_subdomain_url }}{% else %}{{ global_market_url|default:'/' }}{% endif %}" class="btn-back" title="{% trans 'Назад в каталог' %}">
+            <a href="{% if current_store %}{{ current_store.get_subdomain_url }}{% else %}{{ global_market_url|default:'/' }}{% endif %}" class="btn-back" title="{% trans 'Назад в каталог' %}" onclick="if (window.history.length > 1) { event.preventDefault(); window.history.back(); }">
                 ←
             </a>
             <a href="{% if current_store %}{{ current_store.get_subdomain_url }}{% else %}{{ global_market_url|default:'/' }}{% endif %}" class="store-nav-badge">
@@ -869,15 +869,12 @@
                 {% endif %}
             </div>
 
-            <!-- Thumbnail Row -->
+            <!-- Thumbnail Row (Clean Uzum / Wildberries mini photo previews without duplicate color tags) -->
             {% if gallery_images|length > 1 %}
                 <div class="gallery-thumbnails-row" id="galleryThumbnailsRow">
                     {% for img_item in gallery_images %}
                         <div class="gallery-thumb-item {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}" data-color="{{ img_item.color|default:'' }}" onclick="goToGallerySlide({{ forloop.counter0 }})">
                             <img src="{{ img_item.url }}" alt="{{ img_item.title }}" loading="lazy" onerror="this.parentElement.style.display='none';">
-                            {% if img_item.color %}
-                                <span class="thumb-color-tag">{{ img_item.color }}</span>
-                            {% endif %}
                         </div>
                     {% endfor %}
                 </div>
@@ -1255,11 +1252,37 @@
         let uniqueColors = [];
         let colorsMap = new Map();
 
+        // 1. Собираем уникальные цвета из вариантов товара (строгая дедупликация без дублирования кнопок)
         variantsData.forEach(function(v) {
-            if (v.color && !colorsMap.has(v.color)) {
-                colorsMap.set(v.color, v.image_url);
-                uniqueColors.push({ name: v.color, image: v.image_url });
+            var cTrim = (v.color || '').trim();
+            if (cTrim) {
+                var cKey = cTrim.toLowerCase();
+                if (!colorsMap.has(cKey)) {
+                    colorsMap.set(cKey, { name: cTrim, image: v.image_url || '' });
+                } else if (!colorsMap.get(cKey).image && v.image_url) {
+                    colorsMap.get(cKey).image = v.image_url;
+                }
             }
+        });
+
+        // 2. Если у цвета нет фото в варианте, берем первое фото этого цвета из слайдов галереи
+        const gallerySlides = document.querySelectorAll('.gallery-slide');
+        gallerySlides.forEach(function(slide) {
+            var sc = (slide.dataset.color || '').trim();
+            if (sc) {
+                var scKey = sc.toLowerCase();
+                var img = slide.querySelector('img');
+                var src = img ? img.src : '';
+                if (!colorsMap.has(scKey)) {
+                    colorsMap.set(scKey, { name: sc, image: src });
+                } else if (!colorsMap.get(scKey).image && src) {
+                    colorsMap.get(scKey).image = src;
+                }
+            }
+        });
+
+        colorsMap.forEach(function(val) {
+            uniqueColors.push(val);
         });
 
         let sizes = [...new Set(variantsData.map(function(v) { return v.size; }).filter(Boolean))];
@@ -1330,7 +1353,7 @@
             let currentVariant = variantsData.find(function(v) { return v.id === selectedVariantId; });
             if (sizeLabel) sizeLabel.innerText = currentVariant ? cleanText(currentVariant.size) : 'Не выбран';
 
-            let variantsForColor = variantsData.filter(function(v) { return v.color === selectedColor; });
+            let variantsForColor = variantsData.filter(function(v) { return (v.color || '').trim().toLowerCase() === (selectedColor || '').trim().toLowerCase(); });
 
             sizes.forEach(function(sizeStr) {
                 let variant = variantsForColor.find(function(v) { return v.size === sizeStr; });
@@ -1390,14 +1413,19 @@
 
             let cart = [];
             try {
-                cart = JSON.parse(localStorage.getItem('bm_cart') || '[]');
-            } catch(e) {}
+                var raw = localStorage.getItem('bm_cart') || localStorage.getItem('brainmart_cart') || localStorage.getItem('tg_cart');
+                cart = JSON.parse(raw || '[]');
+                if (!Array.isArray(cart)) cart = [];
+            } catch(e) { cart = []; }
 
-            let existing = cart.find(function(i) { return i.id == selectedVariantId; });
+            let targetId = selectedVariantId || (variantsData[0] ? variantsData[0].id : '{{ product.id }}');
+            let existing = cart.find(function(i) { 
+                return (i.variant_id && i.variant_id == targetId) || (i.id == targetId); 
+            });
             if (existing) {
                 addBtn.style.display = 'none';
                 qtyContainer.style.display = 'flex';
-                if (qtyVal) qtyVal.innerText = existing.qty;
+                if (qtyVal) qtyVal.innerText = existing.quantity || existing.qty || 1;
             } else {
                 addBtn.style.display = 'flex';
                 qtyContainer.style.display = 'none';
@@ -1407,7 +1435,7 @@
         if (variantsData.length > 0) {
             renderColors(true);
             renderSizes();
-            let firstAvail = variantsData.find(function(v) { return v.color.toLowerCase() === selectedColor.toLowerCase() && v.in_stock && v.qty > 0; }) || variantsData[0];
+            let firstAvail = variantsData.find(function(v) { return (v.color || '').trim().toLowerCase() === (selectedColor || '').trim().toLowerCase() && v.in_stock && v.qty > 0; }) || variantsData[0];
             if (firstAvail) {
                 selectedVariantId = firstAvail.id;
                 selectedVariantPrice = firstAvail.price;
@@ -1472,16 +1500,24 @@
                 let targetId = selectedVariantId || (variantsData[0] ? variantsData[0].id : '{{ product.id }}');
                 let cart = [];
                 try {
-                    cart = JSON.parse(localStorage.getItem('bm_cart') || '[]');
+                    var raw = localStorage.getItem('bm_cart') || localStorage.getItem('brainmart_cart') || localStorage.getItem('tg_cart');
+                    cart = JSON.parse(raw || '[]');
+                    if (!Array.isArray(cart)) cart = [];
                 } catch(e) {}
                 for (var i = 0; i < cart.length; i++) {
-                    if (cart[i].id == targetId) {
-                        cart[i].qty += 1;
+                    if ((cart[i].variant_id && cart[i].variant_id == targetId) || cart[i].id == targetId) {
+                        var curQ = parseInt(cart[i].quantity || cart[i].qty || 1, 10);
+                        cart[i].quantity = curQ + 1;
+                        cart[i].qty = cart[i].quantity;
                         break;
                     }
                 }
-                localStorage.setItem('bm_cart', JSON.stringify(cart));
+                var jsonStr = JSON.stringify(cart);
+                localStorage.setItem('bm_cart', jsonStr);
+                localStorage.setItem('brainmart_cart', jsonStr);
+                localStorage.setItem('tg_cart', jsonStr);
                 window.dispatchEvent(new Event('cart-updated'));
+                window.dispatchEvent(new Event('cartUpdated'));
                 updateActionUI();
             });
         }
@@ -1492,19 +1528,29 @@
                 let targetId = selectedVariantId || (variantsData[0] ? variantsData[0].id : '{{ product.id }}');
                 let cart = [];
                 try {
-                    cart = JSON.parse(localStorage.getItem('bm_cart') || '[]');
+                    var raw = localStorage.getItem('bm_cart') || localStorage.getItem('brainmart_cart') || localStorage.getItem('tg_cart');
+                    cart = JSON.parse(raw || '[]');
+                    if (!Array.isArray(cart)) cart = [];
                 } catch(e) {}
                 for (var i = 0; i < cart.length; i++) {
-                    if (cart[i].id == targetId) {
-                        cart[i].qty -= 1;
-                        if (cart[i].qty <= 0) {
+                    if ((cart[i].variant_id && cart[i].variant_id == targetId) || cart[i].id == targetId) {
+                        var curQ = parseInt(cart[i].quantity || cart[i].qty || 1, 10);
+                        curQ -= 1;
+                        if (curQ <= 0) {
                             cart.splice(i, 1);
+                        } else {
+                            cart[i].quantity = curQ;
+                            cart[i].qty = curQ;
                         }
                         break;
                     }
                 }
-                localStorage.setItem('bm_cart', JSON.stringify(cart));
+                var jsonStr = JSON.stringify(cart);
+                localStorage.setItem('bm_cart', jsonStr);
+                localStorage.setItem('brainmart_cart', jsonStr);
+                localStorage.setItem('tg_cart', jsonStr);
                 window.dispatchEvent(new Event('cart-updated'));
+                window.dispatchEvent(new Event('cartUpdated'));
                 updateActionUI();
             });
         }

@@ -751,6 +751,7 @@
         .then(data => {
             if (data.success) {
                 localStorage.removeItem('brainmart_cart');
+                localStorage.removeItem('bm_cart');
                 localStorage.removeItem('tg_cart');
                 if (data.payment_method === "click" && data.click_url) {
                     window.location.href = data.click_url;
@@ -805,6 +806,7 @@
             .then(data => {
                 if (data.success) {
                     localStorage.removeItem('brainmart_cart');
+                    localStorage.removeItem('bm_cart');
                     localStorage.removeItem('tg_cart');
                     if (tg) tg.close();
                 } else {
@@ -843,6 +845,7 @@
             .then(data => {
                 if (data.success && data.telegram_url) {
                     localStorage.removeItem('brainmart_cart');
+                    localStorage.removeItem('bm_cart');
                     localStorage.removeItem('tg_cart');
                     // Перенаправляем прямо в Telegram бот на команду /start order_ID!
                     window.location.href = data.telegram_url;
@@ -864,5 +867,22 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         renderGlobalCartBar();
+        updateBottomCartBadges();
+    });
+
+    window.addEventListener('cartUpdated', () => {
+        renderGlobalCartBar();
+        updateBottomCartBadges();
+        if (document.getElementById('cart-modal-overlay') && document.getElementById('cart-modal-overlay').classList.contains('open')) {
+            renderCartItemsList();
+        }
+    });
+
+    window.addEventListener('cart-updated', () => {
+        renderGlobalCartBar();
+        updateBottomCartBadges();
+        if (document.getElementById('cart-modal-overlay') && document.getElementById('cart-modal-overlay').classList.contains('open')) {
+            renderCartItemsList();
+        }
     });
 </script>

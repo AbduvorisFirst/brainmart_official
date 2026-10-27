@@ -192,14 +192,27 @@ def catalog_view(request):
                 pass
         all_vars = list(p.variants.all())
         colors = []
+        for pimg in p.images.all():
+            try:
+                if pimg.image and pimg.image.url not in img_urls:
+                    img_urls.append(pimg.image.url)
+            except Exception:
+                pass
+            if pimg.color:
+                c_clean = pimg.color.strip()
+                if c_clean and c_clean.lower() not in [c.lower() for c in colors]:
+                    colors.append(c_clean)
+
         for v in all_vars:
             try:
                 if v.image and v.image.url not in img_urls:
                     img_urls.append(v.image.url)
             except Exception:
                 pass
-            if v.color and v.color not in colors:
-                colors.append(v.color)
+            if v.color:
+                c_clean = v.color.strip()
+                if c_clean and c_clean.lower() not in [c.lower() for c in colors]:
+                    colors.append(c_clean)
 
         try:
             final_p = int(float(p.base_price)) if p.base_price is not None else 0
@@ -221,9 +234,9 @@ def catalog_view(request):
             "installment_price": inst_p,
             "formatted_installment": p.formatted_installment,
             "main_image": p.main_image,
-            "images_list": img_urls[:6], # Карусель до 6 фото для свайпа прямо в карточке
+            "images_list": img_urls[:8], # Карусель до 6 фото для свайпа прямо в карточке
             "colors_count": len(colors),
-            "colors": colors[:4],
+            "colors": colors[:5],
             "store": p.store,
             "category": p.category,
             "average_rating": 4.9,
@@ -267,18 +280,21 @@ def product_detail_view(request, product_id):
     reviews = product.reviews.filter(is_visible=True).order_by("-created_at")
     effective_bot = product.store.telegram_bot_username if (product.store.telegram_bot_username and product.store.telegram_bot_active) else settings.TELEGRAM_BOT_USERNAME
 
-    # Собираем все фото товара и его вариантов (Uzum / Wildberries стиль)
-    gallery_images = []
+    # Определяем контекст магазина (глобальный маркет или магазин продавца)
+    active_store = resolve_store_from_request(request)
+
+    # Собираем все уникальные фото товара и его вариантов, сгруппированные по цветам (Uzum/WB)
+    raw_images = []
     seen_urls = set()
 
-    # 1. Главное фото
+    # 1. Главное фото товара
     if product.main_image:
         try:
             m_url = product.main_image.url
             if m_url not in seen_urls:
-                gallery_images.append({
+                raw_images.append({
                     "url": m_url,
-                    "color": getattr(product, "color", "") or "",
+                    "color": (getattr(product, "color", "") or "").strip(),
                     "title": product.name,
                 })
                 seen_urls.add(m_url)
@@ -286,34 +302,55 @@ def product_detail_view(request, product_id):
             pass
 
     # 2. Дополнительные фото из ProductImage
-    for p_img in product.images.all():
+    for p_img in product.images.all().order_by("id"):
         try:
             if p_img.image and p_img.image.url not in seen_urls:
-                gallery_images.append({
+                p_col = (p_img.color or "").strip()
+                raw_images.append({
                     "url": p_img.image.url,
-                    "color": p_img.color or "",
-                    "title": f"{product.name} ({p_img.color})" if p_img.color else product.name,
+                    "color": p_col,
+                    "title": f"{product.name} ({p_col})" if p_col else product.name,
                 })
                 seen_urls.add(p_img.image.url)
         except Exception:
             pass
 
     # 3. Фото вариантов по цветам (ProductVariant.image)
-    for v in product.variants.all():
+    for v in product.variants.all().order_by("id"):
         try:
             if v.image and v.image.url not in seen_urls:
-                gallery_images.append({
+                v_col = (v.color or "").strip()
+                raw_images.append({
                     "url": v.image.url,
-                    "color": v.color or "",
-                    "title": f"{product.name} - {v.color}" if v.color else product.name,
+                    "color": v_col,
+                    "title": f"{product.name} - {v_col}" if v_col else product.name,
                 })
                 seen_urls.add(v.image.url)
         except Exception:
             pass
 
+    # Группируем фото по цветам: все ракурсы одного цвета идут подряд
+    color_groups = {}
+    no_color_images = []
+    for item in raw_images:
+        c = item["color"]
+        if c:
+            color_groups.setdefault(c.lower(), []).append(item)
+        else:
+            no_color_images.append(item)
+
+    gallery_images = []
+    # Общие фото без цвета
+    gallery_images.extend(no_color_images)
+    # Фото по цветам (все ракурсы каждого цвета подряд)
+    for c_key, items in color_groups.items():
+        gallery_images.extend(items)
+
     context = {
         "product": product,
-        "current_store": product.store,
+        "active_store": active_store,
+        "current_store": active_store,
+        "product_store": product.store,
         "variants": product.variants.all(),
         "gallery_images": gallery_images,
         "reviews": reviews,
