@@ -137,7 +137,6 @@ def catalog_view(request):
 
     # Интеллектуальный поиск: многословный, по названию, цвету, описанию и ИИ
     # 1. Быстрый и оптимизированный запрос по Product (1 карточка на 1 товар)
-    from core.models import Product
     products_qs = Product.objects.filter(
         is_active=True,
         store__is_active=True,

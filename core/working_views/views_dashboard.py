@@ -1141,7 +1141,8 @@ def seller_login_view(request):
         dest = next_url if (next_url and "/login" not in next_url and "/logout" not in next_url) else "seller-dashboard"
         return redirect(dest)
 
-    return render(request, "dashboard/login.html")
+    next_url = request.GET.get("next", "")
+    return render(request, "dashboard/login.html", {"next": next_url})
 
 
 def seller_verify_otp_view(request):

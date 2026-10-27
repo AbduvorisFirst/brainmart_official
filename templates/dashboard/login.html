@@ -46,8 +46,8 @@
 
         <form method="post" action="{% url 'seller-login' %}" id="loginForm" style="display: flex; flex-direction: column; gap: 4px;">
             {% csrf_token %}
-            {% if request.GET.next or next %}
-                <input type="hidden" name="next" value="{{ next|default:request.GET.next }}">
+            {% if next %}
+                <input type="hidden" name="next" value="{{ next }}">
             {% endif %}
 
             <!-- Username / Phone / Store Input -->
@@ -174,7 +174,7 @@
                             },
                             body: JSON.stringify({
                                 init_data: initData,
-                                next: "{{ next|default:request.GET.next|default:'' }}"
+                                next: "{{ next|default:'' }}"
                             })
                         })
                         .then(res => res.json())

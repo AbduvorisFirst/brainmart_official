@@ -1422,13 +1422,13 @@
                 🌐 {% trans "Язык интерфейса" %}
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
-                <a href="/ru/{% if current_store %}store/{{ current_store.slug }}/{% endif %}" style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 700; text-decoration: none; {% if LANGUAGE_CODE == 'ru' %}background: #7000FF; color: #FFFFFF; border: 1.5px solid #7000FF;{% else %}background: rgba(255,255,255,0.05); color: #CBD5E1; border: 1px solid rgba(255,255,255,0.08);{% endif %}">
+                <a href="/ru/{% if current_store %}?store_id={{ current_store.id }}{% endif %}" style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 700; text-decoration: none; {% if LANGUAGE_CODE == 'ru' %}background: #7000FF; color: #FFFFFF; border: 1.5px solid #7000FF;{% else %}background: rgba(255,255,255,0.05); color: #CBD5E1; border: 1px solid rgba(255,255,255,0.08);{% endif %}">
                     <span>🇷🇺</span> Русский
                 </a>
-                <a href="/uz/{% if current_store %}store/{{ current_store.slug }}/{% endif %}" style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 700; text-decoration: none; {% if LANGUAGE_CODE == 'uz' %}background: #7000FF; color: #FFFFFF; border: 1.5px solid #7000FF;{% else %}background: rgba(255,255,255,0.05); color: #CBD5E1; border: 1px solid rgba(255,255,255,0.08);{% endif %}">
+                <a href="/uz/{% if current_store %}?store_id={{ current_store.id }}{% endif %}" style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 700; text-decoration: none; {% if LANGUAGE_CODE == 'uz' %}background: #7000FF; color: #FFFFFF; border: 1.5px solid #7000FF;{% else %}background: rgba(255,255,255,0.05); color: #CBD5E1; border: 1px solid rgba(255,255,255,0.08);{% endif %}">
                     <span>🇺🇿</span> O'zbek
                 </a>
-                <a href="/en/{% if current_store %}store/{{ current_store.slug }}/{% endif %}" style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 700; text-decoration: none; {% if LANGUAGE_CODE == 'en' %}background: #7000FF; color: #FFFFFF; border: 1.5px solid #7000FF;{% else %}background: rgba(255,255,255,0.05); color: #CBD5E1; border: 1px solid rgba(255,255,255,0.08);{% endif %}">
+                <a href="/en/{% if current_store %}?store_id={{ current_store.id }}{% endif %}" style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 700; text-decoration: none; {% if LANGUAGE_CODE == 'en' %}background: #7000FF; color: #FFFFFF; border: 1.5px solid #7000FF;{% else %}background: rgba(255,255,255,0.05); color: #CBD5E1; border: 1px solid rgba(255,255,255,0.08);{% endif %}">
                     <span>🇬🇧</span> English
                 </a>
             </div>
