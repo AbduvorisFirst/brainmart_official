@@ -1122,8 +1122,8 @@
                 gradient.addColorStop(0, 'rgba(41, 151, 255, 0.35)');
                 gradient.addColorStop(1, 'rgba(41, 151, 255, 0.0)');
 
-                const labels = {{ chart_labels|safe }};
-                const data = {{ chart_data|safe }};
+                const labels = {{ chart_labels|default:"[]"|safe }};
+                const data = {{ chart_data|default:"[]"|safe }};
 
                 new Chart(chartCtx, {
                     type: 'line',

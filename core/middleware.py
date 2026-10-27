@@ -33,7 +33,7 @@ class TelegramAuthMiddleware:
                 # 1. Поиск магазина по telegram_link_token
                 store = Store.objects.filter(telegram_link_token=tg_auth).select_related("owner").first()
                 if store and store.owner:
-                    login(request, store.owner)
+                    login(request, store.owner, backend="django.contrib.auth.backends.ModelBackend")
                     request.session.save()
                     logger.info("Успешный вход по tg_auth для магазина '%s' (user: %s)", store.name, store.owner.username)
                 else:
@@ -43,14 +43,14 @@ class TelegramAuthMiddleware:
                     if ps:
                         super_user = User.objects.filter(is_superuser=True).first()
                         if super_user:
-                            login(request, super_user)
+                            login(request, super_user, backend="django.contrib.auth.backends.ModelBackend")
                             request.session.save()
                             logger.info("Успешный вход суперпользователя по superadmin token (user: %s)", super_user.username)
                     else:
                         # 3. Поиск менеджера магазина
                         manager = StoreManager.objects.filter(telegram_link_token=tg_auth).select_related("store", "store__owner").first()
-                        if manager and manager.store and manager.store.owner:
-                            login(request, manager.store.owner)
+                        if manager and manager.is_active and manager.store and manager.store.owner:
+                            login(request, manager.store.owner, backend="django.contrib.auth.backends.ModelBackend")
                             request.session.save()
                             logger.info("Успешный вход менеджера по tg_auth для магазина '%s'", manager.store.name)
             except Exception as e:
@@ -76,11 +76,14 @@ class DynamicCookieDomainMiddleware:
     def __call__(self, request):
         response = self.get_response(request)
 
+        if response is None:
+            return response
+
         # Определяем, работает ли запрос по HTTPS
         is_https = (
             request.is_secure()
-            or request.headers.get("x-forwarded-proto", "").lower() == "https"
-            or (not getattr(settings, "DEBUG", True) and getattr(settings, "SITE_URL", "").startswith("https"))
+            or (request.headers.get("x-forwarded-proto") or "").lower() == "https"
+            or (not getattr(settings, "DEBUG", True) and (getattr(settings, "SITE_URL", "") or "").startswith("https"))
         )
 
         try:

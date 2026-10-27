@@ -60,8 +60,11 @@ def resolve_store_from_request(request):
             store = Store.objects.filter(instagram_username__iexact=var).first()
             if store:
                 if not store.slug:
-                    store.slug = subdomain
-                    store.save(update_fields=["slug"])
+                    try:
+                        store.slug = subdomain
+                        store.save(update_fields=["slug"])
+                    except Exception:
+                        pass
                 return store
 
         # 3. Умный поиск по имени магазина
@@ -78,16 +81,21 @@ def resolve_store_from_request(request):
                (name_compact and name_compact == sub_compact) or \
                (insta_compact and insta_compact == sub_compact):
                 if not s.slug:
-                    s.slug = subdomain
-                    s.save(update_fields=["slug"])
+                    try:
+                        s.slug = subdomain
+                        s.save(update_fields=["slug"])
+                    except Exception:
+                        pass
                 return s
 
     # 3. Проверяем query-параметры ?store_id=... или ?store=...
     store_id = request.GET.get("store_id")
-    if store_id:
+    if store_id and str(store_id).isdigit():
         try:
-            return Store.objects.filter(id=int(store_id)).first()
-        except (ValueError, TypeError):
+            val = int(store_id)
+            if 0 < val <= 2147483647:
+                return Store.objects.filter(id=val).first()
+        except Exception:
             pass
 
     store_slug = request.GET.get("store")
@@ -146,8 +154,8 @@ def catalog_view(request):
     if current_store:
         products_qs = products_qs.filter(store=current_store)
 
-    if category_id:
-        products_qs = products_qs.filter(category_id=category_id)
+    if category_id and str(category_id).isdigit():
+        products_qs = products_qs.filter(category_id=int(category_id))
 
     if search_query:
         import re
@@ -172,19 +180,31 @@ def catalog_view(request):
         # Собираем все уникальные фотографии (главная + галерея цветов) для свайпа влево/вправо
         img_urls = []
         if p.main_image:
-            img_urls.append(p.main_image.url)
+            try:
+                img_urls.append(p.main_image.url)
+            except Exception:
+                pass
         for pimg in p.images.all():
-            if pimg.image and pimg.image.url not in img_urls:
-                img_urls.append(pimg.image.url)
+            try:
+                if pimg.image and pimg.image.url not in img_urls:
+                    img_urls.append(pimg.image.url)
+            except Exception:
+                pass
         all_vars = list(p.variants.all())
         colors = []
         for v in all_vars:
-            if v.image and v.image.url not in img_urls:
-                img_urls.append(v.image.url)
+            try:
+                if v.image and v.image.url not in img_urls:
+                    img_urls.append(v.image.url)
+            except Exception:
+                pass
             if v.color and v.color not in colors:
                 colors.append(v.color)
 
-        final_p = int(p.base_price)
+        try:
+            final_p = int(float(p.base_price)) if p.base_price is not None else 0
+        except (ValueError, TypeError):
+            final_p = 0
         old_p = p.old_price
         inst_p = p.installment_price
         first_variant = all_vars[0] if all_vars else None
@@ -337,7 +357,6 @@ def submit_product_review(request, product_id):
     return redirect("product-detail", product_id=product.id)
 
 
-@csrf_exempt
 def _resolve_cart_variant(item):
     """Надежно находит ProductVariant по variant_id или id (product_id)."""
     if not isinstance(item, dict):
@@ -355,16 +374,24 @@ def _resolve_cart_variant(item):
     return v
 
 
+@csrf_exempt
 def create_telegram_order(request):
     """Принимает корзину, создает заказ и запускает опрос геопозиции в боте."""
     if request.method != "POST":
         return JsonResponse({"success": False, "error": "Only POST"})
 
-    data = json.loads(request.body)
+    try:
+        data = json.loads(request.body) if request.body else {}
+    except Exception:
+        return JsonResponse({"success": False, "error": "Неверный формат данных JSON."})
+
+    if not isinstance(data, dict):
+        return JsonResponse({"success": False, "error": "Ожидается объект JSON."})
+
     cart_items = data.get("cart")
     chat_id = data.get("chat_id")
 
-    if not cart_items or not chat_id:
+    if not cart_items or not isinstance(cart_items, list) or not chat_id:
         return JsonResponse({"success": False, "error": "Пустая корзина или нет chat_id"})
 
     site_lang = getattr(request, "LANGUAGE_CODE", "uz") or "uz"
@@ -413,16 +440,20 @@ def create_telegram_order(request):
             branch=initial_branch,
             customer=customer,
             status=Order.Status.PENDING_PAYMENT,
-            payment_method="click"
+            payment_method="click",
+            delivery_address="Уточняется в Telegram боте"
         )
 
         for item in cart_items:
-            try:
-                variant = ProductVariant.objects.select_for_update().get(id=item["variant_id"])
-            except (ProductVariant.DoesNotExist, ValueError, KeyError):
-                return JsonResponse({"success": False, "error": f"Товар не найден на складе."})
+            variant = _resolve_cart_variant(item)
+            if not variant:
+                return JsonResponse({"success": False, "error": "Один из товаров не найден на складе."})
 
-            qty = max(1, int(item.get("quantity", 1)))
+            try:
+                raw_q = item.get("quantity") if isinstance(item, dict) else 1
+                qty = max(1, min(999, int(raw_q or 1)))
+            except (ValueError, TypeError):
+                qty = 1
             if qty > variant.stock_quantity:
                 return JsonResponse({
                     "success": False,
@@ -518,13 +549,18 @@ def create_web_order(request):
             customer = Customer.objects.filter(phone_number=phone_number).first()
 
         if not customer:
-            customer = Customer.objects.create(
+            customer = Customer.objects.filter(instagram_scoped_id=scoped_id).first()
+
+        if not customer:
+            customer, _ = Customer.objects.get_or_create(
                 instagram_scoped_id=scoped_id,
-                phone_number=phone_number,
-                full_name=full_name or "Покупатель",
-                telegram_chat_id=str(chat_id) if chat_id else "",
-                telegram_username=username or "",
-                language=getattr(request, "LANGUAGE_CODE", "ru")
+                defaults={
+                    "phone_number": phone_number[:20],
+                    "full_name": (full_name or "Покупатель")[:255],
+                    "telegram_chat_id": str(chat_id) if chat_id else "",
+                    "telegram_username": (username or "")[:100],
+                    "language": getattr(request, "LANGUAGE_CODE", "ru")
+                }
             )
         else:
             if full_name and full_name != "Покупатель":
@@ -564,8 +600,8 @@ def create_web_order(request):
             customer=customer,
             status=Order.Status.PENDING_PAYMENT,
             delivery_address=delivery_address or "Локация по GPS",
-            delivery_latitude=latitude if latitude else None,
-            delivery_longitude=longitude if longitude else None,
+            delivery_latitude=_parse_coord(latitude),
+            delivery_longitude=_parse_coord(longitude),
             delivery_landmark=delivery_landmark,
             payment_method=payment_method,
         )
@@ -645,9 +681,17 @@ def order_upload_receipt_view(request, order_id):
     lang = getattr(request, "LANGUAGE_CODE", "uz") or "uz"
 
     if request.method == "POST":
+        if order.status == Order.Status.PAID:
+            messages.info(request, _("Этот заказ уже оплачен и подтвержден."))
+            return redirect(f"/{lang}/order/{order.id}/success/")
+
         receipt_file = request.FILES.get("receipt_image")
-        if not receipt_file:
+        if not receipt_file or getattr(receipt_file, "size", 0) == 0:
             messages.error(request, _("⚠️ Пожалуйста, обязательно прикрепите фото или скриншот чека об оплате!"))
+            return redirect(f"/{lang}/order/{order.id}/success/")
+
+        if getattr(receipt_file, "size", 0) > 15 * 1024 * 1024:
+            messages.error(request, _("⚠️ Размер файла чека не должен превышать 15 МБ."))
             return redirect(f"/{lang}/order/{order.id}/success/")
 
         order.payment_receipt = receipt_file
@@ -675,7 +719,7 @@ def order_upload_receipt_view(request, order_id):
             logger.warning("Не удалось отправить уведомление о чеке продавцу: %s", e)
 
         messages.success(request, _("✅ Чек успешно передан магазину! Скоро заказ будет доставлен."))
-        if order.store.telegram_bot_username and order.store.telegram_bot_active:
+        if order.store and order.store.telegram_bot_username and order.store.telegram_bot_active:
             bot_username = order.store.telegram_bot_username
         else:
             bot_username = getattr(settings, "TELEGRAM_BOT_USERNAME", "BrainMart_bot") or "BrainMart_bot"

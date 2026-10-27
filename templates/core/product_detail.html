@@ -1247,7 +1247,7 @@
                 price: parseFloat("{{ v.final_price|stringformat:'f' }}"),
                 in_stock: {{ v.in_stock|yesno:"true,false" }},
                 qty: parseInt("{{ v.stock_quantity|default:10 }}"),
-                image_url: "{% if v.image %}{{ v.image.url }}{% else %}{% endif %}"
+                image_url: "{{ v.image_url }}"
             },
             {% endfor %}
         ];

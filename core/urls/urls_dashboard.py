@@ -34,6 +34,7 @@ urlpatterns = [
     path("", views_dashboard.dashboard_home, name="seller-dashboard"),
     path("products/", views_dashboard.product_list_view, name="seller-products"),
     path("products/add/", views_dashboard.product_add_view, name="seller-product-add"),
+    path("products/create/", views_dashboard.product_add_view, name="dashboard-product-create"),
     path(
         "products/<int:product_id>/toggle/",
         views_dashboard.product_toggle_active_view,

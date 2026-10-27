@@ -23,6 +23,7 @@ Telegram Mini App интеграция + уведомления продавцу
 import logging
 import re
 import requests
+import secrets
 
 from django.conf import settings
 from django.core.cache import cache
@@ -190,7 +191,9 @@ def _prepare_order_photo(order: Order):
     image_paths = []
     image_urls = []
     for item in order.items.select_related("variant__product").all():
-        img = item.variant.image or item.variant.product.main_image
+        img = None
+        if item.variant:
+            img = item.variant.image or (item.variant.product.main_image if item.variant.product else None)
         if not img:
             continue
         if hasattr(img, "path") and os.path.exists(img.path):
@@ -1164,7 +1167,7 @@ class TelegramWebhookView(APIView):
             return
 
         message = data.get("message", {}) or {}
-        chat_id = message.get("chat", {}).get("id")
+        chat_id = (message.get("chat") or {}).get("id")
         text = message.get("text") or ""
         location = message.get("location")
         contact = message.get("contact")
@@ -2101,7 +2104,7 @@ class TelegramWebhookView(APIView):
                         )
     def _handle_callback(self, callback, bot_token=None):
         """Обрабатывает нажатие инлайн-кнопок (выбор языка)."""
-        chat_id = callback.get("message", {}).get("chat", {}).get("id")
+        chat_id = (callback.get("message") or {}).get("chat", {}).get("id") or (callback.get("from") or {}).get("id")
         callback_data = callback.get("data", "")
         callback_query_id = callback.get("id")
 
@@ -2113,10 +2116,12 @@ class TelegramWebhookView(APIView):
             if lang in ("ru", "uz", "en"):
                 customer = Customer.objects.filter(telegram_chat_id=str(chat_id)).order_by("-id").first()
                 if not customer:
-                    customer = Customer.objects.create(
-                        telegram_chat_id=str(chat_id),
+                    customer, _ = Customer.objects.get_or_create(
                         instagram_scoped_id=f"tg_{chat_id}",
-                        language=lang,
+                        defaults={
+                            "telegram_chat_id": str(chat_id),
+                            "language": lang,
+                        }
                     )
                 Customer.objects.filter(telegram_chat_id=str(chat_id)).update(language=lang)
 
@@ -2552,7 +2557,7 @@ class StoreCustomTelegramWebhookView(APIView):
             return
 
         message = data.get("message", {}) or {}
-        chat_id = message.get("chat", {}).get("id")
+        chat_id = (message.get("chat") or {}).get("id")
         text = (message.get("text") or "").strip()
 
         if not chat_id:

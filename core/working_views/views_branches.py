@@ -40,11 +40,15 @@ def calculate_distance_km(lat1, lon1, lat2, lon2):
     delta_phi = math.radians(lat2_f - lat1_f)
     delta_lambda = math.radians(lon2_f - lon1_f)
 
-    a = (math.sin(delta_phi / 2.0) ** 2 +
-         math.cos(phi1) * math.cos(phi2) *
-         math.sin(delta_lambda / 2.0) ** 2)
-    c = 2.0 * math.atan2(math.sqrt(a), math.sqrt(1.0 - a))
-    return round(R * c, 1)
+    try:
+        a = (math.sin(delta_phi / 2.0) ** 2 +
+             math.cos(phi1) * math.cos(phi2) *
+             math.sin(delta_lambda / 2.0) ** 2)
+        a = max(0.0, min(1.0, a))
+        c = 2.0 * math.atan2(math.sqrt(a), math.sqrt(1.0 - a))
+        return round(R * c, 1)
+    except Exception:
+        return None
 
 
 def find_nearest_branch(store, delivery_latitude=None, delivery_longitude=None, delivery_address=""):
@@ -117,7 +121,7 @@ def find_nearest_branch(store, delivery_latitude=None, delivery_longitude=None, 
                         return b, None
 
     # Сценарий 3: Возвращаем первый/основной филиал
-    return branches[0], None
+    return (branches[0], None) if branches else (None, None)
 
 
 @login_required

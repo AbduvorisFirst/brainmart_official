@@ -1113,13 +1113,13 @@
                         {% endif %}
                         <div class="wb-slide-content">
                             {% if b.badge %}
-                                <div class="wb-slide-badge">{% trans b.badge %}</div>
+                                <div class="wb-slide-badge">{{ b.badge }}</div>
                             {% endif %}
-                            <h2 class="wb-slide-title">{% trans b.title %}</h2>
+                            <h2 class="wb-slide-title">{{ b.title }}</h2>
                             {% if b.subtitle %}
-                                <p class="wb-slide-sub">{% trans b.subtitle %}</p>
+                                <p class="wb-slide-sub">{{ b.subtitle }}</p>
                             {% endif %}
-                            <span class="wb-slide-btn">{% trans b.button_text|default:_('Купить') %} →</span>
+                            <span class="wb-slide-btn">{% if b.button_text %}{{ b.button_text }}{% else %}{% trans "Купить" %}{% endif %} →</span>
                         </div>
                     </a>
                 {% endfor %}
@@ -1140,7 +1140,7 @@
             </a>
             {% for cat in categories %}
                 <a href="?{% if current_store_id %}store_id={{ current_store_id }}&{% endif %}category={{ cat.id }}{% if search_query %}&q={{ search_query }}{% endif %}" class="uzum-cat-pill {% if selected_category_id == cat.id %}active{% endif %}">
-                    {% trans cat.name %}
+                    {{ cat.name }}
                 </a>
             {% endfor %}
         </div>
@@ -1370,7 +1370,7 @@
                         <a href="{% url 'seller-dashboard' %}" style="background: #7000FF; color: #FFFFFF; padding: 11px 12px; border-radius: 12px; text-decoration: none; font-size: 13px; font-weight: 700; text-align: center; display: block; box-shadow: 0 4px 12px rgba(112, 0, 255, 0.3);">
                             📊 {% trans "В кабинет" %}
                         </a>
-                        <a href="{% url 'dashboard-product-create' %}" style="background: rgba(255,255,255,0.08); color: #FFFFFF; padding: 11px 12px; border-radius: 12px; text-decoration: none; font-size: 13px; font-weight: 700; text-align: center; display: block; border: 1px solid rgba(255,255,255,0.12);">
+                        <a href="{% url 'seller-product-add' %}" style="background: rgba(255,255,255,0.08); color: #FFFFFF; padding: 11px 12px; border-radius: 12px; text-decoration: none; font-size: 13px; font-weight: 700; text-align: center; display: block; border: 1px solid rgba(255,255,255,0.12);">
                             ➕ {% trans "Добавить товар" %}
                         </a>
                     </div>

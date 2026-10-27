@@ -809,6 +809,15 @@ class Product(models.Model):
         return f"{self.name} ({self.store.name})"
 
     @property
+    def main_image_url(self):
+        try:
+            if self.main_image:
+                return self.main_image.url
+        except Exception:
+            pass
+        return ""
+
+    @property
     def average_rating(self):
         reviews = self.reviews.filter(is_visible=True)
         if not reviews.exists():
@@ -917,7 +926,18 @@ class ProductVariant(models.Model):
 
     @property
     def final_price(self):
-        return self.price_override if self.price_override is not None else self.product.base_price
+        from decimal import Decimal
+        price = self.price_override if self.price_override is not None else (self.product.base_price if self.product else Decimal("0.00"))
+        return price if price is not None else Decimal("0.00")
+
+    @property
+    def image_url(self):
+        try:
+            if self.image:
+                return self.image.url
+        except Exception:
+            pass
+        return ""
 
     @property
     def in_stock(self):
@@ -1030,7 +1050,7 @@ class Order(models.Model):
     status = models.CharField(
         max_length=30, choices=Status.choices, default=Status.PENDING_PAYMENT
     )
-    delivery_address = models.CharField(max_length=500)
+    delivery_address = models.CharField(max_length=500, blank=True, default="")
     # Координаты точки доставки — если клиент разрешил геолокацию в браузере,
     # заполняются автоматически (см. product_detail.html). Необязательные:
     # если клиент не дал доступ к геолокации, курьер работает по текстовому адресу.
@@ -1129,7 +1149,7 @@ class Order(models.Model):
         target_branch = self.branch
         if target_branch and target_branch.latitude and target_branch.longitude:
             return calculate_distance_km(self.delivery_latitude, self.delivery_longitude, target_branch.latitude, target_branch.longitude)
-        if self.store.latitude and self.store.longitude:
+        if self.store and self.store.latitude and self.store.longitude:
             return calculate_distance_km(self.delivery_latitude, self.delivery_longitude, self.store.latitude, self.store.longitude)
         return None
 
@@ -1194,7 +1214,8 @@ class OrderItem(models.Model):
 
     @property
     def subtotal(self):
-        return self.price_at_purchase * self.quantity
+        from decimal import Decimal
+        return (self.price_at_purchase or Decimal("0.00")) * (self.quantity or 1)
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')

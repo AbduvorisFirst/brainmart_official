@@ -98,10 +98,13 @@ def dashboard_home(request):
                 while Store.objects.filter(slug=slug_val).exists():
                     slug_val = f"{base_slug}-{counter}"
                     counter += 1
+                import secrets
+                final_ig = f"{slug_val.replace('-', '_')}_{secrets.token_hex(2)}"
                 new_store = Store.objects.create(
                     owner=request.user,
                     name=store_name,
                     slug=slug_val,
+                    instagram_username=final_ig,
                     phone_number=phone or "998900000000",
                     is_active=True,
                 )
@@ -314,13 +317,20 @@ def product_add_view(request):
                     store.category = category
                     store.save(update_fields=["category"])
 
+        try:
+            price_clean = str(base_price).replace(" ", "").replace(",", ".")
+            price_val = max(0.0, float(price_clean))
+        except (ValueError, TypeError):
+            messages.error(request, "Ошибка: некорректная цена товара.")
+            return redirect("seller-product-add")
+
         # Создаём продукт
         product = Product.objects.create(
             store=store,
             category=category,
             name=name,
             description=description,
-            base_price=float(base_price),
+            base_price=price_val,
         )
 
         target_main_color = request.POST.get("main_color_idx", "1").strip()
@@ -510,8 +520,11 @@ def order_mark_delivered_view(request, order_id):
         order.status = Order.Status.DELIVERED
         order.save(update_fields=["status"])
 
-        from core.payments.payout_service import release_order_funds_and_auto_payout
-        release_order_funds_and_auto_payout(order)
+        try:
+            from core.payments.payout_service import release_order_funds_and_auto_payout
+            release_order_funds_and_auto_payout(order)
+        except Exception as e:
+            logger.warning("Ошибка при авто-выплате по заказу #%s: %s", order.id, e)
 
         messages.success(request, f"Заказ #{order.id} успешно доставлен!")
 
@@ -556,8 +569,18 @@ def product_delete_view(request, product_id):
     product = get_object_or_404(Product, id=product_id, store=store)
 
     if request.method == "POST":
-        product.delete()
-        messages.success(request, "Товар успешно удален!")
+        from django.db.models.deletion import ProtectedError
+        try:
+            product.delete()
+            messages.success(request, "Товар успешно удален!")
+        except ProtectedError:
+            product.is_active = False
+            product.save(update_fields=["is_active"])
+            messages.warning(
+                request,
+                "Товар присутствует в оформленных заказах, поэтому он был деактивирован и скрыт из витрины вместо полного удаления."
+            )
+        return redirect("seller-products")
 
     return redirect("seller-products")
 
@@ -884,6 +907,9 @@ def telegram_init_auth_api(request):
     except Exception:
         return JsonResponse({"success": False, "error": "invalid_user_json"}, status=400)
 
+    if not isinstance(user_info, dict):
+        return JsonResponse({"success": False, "error": "invalid_user_json"}, status=400)
+
     tg_id = user_info.get("id")
     tg_uname = (user_info.get("username") or "").strip().lstrip("@")
 
@@ -960,6 +986,10 @@ def seller_login_view(request):
 
     # Проверяем параметр tg_auth для 1-клик входа из Telegram
     tg_auth = request.GET.get("tg_auth")
+    if not tg_auth and "next" in request.GET:
+        import urllib.parse
+        next_qs = urllib.parse.parse_qs(urllib.parse.urlparse(request.GET.get("next", "")).query)
+        tg_auth = next_qs.get("tg_auth", [None])[0]
     if tg_auth:
         store = Store.objects.filter(telegram_link_token=tg_auth).select_related("owner").first()
         if store and store.owner:
@@ -1168,7 +1198,10 @@ def seller_verify_otp_view(request):
 
     store = getattr(user, "store", None)
     now_ts = timezone.now().timestamp()
-    expires_ts = request.session.get("otp_expires_at", 0)
+    try:
+        expires_ts = float(request.session.get("otp_expires_at") or 0)
+    except (ValueError, TypeError):
+        expires_ts = now_ts + 600
     if not expires_ts:
         expires_ts = now_ts + 600
 

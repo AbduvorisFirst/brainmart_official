@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Ошибка сервера (500) | BrainMart</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg: #0B0E14;
+            --surface: #141824;
+            --surface-border: rgba(255, 255, 255, 0.08);
+            --primary: #7000FF;
+            --primary-gradient: linear-gradient(135deg, #7000FF 0%, #0055FF 100%);
+            --text-main: #FFFFFF;
+            --text-muted: #94A3B8;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 16px;
+            background-image: 
+                radial-gradient(circle at 50% 20%, rgba(112, 0, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0, 85, 255, 0.1) 0%, transparent 50%);
+        }
+        .error-card {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: 28px;
+            padding: 36px 24px;
+            max-width: 460px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .logo-row {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            color: #FFFFFF;
+            margin-bottom: 24px;
+        }
+        .logo-row span.bolt {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 22px;
+        }
+        .icon-circle {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            border-radius: 24px;
+            background: rgba(112, 0, 255, 0.14);
+            border: 1.5px solid rgba(112, 0, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            box-shadow: 0 10px 30px rgba(112, 0, 255, 0.2);
+        }
+        .error-badge {
+            display: inline-block;
+            background: rgba(239, 68, 68, 0.15);
+            color: #F87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .error-title {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #FFFFFF;
+            margin-bottom: 10px;
+            line-height: 1.25;
+        }
+        .error-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.55;
+            margin-bottom: 24px;
+        }
+        .uz-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.06);
+            margin: 16px 0;
+        }
+        .btn-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 14px 20px;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+        }
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: #FFFFFF;
+            box-shadow: 0 6px 20px rgba(112, 0, 255, 0.35);
+        }
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: #E2E8F0;
+            border: 1px solid var(--surface-border);
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.09);
+        }
+        .btn-secondary:active {
+            transform: scale(0.98);
+        }
+        .support-hint {
+            font-size: 12px;
+            color: #64748B;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-card">
+        <div class="logo-row">
+            <span class="bolt">⚡</span>
+            <span>BrainMart</span>
+        </div>
+
+        <div class="icon-circle">🔄</div>
+
+        <div class="error-badge">Код ошибки 500</div>
+
+        <h1 class="error-title">Временный сбой на сервере</h1>
+        <p class="error-desc">
+            Произошла кратковременная ошибка. Мы уже получили отчёт и ведём работы по устранению.
+        </p>
+
+        <div class="uz-divider"></div>
+
+        <p class="error-desc" style="font-size: 13px; margin-bottom: 22px;">
+            🇺🇿 <i>Kutilmagan xatolik yuz berdi. Sahifani qayta yangilang yoki Telegram bot orqali murojaat qiling.</i>
+        </p>
+
+        <div class="btn-stack">
+            <button class="btn btn-primary" onclick="reloadApp()">
+                <span>🔄</span>
+                <span>Обновить страницу / Qayta yuklash</span>
+            </button>
+
+            <a href="/" class="btn btn-secondary">
+                <span>🏠</span>
+                <span>На главную / Bosh sahifaga</span>
+            </a>
+
+            <a href="https://t.me/BrainMart_bot" class="btn btn-secondary" target="_blank" rel="noopener">
+                <span>💬</span>
+                <span>Поддержка в Telegram</span>
+            </a>
+        </div>
+
+        <div class="support-hint">
+            BrainMart Cloud • Tashkent, Uzbekistan
+        </div>
+    </div>
+
+    <script>
+        // Интеграция с Telegram Mini App
+        if (window.Telegram && window.Telegram.WebApp) {
+            try {
+                window.Telegram.WebApp.ready();
+                window.Telegram.WebApp.expand();
+                if (window.Telegram.WebApp.setHeaderColor) {
+                    window.Telegram.WebApp.setHeaderColor('#0B0E14');
+                }
+                if (window.Telegram.WebApp.setBackgroundColor) {
+                    window.Telegram.WebApp.setBackgroundColor('#0B0E14');
+                }
+            } catch (e) {}
+        }
+
+        function reloadApp() {
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+                try {
+                    window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+                } catch (e) {}
+            }
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>
