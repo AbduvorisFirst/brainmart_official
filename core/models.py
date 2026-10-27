@@ -847,6 +847,22 @@ class Product(models.Model):
         except (ValueError, TypeError):
             return ""
 
+    @property
+    def installment_price(self):
+        """Ежемесячный платеж в рассрочку (12 мес, как в Uzum Nasiya)."""
+        try:
+            return int(float(self.base_price) / 12)
+        except (ValueError, TypeError):
+            return 0
+
+    @property
+    def formatted_installment(self):
+        try:
+            val = self.installment_price
+            return f"{val:,}".replace(",", " ") if val else ""
+        except (ValueError, TypeError):
+            return ""
+
 
 class ProductVariant(models.Model):
     """

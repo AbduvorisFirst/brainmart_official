@@ -219,6 +219,7 @@ def catalog_view(request):
             seen.add(key)
             final_p = int(v.final_price)
             old_p = int(final_p * 1.20)
+            inst_p = int(final_p / 12) if final_p else 0
             cards.append({
                 "id": v.product.id,
                 "color": v.color,
@@ -228,6 +229,8 @@ def catalog_view(request):
                 "old_price": old_p,
                 "formatted_old_price": f"{old_p:,}".replace(",", " "),
                 "discount_percent": "17",
+                "installment_price": inst_p,
+                "formatted_installment": f"{inst_p:,}".replace(",", " ") if inst_p else "",
                 "main_image": v.image if v.image else v.product.main_image,
                 "store": v.product.store,
                 "category": v.product.category,
