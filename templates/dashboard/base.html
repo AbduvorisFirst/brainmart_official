@@ -179,31 +179,75 @@
         /* ─── НИЖНЕЕ МЕНЮ (Bottom Nav — только смартфоны) ─── */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0;
-            background: rgba(10, 12, 17, 0.88);
-            backdrop-filter: blur(28px) saturate(200%);
-            -webkit-backdrop-filter: blur(28px) saturate(200%);
+            background: rgba(10, 12, 17, 0.92);
+            backdrop-filter: blur(32px) saturate(200%);
+            -webkit-backdrop-filter: blur(32px) saturate(200%);
             border-top: 1px solid var(--border);
-            display: flex; justify-content: flex-start; align-items: center;
-            padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+            display: flex; justify-content: space-around; align-items: center;
+            height: auto; min-height: 60px;
+            padding: 6px 4px env(safe-area-inset-bottom, 0px);
             z-index: 1000;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
+            overflow: visible;
             scrollbar-width: none;
-            gap: 2px;
+            gap: 0;
         }
         .bottom-nav::-webkit-scrollbar { display: none; }
         .nav-item {
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
-            color: var(--text-muted); text-decoration: none; font-size: 10px; font-weight: 600;
-            transition: all 0.18s ease;
-            flex-shrink: 0; min-width: 60px; padding: 6px 6px; border-radius: 10px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+            color: var(--text-muted); text-decoration: none; font-size: 9px; font-weight: 600;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            flex: 1; min-width: 0; padding: 5px 4px; border-radius: 12px;
+            position: relative;
         }
         .nav-item.active {
-            color: #FFFFFF;
-            background: rgba(255, 255, 255, 0.08);
+            color: var(--primary);
         }
-        .nav-icon { font-size: 18px; transition: transform 0.18s; }
-        .nav-item.active .nav-icon { transform: scale(1.1); }
+        .nav-item.active .nav-pill {
+            opacity: 1;
+            transform: scaleX(1);
+        }
+        .nav-pill {
+            position: absolute;
+            top: 4px; left: 50%; transform: translateX(-50%) scaleX(0.7);
+            width: 44px; height: 32px;
+            background: rgba(41, 151, 255, 0.15);
+            border-radius: 10px;
+            opacity: 0;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: -1;
+        }
+        .nav-item.active .nav-pill {
+            opacity: 1;
+            transform: translateX(-50%) scaleX(1);
+        }
+        .nav-icon { font-size: 22px; transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; z-index: 1; }
+        .nav-item.active .nav-icon { transform: scale(1.15); }
+        .nav-label { position: relative; z-index: 1; }
+
+        /* FAB — Floating Action Button */
+        .nav-fab-wrap {
+            flex: 1; display: flex; flex-direction: column; align-items: center;
+            justify-content: center; position: relative; min-width: 0;
+            /* push FAB above nav bar */
+            margin-top: -20px;
+        }
+        .nav-fab {
+            width: 52px; height: 52px; border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 4px 18px rgba(41, 151, 255, 0.55), 0 1px 4px rgba(0,0,0,0.4);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px; color: #fff; text-decoration: none;
+            transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s;
+            border: 3px solid rgba(10, 12, 17, 0.85);
+        }
+        .nav-fab:active {
+            transform: scale(0.92);
+            box-shadow: 0 2px 8px rgba(41, 151, 255, 0.4);
+        }
+        .nav-fab-label {
+            font-size: 9px; font-weight: 600; color: var(--text-muted);
+            margin-top: 2px; letter-spacing: 0.02em;
+        }
 
         .badge {
             padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;
@@ -450,65 +494,79 @@
 
     <!-- ─── МОБИЛЬНАЯ ШАПКА ─── -->
     <header class="top-header">
-        <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
-            <div style="width: 32px; height: 32px; border-radius: 10px; background: linear-gradient(135deg, rgba(37, 99, 235, 0.35), rgba(16, 185, 129, 0.3)); border: 1px solid rgba(255,255,255,0.14); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
-                ⚡
+        <!-- LEFT: Squircle avatar + store name -->
+        <div style="display: flex; align-items: center; gap: 9px; min-width: 0; flex: 1;">
+            <div style="width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, #2563EB, #10B981); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #FFFFFF; flex-shrink: 0; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.12);">
+                {% if user.store.logo %}
+                    <img src="{{ user.store.logo.url }}" alt="{{ user.store.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% else %}
+                    <span>{{ user.store.name|slice:":1"|upper }}</span>
+                {% endif %}
             </div>
-            <div style="display: flex; flex-direction: column; min-width: 0;">
-                <span style="font-size: 13.5px; font-weight: 800; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.01em;">{{ user.store.name }}</span>
-                <span style="font-size: 10px; color: #30D158; font-weight: 700; display: inline-flex; align-items: center; gap: 3px;">
-                    <span style="width: 5px; height: 5px; border-radius: 50%; background: #30D158; display: inline-block;"></span> {% trans "Активен" %}
-                </span>
+            <div style="display: flex; align-items: center; gap: 5px; min-width: 0;">
+                <span style="font-size: 14px; font-weight: 800; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.01em;">{{ user.store.name }}</span>
+                <span style="color: #38BDF8; font-size: 11px;" title="{% trans 'Официальный магазин' %}">✓</span>
             </div>
         </div>
 
+        <!-- RIGHT: Clean action buttons: Витрина + Lang + Exit -->
         <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
-            <a href="/{{ CURRENT_LANG|default:'ru' }}/?store_id={{ user.store.id }}" target="_blank" style="background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: #FFFFFF; font-size: 11px; font-weight: 700; text-decoration: none; padding: 6px 10px; border-radius: 9px; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s ease;">
-                👁️ {% trans "Витрина" %} ↗
+            {% get_current_language as CURRENT_LANG %}
+            <a href="/{{ CURRENT_LANG|default:'ru' }}/?store_id={{ user.store.id }}" target="_blank" style="background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: #FFFFFF; font-size: 11.5px; font-weight: 700; text-decoration: none; padding: 6px 10px; border-radius: 10px; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s ease;">
+                <span>{% trans "Витрина" %}</span> ↗
             </a>
-            <div class="apple-lang-control" style="padding: 2px;">
-                {% get_current_language as CURRENT_LANG %}
-                {% get_available_languages as LANGUAGES %}
+
+            <!-- Compact Language Switcher -->
+            {% get_available_languages as LANGUAGES %}
+            <div style="display: flex; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 9px; padding: 2px;">
                 {% for lang_code, lang_name in LANGUAGES %}
-                    <form action="{% url 'set_language' %}" method="post" style="display:inline">
-                        {% csrf_token %}
-                        <input name="next" type="hidden" value="{{ request.get_full_path }}">
-                        <input name="language" type="hidden" value="{{ lang_code }}">
-                        <button type="submit" class="{% if lang_code == CURRENT_LANG %}active{% endif %}" style="padding: 3px 6px; font-size: 10px; font-weight: 800;">
-                            {% if lang_code == 'ru' %}RU{% elif lang_code == 'uz' %}UZ{% else %}EN{% endif %}
-                        </button>
-                    </form>
+                    {% if lang_code == 'ru' or lang_code == 'uz' %}
+                        <form action="{% url 'set_language' %}" method="post" style="display:inline; margin: 0;">
+                            {% csrf_token %}
+                            <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                            <input name="language" type="hidden" value="{{ lang_code }}">
+                            <button type="submit" style="background: {% if lang_code == CURRENT_LANG %}var(--primary, #2563EB){% else %}transparent{% endif %}; color: {% if lang_code == CURRENT_LANG %}#FFFFFF{% else %}var(--text-muted){% endif %}; border: none; padding: 3px 6px; border-radius: 7px; font-size: 10px; font-weight: 800; cursor: pointer; line-height: 1.2;">
+                                {{ lang_code|upper }}
+                            </button>
+                        </form>
+                    {% endif %}
                 {% endfor %}
             </div>
-            <a href="{% url 'seller-logout' %}" title="{% trans 'Выйти' %}" style="color: var(--text-muted); text-decoration: none; font-size: 16px; padding: 5px 7px; border-radius: 9px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.04); border: 1px solid var(--border);">🚪</a>
+
+            <a href="{% url 'seller-logout' %}" title="{% trans 'Выйти' %}" style="color: var(--text-muted); text-decoration: none; font-size: 15px; padding: 5px 8px; border-radius: 9px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.04); border: 1px solid var(--border);">🚪</a>
         </div>
     </header>
 
-    <!-- ─── МОБИЛЬНОЕ НИЖНЕЕ МЕНЮ (Apple Dock) ─── -->
+    <!-- ─── МОБИЛЬНОЕ НИЖНЕЕ МЕНЮ (Apple Dock + FAB) ─── -->
     <nav class="bottom-nav">
-        <a href="{% url 'seller-dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-dashboard' %}active{% endif %}" style="flex: 1; min-width: 0; padding: 6px 2px;">
+        <!-- Главная -->
+        <a href="{% url 'seller-dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-dashboard' %}active{% endif %}">
+            <span class="nav-pill"></span>
             <span class="nav-icon">📊</span>
-            <span>{% trans "Главная" %}</span>
+            <span class="nav-label">{% trans "Главная" %}</span>
         </a>
-        <a href="{% url 'seller-products' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-products' or request.resolver_match.url_name == 'seller-product-add' %}active{% endif %}" style="flex: 1; min-width: 0; padding: 6px 2px;">
+        <!-- Товары -->
+        <a href="{% url 'seller-products' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-products' or request.resolver_match.url_name == 'seller-product-add' %}active{% endif %}">
+            <span class="nav-pill"></span>
             <span class="nav-icon">📦</span>
-            <span>{% trans "Товары" %}</span>
+            <span class="nav-label">{% trans "Товары" %}</span>
         </a>
-        <a href="{% url 'seller-orders' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-orders' %}active{% endif %}" style="flex: 1; min-width: 0; padding: 6px 2px;">
+        <!-- FAB: Add product -->
+        <div class="nav-fab-wrap">
+            <a href="{% url 'seller-product-add' %}" class="nav-fab" title="{% trans 'Добавить товар' %}">＋</a>
+            <span class="nav-fab-label">{% trans "Создать" %}</span>
+        </div>
+        <!-- Заказы -->
+        <a href="{% url 'seller-orders' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-orders' %}active{% endif %}">
+            <span class="nav-pill"></span>
             <span class="nav-icon">🚚</span>
-            <span>{% trans "Заказы" %}</span>
+            <span class="nav-label">{% trans "Заказы" %}</span>
         </a>
-        <a href="{% url 'seller-finance' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-finance' %}active{% endif %}" style="flex: 1; min-width: 0; padding: 6px 2px;">
-            <span class="nav-icon">💰</span>
-            <span>{% trans "Финансы" %}</span>
-        </a>
-        <a href="{% url 'seller-customers' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-customers' %}active{% endif %}" style="flex: 1; min-width: 0; padding: 6px 2px;">
-            <span class="nav-icon">👥</span>
-            <span>{% trans "Клиенты" %}</span>
-        </a>
-        <a href="{% url 'seller-settings' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-settings' or request.resolver_match.url_name == 'seller-branches' or request.resolver_match.url_name == 'seller-reviews' %}active{% endif %}" style="flex: 1; min-width: 0; padding: 6px 2px;">
+        <!-- Меню -->
+        <a href="{% url 'seller-settings' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-settings' or request.resolver_match.url_name == 'seller-branches' or request.resolver_match.url_name == 'seller-reviews' %}active{% endif %}">
+            <span class="nav-pill"></span>
             <span class="nav-icon">⚙️</span>
-            <span>{% trans "Меню" %}</span>
+            <span class="nav-label">{% trans "Меню" %}</span>
         </a>
     </nav>
 

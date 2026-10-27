@@ -21,13 +21,25 @@
     .metric-card {
         background: var(--card-bg);
         border: 1px solid var(--border);
-        border-radius: var(--radius-lg);
-        padding: 18px 20px;
+        border-radius: 20px;
+        padding: 16px 18px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 4px 18px rgba(0, 0, 0, 0.35);
-        transition: border-color 0.18s ease, transform 0.18s ease;
+        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06), 0 4px 20px rgba(0, 0, 0, 0.4);
+        transition: transform 0.18s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    /* Subtle colored top border accent */
+    .metric-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+        opacity: 0.6;
+        border-radius: 20px 20px 0 0;
     }
     .metric-card:hover {
         border-color: rgba(255, 255, 255, 0.16);
@@ -45,22 +57,23 @@
         letter-spacing: -0.01em;
     }
     .metric-icon-pill {
-        width: 32px;
-        height: 32px;
-        border-radius: 9px;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid var(--border);
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 15px;
+        font-size: 16px;
     }
     .metric-value {
-        font-size: 24px;
-        font-weight: 800;
+        font-size: 22px;
+        font-weight: 900;
         color: white;
-        letter-spacing: -0.03em;
-        line-height: 1.15;
+        letter-spacing: -0.04em;
+        line-height: 1.1;
+        margin-top: 6px;
     }
     .metric-sub {
         font-size: 11.5px;
@@ -69,6 +82,18 @@
         display: flex;
         align-items: center;
         gap: 4px;
+    }
+    @media (max-width: 480px) {
+        .stats-grid {
+            gap: 10px;
+        }
+        .metric-card {
+            padding: 14px 14px;
+            border-radius: 16px;
+        }
+        .metric-value {
+            font-size: 19px;
+        }
     }
 
     /* ─── Двухколоночный лэптоп-грид ─── */
@@ -122,9 +147,297 @@
         border-color: var(--primary);
         background: rgba(41, 151, 255, 0.04);
     }
+
+    /* ─── Instagram / Apple Profile Card ("через квадрат") ─── */
+    .insta-profile-card {
+        background: var(--card-bg, #131722);
+        border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+        border-radius: 22px;
+        padding: 18px 20px;
+        margin-bottom: 20px;
+        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06), 0 8px 28px rgba(0, 0, 0, 0.4);
+    }
+    .insta-profile-row {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+    .insta-avatar-square {
+        width: 66px;
+        height: 66px;
+        border-radius: 18px; /* Squircle */
+        background: linear-gradient(135deg, #2563EB, #10B981);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+        font-weight: 900;
+        color: #FFFFFF;
+        flex-shrink: 0;
+        overflow: hidden;
+        border: 2px solid rgba(255, 255, 255, 0.14);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+    .insta-avatar-square img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    .insta-stats-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        flex: 1;
+        gap: 8px;
+    }
+    .insta-stat-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        flex: 1;
+    }
+    .insta-stat-number {
+        font-size: 18px;
+        font-weight: 800;
+        color: #FFFFFF;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+    }
+    .insta-stat-label {
+        font-size: 11px;
+        color: var(--text-muted, #94A3B8);
+        font-weight: 600;
+        margin-top: 3px;
+        letter-spacing: -0.01em;
+    }
+    .insta-info-row {
+        margin-top: 14px;
+    }
+    .insta-name-text {
+        font-size: 16px;
+        font-weight: 800;
+        color: #FFFFFF;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        letter-spacing: -0.01em;
+    }
+    .insta-check-badge {
+        color: #38BDF8;
+        font-size: 13px;
+    }
+    .insta-subdomain-tag {
+        font-size: 12px;
+        color: var(--text-muted, #94A3B8);
+        font-weight: 500;
+        margin-top: 2px;
+    }
+    .insta-buttons-grid {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 14px;
+    }
+    .insta-action-btn {
+        flex: 1;
+        padding: 9px 12px;
+        border-radius: 12px;
+        font-size: 12.5px;
+        font-weight: 700;
+        text-align: center;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: all 0.16s ease;
+        border: 1px solid var(--border);
+    }
+    .insta-action-primary {
+        background: rgba(37, 99, 235, 0.18);
+        border-color: rgba(37, 99, 235, 0.4);
+        color: #93C5FD;
+    }
+    .insta-action-primary:hover {
+        background: rgba(37, 99, 235, 0.3);
+        color: #FFFFFF;
+    }
+    .insta-action-secondary {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: #FFFFFF;
+    }
+    .insta-action-secondary:hover {
+        background: rgba(255, 255, 255, 0.09);
+    }
+    .insta-action-icon-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #FFFFFF;
+        text-decoration: none;
+        font-size: 15px;
+        flex-shrink: 0;
+        transition: all 0.16s ease;
+    }
+    .insta-action-icon-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* ─── Interactive Colors & Sizes Chips ─── */
+    .color-chip-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 11px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #E2E8F0;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.15s ease;
+    }
+    .color-chip-btn:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+    .color-chip-btn.selected {
+        background: rgba(37, 99, 235, 0.22);
+        border-color: #3B82F6;
+        color: #FFFFFF;
+        font-weight: 700;
+        box-shadow: 0 0 0 1px #3B82F6;
+    }
+    .color-chip-circle {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        display: inline-block;
+        flex-shrink: 0;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+    .size-category-tabs {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 8px;
+        background: rgba(255, 255, 255, 0.04);
+        padding: 3px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .size-tab-btn {
+        flex: 1;
+        padding: 5px 8px;
+        border-radius: 8px;
+        border: none;
+        background: transparent;
+        color: var(--text-muted);
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    .size-tab-btn.active {
+        background: rgba(255, 255, 255, 0.14);
+        color: #FFFFFF;
+    }
+    .size-chip-btn {
+        min-width: 40px;
+        height: 34px;
+        padding: 0 10px;
+        border-radius: 9px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #E2E8F0;
+        font-size: 12.5px;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        user-select: none;
+        transition: all 0.15s ease;
+    }
+    .size-chip-btn:hover {
+        background: rgba(255, 255, 255, 0.09);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+    .size-chip-btn.selected {
+        background: var(--primary, #2563EB);
+        border-color: transparent;
+        color: #FFFFFF;
+        box-shadow: 0 2px 10px rgba(37, 99, 235, 0.45);
+        transform: scale(1.02);
+    }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- ─── INSTAGRAM / APPLE STORE PROFILE CARD ("через квадрат") ─── -->
+    <div class="insta-profile-card">
+        <div class="insta-profile-row">
+            <!-- Squircle Avatar (Instagram style) -->
+            <div class="insta-avatar-square">
+                {% if store.logo %}
+                    <img src="{{ store.logo.url }}" alt="{{ store.name }}">
+                {% else %}
+                    <span>{{ store.name|slice:":1"|upper }}</span>
+                {% endif %}
+            </div>
+
+            <!-- 3 Stat Columns (Публикации / Заказы / Выручка) -->
+            <div class="insta-stats-container">
+                <div class="insta-stat-item">
+                    <span class="insta-stat-number">{{ products_count }}</span>
+                    <span class="insta-stat-label">{% trans "товаров" %}</span>
+                </div>
+                <div class="insta-stat-item">
+                    <span class="insta-stat-number">{{ paid_orders_count }}</span>
+                    <span class="insta-stat-label">{% trans "заказов" %}</span>
+                </div>
+                <div class="insta-stat-item">
+                    <span class="insta-stat-number">{{ total_revenue|floatformat:0|intcomma }}</span>
+                    <span class="insta-stat-label">{% trans "сум" %}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Store Name and Handle -->
+        <div class="insta-info-row">
+            <div class="insta-name-text">
+                {{ store.name }}
+                <span class="insta-check-badge" title="{% trans 'Официальный магазин' %}">✓</span>
+            </div>
+            <div class="insta-subdomain-tag">
+                @{{ store.subdomain|default:store.id }}.brainmart.uz
+            </div>
+        </div>
+
+        <!-- Instagram-style Rounded Action Buttons -->
+        <div class="insta-buttons-grid">
+            {% get_current_language as CURRENT_LANG %}
+            <a href="/{{ CURRENT_LANG|default:'ru' }}/?store_id={{ store.id }}" target="_blank" class="insta-action-btn insta-action-primary">
+                👁️ {% trans "Открыть витрину" %} ↗
+            </a>
+            <a href="javascript:void(0)" onclick="toggleQuickAddForm();" class="insta-action-btn insta-action-secondary">
+                ➕ {% trans "Создать товар" %}
+            </a>
+            <a href="{% url 'seller-settings' %}" class="insta-action-icon-btn" title="{% trans 'Настройки магазина' %}">
+                ⚙️
+            </a>
+        </div>
+    </div>
 
     <!-- СТАТУС МОДЕРАЦИИ -->
     {% if not store.is_active %}
@@ -255,15 +568,12 @@
                 <div>
                     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                         <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: white; letter-spacing: -0.02em;">
-                            {% trans "Каталог & Создание товара" %}
+                            {% trans "Мои товары" %}
                         </h3>
                         <span class="badge badge-active" style="font-size: 10px; padding: 2px 7px;">
                             {{ products_count }} {% trans "товаров" %}
                         </span>
                     </div>
-                    <span style="font-size: 12px; color: var(--text-muted); display: block; margin-top: 2px;">
-                        {% trans "Создайте товар прямо здесь — он сразу появится в боте и на веб-витрине" %}
-                    </span>
                 </div>
             </div>
 
@@ -282,12 +592,9 @@
 
         <!-- ФОРМА БЫСТРОГО СОЗДАНИЯ ТОВАРА -->
         <div id="quickAddFormContainer" style="{% if products_count > 0 %}display: none;{% endif %} background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px; margin-top: 14px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">
+            <div style="display: flex; align-items: center; margin-bottom: 14px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">
                 <span style="font-size: 13px; font-weight: 700; color: white;">
-                    ✨ {% trans "Экспресс-добавление товара" %}
-                </span>
-                <span style="font-size: 11px; color: var(--text-muted);">
-                    {% trans "Меньше 1 минуты" %}
+                    📦 {% trans "Новый товар" %}
                 </span>
             </div>
 
@@ -322,15 +629,213 @@
                         <input type="number" min="0" name="stock_quantity" value="10">
                     </div>
 
+                    <!-- Color chip selector -->
                     <div>
-                        <label>{% trans "Цвет / Оттенок" %}</label>
-                        <input type="text" name="color" placeholder="{% trans 'Черный, Белый...' %}">
+                        <label>{% trans "Цвета товара" %}</label>
+                        <div class="color-picker-grid" id="colorChipsContainer">
+                            <div class="color-chip-btn" data-color="Черный" onclick="toggleColorPick(this)">
+                                <span class="color-chip-circle" style="background: #181818;"></span>
+                                <span>Черный</span>
+                            </div>
+                            <div class="color-chip-btn" data-color="Белый" onclick="toggleColorPick(this)">
+                                <span class="color-chip-circle" style="background: #f8f9fa; border-color: #888;"></span>
+                                <span>Белый</span>
+                            </div>
+                            <div class="color-chip-btn" data-color="Серый" onclick="toggleColorPick(this)">
+                                <span class="color-chip-circle" style="background: #6c757d;"></span>
+                                <span>Серый</span>
+                            </div>
+                            <div class="color-chip-btn" data-color="Бежевый" onclick="toggleColorPick(this)">
+                                <span class="color-chip-circle" style="background: #d4b896;"></span>
+                                <span>Бежевый</span>
+                            </div>
+                            <div class="color-chip-btn" data-color="Коричневый" onclick="toggleColorPick(this)">
+                                <span class="color-chip-circle" style="background: #7b4f2e;"></span>
+                                <span>Коричневый</span>
+                            </div>
+                            <div class="color-chip-btn" data-color="Красный" onclick="toggleColorPick(this)">
+                                <span class="color-chip-circle" style="background: #dc2626;"></span>
+                                <span>Красный</span>
+                            </div>
+                            <div class="color-chip-btn" data-color="Синий" onclick="toggleColorPick(this)">
+                                <span class="color-chip-circle" style="background: #2563eb;"></span>
+                                <span>Синий</span>
+                            </div>
+                            <div class="color-chip-btn" data-color="Зеленый" onclick="toggleColorPick(this)">
+                                <span class="color-chip-circle" style="background: #16a34a;"></span>
+                                <span>Зеленый</span>
+                            </div>
+                            <div class="color-chip-btn" data-color="Розовый" onclick="toggleColorPick(this)">
+                                <span class="color-chip-circle" style="background: #db2777;"></span>
+                                <span>Розовый</span>
+                            </div>
+                            <div class="color-chip-btn" data-color="Желтый" onclick="toggleColorPick(this)">
+                                <span class="color-chip-circle" style="background: #eab308;"></span>
+                                <span>Желтый</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" id="customColorInput" placeholder="{% trans 'Например: Хаки, Бордовый...' %}"
+                                   style="font-size:12px; padding:7px 10px; margin:0;"
+                                   onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomColor();}">
+                            <button type="button" onclick="addCustomColor()" style="background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: white; border-radius: 9px; padding: 0 12px; font-weight: 700; font-size: 12px; cursor: pointer;">
+                                +
+                            </button>
+                        </div>
+                        <input type="hidden" name="color" id="colorHiddenInput">
                     </div>
 
+                    <!-- Size chip selector -->
                     <div>
-                        <label>{% trans "Размеры (через запятую)" %}</label>
-                        <input type="text" name="size" placeholder="{% trans 'S, M, L, XL или 41, 42' %}">
+                        <label>{% trans "Размеры товара" %}</label>
+                        <div class="size-category-tabs">
+                            <button type="button" class="size-tab-btn active" id="tabClothes" onclick="switchSizeTab('clothes')">👕 {% trans "Одежда" %}</button>
+                            <button type="button" class="size-tab-btn" id="tabShoes" onclick="switchSizeTab('shoes')">👟 {% trans "Обувь" %}</button>
+                            <button type="button" class="size-tab-btn" id="tabOneSize" onclick="switchSizeTab('onesize')">⭐ {% trans "Универсальный" %}</button>
+                        </div>
+
+                        <!-- Clothes Sizes -->
+                        <div class="size-picker-grid" id="gridClothes">
+                            <div class="size-chip-btn" data-size="XS" onclick="toggleSizePick(this)">XS</div>
+                            <div class="size-chip-btn" data-size="S" onclick="toggleSizePick(this)">S</div>
+                            <div class="size-chip-btn" data-size="M" onclick="toggleSizePick(this)">M</div>
+                            <div class="size-chip-btn" data-size="L" onclick="toggleSizePick(this)">L</div>
+                            <div class="size-chip-btn" data-size="XL" onclick="toggleSizePick(this)">XL</div>
+                            <div class="size-chip-btn" data-size="2XL" onclick="toggleSizePick(this)">2XL</div>
+                            <div class="size-chip-btn" data-size="3XL" onclick="toggleSizePick(this)">3XL</div>
+                            <div class="size-chip-btn" data-size="4XL" onclick="toggleSizePick(this)">4XL</div>
+                            <div class="size-chip-btn" data-size="Oversize" onclick="toggleSizePick(this)">Oversize</div>
+                        </div>
+
+                        <!-- Shoes Sizes -->
+                        <div class="size-picker-grid" id="gridShoes" style="display: none;">
+                            <div class="size-chip-btn" data-size="35" onclick="toggleSizePick(this)">35</div>
+                            <div class="size-chip-btn" data-size="36" onclick="toggleSizePick(this)">36</div>
+                            <div class="size-chip-btn" data-size="37" onclick="toggleSizePick(this)">37</div>
+                            <div class="size-chip-btn" data-size="38" onclick="toggleSizePick(this)">38</div>
+                            <div class="size-chip-btn" data-size="39" onclick="toggleSizePick(this)">39</div>
+                            <div class="size-chip-btn" data-size="40" onclick="toggleSizePick(this)">40</div>
+                            <div class="size-chip-btn" data-size="41" onclick="toggleSizePick(this)">41</div>
+                            <div class="size-chip-btn" data-size="42" onclick="toggleSizePick(this)">42</div>
+                            <div class="size-chip-btn" data-size="43" onclick="toggleSizePick(this)">43</div>
+                            <div class="size-chip-btn" data-size="44" onclick="toggleSizePick(this)">44</div>
+                            <div class="size-chip-btn" data-size="45" onclick="toggleSizePick(this)">45</div>
+                        </div>
+
+                        <!-- One Size -->
+                        <div class="size-picker-grid" id="gridOneSize" style="display: none;">
+                            <div class="size-chip-btn" data-size="One Size" onclick="toggleSizePick(this)">One Size</div>
+                            <div class="size-chip-btn" data-size="Без размера" onclick="toggleSizePick(this)">Без размера</div>
+                        </div>
+
+                        <div style="display: flex; gap: 6px; margin-top: 6px;">
+                            <input type="text" id="customSizeInput" placeholder="{% trans 'Например: 140 см, 48-50...' %}"
+                                   style="font-size:12px; padding:7px 10px; margin:0;"
+                                   onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomSize();}">
+                            <button type="button" onclick="addCustomSize()" style="background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: white; border-radius: 9px; padding: 0 12px; font-weight: 700; font-size: 12px; cursor: pointer;">
+                                +
+                            </button>
+                        </div>
+                        <input type="hidden" name="size" id="sizeHiddenInput">
                     </div>
+
+                    <script>
+                    (function() {
+                        var _selectedColors = [];
+                        var _selectedSizes  = [];
+
+                        window.toggleColorPick = function(el) {
+                            var color = el.dataset.color;
+                            var idx = _selectedColors.indexOf(color);
+                            if (idx === -1) {
+                                _selectedColors.push(color);
+                                el.classList.add('selected');
+                            } else {
+                                _selectedColors.splice(idx, 1);
+                                el.classList.remove('selected');
+                            }
+                            syncColorInput();
+                        };
+
+                        window.addCustomColor = function() {
+                            var inp = document.getElementById('customColorInput');
+                            var val = inp.value.trim();
+                            if (!val) return;
+                            if (_selectedColors.indexOf(val) === -1) {
+                                _selectedColors.push(val);
+                                var container = document.getElementById('colorChipsContainer');
+                                var chip = document.createElement('div');
+                                chip.className = 'color-chip-btn selected';
+                                chip.dataset.color = val;
+                                chip.innerHTML = '<span class="color-chip-circle" style="background:#888;"></span><span>' + val + '</span>';
+                                chip.onclick = function() { window.toggleColorPick(chip); };
+                                container.appendChild(chip);
+                            }
+                            inp.value = '';
+                            syncColorInput();
+                        };
+
+                        function syncColorInput() {
+                            document.getElementById('colorHiddenInput').value = _selectedColors.join(', ');
+                        }
+
+                        window.switchSizeTab = function(type) {
+                            var btnClothes = document.getElementById('tabClothes');
+                            var btnShoes = document.getElementById('tabShoes');
+                            var btnOne = document.getElementById('tabOneSize');
+                            if (btnClothes) btnClothes.classList.toggle('active', type === 'clothes');
+                            if (btnShoes) btnShoes.classList.toggle('active', type === 'shoes');
+                            if (btnOne) btnOne.classList.toggle('active', type === 'onesize');
+
+                            var gClothes = document.getElementById('gridClothes');
+                            var gShoes = document.getElementById('gridShoes');
+                            var gOne = document.getElementById('gridOneSize');
+                            if (gClothes) gClothes.style.display = (type === 'clothes') ? 'flex' : 'none';
+                            if (gShoes) gShoes.style.display = (type === 'shoes') ? 'flex' : 'none';
+                            if (gOne) gOne.style.display = (type === 'onesize') ? 'flex' : 'none';
+                        };
+
+                        window.toggleSizePick = function(el) {
+                            var size = el.dataset.size;
+                            var idx = _selectedSizes.indexOf(size);
+                            if (idx === -1) {
+                                _selectedSizes.push(size);
+                                el.classList.add('selected');
+                            } else {
+                                _selectedSizes.splice(idx, 1);
+                                el.classList.remove('selected');
+                            }
+                            syncSizeInput();
+                        };
+
+                        window.addCustomSize = function() {
+                            var inp = document.getElementById('customSizeInput');
+                            var val = inp.value.trim();
+                            if (!val) return;
+                            if (_selectedSizes.indexOf(val) === -1) {
+                                _selectedSizes.push(val);
+                                var activeGrid = document.getElementById('gridClothes');
+                                var gShoes = document.getElementById('gridShoes');
+                                var gOne = document.getElementById('gridOneSize');
+                                if (gShoes && gShoes.style.display === 'flex') activeGrid = gShoes;
+                                else if (gOne && gOne.style.display === 'flex') activeGrid = gOne;
+
+                                var chip = document.createElement('div');
+                                chip.className = 'size-chip-btn selected';
+                                chip.dataset.size = val;
+                                chip.innerText = val;
+                                chip.onclick = function() { window.toggleSizePick(chip); };
+                                if (activeGrid) activeGrid.appendChild(chip);
+                            }
+                            inp.value = '';
+                            syncSizeInput();
+                        };
+
+                        function syncSizeInput() {
+                            document.getElementById('sizeHiddenInput').value = _selectedSizes.join(', ');
+                        }
+                    })();
+                    </script>
                 </div>
 
                 <!-- Главное фото товара (Dropzone) -->

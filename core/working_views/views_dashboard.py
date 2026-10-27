@@ -157,21 +157,24 @@ def dashboard_home(request):
             main_image=main_image,
         )
 
+        colors = [c.strip() for c in color.split(",") if c.strip()] if color else ["Основной"]
         sizes = [s.strip() for s in size_raw.split(",") if s.strip()] if size_raw else [""]
-        for s in sizes:
-            sku = f"{store.id}-{product.id}-{secrets.token_hex(3)}"
-            ProductVariant.objects.create(
-                product=product,
-                color=color,
-                size=s,
-                sku=sku,
-                stock_quantity=stock_qty,
-                image=main_image,
-            )
+        for c in colors:
+            for s in sizes:
+                sku = f"{store.id}-{product.id}-{secrets.token_hex(3)}"
+                ProductVariant.objects.create(
+                    product=product,
+                    color=c,
+                    size=s,
+                    sku=sku,
+                    stock_quantity=stock_qty,
+                    image=main_image,
+                )
 
         if main_image:
             try:
-                ProductImage.objects.create(product=product, image=main_image, color=color)
+                for c in colors:
+                    ProductImage.objects.create(product=product, image=main_image, color=c)
             except Exception as img_err:
                 logger.warning("Ошибка при сохранении ProductImage: %s", img_err)
 
