@@ -418,12 +418,30 @@ def product_detail_view(request, product_id):
         else:
             no_color_images.append(item)
 
+    requested_color = (request.GET.get("color") or "").strip().lower()
+
     gallery_images = []
-    # Общие фото без цвета
-    gallery_images.extend(no_color_images)
-    # Фото по цветам (все ракурсы каждого цвета подряд)
-    for c_key, items in color_groups.items():
-        gallery_images.extend(items)
+    # Если из каталога передан конкретный цвет (?color=черный), ставим его фото ПЕРВЫМИ!
+    if requested_color and requested_color in color_groups:
+        gallery_images.extend(color_groups[requested_color])
+        for c_key, items in color_groups.items():
+            if c_key != requested_color:
+                gallery_images.extend(items)
+        gallery_images.extend(no_color_images)
+    else:
+        for c_key, items in color_groups.items():
+            gallery_images.extend(items)
+        gallery_images.extend(no_color_images)
+
+    if not gallery_images and product.main_image:
+        try:
+            gallery_images.append({
+                "url": product.main_image.url,
+                "color": "",
+                "title": product.name,
+            })
+        except Exception:
+            pass
 
     context = {
         "product": product,
@@ -432,6 +450,7 @@ def product_detail_view(request, product_id):
         "product_store": product.store,
         "variants": product.variants.all(),
         "gallery_images": gallery_images,
+        "requested_color": request.GET.get("color", "").strip(),
         "reviews": reviews,
         "reviews_count": reviews.count(),
         "average_rating": product.average_rating,

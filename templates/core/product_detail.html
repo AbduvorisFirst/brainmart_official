@@ -188,6 +188,44 @@
         user-select: none;
         -webkit-user-select: none;
     }
+
+    /* Mobile responsive gallery & compact Uzum/WB layout */
+    @media (max-width: 768px) {
+        .gallery-slider-viewport {
+            max-height: 40vh !important;
+            aspect-ratio: 1 / 1;
+            border-radius: 16px;
+            background: #0B0E14;
+        }
+        .gallery-slide {
+            height: 100%;
+        }
+        .gallery-slide img {
+            max-height: 40vh !important;
+            object-fit: contain !important;
+            background: #0B0E14;
+        }
+        /* Uzum / WB hide thumbnail row on smartphones to keep the screen uncluttered and compact */
+        .gallery-thumbnails-row {
+            display: none !important;
+        }
+        .product-page-container {
+            padding: 8px 12px 140px !important;
+        }
+        .product-info-box {
+            padding-top: 8px;
+        }
+        .price-card-box {
+            padding: 10px 14px;
+            margin-bottom: 12px;
+        }
+        .price-main-display {
+            font-size: 22px;
+        }
+        .variants-section {
+            gap: 10px;
+        }
+    }
     .gallery-slider-track {
         display: flex;
         width: 100%;
@@ -1321,11 +1359,16 @@
         });
 
         const urlParams = new URLSearchParams(window.location.search);
-        const urlColor = urlParams.get('color');
+        const urlColor = (urlParams.get('color') || '{{ requested_color|default:""|escapejs }}').trim();
 
         let selectedColor = uniqueColors.length > 0 ? uniqueColors[0].name : '';
-        if (urlColor && uniqueColors.some(function(c) { return c.name.toLowerCase() === urlColor.toLowerCase(); })) {
-            selectedColor = urlColor;
+        if (urlColor) {
+            let matched = uniqueColors.find(function(c) { 
+                return c.name.toLowerCase() === urlColor.toLowerCase(); 
+            });
+            if (matched) {
+                selectedColor = matched.name;
+            }
         }
         let selectedVariantId = null;
         let selectedVariantPrice = 0;
@@ -1511,12 +1554,19 @@
         if (variantsData.length > 0) {
             renderColors(true);
             renderSizes();
-            let firstAvail = variantsData.find(function(v) { return (v.color || '').trim().toLowerCase() === (selectedColor || '').trim().toLowerCase() && v.in_stock && v.qty > 0; }) || variantsData[0];
+            let firstAvail = variantsData.find(function(v) { 
+                return (v.color || '').trim().toLowerCase() === (selectedColor || '').trim().toLowerCase() && v.in_stock && v.qty > 0; 
+            }) || variantsData.find(function(v) { 
+                return (v.color || '').trim().toLowerCase() === (selectedColor || '').trim().toLowerCase(); 
+            }) || variantsData[0];
             if (firstAvail) {
                 selectedVariantId = firstAvail.id;
                 selectedVariantPrice = firstAvail.price;
                 updatePriceDisplay();
                 renderSizes();
+            }
+            if (selectedColor) {
+                scrollToColorSlide(selectedColor);
             }
         }
 

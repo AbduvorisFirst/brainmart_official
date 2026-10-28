@@ -576,6 +576,28 @@
     }
 
     /* Carousel dots on photo */
+    .uzum-color-pill-badge {
+        position: absolute;
+        bottom: 8px;
+        left: 8px;
+        background: rgba(15, 23, 42, 0.88);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        color: #FFFFFF;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        z-index: 3;
+        pointer-events: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+    .uzum-title-color {
+        color: var(--primary, #38BDF8);
+        font-size: 12px;
+        font-weight: 600;
+    }
     .uzum-photo-dots {
         position: absolute;
         bottom: 8px;
@@ -1204,6 +1226,9 @@
                                     {% endfor %}
                                 </div>
                             {% endif %}
+                            {% if product.color_label %}
+                                <span class="uzum-color-pill-badge">{{ product.color_label }}</span>
+                            {% endif %}
                         </div>
 
                         <div class="uzum-card-details">
@@ -1226,7 +1251,7 @@
                             </div>
 
                             <!-- Product Title (2-line clamp) -->
-                            <div class="uzum-title" title="{{ product.name }}">{{ product.name }}</div>
+                            <div class="uzum-title" title="{{ product.name }}{% if product.color_label %} ({{ product.color_label }}){% endif %}">{{ product.name }}{% if product.color_label %} <span class="uzum-title-color">· {{ product.color_label }}</span>{% endif %}</div>
 
                             <!-- Rating & Reviews -->
                             <div class="uzum-rating-line">
