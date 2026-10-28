@@ -109,6 +109,15 @@ def resolve_store_from_request(request):
     return None
 
 
+def _safe_img_url(img):
+    if not img:
+        return ""
+    try:
+        return img.url
+    except Exception:
+        return ""
+
+
 @xframe_options_exempt
 def catalog_view(request):
     """Каталог с фильтрацией по конкретному магазину, категориям, текстовым поиском и ИИ-Стилистом."""
@@ -177,42 +186,57 @@ def catalog_view(request):
 
     cards = []
     for p in products_qs:
-        # Собираем все уникальные фотографии (главная + галерея цветов) для свайпа влево/вправо
-        img_urls = []
+        # Собираем фото по цветам для разделения карточек по цветам (как в Uzum / Wildberries)
+        color_images = {}
+        no_color_images = []
         if p.main_image:
             try:
-                img_urls.append(p.main_image.url)
+                no_color_images.append(p.main_image.url)
             except Exception:
                 pass
-        for pimg in p.images.all():
-            try:
-                if pimg.image and pimg.image.url not in img_urls:
-                    img_urls.append(pimg.image.url)
-            except Exception:
-                pass
-        all_vars = list(p.variants.all())
-        colors = []
-        for pimg in p.images.all():
-            try:
-                if pimg.image and pimg.image.url not in img_urls:
-                    img_urls.append(pimg.image.url)
-            except Exception:
-                pass
-            if pimg.color:
-                c_clean = pimg.color.strip()
-                if c_clean and c_clean.lower() not in [c.lower() for c in colors]:
-                    colors.append(c_clean)
 
+        for pimg in p.images.all():
+            try:
+                if pimg.image:
+                    u = pimg.image.url
+                    c = (pimg.color or '').strip()
+                    if c:
+                        lst = color_images.setdefault(c.lower(), [])
+                        if u not in lst:
+                            lst.append(u)
+                    elif u not in no_color_images:
+                        no_color_images.append(u)
+            except Exception:
+                pass
+
+        all_vars = list(p.variants.all())
         for v in all_vars:
             try:
-                if v.image and v.image.url not in img_urls:
-                    img_urls.append(v.image.url)
+                if v.image:
+                    u = v.image.url
+                    c = (v.color or '').strip()
+                    if c:
+                        lst = color_images.setdefault(c.lower(), [])
+                        if u not in lst:
+                            lst.append(u)
+                    elif u not in no_color_images:
+                        no_color_images.append(u)
             except Exception:
                 pass
-            if v.color:
-                c_clean = v.color.strip()
-                if c_clean and c_clean.lower() not in [c.lower() for c in colors]:
-                    colors.append(c_clean)
+
+        # Список уникальных цветов товара
+        seen_c_keys = set()
+        unique_colors = []
+        for v in all_vars:
+            c = (v.color or '').strip()
+            if c and c.lower() not in seen_c_keys:
+                seen_c_keys.add(c.lower())
+                unique_colors.append(c)
+        for pimg in p.images.all():
+            c = (pimg.color or '').strip()
+            if c and c.lower() not in seen_c_keys:
+                seen_c_keys.add(c.lower())
+                unique_colors.append(c)
 
         try:
             final_p = int(float(p.base_price)) if p.base_price is not None else 0
@@ -220,28 +244,83 @@ def catalog_view(request):
             final_p = 0
         old_p = p.old_price
         inst_p = p.installment_price
-        first_variant = all_vars[0] if all_vars else None
 
-        cards.append({
-            "id": p.id,
-            "variant_id": first_variant.id if first_variant else p.id,
-            "name": p.name,
-            "base_price": final_p,
-            "formatted_price": p.formatted_base_price,
-            "old_price": old_p,
-            "formatted_old_price": p.formatted_old_price,
-            "discount_percent": p.discount_percent,
-            "installment_price": inst_p,
-            "formatted_installment": p.formatted_installment,
-            "main_image": p.main_image,
-            "images_list": img_urls[:8], # Карусель до 6 фото для свайпа прямо в карточке
-            "colors_count": len(colors),
-            "colors": colors[:5],
-            "store": p.store,
-            "category": p.category,
-            "average_rating": 4.9,
-            "reviews_count": 140,
-        })
+        # Если у товара 2 или более цветов — показываем в витрине отдельную карточку на каждый цвет (Uzum / WB стиль)
+        if len(unique_colors) >= 2:
+            for col in unique_colors:
+                col_key = col.lower()
+                c_vars = [v for v in all_vars if (v.color or '').strip().lower() == col_key]
+                first_c_var = c_vars[0] if c_vars else None
+                c_price = first_c_var.final_price if (first_c_var and first_c_var.final_price) else final_p
+                try:
+                    c_price_int = int(float(c_price))
+                except (ValueError, TypeError):
+                    c_price_int = final_p
+
+                c_imgs = list(color_images.get(col_key, []))
+                for u in no_color_images:
+                    if u not in c_imgs:
+                        c_imgs.append(u)
+
+                main_img_url = c_imgs[0] if c_imgs else _safe_img_url(p.main_image)
+
+                cards.append({
+                    "id": p.id,
+                    "variant_id": first_c_var.id if first_c_var else p.id,
+                    "name": p.name,
+                    "color": col,
+                    "color_label": col,
+                    "base_price": c_price_int,
+                    "formatted_price": f"{c_price_int:,}".replace(",", " "),
+                    "old_price": old_p,
+                    "formatted_old_price": p.formatted_old_price,
+                    "discount_percent": p.discount_percent,
+                    "installment_price": inst_p,
+                    "formatted_installment": p.formatted_installment,
+                    "main_image": p.main_image,
+                    "main_image_url": main_img_url,
+                    "images_list": c_imgs[:8],
+                    "colors_count": len(unique_colors),
+                    "colors": unique_colors[:5],
+                    "store": p.store,
+                    "category": p.category,
+                    "average_rating": 4.9,
+                    "reviews_count": 140,
+                })
+        else:
+            first_variant = all_vars[0] if all_vars else None
+            single_color = unique_colors[0] if unique_colors else ""
+            all_imgs = []
+            if single_color and single_color.lower() in color_images:
+                all_imgs = list(color_images[single_color.lower()])
+            for u in no_color_images:
+                if u not in all_imgs:
+                    all_imgs.append(u)
+            main_img_url = all_imgs[0] if all_imgs else _safe_img_url(p.main_image)
+
+            cards.append({
+                "id": p.id,
+                "variant_id": first_variant.id if first_variant else p.id,
+                "name": p.name,
+                "color": single_color,
+                "color_label": single_color,
+                "base_price": final_p,
+                "formatted_price": p.formatted_base_price,
+                "old_price": old_p,
+                "formatted_old_price": p.formatted_old_price,
+                "discount_percent": p.discount_percent,
+                "installment_price": inst_p,
+                "formatted_installment": p.formatted_installment,
+                "main_image": p.main_image,
+                "main_image_url": main_img_url,
+                "images_list": all_imgs[:8],
+                "colors_count": len(unique_colors),
+                "colors": unique_colors[:5],
+                "store": p.store,
+                "category": p.category,
+                "average_rating": 4.9,
+                "reviews_count": 140,
+            })
 
     effective_bot = current_store.telegram_bot_username if (current_store and current_store.telegram_bot_username and current_store.telegram_bot_active) else settings.TELEGRAM_BOT_USERNAME
     from core.models import PromoBanner

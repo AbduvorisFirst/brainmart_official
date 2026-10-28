@@ -1194,6 +1194,24 @@
         }
     }
 
+        function showToastNotification(text) {
+        let toast = document.getElementById('global-quick-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'global-quick-toast';
+            toast.style.cssText = 'position:fixed; top:24px; left:50%; transform:translateX(-50%); background:rgba(15,23,42,0.95); backdrop-filter:blur(10px); color:white; font-size:13.5px; font-weight:700; padding:12px 20px; border-radius:14px; box-shadow:0 8px 24px rgba(0,0,0,0.5); z-index:99999; display:flex; align-items:center; gap:8px; border:1px solid rgba(255,255,255,0.18); transition:all 0.25s ease; text-align:center; max-width:90vw;';
+            document.body.appendChild(toast);
+        }
+        toast.innerText = text;
+        toast.style.display = 'flex';
+        toast.style.opacity = '1';
+        clearTimeout(toast._timer);
+        toast._timer = setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => { toast.style.display = 'none'; }, 250);
+        }, 2500);
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
         const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
         if (tg) tg.ready();
@@ -1285,7 +1303,22 @@
             uniqueColors.push(val);
         });
 
-        let sizes = [...new Set(variantsData.map(function(v) { return v.size; }).filter(Boolean))];
+        // Нормализация размеров (объединяем 'm' и 'M', 's' и 'S')
+        function normalizeSize(s) {
+            if (!s) return '';
+            return cleanText(s).trim().toUpperCase();
+        }
+
+        // Собираем уникальные стандартные размеры товара без дублей регистра
+        let standardSizes = [];
+        let sizesSeenMap = new Map();
+        variantsData.forEach(function(v) {
+            let sNorm = normalizeSize(v.size);
+            if (sNorm && !sizesSeenMap.has(sNorm)) {
+                sizesSeenMap.set(sNorm, true);
+                standardSizes.push(sNorm);
+            }
+        });
 
         const urlParams = new URLSearchParams(window.location.search);
         const urlColor = urlParams.get('color');
@@ -1314,8 +1347,20 @@
             const newUrl = new URL(window.location);
             newUrl.searchParams.set('color', match.name);
             window.history.replaceState({}, '', newUrl);
+
+            // Автоматически подбираем первый доступный на складе размер для этого цвета
+            let variantsForColor = variantsData.filter(function(v) { 
+                return (v.color || '').trim().toLowerCase() === selectedColor.trim().toLowerCase(); 
+            });
+            let firstAvail = variantsForColor.find(function(v) { return v.in_stock && v.qty > 0; }) || variantsForColor[0];
+            if (firstAvail) {
+                selectedVariantId = firstAvail.id;
+                selectedVariantPrice = firstAvail.price;
+            }
+
             renderColors(false);
             renderSizes();
+            updatePriceDisplay();
             if (scrollGallery !== false) {
                 scrollToColorSlide(match.name);
             }
@@ -1350,21 +1395,52 @@
         function renderSizes() {
             if (!sizeContainer) return;
             sizeContainer.innerHTML = '';
+
+            let variantsForColor = variantsData.filter(function(v) { 
+                return (v.color || '').trim().toLowerCase() === (selectedColor || '').trim().toLowerCase(); 
+            });
+
+            // Если размер еще не выбран или текущий не подходит под выбранный цвет — выбираем первый доступный
+            if (!selectedVariantId || !variantsForColor.some(function(v) { return v.id === selectedVariantId; })) {
+                let firstAvail = variantsForColor.find(function(v) { return v.in_stock && v.qty > 0; }) || variantsForColor[0];
+                if (firstAvail) {
+                    selectedVariantId = firstAvail.id;
+                    selectedVariantPrice = firstAvail.price;
+                }
+            }
+
             let currentVariant = variantsData.find(function(v) { return v.id === selectedVariantId; });
-            if (sizeLabel) sizeLabel.innerText = currentVariant ? cleanText(currentVariant.size) : 'Не выбран';
+            if (sizeLabel) {
+                sizeLabel.innerText = currentVariant ? normalizeSize(currentVariant.size) : 'Не выбран';
+            }
 
-            let variantsForColor = variantsData.filter(function(v) { return (v.color || '').trim().toLowerCase() === (selectedColor || '').trim().toLowerCase(); });
+            standardSizes.forEach(function(sizeStr) {
+                let variant = variantsForColor.find(function(v) { 
+                    return normalizeSize(v.size) === sizeStr; 
+                });
 
-            sizes.forEach(function(sizeStr) {
-                let variant = variantsForColor.find(function(v) { return v.size === sizeStr; });
                 let btn = document.createElement('div');
+                let isAvailable = variant && variant.in_stock && variant.qty > 0;
 
-                if (!variant || !variant.in_stock || variant.qty === 0) {
+                if (!isAvailable) {
+                    // АВТОМАТИЧЕСКИЙ КРЕСТИК / ЗАЧЕРКИВАНИЕ, ЕСЛИ РАЗМЕР ЗАКОНЧИЛСЯ
                     btn.className = 'size-btn disabled';
-                    btn.innerText = cleanText(sizeStr);
+                    btn.innerText = sizeStr;
+                    btn.title = '{% trans "Данного размера нет в наличии" %}';
+                    btn.onclick = function() {
+                        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+                            window.Telegram.WebApp.HapticFeedback.notificationOccurred("warning");
+                        }
+                        if (typeof showToastNotification === 'function') {
+                            showToastNotification('{% trans "Данный размер в этом цвете закончился" %}');
+                        } else {
+                            alert('{% trans "Данный размер в этом цвете закончился" %}');
+                        }
+                    };
                 } else {
+                    // РАЗМЕР В НАЛИЧИИ — АКТИВЕН И КЛИКАБЕЛЕН
                     btn.className = 'size-btn' + (variant.id === selectedVariantId ? ' active' : '');
-                    btn.innerText = cleanText(sizeStr);
+                    btn.innerText = sizeStr;
                     btn.onclick = function() {
                         selectedVariantId = variant.id;
                         selectedVariantPrice = variant.price;
@@ -1447,9 +1523,24 @@
         const addBtn = document.getElementById('add-cart-btn');
         if (addBtn) {
             addBtn.addEventListener('click', function() {
-                if (!selectedVariantId && variantsData.length > 1) {
-                    alert("{% trans 'Пожалуйста, выберите размер!' %}");
-                    return;
+                if (!selectedVariantId && variantsData.length > 0) {
+                    let variantsForColor = variantsData.filter(function(v) { 
+                        return (v.color || '').trim().toLowerCase() === (selectedColor || '').trim().toLowerCase(); 
+                    });
+                    let firstAvail = variantsForColor.find(function(v) { return v.in_stock && v.qty > 0; }) || variantsData.find(function(v) { return v.in_stock && v.qty > 0; });
+                    if (firstAvail) {
+                        selectedVariantId = firstAvail.id;
+                        selectedVariantPrice = firstAvail.price;
+                        updatePriceDisplay();
+                        renderSizes();
+                    } else {
+                        const sizeSec = document.getElementById('size-section');
+                        if (sizeSec) {
+                            sizeSec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                        showToastNotification("{% trans 'Пожалуйста, выберите размер!' %}");
+                        return;
+                    }
                 }
                 let targetId = selectedVariantId || (variantsData[0] ? variantsData[0].id : '{{ product.id }}');
                 let cart = [];

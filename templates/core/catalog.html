@@ -1162,16 +1162,16 @@
                     <a href="{% url 'product-detail' product.id %}{% if product.color %}?color={{ product.color }}{% endif %}" class="uzum-card-link">
                         <div class="uzum-img-box">
                             <!-- Swipeable Photo Gallery (Left/Right swipe on mobile & desktop) -->
-                            <div class="uzum-img-gallery" id="gallery-{{ product.id }}" onscroll="updateCardGalleryDots(this, '{{ product.id }}')">
+                            <div class="uzum-img-gallery" id="gallery-{{ product.id }}-{{ forloop.counter }}" onscroll="updateCardGalleryDots(this, '{{ product.id }}-{{ forloop.counter }}')">
                                 {% if product.images_list %}
                                     {% for img_url in product.images_list %}
                                         <div class="uzum-img-slide">
                                             <img src="{{ img_url }}" alt="{{ product.name }}" loading="lazy" class="uzum-img">
                                         </div>
                                     {% endfor %}
-                                {% elif product.main_image %}
+                                {% elif product.main_image_url %}
                                     <div class="uzum-img-slide">
-                                        <img src="{{ product.main_image.url }}" alt="{{ product.name }}" loading="lazy" class="uzum-img">
+                                        <img src="{{ product.main_image_url }}" alt="{{ product.name }}" loading="lazy" class="uzum-img">
                                     </div>
                                 {% else %}
                                     <div class="uzum-img-slide uzum-img-empty">📦</div>
@@ -1181,10 +1181,7 @@
                             <!-- Uzum АКЦИЯ Signature Purple Badge -->
                             <span class="uzum-badge-promo">{% trans "АКЦИЯ" %}</span>
 
-                            <!-- Colors count badge if > 1 -->
-                            {% if product.colors_count and product.colors_count > 1 %}
-                                <span class="uzum-colors-badge">🎨 {{ product.colors_count }} {% trans "цвета" %}</span>
-                            {% endif %}
+
 
                             <!-- Favorite Heart Button -->
                             <button type="button" class="uzum-btn-fav btn-favorite-icon" onclick="event.preventDefault(); event.stopPropagation(); toggleFav(this, '{{ product.id }}');" aria-label="Favorite" title="{% trans 'В избранное' %}">
@@ -1201,7 +1198,7 @@
 
                             <!-- Dynamic carousel dots indicator -->
                             {% if product.images_list|length > 1 %}
-                                <div class="uzum-photo-dots" id="dots-{{ product.id }}">
+                                <div class="uzum-photo-dots" id="dots-{{ product.id }}-{{ forloop.counter }}">
                                     {% for img in product.images_list %}
                                         <span class="dot {% if forloop.first %}active{% endif %}"></span>
                                     {% endfor %}
@@ -1252,7 +1249,7 @@
                                 data-variant-id="{{ product.variant_id|default:product.id }}"
                                 data-name="{{ product.name|escape }}"
                                 data-price="{{ product.base_price }}"
-                                data-image="{% if product.main_image %}{{ product.main_image.url }}{% endif %}"
+                                data-image="{{ product.main_image_url|default:'' }}"
                                 data-store-id="{{ product.store.id|default:current_store_id|default:'' }}"
                                 onclick="event.preventDefault(); event.stopPropagation(); quickAddToCart(this);" 
                                 title="{% trans 'Добавить в корзину' %}">
