@@ -373,46 +373,25 @@
 
             <div class="checkout-input-group">
                 <label class="checkout-label">{% trans "Способ оплаты" %}</label>
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <!-- Способ 1: Перевод на карту (Uzcard / Humo) -->
-                    <label id="payment-opt-card" class="pay-option-card active" onclick="selectPaymentMethod('card_transfer')">
-                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <input type="radio" name="payment_choice" id="pay-choice-card" value="card_transfer" checked style="margin: 0; cursor: pointer;">
-                                <div>
-                                    <div style="font-size: 13.5px; font-weight: 800; color: var(--text-main);">💳 {% trans "Перевод на карту (Uzcard / Humo)" %}</div>
-                                    <div style="font-size: 11.5px; color: var(--text-muted);">{% trans "Номер карты продавца с прикреплением чека" %}</div>
-                                </div>
+                <div class="pay-option-card active" style="cursor: default; border-color: rgba(99, 102, 241, 0.4); background: rgba(99, 102, 241, 0.08);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 24px;">💳</span>
+                            <div>
+                                <div style="font-size: 14px; font-weight: 800; color: var(--text-main);">{% trans "Перевод на карту (Uzcard / Humo)" %}</div>
+                                <div style="font-size: 12px; color: #94A3B8; margin-top: 2px;">{% trans "С обязательным прикреплением скриншота чека" %}</div>
                             </div>
-                            <span style="font-size: 11px; background: rgba(112, 0, 255, 0.15); color: #A78BFA; padding: 3px 8px; border-radius: 8px; font-weight: 700;">{% trans "Основной" %}</span>
                         </div>
-                    </label>
-
-                    <!-- Способ 2: Оплата при получении -->
-                    <label id="payment-opt-cash" class="pay-option-card" onclick="selectPaymentMethod('cash_on_delivery')">
-                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <input type="radio" name="payment_choice" id="pay-choice-cash" value="cash_on_delivery" style="margin: 0; cursor: pointer;">
-                                <div>
-                                    <div style="font-size: 13.5px; font-weight: 800; color: var(--text-main);">💵 {% trans "При получении заказа" %}</div>
-                                    <div style="font-size: 11.5px; color: var(--text-muted);">{% trans "Оплата наличными или картой курьеру" %}</div>
-                                </div>
-                            </div>
-                            <span style="font-size: 11px; background: rgba(34, 197, 94, 0.15); color: #22C55E; padding: 3px 8px; border-radius: 8px; font-weight: 700;">{% trans "Удобно" %}</span>
-                        </div>
-                    </label>
+                        <span style="font-size: 11px; background: rgba(16, 185, 129, 0.15); color: #10B981; padding: 4px 10px; border-radius: 8px; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.3);">✓ {% trans "Только перевод" %}</span>
+                    </div>
                 </div>
                 <input type="hidden" id="web-order-payment" value="card_transfer">
             </div>
         </div>
 
-        <!-- Кнопки оформления -->
-        <button class="btn-checkout-main" id="btn-submit-order" onclick="submitDirectWebOrder()" style="background: linear-gradient(135deg, #7000FF 0%, #5B00D1 100%); border-radius: 16px; padding: 15px; font-size: 15px; font-weight: 800; box-shadow: 0 4px 16px rgba(112, 0, 255, 0.35);">
-            🛍️ {% trans "Оформить заказ" %}
-        </button>
-
-        <button class="btn-tg-checkout" id="btn-tg-order" onclick="proceedToBotCheckout()">
-            💬 {% trans "Завершить заказ через Telegram" %}
+        <!-- Кнопка оформления (единая понятная кнопка) -->
+        <button class="btn-checkout-main" id="btn-submit-order" onclick="submitDirectWebOrder()" style="background: linear-gradient(135deg, #7000FF 0%, #5B00D1 100%); border-radius: 16px; padding: 16px; font-size: 15px; font-weight: 800; box-shadow: 0 4px 18px rgba(112, 0, 255, 0.4); width: 100%; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            🛍️ {% trans "Оформить заказ и прикрепить чек" %}
         </button>
         
         <p style="text-align: center; margin: 12px 0 0; font-size: 11px; color: var(--text-muted);">
@@ -742,20 +721,30 @@
                 delivery_landmark: landmark,
                 latitude: userLatitude,
                 longitude: userLongitude,
-                payment_method: paymentMethod,
+                payment_method: "card_transfer",
                 chat_id: tgUser.id || null,
                 username: tgUser.username || ""
             })
         })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) {
+                return res.text().then(text => {
+                    let errMsg = I18N_CART.serverError;
+                    try {
+                        const parsed = JSON.parse(text);
+                        if (parsed.error) errMsg = parsed.error;
+                    } catch(e) {}
+                    throw new Error(errMsg);
+                });
+            }
+            return res.json();
+        })
         .then(data => {
             if (data.success) {
                 localStorage.removeItem('brainmart_cart');
                 localStorage.removeItem('bm_cart');
                 localStorage.removeItem('tg_cart');
-                if (data.payment_method === "click" && data.click_url) {
-                    window.location.href = data.click_url;
-                } else if (data.redirect_url) {
+                if (data.redirect_url) {
                     window.location.href = data.redirect_url;
                 } else {
                     alert(I18N_CART.orderSuccess);
@@ -763,16 +752,14 @@
                 }
             } else {
                 btn.disabled = false;
-                const curMethod = document.getElementById('web-order-payment').value;
-                btn.innerHTML = curMethod === 'auto_acquiring' ? `⚡ ${I18N_CART.btnAutoPay}` : `🚀 ${I18N_CART.btnCardTransfer}`;
+                btn.innerHTML = `🛍️ {% filter escapejs %}{% trans "Оформить заказ и прикрепить чек" %}{% endfilter %}`;
                 alert(`${I18N_CART.errorLabel}: ` + (data.error || I18N_CART.orderFailed));
             }
         })
         .catch(err => {
             btn.disabled = false;
-            const curMethod = document.getElementById('web-order-payment').value;
-            btn.innerHTML = curMethod === 'auto_acquiring' ? `⚡ ${I18N_CART.btnAutoPay}` : `🚀 ${I18N_CART.btnCardTransfer}`;
-            alert(I18N_CART.serverError);
+            btn.innerHTML = `🛍️ {% filter escapejs %}{% trans "Оформить заказ и прикрепить чек" %}{% endfilter %}`;
+            alert(err && err.message ? err.message : I18N_CART.serverError);
         });
     }
 

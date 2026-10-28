@@ -109,6 +109,20 @@ def resolve_store_from_request(request):
     return None
 
 
+def _parse_coord(val):
+    """Безопасный парсинг координат."""
+    if val is None:
+        return None
+    from decimal import Decimal
+    val_str = str(val).replace(",", ".").replace(" ", "").strip()
+    if not val_str:
+        return None
+    try:
+        return Decimal(val_str)
+    except Exception:
+        return None
+
+
 def _safe_img_url(img):
     if not img:
         return ""
@@ -566,7 +580,7 @@ def create_telegram_order(request):
         if not first_variant:
             return JsonResponse({"success": False, "error": "Один из товаров в корзине не найден на складе. Пожалуйста, очистите корзину и выберите заново."})
 
-        from core.working_views.views_branches import find_nearest_branch
+        from core.working_views.views_branches import find_nearest_branch, _parse_coord
         target_store = first_variant.product.store
         initial_branch, _ = find_nearest_branch(target_store)
 
@@ -660,7 +674,7 @@ def create_web_order(request):
     delivery_landmark = data.get("delivery_landmark", "").strip() or data.get("landmark", "").strip()
     latitude = data.get("latitude")
     longitude = data.get("longitude")
-    payment_method = data.get("payment_method", "card_transfer")
+    payment_method = "card_transfer"
     chat_id = data.get("chat_id")
     username = data.get("username", "")
 
