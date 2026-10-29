@@ -507,7 +507,13 @@ def submit_product_review(request, product_id):
 
 
 def _resolve_cart_variant(item):
-    """Надежно находит ProductVariant по variant_id или id (product_id)."""
+    """
+    Надежно находит ProductVariant:
+    1. По variant_id как первичному ключу ProductVariant
+    2. По variant_id или id как product_id с фильтрацией по цвету/размеру (если указаны)
+    3. По первому доступному варианту товара
+    4. Если у товара еще нет вариантов (например, создан без вариаций), автоматически создает дефолтный вариант.
+    """
     if not isinstance(item, dict):
         return None
     v_id = item.get("variant_id") or item.get("id")
@@ -517,9 +523,42 @@ def _resolve_cart_variant(item):
         v_id_int = int(v_id)
     except (ValueError, TypeError):
         return None
+
+    # 1. Прямой поиск по ID варианта
     v = ProductVariant.objects.select_related("product__store").filter(id=v_id_int).first()
+    if v:
+        return v
+
+    # 2. Поиск по product_id с учетом цвета / размера (если переданы)
+    color = str(item.get("color") or "").strip()
+    size = str(item.get("size") or "").strip()
+    variants_qs = ProductVariant.objects.select_related("product__store").filter(product_id=v_id_int)
+
+    if color and size:
+        v = variants_qs.filter(color__iexact=color, size__iexact=size).first()
+    if not v and color:
+        v = variants_qs.filter(color__iexact=color).first()
+    if not v and size:
+        v = variants_qs.filter(size__iexact=size).first()
     if not v:
-        v = ProductVariant.objects.select_related("product__store").filter(product_id=v_id_int).first()
+        v = variants_qs.first()
+
+    # 3. Если вариантов вообще нет в базе (товар без вариаций), автоматически создаем вариант по умолчанию
+    if not v:
+        p = Product.objects.select_related("store").filter(id=v_id_int).first()
+        if p:
+            import secrets
+            v, _var_created = ProductVariant.objects.get_or_create(
+                product=p,
+                defaults={
+                    "sku": f"{p.store.id}-{p.id}-{secrets.token_hex(3)}",
+                    "stock_quantity": 99,
+                    "price_override": p.base_price,
+                    "color": color,
+                    "size": size,
+                }
+            )
+
     return v
 
 
@@ -582,7 +621,7 @@ def create_telegram_order(request):
 
         from core.working_views.views_branches import find_nearest_branch, _parse_coord
         target_store = first_variant.product.store
-        initial_branch, _ = find_nearest_branch(target_store)
+        initial_branch, _dist_km = find_nearest_branch(target_store)
 
         order = Order.objects.create(
             store=target_store,
@@ -687,116 +726,120 @@ def create_web_order(request):
     if not delivery_address and not (latitude and longitude):
         return JsonResponse({"success": False, "error": _("Укажите адрес доставки или отправьте локацию.")})
 
-    with transaction.atomic():
-        scoped_id = f"tg_{chat_id}" if chat_id else f"web_{phone_number.replace('+', '').replace(' ', '')}"
+    try:
+        with transaction.atomic():
+            scoped_id = f"tg_{chat_id}" if chat_id else f"web_{phone_number.replace('+', '').replace(' ', '')}"
 
-        # Находим или создаем клиента
-        customer = None
-        if chat_id:
-            customer = Customer.objects.filter(telegram_chat_id=str(chat_id)).first()
-        if not customer and phone_number:
-            customer = Customer.objects.filter(phone_number=phone_number).first()
+            # Находим или создаем клиента
+            customer = None
+            if chat_id:
+                customer = Customer.objects.filter(telegram_chat_id=str(chat_id)).first()
+            if not customer and phone_number:
+                customer = Customer.objects.filter(phone_number=phone_number).first()
 
-        if not customer:
-            customer = Customer.objects.filter(instagram_scoped_id=scoped_id).first()
+            if not customer:
+                customer = Customer.objects.filter(instagram_scoped_id=scoped_id).first()
 
-        if not customer:
-            customer, _ = Customer.objects.get_or_create(
-                instagram_scoped_id=scoped_id,
-                defaults={
-                    "phone_number": phone_number[:20],
-                    "full_name": (full_name or "Покупатель")[:255],
-                    "telegram_chat_id": str(chat_id) if chat_id else "",
-                    "telegram_username": (username or "")[:100],
-                    "language": getattr(request, "LANGUAGE_CODE", "ru")
-                }
-            )
-        else:
-            if full_name and full_name != "Покупатель":
-                customer.full_name = full_name
-            if phone_number and not customer.phone_number:
-                customer.phone_number = phone_number
-            if chat_id and not customer.telegram_chat_id:
-                customer.telegram_chat_id = str(chat_id)
-            if username and not customer.telegram_username:
-                customer.telegram_username = username
-            customer.save()
-
-            # Sync language from site URL to customer record
-            site_lang = getattr(request, "LANGUAGE_CODE", "uz") or "uz"
-            if site_lang in ("ru", "uz", "en"):
-                customer.language = site_lang
-                customer.save(update_fields=["language"])
-                if chat_id:
-                    Customer.objects.filter(telegram_chat_id=str(chat_id)).update(language=site_lang)
-
-        first_variant = _resolve_cart_variant(cart_items[0])
-        if not first_variant:
-            return JsonResponse({"success": False, "error": _("Один из товаров в корзине больше не доступен на складе.")})
-
-        target_store = first_variant.product.store
-        from core.working_views.views_branches import find_nearest_branch
-        nearest_branch, _ = find_nearest_branch(
-            target_store,
-            delivery_latitude=latitude,
-            delivery_longitude=longitude,
-            delivery_address=delivery_address
-        )
-
-        order = Order.objects.create(
-            store=target_store,
-            branch=nearest_branch,
-            customer=customer,
-            status=Order.Status.PENDING_PAYMENT,
-            delivery_address=delivery_address or "Локация по GPS",
-            delivery_latitude=_parse_coord(latitude),
-            delivery_longitude=_parse_coord(longitude),
-            delivery_landmark=delivery_landmark,
-            payment_method=payment_method,
-        )
-
-        for item in cart_items:
-            variant = _resolve_cart_variant(item)
-            if not variant:
-                return JsonResponse({"success": False, "error": _("Товар не найден на складе.")})
-
-            qty = max(1, int(item.get("quantity", 1)))
-            if qty > variant.stock_quantity:
-                return JsonResponse({
-                    "success": False,
-                    "error": _("К сожалению, товара «%(name)s» осталось только %(stock)d шт. Пожалуйста, измените количество в корзине.") % {
-                        "name": f"{variant.product.name} ({variant.color or '—'}/{variant.size or '—'})",
-                        "stock": variant.stock_quantity
+            if not customer:
+                customer, _cust_created = Customer.objects.get_or_create(
+                    instagram_scoped_id=scoped_id,
+                    defaults={
+                        "phone_number": phone_number[:20],
+                        "full_name": (full_name or "Покупатель")[:255],
+                        "telegram_chat_id": str(chat_id) if chat_id else "",
+                        "telegram_username": (username or "")[:100],
+                        "language": getattr(request, "LANGUAGE_CODE", "ru")
                     }
-                })
+                )
+            else:
+                if full_name and full_name != "Покупатель":
+                    customer.full_name = full_name
+                if phone_number and not customer.phone_number:
+                    customer.phone_number = phone_number
+                if chat_id and not customer.telegram_chat_id:
+                    customer.telegram_chat_id = str(chat_id)
+                if username and not customer.telegram_username:
+                    customer.telegram_username = username
+                customer.save()
 
-            OrderItem.objects.create(
-                order=order,
-                variant=variant,
-                quantity=qty,
-                price_at_purchase=variant.final_price
+                # Sync language from site URL to customer record
+                site_lang = getattr(request, "LANGUAGE_CODE", "uz") or "uz"
+                if site_lang in ("ru", "uz", "en"):
+                    customer.language = site_lang
+                    customer.save(update_fields=["language"])
+                    if chat_id:
+                        Customer.objects.filter(telegram_chat_id=str(chat_id)).update(language=site_lang)
+
+            first_variant = _resolve_cart_variant(cart_items[0])
+            if not first_variant:
+                return JsonResponse({"success": False, "error": _("Один из товаров в корзине больше не доступен на складе.")})
+
+            target_store = first_variant.product.store
+            from core.working_views.views_branches import find_nearest_branch
+            nearest_branch, _dist_km = find_nearest_branch(
+                target_store,
+                delivery_latitude=latitude,
+                delivery_longitude=longitude,
+                delivery_address=delivery_address
             )
 
-        order.recalculate_total()
+            order = Order.objects.create(
+                store=target_store,
+                branch=nearest_branch,
+                customer=customer,
+                status=Order.Status.PENDING_PAYMENT,
+                delivery_address=delivery_address or "Локация по GPS",
+                delivery_latitude=_parse_coord(latitude),
+                delivery_longitude=_parse_coord(longitude),
+                delivery_landmark=delivery_landmark,
+                payment_method=payment_method,
+            )
 
-    # Магазин не беспокоим, пока покупатель не перевел деньги и не прикрепил фото чека!
-    if target_store.telegram_bot_username and target_store.telegram_bot_active:
-        target_bot = target_store.telegram_bot_username
-    else:
-        target_bot = getattr(settings, "TELEGRAM_BOT_USERNAME", "")
-    telegram_url = f"https://t.me/{target_bot}?start=order_{order.id}" if target_bot else ""
-    lang = getattr(request, "LANGUAGE_CODE", "uz") or "uz"
+            for item in cart_items:
+                variant = _resolve_cart_variant(item)
+                if not variant:
+                    return JsonResponse({"success": False, "error": _("Товар не найден на складе.")})
 
-    # Авто-эквайринг заморожен на доработку: покупатель всегда перенаправляется на перевод с чеком
-    redirect_url = f"/{lang}/order/{order.id}/success/"
+                qty = max(1, int(item.get("quantity", 1)))
+                if qty > variant.stock_quantity:
+                    return JsonResponse({
+                        "success": False,
+                        "error": _("К сожалению, товара «%(name)s» осталось только %(stock)d шт. Пожалуйста, измените количество в корзине.") % {
+                            "name": f"{variant.product.name} ({variant.color or '—'}/{variant.size or '—'})",
+                            "stock": variant.stock_quantity
+                        }
+                    })
 
-    return JsonResponse({
-        "success": True,
-        "order_id": order.id,
-        "payment_method": payment_method,
-        "telegram_url": telegram_url,
-        "redirect_url": redirect_url,
-    })
+                OrderItem.objects.create(
+                    order=order,
+                    variant=variant,
+                    quantity=qty,
+                    price_at_purchase=variant.final_price
+                )
+
+            order.recalculate_total()
+
+        # Магазин не беспокоим, пока покупатель не перевел деньги и не прикрепил фото чека!
+        if target_store.telegram_bot_username and target_store.telegram_bot_active:
+            target_bot = target_store.telegram_bot_username
+        else:
+            target_bot = getattr(settings, "TELEGRAM_BOT_USERNAME", "")
+        telegram_url = f"https://t.me/{target_bot}?start=order_{order.id}" if target_bot else ""
+        lang = getattr(request, "LANGUAGE_CODE", "uz") or "uz"
+
+        # Авто-эквайринг заморожен на доработку: покупатель всегда перенаправляется на перевод с чеком
+        redirect_url = f"/{lang}/order/{order.id}/success/"
+
+        return JsonResponse({
+            "success": True,
+            "order_id": order.id,
+            "payment_method": payment_method,
+            "telegram_url": telegram_url,
+            "redirect_url": redirect_url,
+        })
+    except Exception as e:
+        logger.exception("create_web_order failed with error: %s", e)
+        return JsonResponse({"success": False, "error": f"Ошибка создания заказа: {str(e)}"})
 
 
 @xframe_options_exempt
