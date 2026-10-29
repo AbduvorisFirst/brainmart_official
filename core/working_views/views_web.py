@@ -264,6 +264,9 @@ def catalog_view(request):
             for col in unique_colors:
                 col_key = col.lower()
                 c_vars = [v for v in all_vars if (v.color or '').strip().lower() == col_key]
+                # Скрываем карточку цвета, если все его размеры закончились на складе!
+                if c_vars and not any(v.in_stock and v.stock_quantity > 0 for v in c_vars):
+                    continue
                 first_c_var = c_vars[0] if c_vars else None
                 c_price = first_c_var.final_price if (first_c_var and first_c_var.final_price) else final_p
                 try:
@@ -615,12 +618,40 @@ def create_telegram_order(request):
         # Синхронизируем язык для всех записей этого chat_id
         Customer.objects.filter(telegram_chat_id=str(chat_id)).update(language=site_lang)
 
-        first_variant = _resolve_cart_variant(cart_items[0])
-        if not first_variant:
-            return JsonResponse({"success": False, "error": "Один из товаров в корзине не найден на складе. Пожалуйста, очистите корзину и выберите заново."})
+        # Строгое определение целевого магазина витрины
+        req_store_id = data.get("store_id")
+        target_store = None
+        if req_store_id:
+            try:
+                target_store = Store.objects.filter(id=int(req_store_id)).first()
+            except (ValueError, TypeError):
+                pass
+        if not target_store:
+            target_store = resolve_store_from_request(request)
+
+        valid_items = []
+        for item in cart_items:
+            v = _resolve_cart_variant(item)
+            if not v:
+                continue
+            if target_store and v.product.store_id != target_store.id:
+                continue
+            valid_items.append((item, v))
+
+        if not valid_items:
+            first_variant = _resolve_cart_variant(cart_items[0])
+            if not first_variant:
+                return JsonResponse({"success": False, "error": "Один из товаров в корзине не найден на складе. Пожалуйста, очистите корзину и выберите заново."})
+            target_store = first_variant.product.store
+            for item in cart_items:
+                v = _resolve_cart_variant(item)
+                if v and v.product.store_id == target_store.id:
+                    valid_items.append((item, v))
+
+        if not valid_items:
+            return JsonResponse({"success": False, "error": "В корзине нет доступных товаров для данного магазина."})
 
         from core.working_views.views_branches import find_nearest_branch, _parse_coord
-        target_store = first_variant.product.store
         initial_branch, _dist_km = find_nearest_branch(target_store)
 
         order = Order.objects.create(
@@ -632,11 +663,7 @@ def create_telegram_order(request):
             delivery_address="Уточняется в Telegram боте"
         )
 
-        for item in cart_items:
-            variant = _resolve_cart_variant(item)
-            if not variant:
-                return JsonResponse({"success": False, "error": "Один из товаров не найден на складе."})
-
+        for item, variant in valid_items:
             try:
                 raw_q = item.get("quantity") if isinstance(item, dict) else 1
                 qty = max(1, min(999, int(raw_q or 1)))
@@ -770,11 +797,42 @@ def create_web_order(request):
                     if chat_id:
                         Customer.objects.filter(telegram_chat_id=str(chat_id)).update(language=site_lang)
 
-            first_variant = _resolve_cart_variant(cart_items[0])
-            if not first_variant:
-                return JsonResponse({"success": False, "error": _("Один из товаров в корзине больше не доступен на складе.")})
+            # Строгое определение целевого магазина витрины (защита от попадания заказа в чужой магазин)
+            req_store_id = data.get("store_id")
+            target_store = None
+            if req_store_id:
+                try:
+                    target_store = Store.objects.filter(id=int(req_store_id)).first()
+                except (ValueError, TypeError):
+                    pass
+            if not target_store:
+                target_store = resolve_store_from_request(request)
 
-            target_store = first_variant.product.store
+            # Фильтруем товары: включаем ТОЛЬКО позиции, принадлежащие целевому магазину!
+            valid_items = []
+            for item in cart_items:
+                v = _resolve_cart_variant(item)
+                if not v:
+                    continue
+                if target_store and v.product.store_id != target_store.id:
+                    # Чужой товар другого продавца из старой сессии корзины — изолируем!
+                    continue
+                valid_items.append((item, v))
+
+            if not valid_items:
+                # Если оформляется на глобальном рынке и магазин не был задан: берем магазин первого товара
+                first_variant = _resolve_cart_variant(cart_items[0])
+                if not first_variant:
+                    return JsonResponse({"success": False, "error": _("Один из товаров в корзине больше не доступен на складе.")})
+                target_store = first_variant.product.store
+                for item in cart_items:
+                    v = _resolve_cart_variant(item)
+                    if v and v.product.store_id == target_store.id:
+                        valid_items.append((item, v))
+
+            if not valid_items:
+                return JsonResponse({"success": False, "error": _("В корзине нет доступных товаров для данного магазина.")})
+
             from core.working_views.views_branches import find_nearest_branch
             nearest_branch, _dist_km = find_nearest_branch(
                 target_store,
@@ -795,11 +853,7 @@ def create_web_order(request):
                 payment_method=payment_method,
             )
 
-            for item in cart_items:
-                variant = _resolve_cart_variant(item)
-                if not variant:
-                    return JsonResponse({"success": False, "error": _("Товар не найден на складе.")})
-
+            for item, variant in valid_items:
                 qty = max(1, int(item.get("quantity", 1)))
                 if qty > variant.stock_quantity:
                     return JsonResponse({

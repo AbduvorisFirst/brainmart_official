@@ -1296,6 +1296,11 @@
         {% block content %}{% endblock %}
     </main>
 
+    <script>
+        window.CURRENT_STORE_ID = "{% if current_store %}{{ current_store.id }}{% elif product_store %}{{ product_store.id }}{% elif product %}{{ product.store.id }}{% elif active_store %}{{ active_store.id }}{% endif %}";
+        window.CURRENT_STORE_NAME = "{% if current_store %}{{ current_store.name|escapejs }}{% elif product_store %}{{ product_store.name|escapejs }}{% elif product %}{{ product.store.name|escapejs }}{% elif active_store %}{{ active_store.name|escapejs }}{% endif %}";
+        window.CURRENT_STORE_SLUG = "{% if current_store %}{{ current_store.slug|escapejs }}{% elif product_store %}{{ product_store.slug|escapejs }}{% elif product %}{{ product.store.slug|escapejs }}{% elif active_store %}{{ active_store.slug|escapejs }}{% endif %}";
+    </script>
     <!-- Модальное окно чекаута и плавающая корзина -->
     {% include "core/cart_modal.html" %}
 

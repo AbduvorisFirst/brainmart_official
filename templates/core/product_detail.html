@@ -1308,10 +1308,11 @@
         let uniqueColors = [];
         let colorsMap = new Map();
 
-        // 1. Собираем уникальные цвета из вариантов товара (строгая дедупликация без дублирования кнопок)
+        // 1. Собираем уникальные цвета ТОЛЬКО из вариантов с реальным остатком на складе (qty > 0)
         variantsData.forEach(function(v) {
             var cTrim = (v.color || '').trim();
-            if (cTrim) {
+            var hasStock = v.in_stock && v.qty > 0;
+            if (cTrim && hasStock) {
                 var cKey = cTrim.toLowerCase();
                 if (!colorsMap.has(cKey)) {
                     colorsMap.set(cKey, { name: cTrim, image: v.image_url || '' });
@@ -1321,7 +1322,7 @@
             }
         });
 
-        // 2. Если у цвета нет фото в варианте, берем первое фото этого цвета из слайдов галереи
+        // 2. Если у цвета в наличии нет фото в варианте, берем первое фото этого цвета из слайдов галереи
         const gallerySlides = document.querySelectorAll('.gallery-slide');
         gallerySlides.forEach(function(slide) {
             var sc = (slide.dataset.color || '').trim();
@@ -1329,9 +1330,7 @@
                 var scKey = sc.toLowerCase();
                 var img = slide.querySelector('img');
                 var src = img ? img.src : '';
-                if (!colorsMap.has(scKey)) {
-                    colorsMap.set(scKey, { name: sc, image: src });
-                } else if (!colorsMap.get(scKey).image && src) {
+                if (colorsMap.has(scKey) && !colorsMap.get(scKey).image && src) {
                     colorsMap.get(scKey).image = src;
                 }
             }
@@ -1412,6 +1411,13 @@
         function renderColors(shouldScrollGallery) {
             if (!colorContainer) return;
             colorContainer.innerHTML = '';
+            const colorSec = document.getElementById('color-section');
+            if (uniqueColors.length === 0) {
+                if (colorSec) colorSec.style.display = 'none';
+                return;
+            } else {
+                if (colorSec) colorSec.style.display = 'block';
+            }
             if (colorLabel) colorLabel.innerText = cleanText(selectedColor);
 
             uniqueColors.forEach(function(c) {
@@ -1457,31 +1463,23 @@
                 sizeLabel.innerText = currentVariant ? normalizeSize(currentVariant.size) : 'Не выбран';
             }
 
-            standardSizes.forEach(function(sizeStr) {
-                let variant = variantsForColor.find(function(v) { 
-                    return normalizeSize(v.size) === sizeStr; 
-                });
+            // Показываем ТОЛЬКО те размеры, которые ЕСТЬ на складе (qty > 0). Закончившиеся размеры ИСЧЕЗАЮТ!
+            let availableVariants = variantsForColor.filter(function(v) {
+                return v.in_stock && v.qty > 0;
+            });
 
-                let btn = document.createElement('div');
-                let isAvailable = variant && variant.in_stock && variant.qty > 0;
+            // Если доступных размеров для этого цвета нет — выводим сообщение об окончании
+            if (availableVariants.length === 0) {
+                let emptyMsg = document.createElement('div');
+                emptyMsg.style.cssText = 'color: #EF4444; font-size: 13px; font-weight: 600; padding: 6px 0;';
+                emptyMsg.innerText = '❌ {% trans "Все размеры в этом цвете закончились" %}';
+                sizeContainer.appendChild(emptyMsg);
+            } else {
+                availableVariants.forEach(function(variant) {
+                    let sizeStr = normalizeSize(variant.size);
+                    if (!sizeStr) return;
 
-                if (!isAvailable) {
-                    // АВТОМАТИЧЕСКИЙ КРЕСТИК / ЗАЧЕРКИВАНИЕ, ЕСЛИ РАЗМЕР ЗАКОНЧИЛСЯ
-                    btn.className = 'size-btn disabled';
-                    btn.innerText = sizeStr;
-                    btn.title = '{% trans "Данного размера нет в наличии" %}';
-                    btn.onclick = function() {
-                        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
-                            window.Telegram.WebApp.HapticFeedback.notificationOccurred("warning");
-                        }
-                        if (typeof showToastNotification === 'function') {
-                            showToastNotification('{% trans "Данный размер в этом цвете закончился" %}');
-                        } else {
-                            alert('{% trans "Данный размер в этом цвете закончился" %}');
-                        }
-                    };
-                } else {
-                    // РАЗМЕР В НАЛИЧИИ — АКТИВЕН И КЛИКАБЕЛЕН
+                    let btn = document.createElement('div');
                     btn.className = 'size-btn' + (variant.id === selectedVariantId ? ' active' : '');
                     btn.innerText = sizeStr;
                     btn.onclick = function() {
@@ -1490,9 +1488,9 @@
                         updatePriceDisplay();
                         renderSizes();
                     };
-                }
-                sizeContainer.appendChild(btn);
-            });
+                    sizeContainer.appendChild(btn);
+                });
+            }
         }
 
         function updatePriceDisplay() {
@@ -1528,7 +1526,30 @@
             const addBtn = document.getElementById('add-cart-btn');
             const qtyContainer = document.getElementById('qty-control-container');
             const qtyVal = document.getElementById('qty-value');
+            const stockBadge = document.getElementById('stock-status-badge');
             if (!addBtn || !qtyContainer) return;
+
+            let targetId = selectedVariantId || (variantsData[0] ? variantsData[0].id : null);
+            let activeVar = targetId ? variantsData.find(function(v) { return v.id == targetId; }) : null;
+
+            if (!activeVar || activeVar.qty <= 0 || !activeVar.in_stock) {
+                addBtn.disabled = true;
+                addBtn.style.opacity = '0.5';
+                addBtn.style.cursor = 'not-allowed';
+                addBtn.style.display = 'flex';
+                addBtn.innerHTML = '❌ <span>{% trans "Нет в наличии" %}</span>';
+                qtyContainer.style.display = 'none';
+                if (stockBadge) {
+                    stockBadge.style.color = '#EF4444';
+                    stockBadge.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                    stockBadge.innerText = '❌ {% trans "Нет в наличии" %}';
+                }
+                return;
+            } else {
+                addBtn.disabled = false;
+                addBtn.style.opacity = '1';
+                addBtn.style.cursor = 'pointer';
+            }
 
             let cart = [];
             try {

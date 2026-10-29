@@ -430,14 +430,42 @@
     let userLatitude = null;
     let userLongitude = null;
 
+    function getStoreCartKey() {
+        if (window.CURRENT_STORE_ID && String(window.CURRENT_STORE_ID).trim() !== "") {
+            return 'bm_cart_store_' + String(window.CURRENT_STORE_ID).trim();
+        }
+        return 'brainmart_cart';
+    }
+
     function getCart() {
         try {
-            var raw = localStorage.getItem('brainmart_cart') || localStorage.getItem('bm_cart') || localStorage.getItem('tg_cart');
+            var storeKey = getStoreCartKey();
+            var raw = localStorage.getItem(storeKey);
             var parsed = JSON.parse(raw || '[]');
+
+            // Если на витрине конкретного магазина корзина пуста, проверим нет ли товаров этого магазина в общей корзине
+            if ((!Array.isArray(parsed) || parsed.length === 0) && window.CURRENT_STORE_ID) {
+                var legacyRaw = localStorage.getItem('brainmart_cart') || localStorage.getItem('bm_cart') || localStorage.getItem('tg_cart');
+                var legacyParsed = JSON.parse(legacyRaw || '[]');
+                if (Array.isArray(legacyParsed) && legacyParsed.length > 0) {
+                    var filtered = legacyParsed.filter(function(it) {
+                        return String(it.store_id || '') === String(window.CURRENT_STORE_ID);
+                    });
+                    if (filtered.length > 0) {
+                        parsed = filtered;
+                        localStorage.setItem(storeKey, JSON.stringify(parsed));
+                    }
+                }
+            } else if (!window.CURRENT_STORE_ID && (!Array.isArray(parsed) || parsed.length === 0)) {
+                var legacyRaw = localStorage.getItem('bm_cart') || localStorage.getItem('tg_cart');
+                parsed = JSON.parse(legacyRaw || '[]');
+            }
+
             if (Array.isArray(parsed)) {
                 return parsed.map(function(item) {
                     if (!item.quantity && item.qty) item.quantity = item.qty;
                     if (!item.variant_id && item.id) item.variant_id = item.id;
+                    if (window.CURRENT_STORE_ID && !item.store_id) item.store_id = window.CURRENT_STORE_ID;
                     return item;
                 });
             }
@@ -449,6 +477,8 @@
 
     function saveCart(cart) {
         var json = JSON.stringify(cart);
+        var storeKey = getStoreCartKey();
+        localStorage.setItem(storeKey, json);
         localStorage.setItem('brainmart_cart', json);
         localStorage.setItem('bm_cart', json);
         localStorage.setItem('tg_cart', json);
@@ -714,6 +744,7 @@
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
+                store_id: window.CURRENT_STORE_ID || null,
                 cart: cart,
                 full_name: name || "Покупатель",
                 phone_number: phone,
@@ -741,6 +772,10 @@
         })
         .then(data => {
             if (data.success) {
+                try {
+                    var sKey = getStoreCartKey();
+                    localStorage.removeItem(sKey);
+                } catch(e) {}
                 localStorage.removeItem('brainmart_cart');
                 localStorage.removeItem('bm_cart');
                 localStorage.removeItem('tg_cart');
@@ -782,6 +817,7 @@
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
+                    store_id: window.CURRENT_STORE_ID || null,
                     cart: cart,
                     chat_id: user.id,
                     username: user.username || "",
@@ -792,6 +828,10 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
+                    try {
+                        var sKey = getStoreCartKey();
+                        localStorage.removeItem(sKey);
+                    } catch(e) {}
                     localStorage.removeItem('brainmart_cart');
                     localStorage.removeItem('bm_cart');
                     localStorage.removeItem('tg_cart');
@@ -818,6 +858,7 @@
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
+                    store_id: window.CURRENT_STORE_ID || null,
                     cart: cart,
                     full_name: name || "Покупатель",
                     phone_number: phone,
@@ -831,6 +872,10 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success && data.telegram_url) {
+                    try {
+                        var sKey = getStoreCartKey();
+                        localStorage.removeItem(sKey);
+                    } catch(e) {}
                     localStorage.removeItem('brainmart_cart');
                     localStorage.removeItem('bm_cart');
                     localStorage.removeItem('tg_cart');
