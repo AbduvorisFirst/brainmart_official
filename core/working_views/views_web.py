@@ -194,7 +194,22 @@ def catalog_view(request):
         for w in words:
             q_filter |= Q(name__icontains=w) | Q(description__icontains=w) | Q(variants__color__icontains=w)
         products_qs = products_qs.filter(q_filter).distinct()
-        ai_advice = f"Найдено по запросу '{q_clean}':"
+        if is_ai_search:
+            try:
+                from core.working_views.services import semantic_ai_catalog_search
+                ai_res = semantic_ai_catalog_search(q_clean, current_store)
+                if ai_res and ai_res.get("advice"):
+                    ai_advice = ai_res.get("advice")
+                matched_p_ids = [v.product_id for v in ai_res.get("variants", []) if hasattr(v, "product_id")]
+                if matched_p_ids:
+                    ai_qs = products_qs.filter(id__in=matched_p_ids)
+                    if ai_qs.exists():
+                        products_qs = ai_qs
+            except Exception as e:
+                logger.warning("AI catalog search fallback: %s", e)
+                ai_advice = f"⚡ Найдено по запросу '{q_clean}':"
+        else:
+            ai_advice = f"Найдено по запросу '{q_clean}':"
 
     products_qs = products_qs.order_by("-id")[:80]
 
@@ -1032,3 +1047,73 @@ def become_seller_view(request):
     return render(request, "core/become_seller.html", context)
 
 
+
+
+@csrf_exempt
+def web_ai_chat_view(request):
+    """
+    Эндпоинт онлайн ИИ-стилиста витрины магазина (Web Showcase AI Assistant).
+    Позволяет покупателям на сайте и в Telegram WebApp общаться со стилистом магазина,
+    получать консультацию по размерам, стилю и товарам в наличии.
+    """
+    if request.method != "POST":
+        return JsonResponse({"status": "error", "message": "Only POST allowed"}, status=405)
+
+    try:
+        data = json.loads(request.body) if request.body else {}
+    except Exception:
+        return JsonResponse({"status": "error", "message": "Invalid JSON"}, status=400)
+
+    store_id = data.get("store_id")
+    target_store = None
+    if store_id:
+        try:
+            target_store = Store.objects.filter(id=int(store_id)).first()
+        except (ValueError, TypeError):
+            pass
+
+    if not target_store:
+        target_store = resolve_store_from_request(request)
+
+    if not target_store:
+        target_store = Store.objects.filter(is_active=True, is_frozen_by_admin=False).first()
+
+    if not target_store:
+        return JsonResponse({
+            "status": "error",
+            "reply": "К сожалению, сейчас нет активных магазинов.",
+            "matched_products": []
+        })
+
+    product_id = data.get("product_id")
+    try:
+        product_id = int(product_id) if product_id else None
+    except (ValueError, TypeError):
+        product_id = None
+
+    message_text = (data.get("message") or "").strip()
+    session_id = str(data.get("session_id") or "")
+    lang = getattr(request, "LANGUAGE_CODE", "uz") or "uz"
+
+    # Rate Limiting: макс 20 запросов в минуту
+    if session_id:
+        cache_key = f"ai_web_chat_rate_{session_id}"
+        count = cache.get(cache_key, 0)
+        if count >= 20:
+            return JsonResponse({
+                "status": "ok",
+                "reply": "Вы отправили много запросов за короткое время. Пожалуйста, подождите минуту.",
+                "matched_products": []
+            })
+        cache.set(cache_key, count + 1, timeout=60)
+
+    from core.working_views.services import handle_web_ai_chat
+    result = handle_web_ai_chat(
+        store=target_store,
+        message_text=message_text,
+        product_id=product_id,
+        session_id=session_id,
+        language=lang
+    )
+
+    return JsonResponse(result)

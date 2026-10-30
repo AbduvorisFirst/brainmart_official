@@ -21,4 +21,6 @@ urlpatterns = [
     path('order/<int:order_id>/pay/', views_web.order_payment_gateway_view, name='order-pay'),
     path('order/<int:order_id>/success/', views_web.order_success_view, name='order-success'),
     path('order/<int:order_id>/upload-receipt/', views_web.order_upload_receipt_view, name='order-upload-receipt'),
-]
+    # Онлайн ИИ-стилист/консультант витрины магазина
+    path('api/ai/chat/', views_web.web_ai_chat_view, name='web-ai-chat'),
+]

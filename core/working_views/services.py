@@ -241,9 +241,9 @@ def ask_gemini(
     contents = (history or []) + [{"role": "user", "parts": user_parts}]
 
     models_to_try = [
-        "gemini-1.5-flash",
+        "gemini-3.8-flash",
+        "gemini-3.5-flash-lite",
         "gemini-flash-latest",
-        "gemini-2.0-flash",
     ]
 
     for model_name in models_to_try:
@@ -258,7 +258,7 @@ def ask_gemini(
                         "temperature": 0.35,
                     },
                 },
-                timeout=25,
+                timeout=8,
             )
             if response.status_code == 200:
                 data = response.json()
@@ -458,9 +458,22 @@ def handle_incoming_telegram_message(
                 if f_res.status_code == 200:
                     f_path = f_res.json().get("result", {}).get("file_path")
                     if f_path:
-                        img_dl = requests.get(f"https://api.telegram.org/file/bot{token}/{f_path}", timeout=25)
+                        img_dl = requests.get(f"https://api.telegram.org/file/bot{token}/{f_path}", timeout=15)
                         if img_dl.status_code == 200:
-                            image_b64 = base64.b64encode(img_dl.content).decode("utf-8")
+                            raw_img = img_dl.content
+                            try:
+                                from PIL import Image
+                                import io
+                                im = Image.open(io.BytesIO(raw_img))
+                                if im.mode in ("RGBA", "P"):
+                                    im = im.convert("RGB")
+                                im.thumbnail((600, 600), Image.Resampling.LANCZOS)
+                                buf = io.BytesIO()
+                                im.save(buf, format="JPEG", quality=75, optimize=True)
+                                raw_img = buf.getvalue()
+                            except Exception:
+                                pass
+                            image_b64 = base64.b64encode(raw_img).decode("utf-8")
         except Exception as e:
             logger.warning("Не удалось скачать фото для Gemini Vision в Telegram: %s", e)
 
@@ -508,6 +521,35 @@ def handle_incoming_telegram_message(
     # Проверяем активность подписки магазина
     if not store.is_subscription_active:
         return ("Salom! Do'kon vaqtincha xizmat ko'rsatishni to'xtatdi. / Здравствуйте! Магазин временно приостановил онлайн-обслуживание.", [])
+
+    # ── FAST-PATH ROUTER (Мгновенные ответы без нейросети за 10-30 мс) ──
+    if not image_b64 and not audio_b64 and message_text:
+        clean_text = message_text.strip().lower()
+        simple_greetings = {"salom", "assalom", "assalomu alaykum", "salomlar", "привет", "здравствуйте", "добрый день", "добрый вечер", "hello", "hi", "hey"}
+        if clean_text in simple_greetings or (len(clean_text) <= 15 and any(clean_text == g for g in simple_greetings)):
+            if cust_lang == "uz":
+                reply = f"Assalomu alaykum! «{store.name}» do'konimizga xush kelibsiz! Sizga qanday kiyim yoki mahsulot tanlashda yordam beray?"
+            elif cust_lang == "en":
+                reply = f"Hello! Welcome to «{store.name}»! How can I help you choose clothing or products today?"
+            else:
+                reply = f"Здравствуйте! Добро пожаловать в «{store.name}»! Чем могу помочь вам в выборе вещей?"
+            top_variants = list(ProductVariant.objects.filter(product__store=store, product__is_active=True, stock_quantity__gt=0).select_related("product")[:3])
+            return (reply, top_variants)
+
+        address_keywords = {"адрес", "где вы", "где находитесь", "манзил", "qayerdasiz", "qayerda joylashgan", "manzil", "локация", "lokatsiya", "qayer"}
+        if any(w in clean_text for w in address_keywords) and len(clean_text.split()) <= 4:
+            branches = list(store.branches.filter(is_active=True))
+            if branches:
+                branch_lines = "\n".join([f"📍 {b.name}: {b.address}" for b in branches])
+            else:
+                branch_lines = f"📍 {store.address or 'Уточняйте у менеджера'}"
+            if cust_lang == "uz":
+                reply = f"«{store.name}» do'konlarimiz manzillari:\n\n{branch_lines}\n\nIsh vaqti: har kuni 09:00 dan 21:00 gacha."
+            elif cust_lang == "en":
+                reply = f"Store locations of «{store.name}»:\n\n{branch_lines}\n\nWorking hours: daily from 09:00 to 21:00."
+            else:
+                reply = f"Адреса наших магазинов «{store.name}»:\n\n{branch_lines}\n\nРежим работы: ежедневно с 09:00 до 21:00."
+            return (reply, [])
 
     # 3. Поиск товаров на складе магазина
     query_lower = (message_text or "").lower()
@@ -563,7 +605,7 @@ def handle_incoming_telegram_message(
     )
 
     stock_context = build_stock_context(matches)
-    catalog_summary = build_full_store_catalog_context(store, max_items=25)
+    catalog_summary = build_full_store_catalog_context(store, max_items=8)
     stock_context = f"{stock_context}\n\nПолный каталог магазина в наличии:\n{catalog_summary}"
 
     ai_reply_text = ask_gemini(
@@ -1263,3 +1305,110 @@ def generate_ai_store_insights(store: Store) -> list:
     })
 
     return insights
+
+
+def handle_web_ai_chat(
+    store: Store,
+    message_text: str,
+    product_id: int | None = None,
+    session_id: str = "",
+    language: str = "uz"
+) -> dict:
+    """
+    Интерактивный ИИ-стилист/консультант на веб-витрине магазина (Web Showcase AI Assistant).
+    Помогает покупателю прямо на сайте или в Telegram WebApp подобрать размер,
+    стиль, сочетания одежды и сопутствующие товары.
+    """
+    import re
+    if not store or not store.is_active or store.is_frozen_by_admin:
+        return {
+            "status": "error",
+            "reply": "К сожалению, магазин временно недоступен. / Do'kon vaqtincha mavjud emas.",
+            "matched_products": []
+        }
+
+    lang = language if language in ("uz", "ru", "en") else "uz"
+
+    current_product = None
+    product_context = ""
+    if product_id:
+        current_product = Product.objects.filter(id=product_id, store=store, is_active=True).first()
+        if current_product:
+            colors = ", ".join(filter(None, current_product.variants.values_list("color", flat=True).distinct())) or "стандартный"
+            sizes = ", ".join(filter(None, current_product.variants.values_list("size", flat=True).distinct())) or "универсальный"
+            product_context = (
+                f"\n\nТЕКУЩИЙ ТОВАР, КОТОРЫЙ СМОТРИТ ПОКУПАТЕЛЬ:\n"
+                f"- Название: {current_product.name}\n"
+                f"- Цена: {f'{current_product.base_price} сум'}\n"
+                f"- Доступные цвета: {colors}\n"
+                f"- Доступные размеры: {sizes}\n"
+                f"- Описание: {current_product.description or '—'}\n"
+            )
+
+    system_inst = build_system_instruction(store)
+    lang_name = "o'zbek" if lang == "uz" else "ingliz" if lang == "en" else "русском"
+    system_inst += (
+        f"\n\nРЕЖИМ ОНЛАЙН-СТИЛИСТА НА ВЕБ-ВИТРИНЕ МАГАЗИНА:\n"
+        f"- Язык ответа: СТРОГО на {lang_name} ({lang.upper()})! Отвечай кратко, 2-4 предложения.\n"
+        f"- Будь вежливым экспертным стилистом магазина «{store.name}».\n"
+        f"- Помогай подбирать размер по росту/весу, советуй с чем носить вещь, рассказывай об уходе и фасоне.\n"
+        f"- Если рекомендуешь товары магазина, обязательно в конце добавь тег: [MATCH_ID: <id1>, <id2>], "
+        f"чтобы система показала карточки товаров для моментальной покупки.\n"
+        f"{product_context}"
+    )
+
+    matching_variants = list(ProductVariant.objects.filter(
+        product__store=store, product__is_active=True, stock_quantity__gt=0
+    ).select_related("product")[:6])
+
+    stock_context = build_stock_context(matching_variants)
+    catalog_summary = build_full_store_catalog_context(store, max_items=8)
+    stock_context = f"{stock_context}\n\nАссортимент магазина:\n{catalog_summary}"
+
+    user_query = message_text.strip() if message_text else "Здравствуйте! Расскажите об этом товаре и с чем его сочетать."
+
+    ai_reply = ask_gemini(
+        system_instruction=system_inst,
+        customer_message=user_query,
+        stock_context=stock_context,
+        history=[]
+    )
+
+    match_ids = []
+    tags = re.findall(r"\[MATCH_ID:\s*([\d\s,]+)\]", ai_reply, re.IGNORECASE)
+    for t in tags:
+        for part in re.split(r"[,\s]+", t):
+            if part.isdigit():
+                match_ids.append(int(part))
+
+    clean_reply = re.sub(r"\[MATCH_ID:\s*[\d\s,]+\]", "", ai_reply, flags=re.IGNORECASE).strip()
+
+    matched_products_data = []
+    recommended_variants = ProductVariant.objects.filter(
+        id__in=match_ids, product__store=store
+    ).select_related("product")[:4] if match_ids else matching_variants[:2]
+
+    for v in recommended_variants:
+        img_url = ""
+        if v.image:
+            img_url = v.image.url
+        elif v.product.main_image:
+            img_url = v.product.main_image.url
+
+        matched_products_data.append({
+            "variant_id": v.id,
+            "product_id": v.product.id,
+            "name": v.product.name,
+            "color": v.color or "",
+            "size": v.size or "",
+            "price": int(v.final_price),
+            "formatted_price": f"{int(v.final_price):,} сум".replace(",", " "),
+            "image_url": img_url,
+            "product_url": f"/{lang}/product/{v.product.id}/"
+        })
+
+    return {
+        "status": "ok",
+        "reply": clean_reply,
+        "matched_products": matched_products_data
+    }

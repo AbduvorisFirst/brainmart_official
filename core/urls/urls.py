@@ -28,11 +28,14 @@ from core.working_views.views import (
 )
 from core.working_views.telegram_bot import TelegramWebhookView, StoreCustomTelegramWebhookView
 
+from core.working_views import views_web
+
 router = DefaultRouter()
 router.register("products", ProductViewSet, basename="product")
 router.register("orders", OrderViewSet, basename="order")
 
 urlpatterns = [
+    path('ai/chat/', views_web.web_ai_chat_view, name='api-ai-chat'),
     path("", include(router.urls)),
     # Глобальный вебхук платформы
     path(

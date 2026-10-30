@@ -1,0 +1,553 @@
+{% load i18n %}
+<style>
+/* ─── AI STYLIST FLOATING BUTTON & CHAT WIDGET ─── */
+.bm-ai-fab {
+    position: fixed;
+    bottom: 84px;
+    right: 18px;
+    z-index: 998;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 28px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: bmPulseAi 3s infinite;
+}
+@media (min-width: 900px) {
+    .bm-ai-fab {
+        bottom: 28px;
+        right: 28px;
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+}
+.bm-ai-fab:hover {
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 12px 30px rgba(124, 58, 237, 0.6);
+}
+.bm-ai-fab-sparkle {
+    font-size: 16px;
+    display: inline-block;
+    animation: bmSpinSlow 6s linear infinite;
+}
+@keyframes bmPulseAi {
+    0%, 100% { box-shadow: 0 8px 24px rgba(124, 58, 237, 0.45); }
+    50% { box-shadow: 0 8px 30px rgba(236, 72, 153, 0.65); }
+}
+@keyframes bmSpinSlow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* ─── CHAT MODAL OVERLAY ─── */
+.bm-ai-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 10000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+.bm-ai-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ─── CHAT WINDOW ─── */
+.bm-ai-window {
+    width: 100%;
+    max-width: 440px;
+    height: 82vh;
+    max-height: 680px;
+    background: #111827;
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+@media (min-width: 900px) {
+    .bm-ai-overlay {
+        padding: 24px;
+        align-items: flex-end;
+    }
+    .bm-ai-window {
+        border-radius: 24px;
+        transform: translateY(30px) scale(0.95);
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        opacity: 0;
+    }
+    .bm-ai-overlay.active .bm-ai-window {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+.bm-ai-overlay.active .bm-ai-window {
+    transform: translateY(0);
+}
+
+/* ─── CHAT HEADER ─── */
+.bm-ai-header {
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #1e1b4b 0%, #31104b 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.bm-ai-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.bm-ai-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #4f46e5, #ec4899);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+.bm-ai-title {
+    font-size: 15px;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.2;
+}
+.bm-ai-status {
+    font-size: 11.5px;
+    color: #10b981;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 2px;
+}
+.bm-ai-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 8px #10b981;
+}
+.bm-ai-close {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #94a3b8;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.2s;
+}
+.bm-ai-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+/* ─── QUICK CHIPS ─── */
+.bm-ai-chips {
+    padding: 10px 16px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    background: #0f172a;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    scrollbar-width: none;
+}
+.bm-ai-chips::-webkit-scrollbar { display: none; }
+.bm-ai-chip {
+    white-space: nowrap;
+    background: #1e293b;
+    color: #cbd5e1;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+.bm-ai-chip:hover {
+    background: #334155;
+    color: #ffffff;
+    border-color: rgba(99, 102, 241, 0.4);
+}
+
+/* ─── MESSAGES BODY ─── */
+.bm-ai-body {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.bm-ai-msg {
+    max-width: 86%;
+    padding: 12px 15px;
+    border-radius: 18px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    word-break: break-word;
+}
+.bm-ai-msg.bot {
+    align-self: flex-start;
+    background: #1e293b;
+    color: #f1f5f9;
+    border-bottom-left-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.bm-ai-msg.user {
+    align-self: flex-end;
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    color: #ffffff;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+/* Recommendation cards inside AI reply */
+.bm-ai-rec-cards {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-top: 10px;
+    margin-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    scrollbar-width: none;
+}
+.bm-ai-rec-card {
+    width: 140px;
+    flex-shrink: 0;
+    background: #0f172a;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+.bm-ai-rec-img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    background: #1e293b;
+}
+.bm-ai-rec-info {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+.bm-ai-rec-name {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #ffffff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.bm-ai-rec-price {
+    font-size: 11px;
+    color: #10b981;
+    font-weight: 800;
+    margin-top: 3px;
+}
+.bm-ai-rec-btn {
+    margin-top: 6px;
+    background: #4f46e5;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 5px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+}
+.bm-ai-rec-btn:hover { background: #4338ca; }
+
+/* Typing animation */
+.bm-ai-typing {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 14px;
+    background: #1e293b;
+    border-radius: 16px;
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.bm-ai-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #818cf8;
+    animation: bmTypingBounce 1.4s infinite ease-in-out both;
+}
+.bm-ai-dot:nth-child(1) { animation-delay: -0.32s; }
+.bm-ai-dot:nth-child(2) { animation-delay: -0.16s; }
+@keyframes bmTypingBounce {
+    0%, 80%, 100% { transform: scale(0); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+}
+
+/* ─── CHAT FOOTER ─── */
+.bm-ai-footer {
+    padding: 12px 16px;
+    background: #0f172a;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.bm-ai-input {
+    flex: 1;
+    background: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border-radius: 20px;
+    padding: 10px 16px;
+    font-size: 13.5px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.bm-ai-input:focus {
+    border-color: #6366f1;
+}
+.bm-ai-send-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: #ffffff;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+}
+.bm-ai-send-btn:hover { transform: scale(1.08); }
+</style>
+
+<!-- Floating Action Button -->
+<button type="button" class="bm-ai-fab" id="bmAiFabBtn" onclick="toggleBmAiChat()">
+    <span class="bm-ai-fab-sparkle">✨</span>
+    <span>{% trans "ИИ-Стилист" %}</span>
+</button>
+
+<!-- Chat Modal / Bottom Sheet -->
+<div class="bm-ai-overlay" id="bmAiOverlay" onclick="if(event.target===this) toggleBmAiChat()">
+    <div class="bm-ai-window" id="bmAiWindow">
+        <!-- Header -->
+        <div class="bm-ai-header">
+            <div class="bm-ai-header-left">
+                <div class="bm-ai-avatar">✨</div>
+                <div>
+                    <div class="bm-ai-title">{% trans "ИИ-Стилист" %} <span id="bmAiStoreTitle"></span></div>
+                    <div class="bm-ai-status">
+                        <span class="bm-ai-status-dot"></span>
+                        <span>{% trans "Онлайн • Помощь в выборе" %}</span>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="bm-ai-close" onclick="toggleBmAiChat()">✕</button>
+        </div>
+
+        <!-- Quick Chips -->
+        <div class="bm-ai-chips">
+            <div class="bm-ai-chip" onclick="sendBmAiQuickPrompt('{% trans "Помоги подобрать размер под мой рост и вес" %}')">📏 {% trans "Размер" %}</div>
+            <div class="bm-ai-chip" onclick="sendBmAiQuickPrompt('{% trans "С чем лучше сочетать этот цвет и модель?" %}')">🎨 {% trans "Сочетания" %}</div>
+            <div class="bm-ai-chip" onclick="sendBmAiQuickPrompt('{% trans "Какие есть новинки и хиты в наличии?" %}')">🔥 {% trans "Хиты" %}</div>
+            <div class="bm-ai-chip" onclick="sendBmAiQuickPrompt('{% trans "Какой у вас адрес и как работает доставка?" %}')">🚚 {% trans "Доставка" %}</div>
+        </div>
+
+        <!-- Chat Body -->
+        <div class="bm-ai-body" id="bmAiBody">
+            <div class="bm-ai-msg bot" id="bmAiGreetingMsg">
+                {% trans "Здравствуйте! Я персональный ИИ-стилист. Помогу выбрать размер, расскажу про фасон и подберу образ из нашего каталога. О чем хотите узнать?" %}
+            </div>
+        </div>
+
+        <!-- Footer Input -->
+        <div class="bm-ai-footer">
+            <input type="text" class="bm-ai-input" id="bmAiInput" placeholder="{% trans "Спросите о размере, ткани, стиле..." %}" onkeydown="if(event.key==='Enter') sendBmAiMessage()">
+            <button type="button" class="bm-ai-send-btn" onclick="sendBmAiMessage()">➤</button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    let aiChatOpen = false;
+    let currentAiProductId = null;
+    let aiSessionId = localStorage.getItem('bm_ai_session_id');
+    if (!aiSessionId) {
+        aiSessionId = 'bm_sess_' + Math.random().toString(36).substring(2, 12);
+        localStorage.setItem('bm_ai_session_id', aiSessionId);
+    }
+
+    // Set Store Name in title
+    window.addEventListener('DOMContentLoaded', function() {
+        var st = document.getElementById('bmAiStoreTitle');
+        if (st && window.CURRENT_STORE_NAME) {
+            st.textContent = '«' + window.CURRENT_STORE_NAME + '»';
+        }
+    });
+
+    window.toggleBmAiChat = function(prefillProductId, prefillProductName) {
+        aiChatOpen = !aiChatOpen;
+        const overlay = document.getElementById('bmAiOverlay');
+        if (aiChatOpen) {
+            overlay.classList.add('active');
+            if (prefillProductId) {
+                currentAiProductId = prefillProductId;
+                const pName = prefillProductName || '{% trans "этот товар" %}';
+                sendBmAiMessage(`{% trans "Здравствуйте! Расскажи подробнее про" %} «${pName}»: {% trans "с чем его носить и как подобрать размер?" %}`);
+            }
+            setTimeout(() => {
+                const inp = document.getElementById('bmAiInput');
+                if (inp) inp.focus();
+            }, 300);
+        } else {
+            overlay.classList.remove('active');
+        }
+    };
+
+    window.openAiChatForProduct = function(productId, productName) {
+        if (!aiChatOpen) {
+            window.toggleBmAiChat(productId, productName);
+        } else if (productId) {
+            currentAiProductId = productId;
+            const pName = productName || '{% trans "этот товар" %}';
+            sendBmAiMessage(`{% trans "Расскажи подробнее про" %} «${pName}»`);
+        }
+    };
+
+    window.sendBmAiQuickPrompt = function(promptText) {
+        const inp = document.getElementById('bmAiInput');
+        if (inp) inp.value = promptText;
+        sendBmAiMessage();
+    };
+
+    window.sendBmAiMessage = async function(customMsg) {
+        const input = document.getElementById('bmAiInput');
+        const text = customMsg || (input ? input.value.trim() : '');
+        if (!text) return;
+        if (!customMsg && input) input.value = '';
+
+        appendAiMsg(text, 'user');
+
+        // Show typing indicator
+        const typingEl = document.createElement('div');
+        typingEl.className = 'bm-ai-typing';
+        typingEl.id = 'bmAiTypingIndicator';
+        typingEl.innerHTML = '<span class="bm-ai-dot"></span><span class="bm-ai-dot"></span><span class="bm-ai-dot"></span>';
+        const body = document.getElementById('bmAiBody');
+        body.appendChild(typingEl);
+        body.scrollTop = body.scrollHeight;
+
+        try {
+            const storeId = window.CURRENT_STORE_ID || null;
+            const res = await fetch('/api/ai/chat/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken') || ''
+                },
+                body: JSON.stringify({
+                    store_id: storeId,
+                    product_id: currentAiProductId,
+                    message: text,
+                    session_id: aiSessionId
+                })
+            });
+
+            const data = await res.json();
+            if (typingEl.parentNode) typingEl.parentNode.removeChild(typingEl);
+
+            if (data && data.reply) {
+                appendAiMsg(data.reply, 'bot', data.matched_products);
+            } else {
+                appendAiMsg('{% trans "Извините, не удалось связаться со стилистом. Попробуйте еще раз!" %}', 'bot');
+            }
+        } catch (e) {
+            if (typingEl.parentNode) typingEl.parentNode.removeChild(typingEl);
+            appendAiMsg('{% trans "Сетевая ошибка. Проверьте интернет-соединение." %}', 'bot');
+        }
+    };
+
+    function appendAiMsg(text, role, matchedProducts) {
+        const body = document.getElementById('bmAiBody');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'bm-ai-msg ' + role;
+        msgDiv.innerHTML = text.replace(/\n/g, '<br>');
+
+        if (matchedProducts && matchedProducts.length > 0) {
+            const recBox = document.createElement('div');
+            recBox.className = 'bm-ai-rec-cards';
+            matchedProducts.forEach(prod => {
+                const card = document.createElement('div');
+                card.className = 'bm-ai-rec-card';
+                card.innerHTML = `
+                    <img src="${prod.image_url || '/static/images/no-image.png'}" class="bm-ai-rec-img" alt="${prod.name}">
+                    <div class="bm-ai-rec-info">
+                        <div class="bm-ai-rec-name">${prod.name}</div>
+                        <div class="bm-ai-rec-price">${prod.formatted_price}</div>
+                        <a href="${prod.product_url}" class="bm-ai-rec-btn">{% trans "Смотреть" %}</a>
+                    </div>
+                `;
+                recBox.appendChild(card);
+            });
+            msgDiv.appendChild(recBox);
+        }
+
+        body.appendChild(msgDiv);
+        body.scrollTop = body.scrollHeight;
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+})();
+</script>

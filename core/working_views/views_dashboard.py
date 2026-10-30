@@ -1753,7 +1753,7 @@ def seller_register_view(request):
                     payout_card_holder=payout_card_holder,
                     telegram_link_token=secrets.token_hex(16),
                     is_active=True,
-                    verification_status=Store.VerificationStatus.APPROVED,
+                    verification_status=Store.VerificationStatus.PENDING,
                 )
 
                 # Автоматически создаем 1-ю базовую точку на карте
