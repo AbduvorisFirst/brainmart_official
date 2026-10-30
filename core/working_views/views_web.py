@@ -629,24 +629,26 @@ def create_telegram_order(request):
         if not target_store:
             target_store = resolve_store_from_request(request)
 
+        # Если оформляется на глобальном рынке и магазин не был задан:
+        # определяем магазин по первому доступному товару в корзине
+        if not target_store and cart_items:
+            for itm in cart_items:
+                v_cand = _resolve_cart_variant(itm)
+                if v_cand and v_cand.product and v_cand.product.store:
+                    target_store = v_cand.product.store
+                    break
+
+        if not target_store:
+            return JsonResponse({"success": False, "error": "Не удалось определить магазин для выбранных товаров."})
+
         valid_items = []
         for item in cart_items:
             v = _resolve_cart_variant(item)
             if not v:
                 continue
-            if target_store and v.product.store_id != target_store.id:
+            if v.product.store_id != target_store.id:
                 continue
             valid_items.append((item, v))
-
-        if not valid_items:
-            first_variant = _resolve_cart_variant(cart_items[0])
-            if not first_variant:
-                return JsonResponse({"success": False, "error": "Один из товаров в корзине не найден на складе. Пожалуйста, очистите корзину и выберите заново."})
-            target_store = first_variant.product.store
-            for item in cart_items:
-                v = _resolve_cart_variant(item)
-                if v and v.product.store_id == target_store.id:
-                    valid_items.append((item, v))
 
         if not valid_items:
             return JsonResponse({"success": False, "error": "В корзине нет доступных товаров для данного магазина."})
@@ -808,27 +810,28 @@ def create_web_order(request):
             if not target_store:
                 target_store = resolve_store_from_request(request)
 
+            # Если оформляется на глобальном рынке и магазин не был задан:
+            # определяем магазин по первому доступному товару в корзине
+            if not target_store and cart_items:
+                for itm in cart_items:
+                    v_cand = _resolve_cart_variant(itm)
+                    if v_cand and v_cand.product and v_cand.product.store:
+                        target_store = v_cand.product.store
+                        break
+
+            if not target_store:
+                return JsonResponse({"success": False, "error": _("Не удалось определить магазин для выбранных товаров.")})
+
             # Фильтруем товары: включаем ТОЛЬКО позиции, принадлежащие целевому магазину!
             valid_items = []
             for item in cart_items:
                 v = _resolve_cart_variant(item)
                 if not v:
                     continue
-                if target_store and v.product.store_id != target_store.id:
+                if v.product.store_id != target_store.id:
                     # Чужой товар другого продавца из старой сессии корзины — изолируем!
                     continue
                 valid_items.append((item, v))
-
-            if not valid_items:
-                # Если оформляется на глобальном рынке и магазин не был задан: берем магазин первого товара
-                first_variant = _resolve_cart_variant(cart_items[0])
-                if not first_variant:
-                    return JsonResponse({"success": False, "error": _("Один из товаров в корзине больше не доступен на складе.")})
-                target_store = first_variant.product.store
-                for item in cart_items:
-                    v = _resolve_cart_variant(item)
-                    if v and v.product.store_id == target_store.id:
-                        valid_items.append((item, v))
 
             if not valid_items:
                 return JsonResponse({"success": False, "error": _("В корзине нет доступных товаров для данного магазина.")})
@@ -874,7 +877,7 @@ def create_web_order(request):
             order.recalculate_total()
 
         # Магазин не беспокоим, пока покупатель не перевел деньги и не прикрепил фото чека!
-        if target_store.telegram_bot_username and target_store.telegram_bot_active:
+        if target_store and target_store.telegram_bot_username and target_store.telegram_bot_active:
             target_bot = target_store.telegram_bot_username
         else:
             target_bot = getattr(settings, "TELEGRAM_BOT_USERNAME", "")
