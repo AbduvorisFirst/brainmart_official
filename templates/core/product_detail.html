@@ -1489,12 +1489,21 @@
         function renderSizes() {
             if (!sizeContainer) return;
             sizeContainer.innerHTML = '';
+            const sizeSec = document.getElementById('size-section');
 
-            let variantsForColor = variantsData.filter(function(v) { 
-                return (v.color || '').trim().toLowerCase() === (selectedColor || '').trim().toLowerCase(); 
-            });
+            let variantsForColor = (uniqueColors.length > 0 && selectedColor)
+                ? variantsData.filter(function(v) { return (v.color || '').trim().toLowerCase() === selectedColor.trim().toLowerCase(); })
+                : variantsData;
 
-            // Если размер еще не выбран или текущий не подходит под выбранный цвет — выбираем первый доступный
+            const hasAnySizes = variantsForColor.some(function(v) { return normalizeSize(v.size) !== ''; });
+            if (!hasAnySizes) {
+                if (sizeSec) sizeSec.style.display = 'none';
+                return;
+            } else {
+                if (sizeSec) sizeSec.style.display = 'block';
+            }
+
+            // Если текущий выбранный ID не подходит под выбранный цвет — выбираем первый доступный
             if (!selectedVariantId || !variantsForColor.some(function(v) { return v.id === selectedVariantId; })) {
                 let firstAvail = variantsForColor.find(function(v) { return v.in_stock && v.qty > 0; }) || variantsForColor[0];
                 if (firstAvail) {
@@ -1505,7 +1514,7 @@
 
             let currentVariant = variantsData.find(function(v) { return v.id === selectedVariantId; });
             if (sizeLabel) {
-                sizeLabel.innerText = currentVariant ? normalizeSize(currentVariant.size) : 'Не выбран';
+                sizeLabel.innerText = currentVariant ? normalizeSize(currentVariant.size) : '';
             }
 
             // Показываем ТОЛЬКО те размеры, которые ЕСТЬ на складе (qty > 0). Закончившиеся размеры ИСЧЕЗАЮТ!
@@ -1513,7 +1522,7 @@
                 return v.in_stock && v.qty > 0;
             });
 
-            // Если доступных размеров для этого цвета нет — выводим сообщение об окончании
+            // Если закончились все размеры для этого цвета — выводим уведомление
             if (availableVariants.length === 0) {
                 let emptyMsg = document.createElement('div');
                 emptyMsg.style.cssText = 'color: #EF4444; font-size: 13px; font-weight: 600; padding: 6px 0;';
@@ -1598,12 +1607,13 @@
 
             let cart = [];
             try {
-                var raw = localStorage.getItem('bm_cart') || localStorage.getItem('brainmart_cart') || localStorage.getItem('tg_cart');
+                var storeKey = 'bm_cart_store_{{ product.store.id }}';
+                var raw = localStorage.getItem(storeKey) || localStorage.getItem('bm_cart') || localStorage.getItem('brainmart_cart') || localStorage.getItem('tg_cart');
                 cart = JSON.parse(raw || '[]');
                 if (!Array.isArray(cart)) cart = [];
             } catch(e) { cart = []; }
 
-            let targetId = selectedVariantId || (variantsData[0] ? variantsData[0].id : '{{ product.id }}');
+            targetId = selectedVariantId || (variantsData[0] ? variantsData[0].id : '{{ product.id }}');
             let existing = cart.find(function(i) { 
                 return (i.variant_id && i.variant_id == targetId) || (i.id == targetId); 
             });
@@ -1621,9 +1631,9 @@
             renderColors(true);
             renderSizes();
             let firstAvail = variantsData.find(function(v) { 
-                return (v.color || '').trim().toLowerCase() === (selectedColor || '').trim().toLowerCase() && v.in_stock && v.qty > 0; 
+                return (uniqueColors.length === 0 || (v.color || '').trim().toLowerCase() === (selectedColor || '').trim().toLowerCase()) && v.in_stock && v.qty > 0; 
             }) || variantsData.find(function(v) { 
-                return (v.color || '').trim().toLowerCase() === (selectedColor || '').trim().toLowerCase(); 
+                return (uniqueColors.length === 0 || (v.color || '').trim().toLowerCase() === (selectedColor || '').trim().toLowerCase()); 
             }) || variantsData[0];
             if (firstAvail) {
                 selectedVariantId = firstAvail.id;
@@ -1640,9 +1650,9 @@
         if (addBtn) {
             addBtn.addEventListener('click', function() {
                 if (!selectedVariantId && variantsData.length > 0) {
-                    let variantsForColor = variantsData.filter(function(v) { 
-                        return (v.color || '').trim().toLowerCase() === (selectedColor || '').trim().toLowerCase(); 
-                    });
+                    let variantsForColor = (uniqueColors.length > 0 && selectedColor)
+                        ? variantsData.filter(function(v) { return (v.color || '').trim().toLowerCase() === selectedColor.trim().toLowerCase(); })
+                        : variantsData;
                     let firstAvail = variantsForColor.find(function(v) { return v.in_stock && v.qty > 0; }) || variantsData.find(function(v) { return v.in_stock && v.qty > 0; });
                     if (firstAvail) {
                         selectedVariantId = firstAvail.id;
@@ -1691,6 +1701,8 @@
                     });
                 }
                 let jsonStr = JSON.stringify(cart);
+                var storeKey = 'bm_cart_store_{{ product.store.id }}';
+                localStorage.setItem(storeKey, jsonStr);
                 localStorage.setItem('brainmart_cart', jsonStr);
                 localStorage.setItem('bm_cart', jsonStr);
                 localStorage.setItem('tg_cart', jsonStr);
@@ -1720,6 +1732,8 @@
                     }
                 }
                 var jsonStr = JSON.stringify(cart);
+                var storeKey = 'bm_cart_store_{{ product.store.id }}';
+                localStorage.setItem(storeKey, jsonStr);
                 localStorage.setItem('bm_cart', jsonStr);
                 localStorage.setItem('brainmart_cart', jsonStr);
                 localStorage.setItem('tg_cart', jsonStr);
@@ -1753,6 +1767,8 @@
                     }
                 }
                 var jsonStr = JSON.stringify(cart);
+                var storeKey = 'bm_cart_store_{{ product.store.id }}';
+                localStorage.setItem(storeKey, jsonStr);
                 localStorage.setItem('bm_cart', jsonStr);
                 localStorage.setItem('brainmart_cart', jsonStr);
                 localStorage.setItem('tg_cart', jsonStr);
