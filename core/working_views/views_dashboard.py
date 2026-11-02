@@ -60,8 +60,7 @@ def _get_store_or_none(request):
         target_store_id = request.GET.get("store_id") or (request.session.get("admin_view_store_id") if hasattr(request, "session") else None)
         if target_store_id:
             store = Store.objects.filter(id=target_store_id).first()
-        if not store:
-            store = Store.objects.filter(is_active=True).first() or Store.objects.first()
+        # Изоляция: не подставляем Store.objects.first() по умолчанию, чтобы действия staff не затирали данные Магазина 1
         if store and hasattr(request, "session"):
             request.session["admin_view_store_id"] = store.id
 
@@ -201,7 +200,23 @@ def dashboard_home(request):
 
     # --- БЛОК ДЛЯ СОХРАНЕНИЯ ЛОГОТИПА ---
     if request.method == "POST" and request.FILES.get("logo"):
-        store.logo = request.FILES.get("logo")
+        logo_file = request.FILES.get("logo")
+        if logo_file.size > 5 * 1024 * 1024:
+            messages.error(request, "Файл слишком большой. Максимальный размер логотипа — 5 МБ.")
+            return redirect("seller-dashboard")
+        try:
+            from PIL import Image
+            img = Image.open(logo_file)
+            img.verify()
+            if img.format not in ['JPEG', 'PNG', 'WEBP']:
+                messages.error(request, "Неподдерживаемый формат. Разрешены только JPG, PNG, WEBP.")
+                return redirect("seller-dashboard")
+            logo_file.seek(0)
+        except Exception:
+            messages.error(request, "Загруженный файл не является допустимым изображением.")
+            return redirect("seller-dashboard")
+
+        store.logo = logo_file
         store.save(update_fields=["logo"])
         messages.success(request, "Логотип магазина успешно обновлен!")
         return redirect("seller-dashboard")
@@ -1931,15 +1946,8 @@ def store_settings_view(request):
             if instagram_username:
                 existing_store = Store.objects.filter(instagram_username__iexact=instagram_username).exclude(id=store.id).first()
                 if existing_store:
-                    # Если старый магазин неактивен или не имеет товаров (тестовый/заглушка)
-                    if not existing_store.is_active or existing_store.products.count() == 0:
-                        existing_store.instagram_username = f"{instagram_username}_old_{existing_store.id}"
-                        existing_store.save(update_fields=["instagram_username"])
-                        store.instagram_username = instagram_username
-                        store.instagram_business_id = None
-                    else:
-                        messages.error(request, f"Ник Instagram @{instagram_username} уже занят другим магазином ('{existing_store.name}'). Пожалуйста, укажите ваш уникальный ник.")
-                        return redirect("seller-settings")
+                    messages.error(request, f"Этот Instagram @{instagram_username} уже занят другим магазином ('{existing_store.name}'). Пожалуйста, укажите другой аккаунт.")
+                    return redirect("seller-settings")
                 else:
                     if store.instagram_username != instagram_username:
                         store.instagram_username = instagram_username

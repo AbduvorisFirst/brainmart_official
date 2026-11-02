@@ -13,6 +13,55 @@ models.py
 """
 
 from django.db import models
+
+import uuid
+
+def store_logo_upload_path(instance, filename):
+    ext = os.path.splitext(filename)[1].lower()
+    if ext not in [".jpg", ".jpeg", ".png", ".webp"]:
+        ext = ".png"
+    store_id = instance.id or "temp"
+    return f"stores/{store_id}/logos/{uuid.uuid4().hex}{ext}"
+
+def subscription_receipt_upload_path(instance, filename):
+    ext = os.path.splitext(filename)[1].lower()
+    if ext not in [".jpg", ".jpeg", ".png", ".pdf", ".webp"]:
+        ext = ".jpg"
+    store_id = getattr(instance, "store_id", None) or "general"
+    return f"stores/{store_id}/subscriptions/{uuid.uuid4().hex}{ext}"
+
+def product_image_upload_path(instance, filename):
+    ext = os.path.splitext(filename)[1].lower()
+    if ext not in [".jpg", ".jpeg", ".png", ".webp"]:
+        ext = ".jpg"
+    store_id = getattr(instance, "store_id", None) or "general"
+    return f"stores/{store_id}/products/{uuid.uuid4().hex}{ext}"
+
+def variant_image_upload_path(instance, filename):
+    ext = os.path.splitext(filename)[1].lower()
+    if ext not in [".jpg", ".jpeg", ".png", ".webp"]:
+        ext = ".jpg"
+    store_id = "general"
+    if hasattr(instance, "product") and instance.product and getattr(instance.product, "store_id", None):
+        store_id = instance.product.store_id
+    return f"stores/{store_id}/variants/{uuid.uuid4().hex}{ext}"
+
+def order_receipt_upload_path(instance, filename):
+    ext = os.path.splitext(filename)[1].lower()
+    if ext not in [".jpg", ".jpeg", ".png", ".pdf", ".webp"]:
+        ext = ".jpg"
+    store_id = getattr(instance, "store_id", None) or "general"
+    order_id = instance.id or "new"
+    return f"stores/{store_id}/orders/{order_id}/receipts/{uuid.uuid4().hex}{ext}"
+
+def product_gallery_upload_path(instance, filename):
+    ext = os.path.splitext(filename)[1].lower()
+    if ext not in [".jpg", ".jpeg", ".png", ".webp"]:
+        ext = ".jpg"
+    store_id = "general"
+    if hasattr(instance, "product") and instance.product and getattr(instance.product, "store_id", None):
+        store_id = instance.product.store_id
+    return f"stores/{store_id}/products/gallery/{uuid.uuid4().hex}{ext}"
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 import secrets
@@ -43,7 +92,7 @@ class Store(models.Model):
         blank=True,
         help_text="ID из Meta Graph API, приходит при подключении Instagram",
     )
-    logo = models.ImageField(upload_to='stores/logos/', null=True, blank=True)
+    logo = models.ImageField(upload_to=store_logo_upload_path, null=True, blank=True)
     phone_number = models.CharField(max_length=20)
     address = models.CharField(max_length=500, blank=True)
     # Координаты магазина — нужны для расчёта расстояния до клиента
@@ -797,7 +846,7 @@ class Product(models.Model):
     base_price = models.DecimalField(
         max_digits=12, decimal_places=2, validators=[MinValueValidator(0)]
     )
-    main_image = models.ImageField(upload_to="products/", blank=True, null=True)
+    main_image = models.ImageField(upload_to=product_image_upload_path, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -882,7 +931,7 @@ class ProductVariant(models.Model):
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, related_name="variants"
     )
-    image = models.ImageField(upload_to='variants/colors/', null=True, blank=True)
+    image = models.ImageField(upload_to=variant_image_upload_path, null=True, blank=True)
     color = models.CharField(max_length=100, blank=True, default="")
     size = models.CharField(max_length=100, blank=True, default="")  # S, M, L, XL, 42, 205/55 R16, 128GB, 1 кг и т.д.
     sku = models.CharField(
@@ -1066,7 +1115,7 @@ class Order(models.Model):
     # Продавец вставляет при передаче курьеру → клиент получает в Telegram
     tracking_url = models.URLField(max_length=500, blank=True)
     payment_receipt = models.ImageField(
-        upload_to="order_receipts/",
+        upload_to=order_receipt_upload_path,
         null=True,
         blank=True,
         verbose_name="Чек об оплате",
@@ -1219,7 +1268,7 @@ class OrderItem(models.Model):
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='products/gallery/')
+    image = models.ImageField(upload_to=product_gallery_upload_path)
     # Цвет, к которому относится это фото (пусто = общее фото товара)
     color = models.CharField(
         max_length=50, blank=True, default="",
@@ -1746,3 +1795,18 @@ class DailyVisionReport(models.Model):
 
     def __str__(self):
         return f"{self.store.name} | Отчет за {self.date} (Конверсия: {self.conversion_rate}%)"
+
+
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
+
+@receiver(pre_save, sender=Store)
+def auto_delete_old_store_logo(sender, instance, **kwargs):
+    if not instance.pk:
+        return
+    try:
+        old_obj = sender.objects.get(pk=instance.pk)
+        if old_obj.logo and old_obj.logo != instance.logo:
+            old_obj.logo.storage.delete(old_obj.logo.name)
+    except Exception:
+        pass
