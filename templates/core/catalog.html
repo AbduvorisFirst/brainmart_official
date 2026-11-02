@@ -40,13 +40,121 @@
     /* ==========================================================================
        1. TOP LOCATION / DELIVERY PROMISE BAR (UZUM SIGNATURE)
        ========================================================================== */
+    /* ==========================================================================
+       1. TOP LOCATION & ROLE ACTION BAR (SUPERADMIN, STAFF, SELLER, SETTINGS)
+       ========================================================================== */
     .uzum-top-location-bar {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 4px 4px 10px;
+        padding: 6px 4px 10px;
         font-size: 13px;
         color: var(--text-muted, #94A3B8);
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .bm-topbar-left {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+    }
+    .bm-topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-left: auto;
+    }
+    .bm-topbar-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 10px;
+        border-radius: 10px;
+        font-size: 11.5px;
+        font-weight: 750;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        line-height: 1.2;
+        border: 1px solid transparent;
+        white-space: nowrap;
+        background: rgba(255, 255, 255, 0.05);
+        color: #E2E8F0;
+    }
+    .bm-topbar-btn:active {
+        transform: scale(0.96);
+    }
+    .bm-btn-superadmin {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.25) 0%, rgba(220, 38, 38, 0.18) 100%);
+        border-color: rgba(239, 68, 68, 0.5);
+        color: #FCA5A5;
+    }
+    .bm-btn-superadmin:hover {
+        background: rgba(239, 68, 68, 0.35);
+        color: #FFFFFF;
+    }
+    .bm-btn-admin {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.15) 100%);
+        border-color: rgba(245, 158, 11, 0.45);
+        color: #FCD34D;
+    }
+    .bm-btn-admin:hover {
+        background: rgba(245, 158, 11, 0.32);
+        color: #FFFFFF;
+    }
+    .bm-btn-dashboard {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.18) 100%);
+        border-color: rgba(16, 185, 129, 0.45);
+        color: #6EE7B7;
+    }
+    .bm-btn-dashboard:hover {
+        background: rgba(16, 185, 129, 0.35);
+        color: #FFFFFF;
+    }
+    .bm-btn-seller {
+        background: linear-gradient(135deg, rgba(112, 0, 255, 0.28) 0%, rgba(79, 70, 229, 0.2) 100%);
+        border-color: rgba(112, 0, 255, 0.5);
+        color: #C4B5FD;
+    }
+    .bm-btn-seller:hover {
+        background: rgba(112, 0, 255, 0.4);
+        color: #FFFFFF;
+    }
+    .bm-topbar-badge {
+        font-size: 9.5px;
+        font-weight: 850;
+        background: linear-gradient(135deg, #FF0055, #7000FF);
+        color: #FFFFFF;
+        padding: 2px 5px;
+        border-radius: 6px;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+        margin-left: 2px;
+    }
+    .bm-btn-settings {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.12);
+        color: #E2E8F0;
+    }
+    .bm-btn-settings:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: #FFFFFF;
+    }
+    .bm-btn-login {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: #CBD5E1;
+    }
+    @media (max-width: 480px) {
+        .bm-topbar-right {
+            gap: 4px;
+        }
+        .bm-topbar-btn {
+            padding: 4px 7px;
+            font-size: 11px;
+        }
     }
     .uzum-location-chip {
         display: inline-flex;
@@ -1013,15 +1121,66 @@
 
 <div class="catalog-container">
 
-    <!-- 1. Uzum Top Location / Delivery Promise Bar -->
+    <!-- 1. Uzum Top Location & Role Navigation Bar (SuperAdmin, Staff, Seller Dashboard, Settings) -->
     <div class="uzum-top-location-bar">
-        <div class="uzum-location-chip" onclick="showBmToast('{% trans "Доставка работает по всему Узбекистану" %}', '📍')">
-            <span>📍</span>
-            <span class="location-city">{% if current_store and current_store.address %}{{ current_store.address }}{% else %}Ташкент{% endif %}</span>
-            <span class="uzum-location-chevron">▾</span>
+        <div class="bm-topbar-left">
+            <div class="uzum-location-chip" onclick="showBmToast('{% trans "Доставка работает по всему Узбекистану" %}', '📍')">
+                <span>📍</span>
+                <span class="location-city">{% if current_store and current_store.address %}{{ current_store.address }}{% else %}Ташкент{% endif %}</span>
+                <span class="uzum-location-chevron">▾</span>
+            </div>
+            <div class="uzum-delivery-promise" style="margin-left: 2px;">
+                <span>• {% trans "Доставка за 1 день" %}</span>
+            </div>
         </div>
-        <div class="uzum-delivery-promise">
-            <span>город доставки • {% trans "Доставка за 1 день" %}</span>
+
+        <div class="bm-topbar-right">
+            {% if request.user.is_authenticated %}
+                {% if request.user.is_superuser %}
+                    <a href="/platform-admin/" class="bm-topbar-btn bm-btn-superadmin" title="{% trans 'Панель управления SuperAdmin' %}">
+                        <span>🛡️</span>
+                        <span>SuperAdmin</span>
+                    </a>
+                    <a href="/brainmart-secure-admin-panel/" class="bm-topbar-btn bm-btn-admin" title="{% trans 'Панель Django Admin' %}">
+                        <span>⚙️</span>
+                        <span>Django</span>
+                    </a>
+                {% elif request.user.is_staff %}
+                    <a href="/brainmart-secure-admin-panel/" class="bm-topbar-btn bm-btn-admin" title="{% trans 'Админ-панель' %}">
+                        <span>🛡️</span>
+                        <span>{% trans "Админка" %}</span>
+                    </a>
+                {% endif %}
+
+                {% if request.user.store %}
+                    <a href="{% url 'seller-dashboard' %}" class="bm-topbar-btn bm-btn-dashboard" title="{% trans 'Перейти в личный кабинет продавца' %}">
+                        <span>💼</span>
+                        <span>{% trans "В Dashboard" %}</span>
+                    </a>
+                {% else %}
+                    <a href="{% url 'become-seller' %}" class="bm-topbar-btn bm-btn-seller" title="{% trans 'Открыть свой магазин на BrainMart' %}">
+                        <span>🚀</span>
+                        <span>{% trans "Стать продавцом" %}</span>
+                        <span class="bm-topbar-badge">Vision AI</span>
+                    </a>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'become-seller' %}" class="bm-topbar-btn bm-btn-seller" title="{% trans 'Открыть свой магазин на BrainMart' %}">
+                    <span>🚀</span>
+                    <span>{% trans "Стать продавцом" %}</span>
+                    <span class="bm-topbar-badge">Vision AI</span>
+                </a>
+                <a href="{% url 'seller-login' %}" class="bm-topbar-btn bm-btn-login" title="{% trans 'Вход для продавцов' %}">
+                    <span>🔑</span>
+                    <span>{% trans "Вход" %}</span>
+                </a>
+            {% endif %}
+
+            <!-- Settings Button (Открывает меню настроек и сервисов) -->
+            <button type="button" onclick="openSettingsSheet()" class="bm-topbar-btn bm-btn-settings" title="{% trans 'Настройки маркетплейса' %}">
+                <span>⚙️</span>
+                <span>{% trans "Настройки" %}</span>
+            </button>
         </div>
     </div>
 
@@ -1373,6 +1532,26 @@
             <button type="button" onclick="closeSettingsSheet()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); width: 34px; height: 34px; border-radius: 50%; font-size: 14px; font-weight: 700; color: #94A3B8; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>
         </div>
 
+        {% if request.user.is_staff or request.user.is_superuser %}
+        <!-- ADMINISTRATOR PORTAL LINKS -->
+        <div style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.14) 0%, rgba(245, 158, 11, 0.1) 100%); border: 1.5px solid rgba(239, 68, 68, 0.35); border-radius: 18px; padding: 14px 16px; margin-bottom: 14px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                <span style="font-size: 18px;">🛡️</span>
+                <div style="font-size: 13.5px; font-weight: 800; color: #FCA5A5;">{% trans "Инструменты администратора" %}</div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                {% if request.user.is_superuser %}
+                    <a href="/platform-admin/" style="background: #DC2626; color: #FFFFFF; padding: 10px 12px; border-radius: 12px; text-decoration: none; font-size: 12.5px; font-weight: 750; text-align: center; display: block; box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3);">
+                        🛡️ SuperAdmin
+                    </a>
+                {% endif %}
+                <a href="/brainmart-secure-admin-panel/" style="background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.5); color: #FCD34D; padding: 10px 12px; border-radius: 12px; text-decoration: none; font-size: 12.5px; font-weight: 750; text-align: center; display: block;">
+                    ⚙️ Django Admin
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- SELLER ONBOARDING / DASHBOARD SECTION (СПРЯТАНО В НАСТРОЙКАХ) -->
         <div style="margin-bottom: 20px;">
             {% if request.user.is_authenticated and request.user.store %}
@@ -1398,20 +1577,23 @@
                 </div>
             {% else %}
                 <!-- GUEST / BUYER: BECOME A SELLER PROMO (СПРЯТАНО В НАСТРОЙКАХ) -->
-                <div style="background: linear-gradient(135deg, rgba(112, 0, 255, 0.16) 0%, rgba(245, 158, 11, 0.12) 100%); border: 1.5px solid rgba(112, 0, 255, 0.35); border-radius: 18px; padding: 16px; margin-bottom: 12px;">
+                <div style="background: linear-gradient(135deg, rgba(112, 0, 255, 0.18) 0%, rgba(245, 158, 11, 0.12) 100%); border: 1.5px solid rgba(112, 0, 255, 0.35); border-radius: 18px; padding: 16px; margin-bottom: 12px;">
                     <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px;">
                         <div style="width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #7000FF 0%, #E60049 100%); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">🚀</div>
                         <div>
-                            <div style="font-size: 15px; font-weight: 800; color: #FFFFFF; margin-bottom: 4px;">{% trans "Стать продавцом на BrainMart" %}</div>
-                            <div style="font-size: 12.5px; color: #CBD5E1; line-height: 1.4;">{% trans "Откройте свой интернет-магазин бесплатно за 2 минуты и продавайте товары по всей стране!" %}</div>
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                                <span style="font-size: 15px; font-weight: 800; color: #FFFFFF;">{% trans "Стать продавцом на BrainMart" %}</span>
+                                <span style="font-size: 9px; font-weight: 800; background: #E60049; color: #fff; padding: 2px 6px; border-radius: 6px;">AI VISION</span>
+                            </div>
+                            <div style="font-size: 12px; color: #CBD5E1; line-height: 1.45;">{% trans "Откройте магазин с витриной, ботом продаж и подключите камеры филиалов к BrainMart Vision AI!" %}</div>
                         </div>
                     </div>
                     <div style="display: flex; gap: 8px;">
                         <a href="{% url 'become-seller' %}" style="flex: 1; background: #7000FF; color: #FFFFFF; padding: 12px 14px; border-radius: 12px; text-decoration: none; font-size: 13.5px; font-weight: 800; text-align: center; display: block; box-shadow: 0 4px 14px rgba(112, 0, 255, 0.35);">
-                            ✨ {% trans "Открыть магазин" %}
+                            ✨ {% trans "Открыть магазин и Vision AI" %}
                         </a>
                         <a href="{% url 'seller-login' %}" style="background: rgba(255,255,255,0.06); color: #E2E8F0; padding: 12px 14px; border-radius: 12px; text-decoration: none; font-size: 13.5px; font-weight: 700; text-align: center; display: block; border: 1px solid rgba(255,255,255,0.12);">
-                            🔑 {% trans "Войти" %}
+                            🔑 {% trans "Вход" %}
                         </a>
                     </div>
                 </div>

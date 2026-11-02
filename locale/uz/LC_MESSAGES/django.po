@@ -157,6 +157,9 @@ msgstr "Tezkor amallar"
 msgid "Быстрые сервисы"
 msgstr "Tezkor xizmatlar"
 
+msgid "В Dashboard"
+msgstr "Dashboardga"
+
 msgid "В каталоге"
 msgstr "Katalogda"
 
@@ -579,6 +582,9 @@ msgstr "Innovatsiyalar va sozlamalar"
 
 msgid "Инструкция"
 msgstr "Qo'llanma"
+
+msgid "Инструменты администратора"
+msgstr "Administrator vositalari"
 
 msgid "Использовать свои цвета"
 msgstr "O'z ranglarimdan foydalanish"
@@ -1078,11 +1084,17 @@ msgstr "Xaridorlar fikrlari"
 msgid "Отклонена"
 msgstr "Rad etilgan"
 
+msgid "Откройте магазин с витриной, ботом продаж и подключите камеры филиалов к BrainMart Vision AI!"
+msgstr "Vitrina, sotuv boti bilan do'kon oching va filial kameralarini BrainMart Vision AI ga ulang!"
+
 msgid "Открыть"
 msgstr "Ochish"
 
 msgid "Открыть магазин"
 msgstr "Do'konni ochish"
+
+msgid "Открыть магазин и Vision AI"
+msgstr "Do'kon va Vision AI ni ochish"
 
 msgid "Открыть на карте"
 msgstr "Xaritada ochish"
@@ -1150,8 +1162,14 @@ msgstr "Tarmoq xatosi. Qaytadan urinib ko'ring."
 msgid "Ошибка соединения с сервером."
 msgstr "Server bilan aloqa xatosi."
 
+msgid "Панель Django Admin"
+msgstr "Django Admin paneli"
+
 msgid "Панель продавца"
 msgstr "Sotuvchi paneli"
+
+msgid "Панель управления SuperAdmin"
+msgstr "SuperAdmin boshqaruv paneli"
 
 msgid "Партнёрство с brainmart"
 msgstr "brainmart bilan hamkorlik"

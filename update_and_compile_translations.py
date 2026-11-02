@@ -17,6 +17,39 @@ LOCALE_DIR = BASE_DIR / "locale"
 
 # Complete dictionary of dashboard translations
 TRANSLATIONS = {
+    # ─── ГЛОБАЛЬНЫЙ МАРКЕТ И РОЛИ ───
+    "Панель управления SuperAdmin": {
+        "uz": "SuperAdmin boshqaruv paneli",
+        "en": "SuperAdmin Dashboard",
+    },
+    "Панель Django Admin": {
+        "uz": "Django Admin paneli",
+        "en": "Django Admin Panel",
+    },
+    "В Dashboard": {
+        "uz": "Dashboardga",
+        "en": "To Dashboard",
+    },
+    "Стать продавцом": {
+        "uz": "Sotuvchi bo'lish",
+        "en": "Become a Seller",
+    },
+    "Вход для продавцов": {
+        "uz": "Sotuvchilar uchun kirish",
+        "en": "Seller Login",
+    },
+    "Инструменты администратора": {
+        "uz": "Administrator vositalari",
+        "en": "Administrator Tools",
+    },
+    "Открыть магазин и Vision AI": {
+        "uz": "Do'kon va Vision AI ni ochish",
+        "en": "Open Store & Vision AI",
+    },
+    "Откройте магазин с витриной, ботом продаж и подключите камеры филиалов к BrainMart Vision AI!": {
+        "uz": "Vitrina, sotuv boti bilan do'kon oching va filial kameralarini BrainMart Vision AI ga ulang!",
+        "en": "Open a store with showcase, sales bot, and link branch CCTV to BrainMart Vision AI!",
+    },
     "Сегодня": {
         "uz": "Bugun",
         "en": "Today",

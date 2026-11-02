@@ -6,65 +6,211 @@
 
 <style>
     .seller-landing {
-        max-width: 860px;
+        max-width: 900px;
         margin: 0 auto;
-        padding: 16px 16px 60px;
+        padding: 16px 16px 70px;
+        color: var(--text-main, #FFFFFF);
     }
+
+    /* Навигация назад */
+    .landing-nav-bar {
+        margin-bottom: 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .landing-back-link {
+        text-decoration: none;
+        color: var(--text-muted, #94A3B8);
+        font-size: 13.5px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: color 0.15s ease;
+    }
+    .landing-back-link:hover { color: #FFFFFF; }
+    .landing-login-link {
+        text-decoration: none;
+        color: #C084FC;
+        background: rgba(112, 0, 255, 0.12);
+        border: 1px solid rgba(112, 0, 255, 0.3);
+        padding: 6px 14px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 750;
+        transition: all 0.15s ease;
+    }
+    .landing-login-link:hover {
+        background: rgba(112, 0, 255, 0.25);
+        color: #FFFFFF;
+    }
+
+    /* HERO BANNER */
     .hero-box {
-        background: linear-gradient(145deg, #1E1B4B 0%, #0F172A 100%);
-        border-radius: 24px;
-        padding: 36px 24px;
+        background: linear-gradient(145deg, #181236 0%, #0F172A 50%, #0B0E14 100%);
+        border-radius: 26px;
+        padding: 38px 26px;
         color: white;
         text-align: center;
         margin-bottom: 28px;
-        box-shadow: 0 12px 32px rgba(79, 70, 229, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 16px 40px rgba(112, 0, 255, 0.22);
+        border: 1px solid rgba(112, 0, 255, 0.35);
         position: relative;
         overflow: hidden;
     }
+    .hero-box::before {
+        content: "";
+        position: absolute;
+        top: -120px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 320px;
+        height: 320px;
+        background: radial-gradient(circle, rgba(112, 0, 255, 0.25) 0%, transparent 70%);
+        pointer-events: none;
+    }
     .hero-badge {
-        display: inline-block;
-        background: rgba(99, 102, 241, 0.25);
-        border: 1px solid rgba(99, 102, 241, 0.5);
-        color: #A5B4FC;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(112, 0, 255, 0.25);
+        border: 1px solid rgba(192, 132, 252, 0.45);
+        color: #E9D5FF;
         font-size: 12px;
-        font-weight: 800;
+        font-weight: 850;
         text-transform: uppercase;
         letter-spacing: 0.8px;
-        padding: 6px 14px;
+        padding: 6px 16px;
         border-radius: 20px;
-        margin-bottom: 16px;
+        margin-bottom: 18px;
+        box-shadow: 0 2px 10px rgba(112, 0, 255, 0.3);
     }
     .hero-title {
-        font-size: 28px;
-        font-weight: 900;
+        font-size: 30px;
+        font-weight: 950;
         line-height: 1.25;
-        margin: 0 0 14px;
-        letter-spacing: -0.5px;
+        margin: 0 0 16px;
+        letter-spacing: -0.03em;
+        background: linear-gradient(135deg, #FFFFFF 30%, #DDD6FE 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    @media (min-width: 680px) {
+        .hero-title { font-size: 38px; }
     }
     .hero-subtitle {
-        font-size: 14.5px;
+        font-size: 15px;
         color: #CBD5E1;
-        line-height: 1.55;
-        margin: 0 auto 24px;
-        max-width: 620px;
+        line-height: 1.6;
+        margin: 0 auto 26px;
+        max-width: 680px;
+    }
+    .hero-actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
     }
     .hero-cta-btn {
-        display: inline-block;
-        background: var(--primary);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, #7000FF 0%, #4F46E5 100%);
         color: white;
         padding: 15px 32px;
         border-radius: 14px;
         font-size: 15px;
         font-weight: 800;
         text-decoration: none;
-        box-shadow: 0 4px 18px rgba(79, 70, 229, 0.45);
+        box-shadow: 0 6px 22px rgba(112, 0, 255, 0.4);
         transition: transform 0.15s ease, filter 0.15s ease;
     }
-    .hero-cta-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    .hero-cta-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
     .hero-cta-btn:active { transform: scale(0.97); }
 
-    /* Сетка преимуществ */
+    .hero-secondary-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        color: #E2E8F0;
+        padding: 15px 24px;
+        border-radius: 14px;
+        font-size: 14.5px;
+        font-weight: 750;
+        text-decoration: none;
+        transition: all 0.15s ease;
+    }
+    .hero-secondary-btn:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: #FFFFFF;
+    }
+
+    /* VISION AI EXCLUSIVE SHOWCASE BANNER */
+    .vision-showcase-box {
+        background: linear-gradient(145deg, rgba(17, 24, 39, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+        border: 2px solid #7000FF;
+        border-radius: 22px;
+        padding: 26px;
+        margin-bottom: 28px;
+        box-shadow: 0 10px 30px rgba(112, 0, 255, 0.18);
+        position: relative;
+    }
+    .vision-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: linear-gradient(135deg, #FF0055 0%, #7000FF 100%);
+        color: #FFFFFF;
+        font-size: 11px;
+        font-weight: 900;
+        padding: 4px 10px;
+        border-radius: 8px;
+        letter-spacing: 0.5px;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+    }
+    .vision-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 14px;
+        margin-top: 18px;
+    }
+    .vision-card-item {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 18px 16px;
+        transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .vision-card-item:hover {
+        border-color: rgba(192, 132, 252, 0.4);
+        transform: translateY(-2px);
+    }
+    .vision-card-icon {
+        font-size: 26px;
+        margin-bottom: 10px;
+        display: block;
+    }
+    .vision-card-title {
+        font-size: 15px;
+        font-weight: 850;
+        color: #FFFFFF;
+        margin: 0 0 6px;
+    }
+    .vision-card-desc {
+        font-size: 12.5px;
+        color: #94A3B8;
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    /* FEATURES GRID */
     .features-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -72,54 +218,250 @@
         margin-bottom: 32px;
     }
     .feature-card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 18px;
+        background: var(--surface, #141C28);
+        border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+        border-radius: 20px;
         padding: 22px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: column;
     }
     .feature-icon {
-        width: 46px;
-        height: 46px;
-        border-radius: 12px;
-        background: var(--primary-light);
-        color: var(--primary);
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        background: rgba(112, 0, 255, 0.15);
+        color: #C084FC;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 24px;
         margin-bottom: 14px;
+        border: 1px solid rgba(112, 0, 255, 0.3);
     }
-    .feature-title { font-size: 16px; font-weight: 800; color: var(--text-main); margin: 0 0 6px; }
-    .feature-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin: 0; }
+    .feature-title { font-size: 16px; font-weight: 850; color: #FFFFFF; margin: 0 0 8px; }
+    .feature-desc { font-size: 13px; color: #94A3B8; line-height: 1.55; margin: 0; }
 
-    /* Тарифные карточки SaaS */
-    .saas-card {
-        background: var(--surface);
-        border: 2px solid var(--primary);
-        border-radius: 22px;
-        padding: 28px;
-        margin-bottom: 28px;
-        box-shadow: 0 8px 24px rgba(79, 70, 229, 0.12);
+    /* PRICING & TIERS SECTION */
+    .pricing-section {
+        background: var(--surface, #141C28);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 26px;
+        padding: 30px 24px;
+        margin-bottom: 30px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
     }
-    .calc-example-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 12px;
-        margin-top: 18px;
-    }
-    .calc-box {
-        background: rgba(0, 0, 0, 0.03);
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        padding: 16px;
+    .pricing-header {
         text-align: center;
+        margin-bottom: 24px;
     }
-    .calc-box-title { font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
-    .calc-box-price { font-size: 18px; font-weight: 900; color: var(--text-main); }
-    .calc-box-sub { font-size: 11px; color: var(--primary); font-weight: 700; margin-top: 4px; }
+    .pricing-title {
+        font-size: 26px;
+        font-weight: 900;
+        margin: 0 0 8px;
+        color: #FFFFFF;
+    }
+    .pricing-sub {
+        font-size: 14px;
+        color: #94A3B8;
+        max-width: 580px;
+        margin: 0 auto;
+        line-height: 1.5;
+    }
 
-    /* Шаги подключения */
+    /* Billing cycle toggle */
+    .cycle-switch-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 20px 0 26px;
+    }
+    .cycle-switch {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        padding: 4px;
+        border-radius: 14px;
+        display: inline-flex;
+        gap: 4px;
+    }
+    .cycle-btn {
+        background: transparent;
+        border: none;
+        color: #94A3B8;
+        padding: 8px 18px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    .cycle-btn.active {
+        background: #7000FF;
+        color: #FFFFFF;
+        box-shadow: 0 2px 10px rgba(112, 0, 255, 0.4);
+    }
+    .cycle-save-pill {
+        background: #10B981;
+        color: #000;
+        font-size: 10.5px;
+        font-weight: 900;
+        padding: 2px 7px;
+        border-radius: 6px;
+        margin-left: 4px;
+    }
+
+    /* Pricing 3-Card Grid */
+    .pricing-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px;
+        margin-bottom: 22px;
+    }
+    .price-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1.5px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        padding: 22px 20px;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        transition: all 0.2s ease;
+    }
+    .price-card.featured {
+        background: linear-gradient(180deg, rgba(112, 0, 255, 0.12) 0%, rgba(20, 28, 43, 0.95) 100%);
+        border: 2px solid #7000FF;
+        box-shadow: 0 10px 30px rgba(112, 0, 255, 0.25);
+        transform: translateY(-2px);
+    }
+    .price-card:hover {
+        border-color: rgba(192, 132, 252, 0.5);
+    }
+    .card-hot-badge {
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #FF0055 0%, #7000FF 100%);
+        color: #FFFFFF;
+        font-size: 10.5px;
+        font-weight: 900;
+        padding: 4px 14px;
+        border-radius: 12px;
+        letter-spacing: 0.6px;
+        text-transform: uppercase;
+        box-shadow: 0 4px 12px rgba(255, 0, 85, 0.4);
+    }
+    .card-plan-name {
+        font-size: 18px;
+        font-weight: 900;
+        color: #FFFFFF;
+        margin-bottom: 6px;
+    }
+    .card-plan-target {
+        font-size: 12px;
+        color: #94A3B8;
+        min-height: 32px;
+        margin-bottom: 14px;
+        line-height: 1.4;
+    }
+    .card-price-row {
+        margin-bottom: 16px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .card-price-amount {
+        font-size: 28px;
+        font-weight: 950;
+        color: #FFFFFF;
+        letter-spacing: -0.02em;
+    }
+    .card-price-period {
+        font-size: 13px;
+        color: #94A3B8;
+        font-weight: 600;
+    }
+    .card-price-billed {
+        font-size: 11.5px;
+        color: #10B981;
+        font-weight: 750;
+        margin-top: 3px;
+    }
+    .card-features-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        font-size: 12.8px;
+        color: #CBD5E1;
+    }
+    .card-features-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        line-height: 1.4;
+    }
+    .card-features-list li span.check {
+        color: #10B981;
+        font-weight: 900;
+        flex-shrink: 0;
+    }
+    .card-cta-btn {
+        display: block;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: #FFFFFF;
+        padding: 12px;
+        border-radius: 12px;
+        font-size: 13.5px;
+        font-weight: 800;
+        text-decoration: none;
+        transition: all 0.15s ease;
+    }
+    .price-card.featured .card-cta-btn {
+        background: #7000FF;
+        border-color: #7000FF;
+        box-shadow: 0 4px 16px rgba(112, 0, 255, 0.4);
+    }
+    .card-cta-btn:hover {
+        background: #5B00D1;
+        border-color: #5B00D1;
+        color: #FFFFFF;
+    }
+
+    /* INTERACTIVE BRANCH CALCULATOR */
+    .branch-calc-box {
+        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 18px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+    .calc-title-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+    .calc-slider-wrap {
+        margin: 14px 0 16px;
+    }
+    .calc-result-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding-top: 14px;
+        border-top: 1px dashed rgba(255, 255, 255, 0.1);
+    }
+
+    /* ШАГИ ПОДКЛЮЧЕНИЯ */
     .steps-container {
         display: flex;
         flex-direction: column;
@@ -130,534 +472,358 @@
         display: flex;
         align-items: flex-start;
         gap: 14px;
-        background: var(--surface);
+        background: var(--surface, #141C28);
         padding: 18px;
-        border-radius: 16px;
-        border: 1px solid var(--border);
+        border-radius: 18px;
+        border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
     }
     .step-num {
-        width: 34px;
-        height: 34px;
-        background: var(--primary);
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, #7000FF 0%, #4F46E5 100%);
         color: white;
-        border-radius: 10px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: 800;
+        font-weight: 850;
         font-size: 15px;
         flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(112, 0, 255, 0.3);
     }
 
-    @media (min-width: 600px) {
-        .hero-title { font-size: 34px; }
+    /* BOTTOM CTA WRAP */
+    .bottom-cta-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 10px;
     }
 </style>
 
 <div class="seller-landing">
-    <!-- Навигация назад -->
-    <div style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-        <a href="{% url 'catalog' %}" style="text-decoration: none; color: var(--text-muted); font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+    <!-- Навигация назад и вход -->
+    <div class="landing-nav-bar">
+        <a href="{% url 'catalog' %}" class="landing-back-link">
             {% if CURRENT_LANG == 'uz' %}
                 ← Katalogga qaytish
             {% elif CURRENT_LANG == 'en' %}
-                ← Back to catalog
+                ← Back to Marketplace
             {% else %}
                 ← Вернуться в каталог
             {% endif %}
         </a>
-        <a href="{% url 'seller-login' %}" style="text-decoration: none; color: var(--primary); font-size: 13px; font-weight: 700;">
+        <a href="{% url 'seller-login' %}" class="landing-login-link">
             {% if CURRENT_LANG == 'uz' %}
-                Sotuvchilar uchun kirish ➔
+                🔑 Sotuvchilar kabinetiga kirish ➔
             {% elif CURRENT_LANG == 'en' %}
-                Seller Login ➔
+                🔑 Seller Login ➔
             {% else %}
-                Вход для продавцов ➔
+                🔑 Вход для продавцов ➔
             {% endif %}
         </a>
     </div>
 
-    <!-- ГЛАВНЫЙ БАННЕР (HERO) -->
+    <!-- 1. ГЛАВНЫЙ HERO-БАННЕР -->
     <div class="hero-box">
         <div class="hero-badge">
-            {% if CURRENT_LANG == 'uz' %}
-                🚀 BRAINMART SAAS PLATFORMASI
-            {% elif CURRENT_LANG == 'en' %}
-                🚀 BRAINMART SAAS PLATFORM
-            {% else %}
-                🚀 SAAS ПЛАТФОРМА BRAINMART
-            {% endif %}
+            <span>🚀</span>
+            <span>{% if CURRENT_LANG == 'uz' %}BRAINMART SAAS + VISION AI 2.0{% elif CURRENT_LANG == 'en' %}BRAINMART SAAS + VISION AI 2.0{% else %}BRAINMART SAAS + VISION AI 2.0{% endif %}</span>
         </div>
         <h1 class="hero-title">
             {% if CURRENT_LANG == 'uz' %}
-                Telegram va marketpleysda sun'iy intellekt bilan halol tannarxda soting
+                Telegram va marketpleysda BrainMart Vision AI bilan soting: veb-vitrina + har bir filialda sun'iy intellektli videokuzatuv
             {% elif CURRENT_LANG == 'en' %}
-                Sell on Telegram & Marketplace with AI at Fair Cost Price
+                Sell on Telegram & Marketplace with BrainMart Vision AI: Storefront + Independent AI CCTV in Each Branch
             {% else %}
-                Продавайте в Telegram и маркетплейсе с ИИ по честной себестоимости
+                Продавайте в Telegram и маркетплейсе с BrainMart Vision AI: витрина + ИИ-видеонаблюдение в каждом филиале
             {% endif %}
         </h1>
         <p class="hero-subtitle">
             {% if CURRENT_LANG == 'uz' %}
-                Oylik obuna: 390 000 so'm/oy. Barcha savdolardan 0% komissiya. Mijozlar to'lovi to'g'ridan-to'g'ri Uzcard / Humo kartangizga tushadi.
+                Do'konlar, shourumlar va savdo tarmoqlari uchun to'liq yechim: shaxsiy brendingizdagi veb-vitrina, Telegram Mini App, 24/7 Gemini AI sotuvchi va har bir filialdagi oddiy kameralarni ulab trafik, kassa voronkasi va mijozlar shikoyatlarini tahlil qilish.
             {% elif CURRENT_LANG == 'en' %}
-                Monthly plan: 390,000 UZS/month. 0% sales commission. Customer payments go directly to your Uzcard / Humo card.
+                Complete retail operating system: branded storefront, Telegram Mini App, 24/7 Gemini AI sales agent, plus connecting standard CCTV cameras in each branch for foot traffic, cashier funnel, and customer objection intelligence.
             {% else %}
-                Базовый тариф: 390 000 сум/мес. 0% комиссии со всех продаж. Выручка от клиентов напрямую зачисляется на вашу карту Uzcard / Humo.
+                Автономная система для шоурумов, бутиков и розничных сетей: персональная витрина, Telegram Mini App, круглосуточный Gemini AI продавец и подключение обычных камер в каждом филиале для анализа трафика, воронки кассы и жалоб клиентов.
             {% endif %}
         </p>
-        <a href="{% url 'seller-register' %}" class="hero-cta-btn">
-            {% if CURRENT_LANG == 'uz' %}
-                ✨ Do'konni ro'yxatdan o'tkazish
-            {% elif CURRENT_LANG == 'en' %}
-                ✨ Register Your Store
-            {% else %}
-                ✨ Зарегистрировать магазин
-            {% endif %}
-        </a>
+        <div class="hero-actions">
+            <a href="{% url 'seller-register' %}" class="hero-cta-btn">
+                <span>✨</span>
+                <span>{% if CURRENT_LANG == 'uz' %}Do'kon va filiallarni ro'yxatdan o'tkazish{% elif CURRENT_LANG == 'en' %}Register Store & Connect Branches{% else %}Зарегистрировать магазин и подключить филиалы{% endif %}</span>
+            </a>
+            <a href="https://t.me/abdvoris07" target="_blank" class="hero-secondary-btn">
+                <span>💬</span>
+                <span>{% if CURRENT_LANG == 'uz' %}Telegramda savollar berish (@abdvoris07){% elif CURRENT_LANG == 'en' %}Telegram Support (@abdvoris07){% else %}Консультация в Telegram (@abdvoris07){% endif %}</span>
+            </a>
+        </div>
     </div>
 
-    <!-- ИНТЕГРАЦИЯ TELEGRAM, INSTAGRAM И СПОСОБЫ ОПЛАТЫ -->
-    <div style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(99, 102, 241, 0.35); border-radius: 18px; padding: 20px 22px; margin-bottom: 26px;">
-        <div style="display: flex; align-items: flex-start; gap: 12px;">
-            <span style="font-size: 24px; line-height: 1;">📱</span>
-            <div>
-                <h3 style="margin: 0 0 6px; font-size: 16px; font-weight: 800; color: #FFFFFF;">
-                    {% if CURRENT_LANG == 'uz' %}
-                        Instagram va Telegram integratsiyasi: Xavfsiz Bio-havola va Meta Direct
-                    {% elif CURRENT_LANG == 'en' %}
-                        Instagram & Telegram Integration: Safe Bio Link & Meta Direct
-                    {% else %}
-                        Интеграция с Instagram и Telegram: Безопасная Bio-ссылка и Meta Direct
-                    {% endif %}
-                </h3>
-                <p style="margin: 0; font-size: 13px; color: #CBD5E1; line-height: 1.55;">
-                    {% if CURRENT_LANG == 'uz' %}
-                        Mijozlar Instagram Bio (profil tavsifi) va Stories orqali bir zumda shaxsiy veb-vitrinangizga yoki Telegram-botingizga o'tib, buyurtma berishadi. Bu usul Meta blokirovkalaridan 100% himoyalangan!<br>
-                        Rasmiy yuridik shaxslar uchun esa Meta Graph API orqali to'g'ridan-to'g'ri <strong>Instagram Direct</strong> sun'iy intellektli botini ham ulash imkoniyati mavjud.
-                    {% elif CURRENT_LANG == 'en' %}
-                        Shoppers seamlessly visit your branded web storefront or Telegram bot via your Instagram Bio and Stories link with zero ban risk!<br>
-                        For registered businesses, official <strong>Instagram Direct</strong> AI bot integration via Meta Graph API is also supported.
-                    {% else %}
-                        Покупатели мгновенно переходят из шапки профиля Instagram (Bio) и Stories в вашу персональную витрину или Telegram-бота без риска блокировок со стороны Meta!<br>
-                        А для официальных юридических лиц доступно прямое подключение умного ИИ-бота в <strong>Instagram Direct</strong> через Meta Graph API.
-                    {% endif %}
-                </p>
+    <!-- 2. ЭКСКЛЮЗИВНЫЙ МОДУЛЬ: BRAINMART VISION AI В КАЖДОМ ФИЛИАЛЕ -->
+    <div class="vision-showcase-box">
+        <div class="vision-tag">👁️ {% if CURRENT_LANG == 'uz' %}Yangi avlod texnologiyasi: Har bir filialda mustaqil Vision AI{% elif CURRENT_LANG == 'en' %}Next-Gen Tech: Independent Vision AI in Each Branch{% else %}Технология нового поколения: Vision AI в каждом филиале{% endif %}</div>
+        
+        <h2 style="font-size: 22px; font-weight: 900; margin: 0 0 10px; color: #FFFFFF;">
+            {% if CURRENT_LANG == 'uz' %}
+                Oddiy arzon kameralaringizni avtonom sotuvlar direktoriga aylantiring
+            {% elif CURRENT_LANG == 'en' %}
+                Turn Standard Store Cameras into an Autonomous Chief Sales Director
+            {% else %}
+                Превратите обычные дешевые камеры магазина в автономного директора по продажам
+            {% endif %}
+        </h2>
+        
+        <p style="font-size: 13.5px; color: #CBD5E1; line-height: 1.55; margin: 0 0 16px;">
+            {% if CURRENT_LANG == 'uz' %}
+                Do'koningizdagi mavjud har qanday kamerani (Hikvision, Dahua, HiWatch, Tuya, Ezviz yoki kassadagi veb-kamera) Dashboard orqali 2 bosishda ulang. Tizim har bir filialingizni alohida tahlil qilib, har kuni kechqurun soat 21:00 da Telegramingizga aniq strategik hisobot yuboradi:
+            {% elif CURRENT_LANG == 'en' %}
+                Connect any existing camera (Hikvision, Dahua, HiWatch, Tuya, Ezviz, or cashier webcams) in 2 clicks. The AI monitors each branch independently and delivers an executive briefing straight to your Telegram every evening at 21:00:
+            {% else %}
+                Подключите любую камеру, которая уже есть в магазине (Hikvision, Dahua, HiWatch, Tuya, Ezviz или веб-камеру на кассе) в 2 клика. ИИ анализирует каждый филиал независимо и каждый вечер в 21:00 присылает директору стратегический отчет в Telegram:
+            {% endif %}
+        </p>
+
+        <div class="vision-grid">
+            <div class="vision-card-item">
+                <span class="vision-card-icon">🚶</span>
+                <h3 class="vision-card-title">{% if CURRENT_LANG == 'uz' %}Filiallar bo'yicha real voronka{% elif CURRENT_LANG == 'en' %}Real Foot Traffic Funnel{% else %}Реальная воронка по филиалам{% endif %}</h3>
+                <p class="vision-card-desc">{% if CURRENT_LANG == 'uz' %}Ko'chadan qancha odam kirdi → qanchasi vitrina yoki kiyinish xonasiga bordi → qanchasi kassada to'lov qildi. Aniq konversiya ko'rsatiladi.{% elif CURRENT_LANG == 'en' %}Foot traffic from street → fitting room / rack interest → cashier payments. Exact conversion computed.{% else %}Сколько зашло с улицы → сколько дошло до витрин/примерочной → сколько оплатило на кассе. Точный процент конверсии.{% endif %}</p>
+            </div>
+
+            <div class="vision-card-item">
+                <span class="vision-card-icon">🎙️</span>
+                <h3 class="vision-card-title">{% if CURRENT_LANG == 'uz' %}Kassadagi e'tiroz va shikoyatlar{% elif CURRENT_LANG == 'en' %}Acoustic Voice & Complaint AI{% else %}Акустический анализ жалоб{% endif %}</h3>
+                <p class="vision-card-desc">{% if CURRENT_LANG == 'uz' %}Aqlli mikrofon xaridorlarning e'tirozlarini taniyadi: "narxlar qimmat", "o'lcham yo'q", "xodimlar qo'pol". Telegramga barcha iqtiboslar yuboriladi.{% elif CURRENT_LANG == 'en' %}Smart cashier microphone detects customer objections: "too expensive", "no size", "slow service". All quotes reported.{% else %}Умный микрофон распознаёт возражения: «слишком дорого», «нет нужного размера», «грубый персонал». В Telegram приходят точные цитаты.{% endif %}</p>
+            </div>
+
+            <div class="vision-card-item">
+                <span class="vision-card-icon">🏢</span>
+                <h3 class="vision-card-title">{% if CURRENT_LANG == 'uz' %}Filiallarni solishtirish (A/B){% elif CURRENT_LANG == 'en' %}Cross-Branch Intelligence{% else %}Сравнение точек сети{% endif %}</h3>
+                <p class="vision-card-desc">{% if CURRENT_LANG == 'uz' %}Qaysi filialda odam kam va lokatsiyani o'zgartirish kerak, qaysi filialda esa xaridor ko'p-u sotuvchilar eplay olmayotganini ko'rsatadi.{% elif CURRENT_LANG == 'en' %}Identifies underperforming branches needing relocation versus high-traffic locations where staff drops sales.{% else %}ИИ покажет, в какой точке мало людей и пора менять локацию, а в какой высокая проходимость, но персонал упускает покупателей.{% endif %}</p>
+            </div>
+
+            <div class="vision-card-item">
+                <span class="vision-card-icon">⚡</span>
+                <h3 class="vision-card-title">{% if CURRENT_LANG == 'uz' %}Kechki 21:00 da Telegram hisobot{% elif CURRENT_LANG == 'en' %}21:00 Daily Telegram Briefing{% else %}Ежедневный отчет в 21:00{% endif %}</h3>
+                <p class="vision-card-desc">{% if CURRENT_LANG == 'uz' %}Direktor har kuni kechqurun kunlik natijalar, filiallar reytingi va savdoni oshirish bo'yicha sun'iy intellekt maslahatlarini qabul qiladi.{% elif CURRENT_LANG == 'en' %}Daily executive briefing with revenue breakdown, branch scorecards, and actionable AI recommendations.{% else %}Директор получает вечернюю сводку: выручка, конверсия точек, ключевые жалобы дня и рекомендации ИИ по росту выручки.{% endif %}</p>
             </div>
         </div>
     </div>
 
-    <!-- ПРЕИМУЩЕСТВА СИСТЕМЫ -->
-    <h2 style="font-size: 20px; font-weight: 800; color: var(--text-main); margin: 0 0 16px;">
+    <!-- 3. ДРУГИЕ ВОЗМОЖНОСТИ ЭКОСИСТЕМЫ -->
+    <h2 style="font-size: 20px; font-weight: 850; color: #FFFFFF; margin: 0 0 16px;">
         {% if CURRENT_LANG == 'uz' %}
-            🌟 Brainmart platformasida nimalarga ega bo'lasiz?
+            🌟 BrainMart ekotizimida yana nimalarga ega bo'lasiz?
         {% elif CURRENT_LANG == 'en' %}
-            🌟 What You Get with Brainmart
+            🌟 What Else You Get in the BrainMart Ecosystem
         {% else %}
-            🌟 Что вы получаете в платформе brainmart?
+            🌟 Что ещё входит в экосистему BrainMart?
         {% endif %}
     </h2>
 
     <div class="features-grid">
         <div class="feature-card">
+            <div class="feature-icon">🎨</div>
+            <h3 class="feature-title">{% if CURRENT_LANG == 'uz' %}12 ta tayyor dizayn uslubi{% elif CURRENT_LANG == 'en' %}12 Ready-Made Boutique Themes{% else %}12 готовых стилей витрины{% endif %}</h3>
+            <p class="feature-desc">{% if CURRENT_LANG == 'uz' %}Uzum Market, Apple Clean White, Warm Silk Beige, Midnight Dark, Cyberpunk Neon va boshqalar. Do'kon uslubi 1 bosishda o'zgaradi.{% elif CURRENT_LANG == 'en' %}Uzum Market, Apple Clean White, Warm Silk Beige, Midnight Dark, Cyberpunk Neon. Switch style in 1 click.{% else %}Uzum Market, Apple Clean White, Warm Silk Beige, Midnight Dark, Cyberpunk Neon и другие. Стиль меняется мгновенно в 1 клик.{% endif %}</p>
+        </div>
+
+        <div class="feature-card">
             <div class="feature-icon">🤖</div>
-            <h3 class="feature-title">
-                {% if CURRENT_LANG == 'uz' %}
-                    Telegramda 24/7 Gemini Vision AI sotuvchi
-                {% elif CURRENT_LANG == 'en' %}
-                    24/7 Gemini Vision AI Seller in Telegram
-                {% else %}
-                    Gemini Vision ИИ-Продавец в Telegram 24/7
-                {% endif %}
-            </h3>
-            <p class="feature-desc">
-                {% if CURRENT_LANG == 'uz' %}
-                    Aqlli sun'iy intellekt Telegram-botda mijozlarga kechayu kunduz maslahat beradi, kiyimlarni rasm orqali taniydi, o'lchamlarni topadi va buyurtmani rasmiylashtiradi.
-                {% elif CURRENT_LANG == 'en' %}
-                    Smart AI assists customers in your Telegram bot 24/7, recognizes clothes from photos, checks sizes, and guides shoppers to checkout.
-                {% else %}
-                    Умный искусственный интеллект консультирует клиентов в Telegram-боте, распознаёт товары по фото, находит размеры и помогает оформить заказ круглосуточно.
-                {% endif %}
-            </p>
+            <h3 class="feature-title">{% if CURRENT_LANG == 'uz' %}Telegramda 24/7 Gemini AI sotuvchi{% elif CURRENT_LANG == 'en' %}24/7 Telegram Gemini AI Agent{% else %}24/7 Gemini AI продавец в Telegram{% endif %}</h3>
+            <p class="feature-desc">{% if CURRENT_LANG == 'uz' %}Telegram-botda mijozlarga kechayu-kunduz xizmat ko'rsatadi, kiyimlarni rasm orqali taniydi, o'lchamlarni topadi va buyurtmani rasmiylashtiradi.{% elif CURRENT_LANG == 'en' %}Serves shoppers 24/7 in your bot: finds clothes from photos, matches sizes, and closes orders autonomously.{% else %}Консультирует клиентов круглосуточно: распознаёт товары по фото, подбирает размеры и оформляет заказы в боте.{% endif %}</p>
         </div>
 
         <div class="feature-card">
             <div class="feature-icon">📱</div>
-            <h3 class="feature-title">
-                {% if CURRENT_LANG == 'uz' %}
-                    Telegram Mini App + Veb-Vitrina
-                {% elif CURRENT_LANG == 'en' %}
-                    Telegram Mini App + Web Storefront
-                {% else %}
-                    Telegram Mini App + Веб-Витрина
-                {% endif %}
-            </h3>
-            <p class="feature-desc">
-                {% if CURRENT_LANG == 'uz' %}
-                    Katalog, ranglar va o'lchamlar bilan shaxsiy brendingizdagi onlayn-do'kon. Xaridorlar ortiqcha ilova o'rnatmasdan 2 bosishda buyurtma berishadi.
-                {% elif CURRENT_LANG == 'en' %}
-                    Branded storefront with full catalog, colors, and sizes. Customers order in 2 clicks right inside Telegram without installing apps.
-                {% else %}
-                    Персональный фирменный интернет-магазин с каталогом, цветами и размерами. Покупатели заказывают за 2 клика без скачивания сторонних приложений.
-                {% endif %}
-            </p>
-        </div>
-
-        <div class="feature-card">
-            <div class="feature-icon">🏢</div>
-            <h3 class="feature-title">
-                {% if CURRENT_LANG == 'uz' %}
-                    Filiallar tarmog'i va aqlli logistika
-                {% elif CURRENT_LANG == 'en' %}
-                    Multi-Branch & Smart Routing
-                {% else %}
-                    Мульти-филиалы и умная логистика
-                {% endif %}
-            </h3>
-            <p class="feature-desc">
-                {% if CURRENT_LANG == 'uz' %}
-                    Barcha savdo nuqtalaringizni bitta joydan boshqaring. Buyurtma mijozga eng yaqin filialdan yuboriladi, bu esa taksi yetkazib berish xarajatlari va vaqtini tejaydi.
-                {% elif CURRENT_LANG == 'en' %}
-                    Manage your store branches in one dashboard. Orders route automatically from the closest branch, saving taxi delivery time and fees.
-                {% else %}
-                    Управляйте сетью торговых точек в одном месте. Заказ автоматически отправляется из ближайшего филиала, экономя время и деньги на доставке такси.
-                {% endif %}
-            </p>
+            <h3 class="feature-title">{% if CURRENT_LANG == 'uz' %}Telegram Mini App + Veb-Vitrina{% elif CURRENT_LANG == 'en' %}Telegram Mini App + Web Storefront{% else %}Telegram Mini App + Веб-Витрина{% endif %}</h3>
+            <p class="feature-desc">{% if CURRENT_LANG == 'uz' %}Shaxsiy domen yoki subdomen (brend.brainmart.uz), to'liq katalog, ranglar va o'lchamlar. Ilova o'rnatmasdan 2 bosishda xarid.{% elif CURRENT_LANG == 'en' %}Custom domain or subdomain, full catalog, sizes, and colors. Shoppers order in 2 taps without installing extra apps.{% else %}Фирменный домен или субдомен, полный каталог с цветами и размерами. Покупатели заказывают за 2 клика без скачивания приложений.{% endif %}</p>
         </div>
 
         <div class="feature-card">
             <div class="feature-icon">💳</div>
-            <h3 class="feature-title">
-                {% if CURRENT_LANG == 'uz' %}
-                    Savdolardan 0% komissiya
-                {% elif CURRENT_LANG == 'en' %}
-                    0% Commission on Sales
-                {% else %}
-                    0% комиссии с продаж
-                {% endif %}
-            </h3>
-            <p class="feature-desc">
-                {% if CURRENT_LANG == 'uz' %}
-                    Savdodan tushgan barcha mablag'lar to'liq o'zingizda qoladi. Mijoz to'lov qilganda — mablag' to'g'ridan-to'g'ri sotuvchining Uzcard / Humo kartasiga tushadi.
-                {% elif CURRENT_LANG == 'en' %}
-                    All sales revenue belongs 100% to you. When a customer pays, money goes directly to your linked Uzcard / Humo card.
-                {% else %}
-                    Все средства от продаж принадлежат вам. Клиент оплачивает — деньги зачисляются напрямую на привязанную карту продавца Uzcard / Humo.
-                {% endif %}
-            </p>
+            <h3 class="feature-title">{% if CURRENT_LANG == 'uz' %}Savdolardan 0% komissiya{% elif CURRENT_LANG == 'en' %}0% Sales Commission{% else %}0% комиссии со всех продаж{% endif %}</h3>
+            <p class="feature-desc">{% if CURRENT_LANG == 'uz' %}Mijozlar to'lagan 100% pul to'g'ridan-to'g'ri o'zingizning Uzcard / Humo kartangizga tushadi. Hech qanday yashirin ushlanmalarsiz.{% elif CURRENT_LANG == 'en' %}100% of customer payments go directly to your personal card or bank account with zero platform deduction.{% else %}100% выручки от покупателей зачисляется напрямую на вашу карту Uzcard / Humo без скрытых списаний и комиссий.{% endif %}</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">🚖</div>
+            <h3 class="feature-title">{% if CURRENT_LANG == 'uz' %}Yandex Taksi va aqlli logistika{% elif CURRENT_LANG == 'en' %}Automated Yandex Delivery{% else %}Яндекс Доставка и логистика{% endif %}</h3>
+            <p class="feature-desc">{% if CURRENT_LANG == 'uz' %}Xaridorni eng yaqin filial bilan avtomatik bog'laydi, yetkazib berish narxini hisoblaydi va taksi xarajatlarini tejaydi.{% elif CURRENT_LANG == 'en' %}Routes orders from closest store branch, calculates live taxi fare, and reduces delivery times.{% else %}Заказ автоматически отправляется из ближайшего филиала, рассчитывая точную стоимость такси и экономя время доставки.{% endif %}</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">📷</div>
+            <h3 class="feature-title">{% if CURRENT_LANG == 'uz' %}Instagram Bio va xavfsiz integratsiya{% elif CURRENT_LANG == 'en' %}Safe Instagram Bio Integration{% else %}Безопасная ссылка в Instagram Bio{% endif %}</h3>
+            <p class="feature-desc">{% if CURRENT_LANG == 'uz' %}Instagram Bio va Stories orqali mijozlarni qulay vitrinaga yo'naltiring — Meta blokirovkalaridan 100% xavfsiz usul.{% elif CURRENT_LANG == 'en' %}Route shoppers from Instagram Bio and Stories safely without any risk of Meta shadowbans.{% else %}Направляйте трафик из Instagram Bio и Stories прямо в онлайн-витрину без риска теневых банов и блокировок.{% endif %}</p>
         </div>
     </div>
 
-    <!-- ТАРИФНАЯ МОДЕЛЬ «БАЗА + ФИЛИАЛЫ» И УСЛУГА «ПОД КЛЮЧ» -->
-    <div class="saas-card">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px; border-bottom: 1px dashed var(--border); padding-bottom: 20px; margin-bottom: 20px;">
-            <div>
-                <span style="font-size: 11px; font-weight: 900; color: var(--primary); text-transform: uppercase; letter-spacing: 0.8px;">
-                    {% if CURRENT_LANG == 'uz' %}
-                        💎 SHAFFOF VA ADOLATLI SAAS TARIFLARI
-                    {% elif CURRENT_LANG == 'en' %}
-                        💎 TRANSPARENT & FAIR SAAS PRICING
-                    {% else %}
-                        💎 ПРОЗРАЧНЫЕ И ЧЕСТНЫЕ SAAS ТАРИФЫ
-                    {% endif %}
-                </span>
-                <h2 style="font-size: 24px; font-weight: 900; color: var(--text-main); margin: 6px 0 6px;">
-                    {% if CURRENT_LANG == 'uz' %}
-                        «Baza + Filiallar» va «Kalit ostida yuklash»
-                    {% elif CURRENT_LANG == 'en' %}
-                        "Base + Branches" & Turnkey Setup
-                    {% else %}
-                        Модель «База + Филиалы» и «Запуск под ключ»
-                    {% endif %}
-                </h2>
-                <p style="font-size: 13.5px; color: var(--text-muted); margin: 0; line-height: 1.45;">
-                    {% if CURRENT_LANG == 'uz' %}
-                        Yashirin to'lovlarsiz adolatli obuna. 100% savdo summasi to'g'ridan-to'g'ri o'zingizda qoladi.
-                    {% elif CURRENT_LANG == 'en' %}
-                        Transparent subscription with 0% commission. 100% of sales goes straight to you.
-                    {% else %}
-                        Честная подписка без скрытых комиссий. 100% выручки с продаж остаётся у вас.
-                    {% endif %}
-                </p>
-            </div>
-            <div style="text-align: right;">
-                <div style="font-size: 28px; font-weight: 900; color: var(--primary);">
-                    390 000 <span style="font-size: 15px; font-weight: 600; color: var(--text-muted);">{% if CURRENT_LANG == 'uz' %}so'm/oy{% elif CURRENT_LANG == 'en' %}UZS/mo{% else %}сум/мес{% endif %}</span>
-                </div>
-                <div style="font-size: 12px; color: #10B981; font-weight: 800;">
-                    {% if CURRENT_LANG == 'uz' %}
-                        ✓ Barcha savdolardan 0% komissiya
-                    {% elif CURRENT_LANG == 'en' %}
-                        ✓ 0% commission on all sales
-                    {% else %}
-                        ✓ 0% комиссии со всех продаж
-                    {% endif %}
+    <!-- 4. ОБНОВЛЕННАЯ ТАРИФНАЯ СЕТКА SAAS (ПОДПИСКА С УЧЕТОМ VISION AI) -->
+    <div class="pricing-section" id="pricing-plans">
+        <div class="pricing-header">
+            <span style="font-size: 11.5px; font-weight: 900; color: #C084FC; text-transform: uppercase; letter-spacing: 0.8px;">
+                {% if CURRENT_LANG == 'uz' %}💎 SHAFFOF VA ADOLATLI SAAS TARIFLAR{% elif CURRENT_LANG == 'en' %}💎 TRANSPARENT SAAS PRICING TIERS{% else %}💎 ПРОЗРАЧНЫЕ SAAS ТАРИФЫ{% endif %}
+            </span>
+            <h2 class="pricing-title">
+                {% if CURRENT_LANG == 'uz' %}Biznesingiz hajmiga mos tarifni tanlang{% elif CURRENT_LANG == 'en' %}Select the Ideal Tier for Your Business{% else %}Выберите подходящий тариф для вашего бизнеса{% endif %}
+            </h2>
+            <p class="pricing-sub">
+                {% if CURRENT_LANG == 'uz' %}
+                    Barcha tariflarda barcha savdolardan 0% komissiya va to'g'ridan-to'g'ri to'lovlar amal qiladi.
+                {% elif CURRENT_LANG == 'en' %}
+                    All plans include 0% commission on sales and 100% direct payments to your card.
+                {% else %}
+                    Все тарифы включают 0% комиссии с продаж и прямое зачисление всех оплат на вашу карту.
+                {% endif %}
+            </p>
+
+            <!-- Переключатель: Месяц / Год -->
+            <div class="cycle-switch-wrap">
+                <div class="cycle-switch">
+                    <button type="button" class="cycle-btn active" id="btn-cycle-monthly" onclick="setBillingCycle('monthly')">
+                        {% if CURRENT_LANG == 'uz' %}Oylik to'lov{% elif CURRENT_LANG == 'en' %}Monthly{% else %}Помесячно{% endif %}
+                    </button>
+                    <button type="button" class="cycle-btn" id="btn-cycle-annual" onclick="setBillingCycle('annual')">
+                        {% if CURRENT_LANG == 'uz' %}Yillik to'lov{% elif CURRENT_LANG == 'en' %}Annually{% else %}За 1 год{% endif %}
+                        <span class="cycle-save-pill">{% if CURRENT_LANG == 'uz' %}-20% CHEGIRMA{% elif CURRENT_LANG == 'en' %}-20% OFF{% else %}-20% СКИДКА{% endif %}</span>
+                    </button>
                 </div>
             </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 22px;">
-            <div style="background: rgba(99, 102, 241, 0.05); border: 1.5px solid rgba(99, 102, 241, 0.3); border-radius: 16px; padding: 20px;">
-                <div style="font-size: 16px; font-weight: 800; color: var(--primary); margin-bottom: 8px;">
-                    {% if CURRENT_LANG == 'uz' %}
-                        🏪 Asosiy oylik tarif (Bosh do'kon)
-                    {% elif CURRENT_LANG == 'en' %}
-                        🏪 Main Monthly Tier (Base Store)
-                    {% else %}
-                        🏪 Базовый ежемесячный тариф (Основной магазин)
-                    {% endif %}
+        <!-- 3 ТАРИФНЫЕ КАРТОЧКИ -->
+        <div class="pricing-grid">
+            <!-- 1. START AI -->
+            <div class="price-card" id="card-start">
+                <div class="card-plan-name">Start AI</div>
+                <div class="card-plan-target">{% if CURRENT_LANG == 'uz' %}Onlayn savdoni yangi boshlayotgan yakka do'konlar uchun{% elif CURRENT_LANG == 'en' %}For standalone stores starting online sales{% else %}Для начинающих бутиков и онлайн-магазинов{% endif %}</div>
+                
+                <div class="card-price-row">
+                    <div class="card-price-amount" id="price-start">590 000 <span style="font-size: 15px; font-weight: 700;">{% if CURRENT_LANG == 'uz' %}so'm{% elif CURRENT_LANG == 'en' %}UZS{% else %}сум{% endif %}</span></div>
+                    <div class="card-price-period" id="period-start">{% if CURRENT_LANG == 'uz' %}/ oyiga{% elif CURRENT_LANG == 'en' %}/ month{% else %}/ в месяц{% endif %}</div>
+                    <div class="card-price-billed" id="billed-start" style="display: none;">{% if CURRENT_LANG == 'uz' %}Yiliga 5 880 000 so'm to'lanadi{% elif CURRENT_LANG == 'en' %}Billed 5,880,000 UZS/year{% else %}5 880 000 сум в год (-20% скидка){% endif %}</div>
                 </div>
-                <div style="font-size: 24px; font-weight: 900; color: var(--text-main); margin-bottom: 8px;">
-                    390 000 {% if CURRENT_LANG == 'uz' %}so'm/oy{% elif CURRENT_LANG == 'en' %}UZS/mo{% else %}сум/мес{% endif %}
-                </div>
-                <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin: 0;">
-                    {% if CURRENT_LANG == 'uz' %}
-                        Shaxsiy veb-vitrina (masalan: <code>brend.brainmart.uz</code>), Telegram-bot, kechayu-kunduz ishlovchi <strong>Gemini Vision AI</strong> (rasm va ovozlarni taniydi), ombor va buyurtmalar CRM-tizimi, Yandex Taksi hisobi.
-                    {% elif CURRENT_LANG == 'en' %}
-                        Branded web storefront (e.g. <code>brand.brainmart.uz</code>), store Telegram bot, 24/7 <strong>Gemini Vision AI</strong> (voice & photo search), inventory CRM, and automated Yandex Taxi routing.
-                    {% else %}
-                        Фирменная веб-витрина (<code>бренд.brainmart.uz</code>), Telegram-бот магазина, круглосуточный <strong>Gemini Vision ИИ</strong> (распознаёт фото и голос), CRM заказов и склада, расчёт Яндекс Такси.
-                    {% endif %}
-                </p>
+
+                <ul class="card-features-list">
+                    <li><span class="check">✓</span> <span>{% if CURRENT_LANG == 'uz' %}Shaxsiy veb-vitrina (12 ta tayyor dizayn){% elif CURRENT_LANG == 'en' %}Branded web storefront (12 themes){% else %}Фирменная витрина (12 готовых тем){% endif %}</span></li>
+                    <li><span class="check">✓</span> <span>{% if CURRENT_LANG == 'uz' %}Telegram Mini App + do'kon boti{% elif CURRENT_LANG == 'en' %}Telegram Mini App + sales bot{% else %}Telegram Mini App + бот магазина{% endif %}</span></li>
+                    <li><span class="check">✓</span> <span>{% if CURRENT_LANG == 'uz' %}24/7 Gemini AI sotuvchi (foto va ovoz){% elif CURRENT_LANG == 'en' %}24/7 Gemini AI seller (photo & voice){% else %}24/7 Gemini AI продавец (фото и голос){% endif %}</span></li>
+                    <li><span class="check">✓</span> <span>{% if CURRENT_LANG == 'uz' %}1 000 tagacha tovar va CRM ombori{% elif CURRENT_LANG == 'en' %}Up to 1,000 products & CRM inventory{% else %}До 1 000 товаров и CRM склада{% endif %}</span></li>
+                    <li><span class="check">✓</span> <span>{% if CURRENT_LANG == 'uz' %}1 ta asosiy filial{% elif CURRENT_LANG == 'en' %}1 primary store branch{% else %}1 торговая точка / филиал{% endif %}</span></li>
+                    <li><span class="check">✓</span> <span>{% if CURRENT_LANG == 'uz' %}0% komissiya va Humo/Uzcard to'lovlari{% elif CURRENT_LANG == 'en' %}0% sales fee & direct payouts{% else %}0% комиссии и прямые выплаты{% endif %}</span></li>
+                </ul>
+
+                <a href="{% url 'seller-register' %}?plan=start" class="card-cta-btn">
+                    {% if CURRENT_LANG == 'uz' %}Start AI ni tanlash{% elif CURRENT_LANG == 'en' %}Choose Start AI{% else %}Выбрать Start AI{% endif %}
+                </a>
             </div>
 
-            <div style="background: rgba(16, 185, 129, 0.05); border: 1.5px solid rgba(16, 185, 129, 0.3); border-radius: 16px; padding: 20px;">
-                <div style="font-size: 16px; font-weight: 800; color: #10B981; margin-bottom: 8px;">
-                    {% if CURRENT_LANG == 'uz' %}
-                        🏢 Har bir qo'shimcha filial
-                    {% elif CURRENT_LANG == 'en' %}
-                        🏢 Each Additional Branch
-                    {% else %}
-                        🏢 Каждый дополнительный филиал
-                    {% endif %}
+            <!-- 2. PRO VISION AI (FEATURED) -->
+            <div class="price-card featured" id="card-pro">
+                <div class="card-hot-badge">🔥 {% if CURRENT_LANG == 'uz' %}ENG MASHHUR TANLOV{% elif CURRENT_LANG == 'en' %}MOST POPULAR{% else %}ХИТ ПРОДАЖ{% endif %}</div>
+                <div class="card-plan-name" style="color: #DDD6FE;">Pro Vision AI</div>
+                <div class="card-plan-target">{% if CURRENT_LANG == 'uz' %}Kassani va mijozlar e'tirozlarini nazorat qiluvchi butiklar uchun{% elif CURRENT_LANG == 'en' %}For boutique showrooms demanding cashier funnel intelligence{% else %}Для шоурумов и бутиков с контролем воронки кассы{% endif %}</div>
+                
+                <div class="card-price-row">
+                    <div class="card-price-amount" id="price-pro" style="color: #A78BFA;">990 000 <span style="font-size: 15px; font-weight: 700;">{% if CURRENT_LANG == 'uz' %}so'm{% elif CURRENT_LANG == 'en' %}UZS{% else %}сум{% endif %}</span></div>
+                    <div class="card-price-period" id="period-pro">{% if CURRENT_LANG == 'uz' %}/ oyiga{% elif CURRENT_LANG == 'en' %}/ month{% else %}/ в месяц{% endif %}</div>
+                    <div class="card-price-billed" id="billed-pro" style="display: none;">{% if CURRENT_LANG == 'uz' %}Yiliga 9 900 000 so'm to'lanadi (2 oy tekin!){% elif CURRENT_LANG == 'en' %}Billed 9,900,000 UZS/year (2 months free!){% else %}9 900 000 сум в год (2 месяца в подарок!){% endif %}</div>
                 </div>
-                <div style="font-size: 24px; font-weight: 900; color: var(--text-main); margin-bottom: 8px;">
-                    +100 000 {% if CURRENT_LANG == 'uz' %}so'm/oy filial uchun{% elif CURRENT_LANG == 'en' %}UZS/mo per branch{% else %}сум/мес за филиал{% endif %}
+
+                <ul class="card-features-list">
+                    <li><span class="check">✓</span> <strong>{% if CURRENT_LANG == 'uz' %}Start AI ning barcha imkoniyatlari{% elif CURRENT_LANG == 'en' %}Everything in Start AI{% else %}Всё из тарифа Start AI{% endif %}</strong></li>
+                    <li><span class="check">✓</span> <span>👁️ <strong>{% if CURRENT_LANG == 'uz' %}BrainMart Vision AI (1 ta filial uchun){% elif CURRENT_LANG == 'en' %}BrainMart Vision AI (1 branch CCTV){% else %}BrainMart Vision AI (для 1 филиала){% endif %}</strong></span></li>
+                    <li><span class="check">✓</span> <span>{% if CURRENT_LANG == 'uz' %}Kassadagi yoki zaldagi IP/RTSP kamerani ulash{% elif CURRENT_LANG == 'en' %}Connect IP/RTSP camera in showroom or cash desk{% else %}Подключение IP/RTSP камеры на кассе или в зале{% endif %}</span></li>
+                    <li><span class="check">✓</span> <span>{% if CURRENT_LANG == 'uz' %}Mijozlar soni va kassa voronkasi tahlili{% elif CURRENT_LANG == 'en' %}Foot traffic counting & cashier funnel analysis{% else %}Подсчёт посетителей и воронка кассы{% endif %}</span></li>
+                    <li><span class="check">✓</span> <span>🎙️ <strong>{% if CURRENT_LANG == 'uz' %}Shikoyat va e'tirozlar akustik tahlili{% elif CURRENT_LANG == 'en' %}Acoustic voice analysis of customer objections{% else %}Акустический анализ жалоб и возражений{% endif %}</strong></span></li>
+                    <li><span class="check">✓</span> <span>⚡ <strong>{% if CURRENT_LANG == 'uz' %}Kechki 21:00 da direktorga Telegram hisobot{% elif CURRENT_LANG == 'en' %}21:00 Executive Telegram briefing{% else %}Ежедневный отчет директору в Telegram в 21:00{% endif %}</strong></span></li>
+                    <li><span class="check">✓</span> <span>{% if CURRENT_LANG == 'uz' %}5 000 tagacha tovar va Yandex Taksi integratsiyasi{% elif CURRENT_LANG == 'en' %}Up to 5,000 products & Yandex Delivery{% else %}До 5 000 товаров и Яндекс Доставка{% endif %}</span></li>
+                </ul>
+
+                <a href="{% url 'seller-register' %}?plan=pro" class="card-cta-btn">
+                    {% if CURRENT_LANG == 'uz' %}🚀 Pro Vision AI ni ulash{% elif CURRENT_LANG == 'en' %}🚀 Connect Pro Vision AI{% else %}🚀 Подключить Pro Vision AI{% endif %}
+                </a>
+            </div>
+
+            <!-- 3. ENTERPRISE MULTI-BRANCH -->
+            <div class="price-card" id="card-enterprise">
+                <div class="card-plan-name">Enterprise Multi-Branch</div>
+                <div class="card-plan-target">{% if CURRENT_LANG == 'uz' %}Bir nechta savdo nuqtalari va filiallari bor do'konlar tarmog'i uchun{% elif CURRENT_LANG == 'en' %}For multi-branch retail chains & franchises{% else %}Для розничных сетей магазинов и филиалов{% endif %}</div>
+                
+                <div class="card-price-row">
+                    <div class="card-price-amount" id="price-enterprise">1 690 000 <span style="font-size: 15px; font-weight: 700;">{% if CURRENT_LANG == 'uz' %}so'm{% elif CURRENT_LANG == 'en' %}UZS{% else %}сум{% endif %}</span></div>
+                    <div class="card-price-period" id="period-enterprise">{% if CURRENT_LANG == 'uz' %}/ oyiga{% elif CURRENT_LANG == 'en' %}/ month{% else %}/ в месяц{% endif %}</div>
+                    <div class="card-price-billed" id="billed-enterprise" style="display: none;">{% if CURRENT_LANG == 'uz' %}Yiliga 16 800 000 so'm to'lanadi{% elif CURRENT_LANG == 'en' %}Billed 16,800,000 UZS/year{% else %}16 800 000 сум в год (-20% скидка){% endif %}</div>
                 </div>
-                <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin: 0;">
-                    {% if CURRENT_LANG == 'uz' %}
-                        Taksi orqali eng tez va arzon yetkazib berish uchun xaritada alohida filial manzillari, ombor qoldiqlari va mas'ul menejerlarni ulang.
-                    {% elif CURRENT_LANG == 'en' %}
-                        Connect branch locations on the map with individual stock and managers for fastest, lowest-cost taxi deliveries.
-                    {% else %}
-                        Подключайте филиалы на карте с независимым учётом остатков и менеджеров для быстрой и выгодной доставки такси.
-                    {% endif %}
-                </p>
+
+                <ul class="card-features-list">
+                    <li><span class="check">✓</span> <strong>{% if CURRENT_LANG == 'uz' %}Pro Vision AI ning barcha imkoniyatlari{% elif CURRENT_LANG == 'en' %}Everything in Pro Vision AI{% else %}Всё из тарифа Pro Vision AI{% endif %}</strong></li>
+                    <li><span class="check">✓</span> <span>🏢 <strong>{% if CURRENT_LANG == 'uz' %}3 tagacha filialda o'zining mustaqil Vision AI kamerasi{% elif CURRENT_LANG == 'en' %}Up to 3 branches with independent Vision AI CCTV{% else %}До 3 филиалов со своим Vision AI в каждом филиале{% endif %}</strong></span></li>
+                    <li><span class="check">✓</span> <span>📊 <strong>{% if CURRENT_LANG == 'uz' %}Filiallarni solishtirish va samarasiz nuqtalarni topish{% elif CURRENT_LANG == 'en' %}Cross-branch analytics & underperformer alerts{% else %}Сравнение точек сети и поиск слабых филиалов{% endif %}</strong></span></li>
+                    <li><span class="check">✓</span> <span>{% if CURRENT_LANG == 'uz' %}Qo'shimcha filial Vision AI bilan: +250 000 so'm/oy{% elif CURRENT_LANG == 'en' %}Extra branch with Vision AI: +250,000 UZS/mo{% else %}Дополнительный филиал с Vision AI: +250 000 сум/мес{% endif %}</span></li>
+                    <li><span class="check">✓</span> <span>{% if CURRENT_LANG == 'uz' %}Cheksiz tovarlar va cheksiz fotolarni saqlash{% elif CURRENT_LANG == 'en' %}Unlimited products & high-res media storage{% else %}Неограниченное число товаров и фото{% endif %}</span></li>
+                    <li><span class="check">✓</span> <span>🛠️ {% if CURRENT_LANG == 'uz' %}Kameralarni kalit ostida ulash va 24/7 VIP muhandis{% elif CURRENT_LANG == 'en' %}Turnkey CCTV onboarding & VIP support engineer{% else %}Настройка камер под ключ и VIP инженер 24/7{% endif %}</span></li>
+                </ul>
+
+                <a href="{% url 'seller-register' %}?plan=enterprise" class="card-cta-btn">
+                    {% if CURRENT_LANG == 'uz' %}Enterprise Multi-Branch ni tanlash{% elif CURRENT_LANG == 'en' %}Choose Enterprise{% else %}Выбрать Enterprise{% endif %}
+                </a>
             </div>
         </div>
 
-        <!-- АКЦИЯ: ГОДОВАЯ ПОДПИСКА СО СКИДКОЙ -->
-        <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(234, 88, 12, 0.08)); border: 1.5px solid rgba(245, 158, 11, 0.35); border-radius: 16px; padding: 18px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <span style="font-size: 28px;">🎁</span>
+        <!-- ИНТЕРАКТИВНЫЙ КАЛЬКУЛЯТОР ФИЛИАЛОВ -->
+        <div class="branch-calc-box">
+            <div class="calc-title-row">
                 <div>
-                    <strong style="color: #FBBF24; font-size: 15px; display: block; margin-bottom: 3px;">
-                        {% if CURRENT_LANG == 'uz' %}
-                            Yillik to'lovda 2 oy SOVG'A!
-                        {% elif CURRENT_LANG == 'en' %}
-                            Pay Annually & Get 2 Months FREE!
-                        {% else %}
-                            При оплате за 1 год — 2 месяца в ПОДАРОК!
-                        {% endif %}
-                    </strong>
-                    <span style="font-size: 12.5px; color: #CBD5E1;">
-                        {% if CURRENT_LANG == 'uz' %}
-                            12 oylik obuna bor-yo'g'i 3 900 000 so'm (4 680 000 o'rniga). Oyiga atigi 325 000 so'm!
-                        {% elif CURRENT_LANG == 'en' %}
-                            12 months for only 3,900,000 UZS (instead of 4,680,000). Only 325,000 UZS/mo!
-                        {% else %}
-                            12 месяцев подписки всего за 3 900 000 сум (вместо 4 680 000 сум). Всего 325 000 сум в месяц!
-                        {% endif %}
-                    </span>
-                </div>
-            </div>
-            <a href="{% url 'seller-register' %}" style="display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: #000; font-weight: 800; font-size: 13px; padding: 10px 18px; border-radius: 10px; text-decoration: none;">
-                {% if CURRENT_LANG == 'uz' %}Ulanish ➔{% elif CURRENT_LANG == 'en' %}Get Deal ➔{% else %}Оформить ➔{% endif %}
-            </a>
-        </div>
-
-        <!-- УСЛУГА «ЗАПУСК ПОД КЛЮЧ» -->
-        <div style="border-top: 1px dashed var(--border); padding-top: 20px;">
-            <div style="font-size: 16px; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">
-                {% if CURRENT_LANG == 'uz' %}
-                    🛠️ Qo'shimcha xizmat: «Kalit ostida to'liq ishga tushirish»
-                {% elif CURRENT_LANG == 'en' %}
-                    🛠️ Add-on Service: "Turnkey Store Launch & Setup"
-                {% else %}
-                    🛠️ Дополнительная услуга: «Запуск магазина под ключ»
-                {% endif %}
-            </div>
-            <p style="font-size: 12.5px; color: var(--text-muted); margin: 0 0 16px;">
-                {% if CURRENT_LANG == 'uz' %}
-                    Tovarlaringizni kiritishga vaqtingiz yo'qmi? Biz hamma narsani o'zimiz professional tarzda tayyorlab beramiz:
-                {% elif CURRENT_LANG == 'en' %}
-                    No time to upload your catalog? We will professionally set up your store and inventory for you:
-                {% else %}
-                    Нет времени или навыков фотографировать и вбивать товары? Мы сделаем всё за вас на высшем уровне:
-                {% endif %}
-            </p>
-
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;">
-                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 14px; padding: 16px;">
-                    <div style="font-size: 14px; font-weight: 800; color: #60A5FA; margin-bottom: 4px;">
-                        {% if CURRENT_LANG == 'uz' %}
-                            📦 «Tezkor start» (50 tagacha tovar)
-                        {% elif CURRENT_LANG == 'en' %}
-                            📦 "Quick Launch" (up to 50 items)
-                        {% else %}
-                            📦 «Быстрый старт» (до 50 товаров)
-                        {% endif %}
-                    </div>
-                    <div style="font-size: 20px; font-weight: 900; color: var(--text-main); margin-bottom: 8px;">
-                        700 000 {% if CURRENT_LANG == 'uz' %}so'm (bir martalik){% elif CURRENT_LANG == 'en' %}UZS (one-time){% else %}сум (разово){% endif %}
-                    </div>
-                    <p style="font-size: 12px; color: var(--text-muted); line-height: 1.45; margin: 0;">
-                        {% if CURRENT_LANG == 'uz' %}
-                            Tovarlarni (rasmlar, o'lchamlar, ranglar, narxlar) to'liq yuklash, bot va filial lokatsiyalarini sozlash.
-                        {% elif CURRENT_LANG == 'en' %}
-                            Full setup of up to 50 items (photos, sizes, colors, pricing), bot & branch GPS configuration.
-                        {% else %}
-                            Загрузка до 50 товаров с вариациями (фото, размеры, цвета, цены), настройка геоточек филиалов и бота.
-                        {% endif %}
+                    <h4 style="margin: 0; font-size: 16px; font-weight: 850; color: #FFFFFF;">
+                        🏢 {% if CURRENT_LANG == 'uz' %}Filiallar soni bo'yicha kalkulyator{% elif CURRENT_LANG == 'en' %}Multi-Branch Pricing Calculator{% else %}Калькулятор стоимости по количеству филиалов{% endif %}
+                    </h4>
+                    <p style="margin: 4px 0 0; font-size: 12.5px; color: #94A3B8;">
+                        {% if CURRENT_LANG == 'uz' %}Har bir filialda o'zining mustaqil Vision AI videokuzatuvi bo'ladi{% elif CURRENT_LANG == 'en' %}Each branch gets its own independent Vision AI CCTV analytics{% else %}В каждом филиале подключается своё независимое ИИ-видеонаблюдение{% endif %}
                     </p>
                 </div>
-
-                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 14px; padding: 16px;">
-                    <div style="font-size: 14px; font-weight: 800; color: #34D399; margin-bottom: 4px;">
-                        {% if CURRENT_LANG == 'uz' %}
-                            🚀 «To'liq assortiment» (150 tagacha tovar)
-                        {% elif CURRENT_LANG == 'en' %}
-                            🚀 "Full Assortment" (up to 150 items)
-                        {% else %}
-                            🚀 «Полный ассортимент» (до 150 товаров)
-                        {% endif %}
-                    </div>
-                    <div style="font-size: 20px; font-weight: 900; color: var(--text-main); margin-bottom: 8px;">
-                        1 500 000 {% if CURRENT_LANG == 'uz' %}so'm (bir martalik){% elif CURRENT_LANG == 'en' %}UZS (one-time){% else %}сум (разово){% endif %}
-                    </div>
-                    <p style="font-size: 12px; color: var(--text-muted); line-height: 1.45; margin: 0;">
-                        {% if CURRENT_LANG == 'uz' %}
-                            Instagram yoki Telegramingizdan butun katalog bazasini ko'chirish, toifalarga ajratish, xodimlarni o'rgatish.
-                        {% elif CURRENT_LANG == 'en' %}
-                            Full catalog transfer from Instagram/Telegram, category organization, and manager order training.
-                        {% else %}
-                            Полный перенос каталога из вашего Instagram/Telegram, распределение по категориям, обучение персонала.
-                        {% endif %}
-                    </p>
+                <div style="font-size: 15px; font-weight: 900; color: #C084FC;">
+                    <span id="calc-branches-count">1</span> {% if CURRENT_LANG == 'uz' %}ta filial{% elif CURRENT_LANG == 'en' %}branches{% else %}филиал(ов){% endif %}
                 </div>
+            </div>
+
+            <div class="calc-slider-wrap">
+                <input type="range" id="branchRangeSlider" min="1" max="10" value="1" step="1" oninput="updateBranchCalculator(this.value)" style="width: 100%; accent-color: #7000FF; cursor: pointer;">
+                <div style="display: flex; justify-content: space-between; font-size: 11px; color: #64748B; margin-top: 4px;">
+                    <span>1 {% if CURRENT_LANG == 'uz' %}filial{% elif CURRENT_LANG == 'en' %}branch{% else %}точка{% endif %}</span>
+                    <span>3 {% if CURRENT_LANG == 'uz' %}filial{% elif CURRENT_LANG == 'en' %}branches{% else %}точки{% endif %}</span>
+                    <span>5 {% if CURRENT_LANG == 'uz' %}filial{% elif CURRENT_LANG == 'en' %}branches{% else %}точек{% endif %}</span>
+                    <span>10 {% if CURRENT_LANG == 'uz' %}filial{% elif CURRENT_LANG == 'en' %}branches{% else %}точек{% endif %}</span>
+                </div>
+            </div>
+
+            <div class="calc-result-row">
+                <div>
+                    <div style="font-size: 12px; color: #94A3B8;">{% if CURRENT_LANG == 'uz' %}Tavsiya etilayotgan tarif va jami summa:{% elif CURRENT_LANG == 'en' %}Recommended Tier & Total:{% else %}Рекомендуемый тариф и итоговая сумма:{% endif %}</div>
+                    <div style="font-size: 20px; font-weight: 950; color: #FFFFFF; margin-top: 2px;">
+                        <span id="calc-tier-badge" style="background: rgba(112, 0, 255, 0.2); border: 1px solid #7000FF; color: #C084FC; font-size: 12px; padding: 3px 8px; border-radius: 6px; margin-right: 6px;">Pro Vision AI</span>
+                        <span id="calc-total-amount">990 000</span> <span style="font-size: 14px; color: #94A3B8;">{% if CURRENT_LANG == 'uz' %}so'm/oy{% elif CURRENT_LANG == 'en' %}UZS/mo{% else %}сум/мес{% endif %}</span>
+                    </div>
+                </div>
+
+                <a href="{% url 'seller-register' %}" id="calc-cta-link" style="background: #10B981; color: #000; font-size: 13.5px; font-weight: 850; padding: 10px 20px; border-radius: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                    <span>✨</span>
+                    <span>{% if CURRENT_LANG == 'uz' %}Arizani rasmiylashtirish{% elif CURRENT_LANG == 'en' %}Get Started{% else %}Оформить тариф{% endif %}</span>
+                </a>
             </div>
         </div>
     </div>
 
-    <!-- ЧИСТАЯ СЕБЕСТОИМОСТЬ И ЧЕСТНОСТЬ БЕЗ СКРЫТЫХ ПЕРЕПЛАТ -->
-    <div style="background: linear-gradient(145deg, rgba(17, 24, 39, 0.95), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(16, 185, 129, 0.35); border-radius: 20px; padding: 26px; margin-bottom: 28px;">
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-            <span style="font-size: 26px;">💎</span>
-            <div>
-                <span style="font-size: 11px; font-weight: 900; color: #34D399; text-transform: uppercase; letter-spacing: 0.8px;">
-                    {% if CURRENT_LANG == 'uz' %}
-                        Halol va shaffof narx siyosati
-                    {% elif CURRENT_LANG == 'en' %}
-                        Honest and Transparent Pricing
-                    {% else %}
-                        Честная и прозрачная ценовая политика
-                    {% endif %}
-                </span>
-                <h3 style="margin: 2px 0 0; font-size: 18px; font-weight: 900; color: #FFFFFF;">
-                    {% if CURRENT_LANG == 'uz' %}
-                        Nega biz sof tannarx bo'yicha ishlaymiz?
-                    {% elif CURRENT_LANG == 'en' %}
-                        Why We Operate Strictly at Pure Cost Price
-                    {% else %}
-                        Почему мы работаем строго по честной себестоимости?
-                    {% endif %}
-                </h3>
-            </div>
-        </div>
-        <p style="font-size: 13px; color: #94A3B8; line-height: 1.55; margin: 0 0 18px;">
-            {% if CURRENT_LANG == 'uz' %}
-                BrainMart qimmat obuna to'lovlari belgilamaydi va sotuvchilarning savdosidan foiz olmaydi. Bizning maqsadimiz — O'zbekistondagi har bir do'kon va brendga zamonaviy jahon darajasidagi savdo texnologiyalarini moliyaviy xavf-xatarsiz taqdim etishdir:
-            {% elif CURRENT_LANG == 'en' %}
-                BrainMart never burdens merchants with high subscription mark-ups or hidden commission fees. Our mission is to equip local retail brands and showrooms with top-tier AI and e-commerce tech without financial risk:
-            {% else %}
-                BrainMart не устанавливает завышенные тарифы и не удерживает проценты с ваших продаж. Наша цель — дать каждому магазину и шоуруму современные технологии мирового уровня без финансовых рисков:
-            {% endif %}
-        </p>
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px;">
-                <div style="font-size: 13.5px; font-weight: 800; color: #60A5FA; margin-bottom: 6px;">
-                    {% if CURRENT_LANG == 'uz' %}
-                        ⚙️ Serverlarning sof tannarxi
-                    {% elif CURRENT_LANG == 'en' %}
-                        ⚙️ Pure Infrastructure Cost
-                    {% else %}
-                        ⚙️ Чистая себестоимость серверов
-                    {% endif %}
-                </div>
-                <div style="font-size: 12px; color: #CBD5E1; line-height: 1.45;">
-                    {% if CURRENT_LANG == 'uz' %}
-                        390 000 so'm/oy — bu to'liq tizim: tezkor bulutli serverlar, xavfsiz baza, veb-vitrina va Google Gemini AI so'rovlarini qoplaydi.
-                    {% elif CURRENT_LANG == 'en' %}
-                        390,000 UZS/month fully covers high-speed servers, database uptime, branded web storefront, and Google Gemini AI API requests.
-                    {% else %}
-                        Тариф 390 000 сум/мес полностью покрывает быстрые серверы, базу данных, витрину и запросы к Google Gemini ИИ.
-                    {% endif %}
-                </div>
-            </div>
-
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px;">
-                <div style="font-size: 13.5px; font-weight: 800; color: #34D399; margin-bottom: 6px;">
-                    {% if CURRENT_LANG == 'uz' %}
-                        🛡️ 0% komissiya va to'g'ridan-to'g'ri to'lov
-                    {% elif CURRENT_LANG == 'en' %}
-                        🛡️ 0% Fee & Direct Payments
-                    {% else %}
-                        🛡️ 0% комиссий и прямые оплаты
-                    {% endif %}
-                </div>
-                <div style="font-size: 12px; color: #CBD5E1; line-height: 1.45;">
-                    {% if CURRENT_LANG == 'uz' %}
-                        Mijozlar to'lagan barcha mablag'lar to'g'ridan-to'g'ri kartangizga tushadi. Biz hech qanday vositachilik foizlari yoki yashirin ushlanmalar olmaymiz.
-                    {% elif CURRENT_LANG == 'en' %}
-                        Customer payments go straight to your personal card or bank account. No middleman hold-ups, no hidden deductions, 100% yours.
-                    {% else %}
-                        Выручка клиентов поступает сразу на вашу карту Uzcard/Humo без задержек, скрытых списаний и комиссионных процентов.
-                    {% endif %}
-                </div>
-            </div>
-
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px;">
-                <div style="font-size: 13.5px; font-weight: 800; color: #FBBF24; margin-bottom: 6px;">
-                    {% if CURRENT_LANG == 'uz' %}
-                        🚀 Telegram hozir + Instagram ishlab chiqilmoqda
-                    {% elif CURRENT_LANG == 'en' %}
-                        🚀 Telegram Live + Instagram in Progress
-                    {% else %}
-                        🚀 Мощный Telegram сейчас + Instagram в разработке
-                    {% endif %}
-                </div>
-                <div style="font-size: 12px; color: #CBD5E1; line-height: 1.45;">
-                    {% if CURRENT_LANG == 'uz' %}
-                        Bugunning o'zida siz Telegram Mini App va Gemini AI-bot orqali savdoni boshlaysiz. Instagram Direct bilan rasmiy integratsiya esa yakunlanmoqda va yaqinda ishga tushadi!
-                    {% elif CURRENT_LANG == 'en' %}
-                        Sell instantly inside Uzbekistan's top messenger via Telegram Mini App and AI bot. Official Instagram Direct integration is being finalized and will launch in an upcoming release!
-                    {% else %}
-                        Вы получаете продажи в главном мессенджере страны через Telegram Mini App и Gemini Vision бота уже сегодня, а Instagram Direct выйдет сразу после завершения доработки!
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 3 ПРОСТЫХ ШАГА ДЛЯ СТАРТА -->
-    <h2 style="font-size: 20px; font-weight: 800; color: var(--text-main); margin: 0 0 16px;">
+    <!-- 5. 3 ПРОСТЫХ ШАГА ДЛЯ ЗАПУСКА -->
+    <h2 style="font-size: 20px; font-weight: 850; color: #FFFFFF; margin: 0 0 16px;">
         {% if CURRENT_LANG == 'uz' %}
-            🚀 Savdoni boshlash uchun 3 ta oddiy qadam:
+            🚀 Qanday qilib 3 ta qadamda ishga tushirish mumkin?
         {% elif CURRENT_LANG == 'en' %}
-            🚀 Start Selling in 3 Simple Steps:
+            🚀 Launch in 3 Simple Steps:
         {% else %}
-            🚀 Как начать продавать за 3 простых шага?
+            🚀 Как запуститься за 3 простых шага?
         {% endif %}
     </h2>
 
@@ -665,23 +831,11 @@
         <div class="step-box">
             <div class="step-num">1</div>
             <div>
-                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 700; color: var(--text-main);">
-                    {% if CURRENT_LANG == 'uz' %}
-                        Do'konni ro'yxatdan o'tkazing
-                    {% elif CURRENT_LANG == 'en' %}
-                        Register Your Store
-                    {% else %}
-                        Зарегистрируйте магазин
-                    {% endif %}
+                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 800; color: #FFFFFF;">
+                    {% if CURRENT_LANG == 'uz' %}Do'koningiz va filiallarni ro'yxatdan o'tkazing{% elif CURRENT_LANG == 'en' %}Register Store & Add Branches{% else %}Зарегистрируйте бренд и добавьте адреса филиалов{% endif %}
                 </h4>
-                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">
-                    {% if CURRENT_LANG == 'uz' %}
-                        Qisqa arizani to'ldiring: brend nomi, egasining ismi, aloqa ma'lumotlari va toifani tanlang.
-                    {% elif CURRENT_LANG == 'en' %}
-                        Fill out a short form: brand name, owner contact details, and category.
-                    {% else %}
-                        Заполните короткую заявку: название бренда, имя владельца, контакты и категорию.
-                    {% endif %}
+                <p style="margin: 0; font-size: 13px; color: #94A3B8; line-height: 1.45;">
+                    {% if CURRENT_LANG == 'uz' %}Brend nomi, telefon raqami va savdo nuqtalaringiz manzillarini ko'rsatib 2 daqiqada arizani to'ldiring.{% elif CURRENT_LANG == 'en' %}Fill out a 2-minute registration form with brand name, phone, and branch locations.{% else %}Укажите название магазина, контакты и добавьте адреса филиалов на интерактивной карте.{% endif %}
                 </p>
             </div>
         </div>
@@ -689,23 +843,11 @@
         <div class="step-box">
             <div class="step-num">2</div>
             <div>
-                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 700; color: var(--text-main);">
-                    {% if CURRENT_LANG == 'uz' %}
-                        Mahsulotlar va filiallarni qo'shing
-                    {% elif CURRENT_LANG == 'en' %}
-                        Add Products & Branches
-                    {% else %}
-                        Добавьте товары и филиалы
-                    {% endif %}
+                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 800; color: #FFFFFF;">
+                    {% if CURRENT_LANG == 'uz' %}Kameralarni Vision AI ga ulang{% elif CURRENT_LANG == 'en' %}Connect CCTV to Vision AI{% else %}Подключите камеры филиалов к Vision AI{% endif %}
                 </h4>
-                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">
-                    {% if CURRENT_LANG == 'uz' %}
-                        Assortiment rasmlarini yuklang, ranglar, o'lchamlar va xaritada do'konlaringiz manzillarini ko'rsating.
-                    {% elif CURRENT_LANG == 'en' %}
-                        Upload photos, specify colors, sizes, and point branch locations on the map.
-                    {% else %}
-                        Загрузите фото ассортимента, укажите цвета, размеры и добавьте адреса ваших магазинов на карте.
-                    {% endif %}
+                <p style="margin: 0; font-size: 13px; color: #94A3B8; line-height: 1.45;">
+                    {% if CURRENT_LANG == 'uz' %}Dashboardda «Vision AI» bo'limiga kiring, RTSP/IP havolani kiriting yoki kassadagi kompyuter/telefon orqali kamerani ulang.{% elif CURRENT_LANG == 'en' %}Open the Vision AI tab in Dashboard, enter RTSP stream URLs, or use standard webcams at cash desks.{% else %}В Dashboard перейдите во вкладку «Vision AI», вставьте RTSP/IP поток камеры или используйте веб-камеру на кассе.{% endif %}
                 </p>
             </div>
         </div>
@@ -713,48 +855,111 @@
         <div class="step-box">
             <div class="step-num">3</div>
             <div>
-                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 700; color: var(--text-main);">
-                    {% if CURRENT_LANG == 'uz' %}
-                        Telegramni ulang va buyurtmalarni qabul qiling
-                    {% elif CURRENT_LANG == 'en' %}
-                        Connect Telegram & Receive Orders
-                    {% else %}
-                        Подключите Telegram и получайте заказы
-                    {% endif %}
+                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 800; color: #FFFFFF;">
+                    {% if CURRENT_LANG == 'uz' %}Buyurtmalarni va 21:00 dagi hisobotlarni qabul qiling{% elif CURRENT_LANG == 'en' %}Receive Orders & Daily 21:00 Briefings{% else %}Получайте заказы и вечерние отчёты в 21:00{% endif %}
                 </h4>
-                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">
-                    {% if CURRENT_LANG == 'uz' %}
-                        To'lovlarni qabul qilish, tezkor buyurtma bildirishnomalari va AI-sotuvchi ishlashi uchun Telegram-botni ulang.
-                    {% elif CURRENT_LANG == 'en' %}
-                        Link our Telegram bot for instant order alerts, payment receipt validation, and 24/7 AI selling.
-                    {% else %}
-                        Привяжите Telegram-бота для приёма оплат, мгновенных уведомлений и работы ИИ-продавца.
-                    {% endif %}
+                <p style="margin: 0; font-size: 13px; color: #94A3B8; line-height: 1.45;">
+                    {% if CURRENT_LANG == 'uz' %}Telegram botingiz 24/7 sotadi, har kuni kechqurun esa qaysi filialingiz qanday ishlagani haqida Telegramingizga to'liq hisobot keladi.{% elif CURRENT_LANG == 'en' %}Your bot sells 24/7, and every evening at 21:00 you get an executive breakdown of each branch.{% else %}Бот продает 24/7, а каждый вечер в 21:00 директор получает детальный отчет по каждому филиалу в Telegram.{% endif %}
                 </p>
             </div>
         </div>
     </div>
 
-    <!-- КНОПКИ ДЕЙСТВИЯ ВНИЗУ -->
-    <div style="display: flex; flex-direction: column; gap: 10px;">
-        <a href="{% url 'seller-register' %}" class="hero-cta-btn" style="text-align: center;">
-            {% if CURRENT_LANG == 'uz' %}
-                🚀 Do'konni hoziroq ro'yxatdan o'tkazish
-            {% elif CURRENT_LANG == 'en' %}
-                🚀 Register Your Store Now
-            {% else %}
-                🚀 Зарегистрировать магазин сейчас
-            {% endif %}
+    <!-- 6. КНОПКИ ДЕЙСТВИЯ ВНИЗУ -->
+    <div class="bottom-cta-wrap">
+        <a href="{% url 'seller-register' %}" class="hero-cta-btn" style="text-align: center; justify-content: center; font-size: 16px;">
+            <span>🚀</span>
+            <span>{% if CURRENT_LANG == 'uz' %}Do'konni ro'yxatdan o'tkazish va Vision AI ni ulash{% elif CURRENT_LANG == 'en' %}Register Store & Connect Vision AI{% else %}Зарегистрировать магазин и подключить Vision AI{% endif %}</span>
         </a>
-        <a href="https://t.me/abdvoris07" target="_blank" style="text-align: center; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-main); padding: 14px; border-radius: 14px; font-size: 14px; font-weight: 700; text-decoration: none;">
-            {% if CURRENT_LANG == 'uz' %}
-                💬 Telegramda asoschiga yozish
-            {% elif CURRENT_LANG == 'en' %}
-                💬 Message the Founder on Telegram
-            {% else %}
-                💬 Написать основателю в Telegram
-            {% endif %}
+        <a href="https://t.me/abdvoris07" target="_blank" style="text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: #FFFFFF; padding: 14px; border-radius: 14px; font-size: 14px; font-weight: 750; text-decoration: none;">
+            <span>💬</span>
+            <span>{% if CURRENT_LANG == 'uz' %}Telegramda savollarga javob beramiz: @abdvoris07{% elif CURRENT_LANG == 'en' %}Chat with founder on Telegram: @abdvoris07{% else %}Задать любой вопрос основателю в Telegram: @abdvoris07{% endif %}</span>
         </a>
     </div>
 </div>
+
+<script>
+    // Billing Cycle State: 'monthly' or 'annual'
+    let currentBillingCycle = 'monthly';
+
+    function setBillingCycle(cycle) {
+        currentBillingCycle = cycle;
+        const btnM = document.getElementById('btn-cycle-monthly');
+        const btnA = document.getElementById('btn-cycle-annual');
+        
+        if (cycle === 'annual') {
+            btnA.classList.add('active');
+            btnM.classList.remove('active');
+
+            // Start: 490 000 / mo billed annually
+            document.getElementById('price-start').innerHTML = '490 000 <span style="font-size: 15px; font-weight: 700;">{% if CURRENT_LANG == "uz" %}so'm{% elif CURRENT_LANG == "en" %}UZS{% else %}сум{% endif %}</span>';
+            document.getElementById('billed-start').style.display = 'block';
+
+            // Pro: 825 000 / mo billed annually
+            document.getElementById('price-pro').innerHTML = '825 000 <span style="font-size: 15px; font-weight: 700;">{% if CURRENT_LANG == "uz" %}so'm{% elif CURRENT_LANG == "en" %}UZS{% else %}сум{% endif %}</span>';
+            document.getElementById('billed-pro').style.display = 'block';
+
+            // Enterprise: 1 400 000 / mo billed annually
+            document.getElementById('price-enterprise').innerHTML = '1 400 000 <span style="font-size: 15px; font-weight: 700;">{% if CURRENT_LANG == "uz" %}so'm{% elif CURRENT_LANG == "en" %}UZS{% else %}сум{% endif %}</span>';
+            document.getElementById('billed-enterprise').style.display = 'block';
+        } else {
+            btnM.classList.add('active');
+            btnA.classList.remove('active');
+
+            document.getElementById('price-start').innerHTML = '590 000 <span style="font-size: 15px; font-weight: 700;">{% if CURRENT_LANG == "uz" %}so'm{% elif CURRENT_LANG == "en" %}UZS{% else %}сум{% endif %}</span>';
+            document.getElementById('billed-start').style.display = 'none';
+
+            document.getElementById('price-pro').innerHTML = '990 000 <span style="font-size: 15px; font-weight: 700;">{% if CURRENT_LANG == "uz" %}so'm{% elif CURRENT_LANG == "en" %}UZS{% else %}сум{% endif %}</span>';
+            document.getElementById('billed-pro').style.display = 'none';
+
+            document.getElementById('price-enterprise').innerHTML = '1 690 000 <span style="font-size: 15px; font-weight: 700;">{% if CURRENT_LANG == "uz" %}so'm{% elif CURRENT_LANG == "en" %}UZS{% else %}сум{% endif %}</span>';
+            document.getElementById('billed-enterprise').style.display = 'none';
+        }
+
+        // Recalculate slider value
+        const branches = document.getElementById('branchRangeSlider').value;
+        updateBranchCalculator(branches);
+    }
+
+    function formatNumberSpaces(num) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    }
+
+    function updateBranchCalculator(val) {
+        const branches = parseInt(val, 10);
+        document.getElementById('calc-branches-count').textContent = branches;
+
+        const badgeEl = document.getElementById('calc-tier-badge');
+        const totalEl = document.getElementById('calc-total-amount');
+        const ctaEl = document.getElementById('calc-cta-link');
+
+        let total = 0;
+        let plan = 'pro';
+
+        if (branches === 1) {
+            badgeEl.textContent = 'Pro Vision AI (1 точка)';
+            badgeEl.style.borderColor = '#7000FF';
+            badgeEl.style.color = '#C084FC';
+            total = currentBillingCycle === 'annual' ? 825000 : 990000;
+            plan = 'pro';
+        } else if (branches <= 3) {
+            badgeEl.textContent = 'Enterprise Multi-Branch (до 3 точек)';
+            badgeEl.style.borderColor = '#10B981';
+            badgeEl.style.color = '#34D399';
+            total = currentBillingCycle === 'annual' ? 1400000 : 1690000;
+            plan = 'enterprise';
+        } else {
+            badgeEl.textContent = 'Enterprise + ' + (branches - 3) + ' доп. филиал(а)';
+            badgeEl.style.borderColor = '#F59E0B';
+            badgeEl.style.color = '#FBBF24';
+            const baseEnterprise = currentBillingCycle === 'annual' ? 1400000 : 1690000;
+            const extraBranchCost = currentBillingCycle === 'annual' ? 200000 : 250000;
+            total = baseEnterprise + (branches - 3) * extraBranchCost;
+            plan = 'enterprise';
+        }
+
+        totalEl.textContent = formatNumberSpaces(total);
+        ctaEl.href = "{% url 'seller-register' %}?plan=" + plan + "&branches=" + branches + "&cycle=" + currentBillingCycle;
+    }
+</script>
 {% endblock %}

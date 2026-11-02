@@ -157,6 +157,9 @@ msgstr "Quick Actions"
 msgid "Быстрые сервисы"
 msgstr "Quick Services"
 
+msgid "В Dashboard"
+msgstr "To Dashboard"
+
 msgid "В каталоге"
 msgstr "In catalog"
 
@@ -579,6 +582,9 @@ msgstr "Innovations & Settings"
 
 msgid "Инструкция"
 msgstr "Instructions"
+
+msgid "Инструменты администратора"
+msgstr "Administrator Tools"
 
 msgid "Использовать свои цвета"
 msgstr "Use custom colors"
@@ -1078,11 +1084,17 @@ msgstr "Customer reviews"
 msgid "Отклонена"
 msgstr "Rejected"
 
+msgid "Откройте магазин с витриной, ботом продаж и подключите камеры филиалов к BrainMart Vision AI!"
+msgstr "Open a store with showcase, sales bot, and link branch CCTV to BrainMart Vision AI!"
+
 msgid "Открыть"
 msgstr "Open"
 
 msgid "Открыть магазин"
 msgstr "Open Storefront"
+
+msgid "Открыть магазин и Vision AI"
+msgstr "Open Store & Vision AI"
 
 msgid "Открыть на карте"
 msgstr "Open on map"
@@ -1150,8 +1162,14 @@ msgstr "Network error. Please try again."
 msgid "Ошибка соединения с сервером."
 msgstr "Server connection error."
 
+msgid "Панель Django Admin"
+msgstr "Django Admin Panel"
+
 msgid "Панель продавца"
 msgstr "Seller Dashboard"
+
+msgid "Панель управления SuperAdmin"
+msgstr "SuperAdmin Dashboard"
 
 msgid "Партнёрство с brainmart"
 msgstr "Partnership with brainmart"
