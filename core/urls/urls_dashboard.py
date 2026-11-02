@@ -73,6 +73,7 @@ urlpatterns = [
     # BrainMart Vision AI (Видеоаналитика и акустический аудит)
     path('vision-ai/', views_vision.vision_ai_dashboard_view, name='seller-vision-ai'),
     path('vision-ai/camera/add/', views_vision.vision_ai_camera_add, name='seller-vision-camera-add'),
+    path('vision-ai/camera/p2p-connect/', views_vision.vision_ai_p2p_connect_api, name='seller-vision-p2p-connect'),
     path('vision-ai/camera/<int:camera_id>/toggle/', views_vision.vision_ai_camera_toggle, name='seller-vision-camera-toggle'),
     path('vision-ai/camera/<int:camera_id>/delete/', views_vision.vision_ai_camera_delete, name='seller-vision-camera-delete'),
     path('vision-ai/camera/<int:camera_id>/ping/', views_vision.vision_ai_camera_ping, name='seller-vision-camera-ping'),

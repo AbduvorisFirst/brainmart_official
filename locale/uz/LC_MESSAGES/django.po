@@ -343,6 +343,9 @@ msgstr "Chiqish"
 msgid "Гарантия оригинала"
 msgstr "Asl mahsulot kafolati"
 
+msgid "Где найти наклейку?"
+msgstr "Stiker qayerda joylashgan?"
+
 msgid "Геолокация не поддерживается вашим браузером. Напишите адрес текстом."
 msgstr "Brauzeringiz geolokatsiyani qo'llab-quvvatlamaydi. Manzilni matn shaklida yozing."
 
@@ -432,6 +435,9 @@ msgstr "Har bir rang uchun 2 tadan 10 tagacha rasm yuklang. O'lchamlar va ombord
 
 msgid "Для каждого цвета загрузите от 2 до 10 фотографий. Укажите общее количество товара на складе."
 msgstr "Har bir rang uchun 2 tadan 10 tagacha rasm yuklang. Ombordagi umumiy tovar miqdorini ko'rsating."
+
+msgid "Для магазинов Ташкента: подключите камеру Hikvision, HiWatch или Dahua за 1 минуту по QR-коду без компьютеров и белых IP."
+msgstr "Toshkent do'konlari uchun: Hikvision, HiWatch yoki Dahua kamerasini kompyutersiz va oq IP-siz 1 daqiqada QR-kod orqali ulang."
 
 msgid "Добавить в корзину"
 msgstr "Savatga qo'shish"
@@ -628,6 +634,9 @@ msgstr "3 qadamda qanday sotishni boshlash kerak?"
 msgid "Как только кто-то оплатит покупку, она появится здесь."
 msgstr "Kimdir to'lov qilishi bilan bu yerda paydo bo'ladi."
 
+msgid "Канал регистратора (номер камеры)"
+msgstr "Registrator kanali (kamera raqami)"
+
 msgid "Карта"
 msgstr "Karta"
 
@@ -678,6 +687,9 @@ msgstr "Nuqtani belgilash uchun xaritadagi kerakli joyni bosing yoki markerni su
 
 msgid "Книги и канцелярия"
 msgstr "Kitoblar va kanselyariya"
+
+msgid "Код верификации"
+msgstr "Tasdiqlash kodi"
 
 msgid "Количество на складе (шт.)"
 msgstr "Ombordagi soni (dona)"
@@ -802,11 +814,17 @@ msgstr "Biz xodimni Telegram orqali xabardor qildik. Yetkazib berish bo'yicha ha
 msgid "На балансе"
 msgstr "Balansda"
 
+msgid "На дне камеры или на обратной стороне регистратора под столом. Там напечатаны 9 цифр S/N и 6 букв проверочного кода."
+msgstr "Kameraning tagida yoki stol ostidagi registratorning orqa tomonida. U yerda 9 xonali S/N va 6 ta harfli tasdiqlash kodi yozilgan."
+
 msgid "На проверке"
 msgstr "Tekshiruvda"
 
 msgid "На свидание"
 msgstr "Uchrashuvga"
+
+msgid "Наведите камеру на QR-код с наклейки регистратора или камеры"
+msgstr "Kamerani registrator yoki kameradagi QR-kodga qarating"
 
 msgid "Нажмите здесь, чтобы изменить выбор фото"
 msgstr "Rasmlarni o'zgartirish uchun bu yerni bosing"
@@ -1216,6 +1234,9 @@ msgstr "Qayta buyurtmalar"
 msgid "Подарок"
 msgstr "Sovg'a"
 
+msgid "Подключение камеры наблюдения"
+msgstr "Kuzatuv kamerasini ulash"
+
 msgid "Подключенные филиалы и франшизы"
 msgstr "Ulangan filiallar va franchayzing"
 
@@ -1224,6 +1245,9 @@ msgstr "Telegramni ulang va buyurtmalarni qabul qiling"
 
 msgid "Подключите бота и получайте заказы"
 msgstr "Botni ulang va buyurtmalarni qabul qiling"
+
+msgid "Подключить за 1 минуту"
+msgstr "1 daqiqada ulash"
 
 msgid "Подобрать шины 🛠️"
 msgstr "Shinalarni tanlash 🛠️"
@@ -1402,6 +1426,9 @@ msgstr "AI orqali matn yaratish"
 msgid "Сегодня"
 msgstr "Bugun"
 
+msgid "Серийный номер (S/N)"
+msgstr "Seriya raqami (S/N)"
+
 msgid "Сетка размеров и остатки:"
 msgstr "O'lchamlar jadvali va qoldiqlar:"
 
@@ -1419,6 +1446,9 @@ msgstr "Oflayn nuqtalar uchun POS-kassa tizimi hali to'liq yakunlanmadi. Jamoami
 
 msgid "Скан / Фото чека перевода"
 msgstr "O'tkazma chekining fotosurati / skani"
+
+msgid "Сканировать QR-код на камере/регистраторе"
+msgstr "Kamera/videoregistratordagi QR-kodni skanerlash"
 
 msgid "Скидки до -70% на трендовые коллекции одежды, обуви и аксессуаров от топовых брендов"
 msgstr "Top brendlarning kiyim, poyabzal va aksessuarlari kolleksiyalariga -70% gacha chegirmalar"

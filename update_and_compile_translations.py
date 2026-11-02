@@ -17,6 +17,47 @@ LOCALE_DIR = BASE_DIR / "locale"
 
 # Complete dictionary of dashboard translations
 TRANSLATIONS = {
+    # ─── P2P QR-КОД КАМЕРЫ HIKVISION / DAHUA ───
+    "Подключение камеры наблюдения": {
+        "uz": "Kuzatuv kamerasini ulash",
+        "en": "Connect CCTV Camera",
+    },
+    "Для магазинов Ташкента: подключите камеру Hikvision, HiWatch или Dahua за 1 минуту по QR-коду без компьютеров и белых IP.": {
+        "uz": "Toshkent do'konlari uchun: Hikvision, HiWatch yoki Dahua kamerasini kompyutersiz va oq IP-siz 1 daqiqada QR-kod orqali ulang.",
+        "en": "For Tashkent retail: connect your Hikvision, HiWatch, or Dahua CCTV in 1 minute via QR code with zero PC required.",
+    },
+    "Сканировать QR-код на камере/регистраторе": {
+        "uz": "Kamera/videoregistratordagi QR-kodni skanerlash",
+        "en": "Scan QR Code on Camera/DVR",
+    },
+    "Где найти наклейку?": {
+        "uz": "Stiker qayerda joylashgan?",
+        "en": "Where to find the sticker?",
+    },
+    "На дне камеры или на обратной стороне регистратора под столом. Там напечатаны 9 цифр S/N и 6 букв проверочного кода.": {
+        "uz": "Kameraning tagida yoki stol ostidagi registratorning orqa tomonida. U yerda 9 xonali S/N va 6 ta harfli tasdiqlash kodi yozilgan.",
+        "en": "On the bottom of the camera or the back of the DVR under the counter. Features 9-digit S/N and 6-letter verification code.",
+    },
+    "Серийный номер (S/N)": {
+        "uz": "Seriya raqami (S/N)",
+        "en": "Serial Number (S/N)",
+    },
+    "Код верификации": {
+        "uz": "Tasdiqlash kodi",
+        "en": "Verification Code",
+    },
+    "Канал регистратора (номер камеры)": {
+        "uz": "Registrator kanali (kamera raqami)",
+        "en": "DVR Channel (Camera No.)",
+    },
+    "Подключить за 1 минуту": {
+        "uz": "1 daqiqada ulash",
+        "en": "Connect in 1 minute",
+    },
+    "Наведите камеру на QR-код с наклейки регистратора или камеры": {
+        "uz": "Kamerani registrator yoki kameradagi QR-kodga qarating",
+        "en": "Point your camera at the QR code on the DVR or camera",
+    },
     # ─── ГЛОБАЛЬНЫЙ МАРКЕТ И РОЛИ ───
     "Панель управления SuperAdmin": {
         "uz": "SuperAdmin boshqaruv paneli",

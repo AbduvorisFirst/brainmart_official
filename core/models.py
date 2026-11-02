@@ -1728,6 +1728,8 @@ class PromoBanner(models.Model):
 class StoreCamera(models.Model):
     """Камера видеонаблюдения, подключенная к магазину продавца."""
     class CameraType(models.TextChoices):
+        P2P_HIKVISION = "p2p_hikvision", "Hikvision / HiWatch / Ezviz (P2P по QR-коду)"
+        P2P_DAHUA = "p2p_dahua", "Dahua / Imou (P2P DMSS по QR-коду)"
         RTSP = "rtsp", "IP-камера (RTSP / H.264)"
         ONVIF = "onvif", "ONVIF сетевая камера"
         WEBCAM = "webcam", "USB веб-камера на кассе"
@@ -1752,6 +1754,25 @@ class StoreCamera(models.Model):
     rtsp_url = models.CharField(max_length=500, blank=True, default="", verbose_name="RTSP / Ссылка на поток")
     stream_username = models.CharField(max_length=100, blank=True, default="", verbose_name="Логин камеры")
     stream_password = models.CharField(max_length=100, blank=True, default="", verbose_name="Пароль камеры")
+    # Поля быстрого подключения P2P по QR-коду (Hikvision / HiWatch / Ezviz / Dahua)
+    serial_number = models.CharField(
+        max_length=64, blank=True, default="",
+        verbose_name="Серийный номер (S/N)",
+        help_text="9-значный серийный номер с наклейки (например: F12345678)"
+    )
+    verification_code = models.CharField(
+        max_length=32, blank=True, default="",
+        verbose_name="Код верификации (Verification Code)",
+        help_text="6-буквенный проверочный код с наклейки (например: ABCDEF)"
+    )
+    cloud_provider = models.CharField(
+        max_length=50, blank=True, default="hikvision",
+        verbose_name="P2P Облачный провайдер"
+    )
+    p2p_device_channel = models.PositiveSmallIntegerField(
+        default=1,
+        verbose_name="Канал регистратора (камера №1, 2...)"
+    )
     is_active = models.BooleanField(default=True, verbose_name="Активна")
     has_audio = models.BooleanField(default=True, verbose_name="Анализ речи / микрофон")
     status = models.CharField(max_length=30, choices=Status.choices, default=Status.ONLINE, verbose_name="Статус")

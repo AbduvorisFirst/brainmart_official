@@ -343,6 +343,9 @@ msgstr "Logout"
 msgid "Гарантия оригинала"
 msgstr "Authentic Guarantee"
 
+msgid "Где найти наклейку?"
+msgstr "Where to find the sticker?"
+
 msgid "Геолокация не поддерживается вашим браузером. Напишите адрес текстом."
 msgstr "Geolocation is not supported by your browser. Please type the address."
 
@@ -432,6 +435,9 @@ msgstr "Upload 2 to 10 photos for each color. Add sizes and inventory quantity."
 
 msgid "Для каждого цвета загрузите от 2 до 10 фотографий. Укажите общее количество товара на складе."
 msgstr "Upload 2 to 10 photos for each color. Specify total quantity in stock."
+
+msgid "Для магазинов Ташкента: подключите камеру Hikvision, HiWatch или Dahua за 1 минуту по QR-коду без компьютеров и белых IP."
+msgstr "For Tashkent retail: connect your Hikvision, HiWatch, or Dahua CCTV in 1 minute via QR code with zero PC required."
 
 msgid "Добавить в корзину"
 msgstr "Add to cart"
@@ -628,6 +634,9 @@ msgstr "How to start selling in 3 steps?"
 msgid "Как только кто-то оплатит покупку, она появится здесь."
 msgstr "As soon as someone pays, it will appear here."
 
+msgid "Канал регистратора (номер камеры)"
+msgstr "DVR Channel (Camera No.)"
+
 msgid "Карта"
 msgstr "Card"
 
@@ -678,6 +687,9 @@ msgstr "Click anywhere on the map or drag the marker to set the location pin."
 
 msgid "Книги и канцелярия"
 msgstr "Books & Stationery"
+
+msgid "Код верификации"
+msgstr "Verification Code"
 
 msgid "Количество на складе (шт.)"
 msgstr "Quantity in stock (pcs)"
@@ -802,11 +814,17 @@ msgstr "We have notified the staff via Telegram. You can also contact them direc
 msgid "На балансе"
 msgstr "On balance"
 
+msgid "На дне камеры или на обратной стороне регистратора под столом. Там напечатаны 9 цифр S/N и 6 букв проверочного кода."
+msgstr "On the bottom of the camera or the back of the DVR under the counter. Features 9-digit S/N and 6-letter verification code."
+
 msgid "На проверке"
 msgstr "Under review"
 
 msgid "На свидание"
 msgstr "Date Night"
+
+msgid "Наведите камеру на QR-код с наклейки регистратора или камеры"
+msgstr "Point your camera at the QR code on the DVR or camera"
 
 msgid "Нажмите здесь, чтобы изменить выбор фото"
 msgstr "Click here to change selected photos"
@@ -1216,6 +1234,9 @@ msgstr "Repeat Orders"
 msgid "Подарок"
 msgstr "Gift"
 
+msgid "Подключение камеры наблюдения"
+msgstr "Connect CCTV Camera"
+
 msgid "Подключенные филиалы и франшизы"
 msgstr "Connected branches and franchises"
 
@@ -1224,6 +1245,9 @@ msgstr "Connect Telegram and receive orders"
 
 msgid "Подключите бота и получайте заказы"
 msgstr "Connect the bot and receive orders"
+
+msgid "Подключить за 1 минуту"
+msgstr "Connect in 1 minute"
 
 msgid "Подобрать шины 🛠️"
 msgstr "Pick tires 🛠️"
@@ -1399,6 +1423,9 @@ msgstr "Generate Copy with AI"
 msgid "Сегодня"
 msgstr "Today"
 
+msgid "Серийный номер (S/N)"
+msgstr "Serial Number (S/N)"
+
 msgid "Сетка размеров и остатки:"
 msgstr "Size grid and stock:"
 
@@ -1416,6 +1443,9 @@ msgstr "The offline POS cashier system is not finished yet. Our team is actively
 
 msgid "Скан / Фото чека перевода"
 msgstr "Transfer receipt scan / photo"
+
+msgid "Сканировать QR-код на камере/регистраторе"
+msgstr "Scan QR Code on Camera/DVR"
 
 msgid "Скидки до -70% на трендовые коллекции одежды, обуви и аксессуаров от топовых брендов"
 msgstr "Discounts up to -70% on trending clothing, shoes and accessories from top brands"
