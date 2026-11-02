@@ -25,6 +25,9 @@ msgstr "1 ta do'kon (Baza)"
 msgid "100% Оригинал"
 msgstr "100% Asl tovar"
 
+msgid "12 готовых стилей"
+msgstr "12 ta tayyor uslub"
+
 msgid "450 000 сум/мес"
 msgstr "450 000 so'm/oy"
 
@@ -307,6 +310,9 @@ msgstr "Faqat 1 ta rasm tanlandi. 2 tadan 10 tagacha tavsiya etiladi!"
 msgid "Выбрано фото:"
 msgstr "Tanlangan rasmlar:"
 
+msgid "Выбрать"
+msgstr "Tanlash"
+
 msgid "Выбрать гаджет 📱"
 msgstr "Gadjet tanlash 📱"
 
@@ -370,6 +376,9 @@ msgstr "Tayyor onlayn-vitrina, aqlli Gemini AI-sotuvchisi, omborni boshqarish CR
 msgid "Готовые палитры от дизайнеров:"
 msgstr "Dizaynerlar tayyorlagan palitralar:"
 
+msgid "Готовые стили оформления"
+msgstr "Tayyor dizayn uslublari"
+
 msgid "ДОБАВИТЬ ТОЧКУ"
 msgstr "NUQTA QO'SHISH"
 
@@ -408,6 +417,9 @@ msgstr "To'langan buyurtmalar tafsilotlari"
 
 msgid "Диалогов с клиентами:"
 msgstr "Mijozlar bilan muloqot:"
+
+msgid "Дизайн витрины"
+msgstr "Vitrina dizayni"
 
 msgid "Для завершения оформления откройте бота в Telegram или отправьте локацию и контакт боту!"
 msgstr "Rasmiylashtirishni yakunlash uchun Telegram botini oching yoki botga lokatsiya va kontakt yuboring!"
@@ -1368,6 +1380,9 @@ msgstr "O'z dizayningiz (Brend ranglar):"
 
 msgid "Сгенерировать текст через ИИ"
 msgstr "AI orqali matn yaratish"
+
+msgid "Сегодня"
+msgstr "Bugun"
 
 msgid "Сетка размеров и остатки:"
 msgstr "O'lchamlar jadvali va qoldiqlar:"

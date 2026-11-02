@@ -17,6 +17,26 @@ LOCALE_DIR = BASE_DIR / "locale"
 
 # Complete dictionary of dashboard translations
 TRANSLATIONS = {
+    "Сегодня": {
+        "uz": "Bugun",
+        "en": "Today",
+    },
+    "Готовые стили оформления": {
+        "uz": "Tayyor dizayn uslublari",
+        "en": "Ready-made Store Themes",
+    },
+    "Дизайн витрины": {
+        "uz": "Vitrina dizayni",
+        "en": "Showcase Design",
+    },
+    "12 готовых стилей": {
+        "uz": "12 ta tayyor uslub",
+        "en": "12 ready-made styles",
+    },
+    "Выбрать": {
+        "uz": "Tanlash",
+        "en": "Select",
+    },
     # ─── МОБИЛЬНОЕ МЕНЮ И ЗАГРУЗКА ЛОГОТИПА ───
     "ИИ-Видеонаблюдение": {
         "uz": "AI Video kuzatuv",

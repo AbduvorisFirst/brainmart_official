@@ -581,6 +581,28 @@ class Store(models.Model):
         """Псевдоним для get_brand_signature для удобства работы с темами оформления."""
         return self.get_brand_signature()
 
+    def get_theme_display_name(self) -> str:
+        """Понятное название текущей темы оформления витрины."""
+        THEME_NAMES = {
+            "clean_white": "⚪ Clean White",
+            "warm_beige": "🌾 Warm Cream",
+            "pastel_sakura": "🌸 Sakura Rose",
+            "fresh_sky": "💎 Fresh Sky",
+            "nordic_sage": "🌿 Nordic Sage",
+            "soft_lavender": "💜 Soft Lilac",
+            "royal_navy": "👑 Royal Sapphire",
+            "emerald_dark": "🌲 Dark Emerald",
+            "uzum_violet": "💜 Uzum Market",
+            "apple_hightech": "⚡ Apple Titanium",
+            "fashion_genz": "🔥 Street Cyber",
+            "alibaba_orange": "🍊 Alibaba Sunset",
+            "fashion_premium": "👑 Old Money Silk",
+            "shopify_mint": "🌿 Shopify Mint",
+            "midnight_gold": "👑 Midnight Luxury",
+            "fashion_casual": "✨ Smart Casual",
+        }
+        return THEME_NAMES.get(self.theme_style, self.theme_style or "Uzum Market")
+
     @property
     def effective_category(self):
         """Возвращает категорию магазина (если еще не выбрана явно, берет из последнего товара)."""

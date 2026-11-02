@@ -25,6 +25,9 @@ msgstr "1 store (Base)"
 msgid "100% Оригинал"
 msgstr "100% Original"
 
+msgid "12 готовых стилей"
+msgstr "12 ready-made styles"
+
 msgid "450 000 сум/мес"
 msgstr "450,000 UZS/mo"
 
@@ -307,6 +310,9 @@ msgstr "Only 1 photo selected. 2 to 10 photos recommended!"
 msgid "Выбрано фото:"
 msgstr "Selected photos:"
 
+msgid "Выбрать"
+msgstr "Select"
+
 msgid "Выбрать гаджет 📱"
 msgstr "Choose gadget 📱"
 
@@ -370,6 +376,9 @@ msgstr "Ready online storefront, smart Gemini AI seller, warehouse CRM, and inst
 msgid "Готовые палитры от дизайнеров:"
 msgstr "Designer color palettes:"
 
+msgid "Готовые стили оформления"
+msgstr "Ready-made Store Themes"
+
 msgid "ДОБАВИТЬ ТОЧКУ"
 msgstr "ADD LOCATION"
 
@@ -408,6 +417,9 @@ msgstr "Paid Orders Details"
 
 msgid "Диалогов с клиентами:"
 msgstr "Customer chats:"
+
+msgid "Дизайн витрины"
+msgstr "Showcase Design"
 
 msgid "Для завершения оформления откройте бота в Telegram или отправьте локацию и контакт боту!"
 msgstr "To complete checkout, open bot in Telegram or send location and contact to the bot!"
@@ -1365,6 +1377,9 @@ msgstr "Custom design (Brand colors):"
 
 msgid "Сгенерировать текст через ИИ"
 msgstr "Generate Copy with AI"
+
+msgid "Сегодня"
+msgstr "Today"
 
 msgid "Сетка размеров и остатки:"
 msgstr "Size grid and stock:"
