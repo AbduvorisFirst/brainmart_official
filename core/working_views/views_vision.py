@@ -156,14 +156,25 @@ def vision_ai_camera_add(request):
         serial_number = request.POST.get("serial_number", "").strip().upper()
         verification_code = request.POST.get("verification_code", "").strip().upper()
         channel = int(request.POST.get("p2p_device_channel", 1) or 1)
+        tapo_ip = request.POST.get("tapo_ip", "").strip()
 
         provider = "hikvision"
         if camera_type == StoreCamera.CameraType.P2P_DAHUA:
             provider = "dahua"
         elif camera_type == StoreCamera.CameraType.P2P_HIKVISION:
             provider = "hikvision"
+        elif camera_type == StoreCamera.CameraType.TAPO:
+            provider = "tapo"
 
-        if camera_type in [StoreCamera.CameraType.P2P_HIKVISION, StoreCamera.CameraType.P2P_DAHUA]:
+        if camera_type == StoreCamera.CameraType.TAPO:
+            if not stream_user:
+                stream_user = "admin"
+            if not rtsp_url and tapo_ip:
+                rtsp_url = f"rtsp://{stream_user}:{stream_pass}@{tapo_ip}:554/stream2"
+            if not name:
+                zone_label = "Вход" if zone == StoreCamera.Zone.ENTRANCE else "Касса"
+                name = f"Tapo Wi-Fi ({zone_label} • {tapo_ip or 'Камера'})"
+        elif camera_type in [StoreCamera.CameraType.P2P_HIKVISION, StoreCamera.CameraType.P2P_DAHUA]:
             brand_label = "Hikvision / HiWatch / Ezviz" if provider == "hikvision" else "Dahua / Imou"
             if not name:
                 zone_label = "Вход" if zone == StoreCamera.Zone.ENTRANCE else "Касса"

@@ -21,7 +21,7 @@
                         Live Edge Stream
                     </span>
                 </div>
-                <h1 style="margin: 0; font-size: 26px; font-weight: 900; color: #FFFFFF; letter-spacing: -0.02em;">
+                <h1 class="vision-hero-title" style="margin: 0; font-size: clamp(19px, 4.8vw, 26px); font-weight: 900; color: #FFFFFF; letter-spacing: -0.02em; line-height: 1.25; word-break: break-word;">
                     📹 BrainMart Vision AI: {% trans "Офлайн-аналитика магазина" %}
                 </h1>
                 <p style="margin: 6px 0 0; color: #94A3B8; font-size: 14px; max-width: 680px; line-height: 1.5;">
@@ -469,48 +469,84 @@
 
 </div>
 
-<!-- MODAL: ADD CAMERA (P2P BY QR-CODE OR RTSP) -->
-<div id="addCameraModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 9999; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box;">
-    <div style="background: #0B1120; border: 1.5px solid rgba(112, 0, 255, 0.4); border-radius: 24px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; padding: 26px 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.8); position: relative; box-sizing: border-box;">
+<!-- MODAL: ADD CAMERA (P2P / TAPO / RTSP) -->
+<div id="addCameraModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 99999; align-items: center; justify-content: center; padding: 14px; box-sizing: border-box;">
+    <div style="background: #0B1120; border: 1.5px solid rgba(112, 0, 255, 0.4); border-radius: 24px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; padding: 24px 20px; box-shadow: 0 25px 60px rgba(0,0,0,0.9); position: relative; box-sizing: border-box; color: #FFFFFF;">
         
         <!-- Header -->
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08);">
             <div>
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
                     <span style="font-size: 22px;">📹</span>
-                    <h3 style="margin: 0; font-size: 19px; font-weight: 900; color: #FFFFFF;">
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 900; color: #FFFFFF;">
                         {% trans "Подключение камеры наблюдения" %}
                     </h3>
                 </div>
-                <p style="margin: 0; font-size: 12.5px; color: #94A3B8; line-height: 1.45;">
-                    {% trans "Для магазинов Ташкента: подключите камеру Hikvision, HiWatch или Dahua за 1 минуту по QR-коду без компьютеров и белых IP." %}
+                <p style="margin: 0; font-size: 12px; color: #94A3B8; line-height: 1.45;">
+                    {% trans "Выберите тип камеры вашего магазина (Tapo, Hikvision или Dahua) для подключения за 1 минуту." %}
                 </p>
             </div>
-            <button type="button" onclick="closeAddCameraModal()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); width: 34px; height: 34px; border-radius: 50%; font-size: 14px; color: #94A3B8; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">✕</button>
+            <button type="button" onclick="closeAddCameraModal()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); width: 34px; height: 34px; border-radius: 50%; font-size: 14px; color: #94A3B8; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">✕</button>
         </div>
 
-        <!-- CAMERA TYPE MODE SWITCHER -->
-        <div style="display: flex; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 4px; border-radius: 14px; gap: 4px; margin-bottom: 18px;">
-            <button type="button" id="tab-btn-hikvision" onclick="switchCameraTab('p2p_hikvision')" style="flex: 1; background: #7000FF; color: #FFFFFF; border: none; padding: 9px 8px; border-radius: 10px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.15s ease;">
+        <!-- CAMERA BRAND SELECTOR TABS -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 4px; border-radius: 14px; gap: 4px; margin-bottom: 18px;">
+            <button type="button" id="tab-btn-tapo" onclick="switchCameraTab('tapo')" style="background: #10B981; color: #000000; border: none; padding: 9px 4px; border-radius: 10px; font-size: 12px; font-weight: 850; cursor: pointer; transition: all 0.15s ease; text-align: center;">
+                🟢 TP-Link Tapo
+            </button>
+            <button type="button" id="tab-btn-hikvision" onclick="switchCameraTab('p2p_hikvision')" style="background: transparent; color: #94A3B8; border: none; padding: 9px 4px; border-radius: 10px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.15s ease; text-align: center;">
                 ⚡ Hikvision / Ezviz
             </button>
-            <button type="button" id="tab-btn-dahua" onclick="switchCameraTab('p2p_dahua')" style="flex: 1; background: transparent; color: #94A3B8; border: none; padding: 9px 8px; border-radius: 10px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.15s ease;">
-                🏢 Dahua DMSS
-            </button>
-            <button type="button" id="tab-btn-rtsp" onclick="switchCameraTab('rtsp')" style="flex: 1; background: transparent; color: #94A3B8; border: none; padding: 9px 8px; border-radius: 10px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.15s ease;">
-                ⚙️ RTSP / WebCam
+            <button type="button" id="tab-btn-rtsp" onclick="switchCameraTab('rtsp')" style="background: transparent; color: #94A3B8; border: none; padding: 9px 4px; border-radius: 10px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.15s ease; text-align: center;">
+                ⚙️ RTSP / Dahua
             </button>
         </div>
 
         <!-- MAIN FORM -->
         <form id="addCameraForm" action="{% url 'seller-vision-camera-add' %}" method="post" style="display: flex; flex-direction: column; gap: 14px;">
             {% csrf_token %}
-            <input type="hidden" name="camera_type" id="hiddenCameraType" value="p2p_hikvision">
+            <input type="hidden" name="camera_type" id="hiddenCameraType" value="tapo">
 
-            <!-- P2P SECTION (HIKVISION / DAHUA) -->
-            <div id="p2pFieldsBlock" style="display: flex; flex-direction: column; gap: 14px;">
-                
-                <!-- TELEGRAM QR SCANNER HERO BUTTON -->
+            <!-- 1. TAPO SPECIAL TAB (ДЛЯ КАМЕР TAPO КАК У МАМЫ) -->
+            <div id="tapoFieldsBlock" style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 14px; padding: 14px;">
+                    <div style="font-size: 13px; font-weight: 850; color: #34D399; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                        <span>📱</span> {% trans "Как включить поток в приложении Tapo на телефоне (1 минута):" %}
+                    </div>
+                    <ol style="margin: 0; padding-left: 18px; font-size: 12px; color: #CBD5E1; line-height: 1.6;">
+                        <li>{% trans "Откройте приложение Tapo на телефоне -> выберите камеру." %}</li>
+                        <li>{% trans "Нажмите ⚙️ (вверху справа) -> 'Расширенные настройки' (Advanced Settings)." %}</li>
+                        <li>{% trans "Нажмите 'Учетная запись камеры' (Camera Account) -> введите логин и пароль (например: admin / Tapo12345)." %}</li>
+                        <li>{% trans "Вернитесь назад, нажмите на название камеры -> посмотрите её IP-адрес (например: 192.168.1.15)." %}</li>
+                    </ol>
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 12px; font-weight: 750; color: #CBD5E1; margin-bottom: 5px;">
+                        {% trans "IP-адрес камеры Tapo в Wi-Fi сети" %} <span style="color: #10B981;">*</span>
+                    </label>
+                    <input type="text" name="tapo_ip" id="inputTapoIp" placeholder="Например: 192.168.1.15" style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 10px; padding: 11px 12px; color: #FFFFFF; font-size: 14px; font-family: monospace;">
+                    <span style="font-size: 11px; color: #64748B; margin-top: 3px; display: block;">{% trans "Указан в приложении Tapo в информации об устройстве." %}</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 750; color: #CBD5E1; margin-bottom: 5px;">
+                            {% trans "Логин из Tapo" %} <span style="color: #10B981;">*</span>
+                        </label>
+                        <input type="text" name="stream_username" id="inputTapoUser" placeholder="admin" value="admin" style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 10px; padding: 10px 12px; color: #FFFFFF; font-size: 13.5px;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 750; color: #CBD5E1; margin-bottom: 5px;">
+                            {% trans "Пароль из Tapo" %} <span style="color: #10B981;">*</span>
+                        </label>
+                        <input type="password" name="stream_password" id="inputTapoPass" placeholder="Пароль учетной записи" style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 10px; padding: 10px 12px; color: #FFFFFF; font-size: 13.5px;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. HIKVISION / EZVIZ / DAHUA P2P TAB -->
+            <div id="p2pFieldsBlock" style="display: none; flex-direction: column; gap: 14px;">
                 <button type="button" onclick="startCameraQrScan()" style="display: flex; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(135deg, #7000FF 0%, #4F46E5 100%); color: #FFFFFF; border: none; padding: 14px; border-radius: 14px; font-size: 14px; font-weight: 850; cursor: pointer; box-shadow: 0 4px 18px rgba(112, 0, 255, 0.4); transition: transform 0.15s ease;">
                     <span style="font-size: 20px;">📷</span>
                     <span>{% trans "Сканировать QR-код на камере/регистраторе" %}</span>
@@ -519,22 +555,20 @@
                     ✓ {% trans "QR-код успешно распознан и поля заполнены!" %}
                 </div>
 
-                <!-- STICKER DIAGRAM HINT -->
                 <div style="background: rgba(255, 255, 255, 0.03); border: 1px dashed rgba(192, 132, 252, 0.35); border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; gap: 12px;">
-                    <span style="font-size: 26px;">🏷️</span>
+                    <span style="font-size: 24px;">🏷️</span>
                     <div>
-                        <div style="font-size: 12px; font-weight: 800; color: #DDD6FE;">{% trans "Где найти наклейку?" %}</div>
+                        <div style="font-size: 12px; font-weight: 800; color: #DDD6FE;">{% trans "Где наклейка с кодом?" %}</div>
                         <div style="font-size: 11.5px; color: #94A3B8; line-height: 1.4;">
-                            {% trans "На дне камеры или на обратной стороне регистратора под столом. Там напечатаны 9 цифр S/N и 6 букв проверочного кода." %}
+                            {% trans "На дне камеры или на обратной стороне регистратора под столом. Написаны 9 цифр S/N и 6 букв проверочного кода." %}
                         </div>
                     </div>
                 </div>
 
-                <!-- SERIAL NUMBER & VERIFICATION CODE -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                     <div>
                         <label style="display: block; font-size: 12px; font-weight: 750; color: #CBD5E1; margin-bottom: 5px;">
-                            {% trans "Серийный номер (S/N)" %} <span style="color: #EF4444;">*</span>
+                            {% trans "Серийный номер (S/N)" %}
                         </label>
                         <input type="text" id="inputSerialNum" name="serial_number" placeholder="Например: F12345678" style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 10px; padding: 10px 12px; color: #FFFFFF; font-size: 13.5px; font-family: monospace; font-weight: 700; text-transform: uppercase;">
                     </div>
@@ -546,7 +580,6 @@
                     </div>
                 </div>
 
-                <!-- CHANNEL (FOR DVR / NVR) -->
                 <div>
                     <label style="display: block; font-size: 12px; font-weight: 750; color: #CBD5E1; margin-bottom: 5px;">
                         {% trans "Канал регистратора (номер камеры)" %}
@@ -555,33 +588,18 @@
                         <option value="1">Канал №1 (Основной вход в магазин)</option>
                         <option value="2">Канал №2 (Кассовая зона)</option>
                         <option value="3">Канал №3 (Торговый зал / витрины)</option>
-                        <option value="4">Канал №4 (Примерочные / склад)</option>
-                        <option value="5">Канал №5</option>
-                        <option value="6">Канал №6</option>
-                        <option value="7">Канал №7</option>
-                        <option value="8">Канал №8</option>
+                        <option value="4">Канал №4 (Примерочные)</option>
                     </select>
                 </div>
             </div>
 
-            <!-- RTSP / MANUAL FIELDS (SHOWN IN RTSP TAB) -->
+            <!-- 3. RTSP / MANUAL TAB -->
             <div id="rtspFieldsBlock" style="display: none; flex-direction: column; gap: 14px;">
                 <div>
                     <label style="display: block; font-size: 12px; font-weight: 750; color: #CBD5E1; margin-bottom: 5px;">
                         {% trans "RTSP URL или локальный IP" %}
                     </label>
                     <input type="text" name="rtsp_url" placeholder="rtsp://admin:pass@192.168.1.64:554/live" style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 10px; padding: 10px 12px; color: #FFFFFF; font-size: 13px; font-family: monospace;">
-                    <span style="font-size: 11px; color: #64748B; margin-top: 4px; display: block;">{% trans "Для камер с прямым RTSP или пробросом портов." %}</span>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                    <div>
-                        <label style="display: block; font-size: 12px; font-weight: 750; color: #CBD5E1; margin-bottom: 5px;">{% trans "Логин камеры" %}</label>
-                        <input type="text" name="stream_username" placeholder="admin" style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 10px; padding: 10px 12px; color: #FFFFFF; font-size: 13px;">
-                    </div>
-                    <div>
-                        <label style="display: block; font-size: 12px; font-weight: 750; color: #CBD5E1; margin-bottom: 5px;">{% trans "Пароль камеры" %}</label>
-                        <input type="password" name="stream_password" placeholder="••••••••" style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 10px; padding: 10px 12px; color: #FFFFFF; font-size: 13px;">
-                    </div>
                 </div>
             </div>
 
@@ -598,24 +616,24 @@
                 </div>
                 <div>
                     <label style="display: block; font-size: 12px; font-weight: 750; color: #CBD5E1; margin-bottom: 5px;">{% trans "Название камеры" %}</label>
-                    <input type="text" name="name" placeholder="Например: Камера входа" style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 10px; padding: 10px 12px; color: #FFFFFF; font-size: 13px;">
+                    <input type="text" name="name" placeholder="Например: Tapo Вход" style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 10px; padding: 10px 12px; color: #FFFFFF; font-size: 13px;">
                 </div>
             </div>
 
             <!-- AUDIO SWITCH -->
-            <div style="display: flex; align-items: center; gap: 9px; padding: 6px 0;">
-                <input type="checkbox" name="has_audio" value="1" id="hasAudioCheck" checked style="width: 17px; height: 17px; accent-color: #7000FF; cursor: pointer;">
+            <div style="display: flex; align-items: center; gap: 9px; padding: 4px 0;">
+                <input type="checkbox" name="has_audio" value="1" id="hasAudioCheck" checked style="width: 17px; height: 17px; accent-color: #10B981; cursor: pointer;">
                 <label for="hasAudioCheck" style="font-size: 13px; color: #E2E8F0; font-weight: 650; cursor: pointer;">
-                    🎙 {% trans "Включить акустический анализ возражений и жалоб (микрофон)" %}
+                    🎙 {% trans "Включить анализ возражений и жалоб покупателей (микрофон)" %}
                 </label>
             </div>
 
             <!-- ACTION BUTTONS -->
-            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08);">
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08);">
                 <button type="button" onclick="closeAddCameraModal()" style="background: rgba(255,255,255,0.06); color: #CBD5E1; border: 1px solid rgba(255,255,255,0.1); padding: 11px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer;">
                     {% trans "Отмена" %}
                 </button>
-                <button type="submit" id="btnSubmitCam" style="background: linear-gradient(135deg, #7000FF 0%, #4F46E5 100%); color: white; border: none; padding: 11px 24px; border-radius: 12px; font-size: 13.5px; font-weight: 850; cursor: pointer; box-shadow: 0 4px 14px rgba(112, 0, 255, 0.4);">
+                <button type="submit" id="btnSubmitCam" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: #000000; border: none; padding: 11px 24px; border-radius: 12px; font-size: 13.5px; font-weight: 900; cursor: pointer; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);">
                     🚀 {% trans "Подключить за 1 минуту" %}
                 </button>
             </div>
@@ -626,46 +644,65 @@
 
 <script>
 function openAddCameraModal() {
-    document.getElementById('addCameraModal').style.display = 'flex';
+    const modal = document.getElementById('addCameraModal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
 }
+
 function closeAddCameraModal() {
-    document.getElementById('addCameraModal').style.display = 'none';
+    const modal = document.getElementById('addCameraModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
 }
 
 function switchCameraTab(mode) {
+    const tabTapo = document.getElementById('tab-btn-tapo');
     const tabHik = document.getElementById('tab-btn-hikvision');
-    const tabDahua = document.getElementById('tab-btn-dahua');
     const tabRtsp = document.getElementById('tab-btn-rtsp');
+    
+    const tapoBlock = document.getElementById('tapoFieldsBlock');
     const p2pBlock = document.getElementById('p2pFieldsBlock');
     const rtspBlock = document.getElementById('rtspFieldsBlock');
     const hiddenType = document.getElementById('hiddenCameraType');
+    const btnSubmit = document.getElementById('btnSubmitCam');
 
     // Reset styles
-    [tabHik, tabDahua, tabRtsp].forEach(b => {
-        b.style.background = 'transparent';
-        b.style.color = '#94A3B8';
+    [tabTapo, tabHik, tabRtsp].forEach(b => {
+        if (b) {
+            b.style.background = 'transparent';
+            b.style.color = '#94A3B8';
+        }
     });
 
-    if (mode === 'p2p_hikvision') {
+    if (mode === 'tapo') {
+        tabTapo.style.background = '#10B981';
+        tabTapo.style.color = '#000000';
+        tapoBlock.style.display = 'flex';
+        p2pBlock.style.display = 'none';
+        rtspBlock.style.display = 'none';
+        hiddenType.value = 'tapo';
+        btnSubmit.style.background = 'linear-gradient(135deg, #10B981 0%, #059669 100%)';
+        btnSubmit.style.color = '#000000';
+    } else if (mode === 'p2p_hikvision') {
         tabHik.style.background = '#7000FF';
         tabHik.style.color = '#FFFFFF';
+        tapoBlock.style.display = 'none';
         p2pBlock.style.display = 'flex';
         rtspBlock.style.display = 'none';
         hiddenType.value = 'p2p_hikvision';
-        document.getElementById('inputSerialNum').placeholder = 'Hikvision / HiWatch S/N (F12345678)';
-    } else if (mode === 'p2p_dahua') {
-        tabDahua.style.background = '#2563EB';
-        tabDahua.style.color = '#FFFFFF';
-        p2pBlock.style.display = 'flex';
-        rtspBlock.style.display = 'none';
-        hiddenType.value = 'p2p_dahua';
-        document.getElementById('inputSerialNum').placeholder = 'Dahua / Imou S/N (3L05...)';
+        btnSubmit.style.background = 'linear-gradient(135deg, #7000FF 0%, #4F46E5 100%)';
+        btnSubmit.style.color = '#FFFFFF';
     } else {
-        tabRtsp.style.background = 'rgba(255,255,255,0.12)';
+        tabRtsp.style.background = 'rgba(255,255,255,0.15)';
         tabRtsp.style.color = '#FFFFFF';
+        tapoBlock.style.display = 'none';
         p2pBlock.style.display = 'none';
         rtspBlock.style.display = 'flex';
         hiddenType.value = 'rtsp';
+        btnSubmit.style.background = '#2563EB';
+        btnSubmit.style.color = '#FFFFFF';
     }
 }
 
@@ -676,12 +713,11 @@ function startCameraQrScan() {
             text: "{% trans 'Наведите камеру на QR-код с наклейки регистратора или камеры' %}" 
         }, function(qrData) {
             parseAndFillQrData(qrData);
-            return true; // Closes popup
+            return true;
         });
     } else {
-        // Fallback for desktop / standard browser
         const input = document.getElementById('inputSerialNum');
-        input.focus();
+        if (input) input.focus();
         alert('📷 Если вы открыли страницу через Telegram на телефоне, камера сканирует QR автоматически. В браузере просто введите 9 цифр серийного номера с наклейки.');
     }
 }
@@ -692,13 +728,11 @@ function parseAndFillQrData(text) {
     let serial = "";
     let code = "";
 
-    // 1. Try URL parameters: www.ezvizlife.com/qr?n=F12345678&c=ABCDEF
     const urlMatchN = text.match(/[?&]n=([a-zA-Z0-9]+)/i);
     const urlMatchC = text.match(/[?&]c=([a-zA-Z0-9]+)/i);
     if (urlMatchN) serial = urlMatchN[1];
     if (urlMatchC) code = urlMatchC[1];
 
-    // 2. Try whitespace or semicolon separated text
     if (!serial) {
         const tokens = text.split(/[\s,;|:]+/);
         for (let t of tokens) {
@@ -710,15 +744,13 @@ function parseAndFillQrData(text) {
         }
     }
 
-    if (!serial) {
-        serial = text;
-    }
+    if (!serial) serial = text;
 
     if (serial) {
-        document.getElementById('inputSerialNum').value = serial.toUpperCase();
-        if (code) {
-            document.getElementById('inputVerifyCode').value = code.toUpperCase();
-        }
+        const sInput = document.getElementById('inputSerialNum');
+        const cInput = document.getElementById('inputVerifyCode');
+        if (sInput) sInput.value = serial.toUpperCase();
+        if (cInput && code) cInput.value = code.toUpperCase();
         const badge = document.getElementById('qrScanSuccessBadge');
         if (badge) {
             badge.style.display = 'block';
@@ -732,8 +764,7 @@ function pingCamera(camId) {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                alert('⚡ Тест связи успешен!
-' + data.message);
+                alert('⚡ Тест связи успешен!\n' + data.message);
             } else {
                 alert('Ошибка проверки потока');
             }

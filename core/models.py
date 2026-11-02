@@ -1730,6 +1730,7 @@ class StoreCamera(models.Model):
     class CameraType(models.TextChoices):
         P2P_HIKVISION = "p2p_hikvision", "Hikvision / HiWatch / Ezviz (P2P по QR-коду)"
         P2P_DAHUA = "p2p_dahua", "Dahua / Imou (P2P DMSS по QR-коду)"
+        TAPO = "tapo", "TP-Link Tapo (Wi-Fi камера)"
         RTSP = "rtsp", "IP-камера (RTSP / H.264)"
         ONVIF = "onvif", "ONVIF сетевая камера"
         WEBCAM = "webcam", "USB веб-камера на кассе"

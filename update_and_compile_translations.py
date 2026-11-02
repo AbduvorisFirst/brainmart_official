@@ -17,6 +17,59 @@ LOCALE_DIR = BASE_DIR / "locale"
 
 # Complete dictionary of dashboard translations
 TRANSLATIONS = {
+    # ─── TAPO КАМЕРЫ ───
+    "Как включить поток в приложении Tapo на телефоне (1 минута):": {
+        "uz": "Telefonda Tapo ilovasida oqimni qanday yoqish mumkin (1 daqiqa):",
+        "en": "How to enable stream in Tapo phone app (1 minute):",
+    },
+    "Откройте приложение Tapo на телефоне -> выберите камеру.": {
+        "uz": "Telefonda Tapo ilovasini oching -> kamerani tanlang.",
+        "en": "Open Tapo app on phone -> select camera.",
+    },
+    "Нажмите ⚙️ (вверху справа) -> 'Расширенные настройки' (Advanced Settings).": {
+        "uz": "⚙️ (yuqorida o'ngda) -> 'Kengaytirilgan sozlamalar' (Advanced Settings) ni bosing.",
+        "en": "Tap ⚙️ (top right) -> 'Advanced Settings'.",
+    },
+    "Нажмите 'Учетная запись камеры' (Camera Account) -> введите логин и пароль (например: admin / Tapo12345).": {
+        "uz": "'Kamera hisob qaydnomasi' (Camera Account) ni bosing -> login va parol kiriting (masalan: admin / Tapo12345).",
+        "en": "Tap 'Camera Account' -> enter login and password (e.g. admin / Tapo12345).",
+    },
+    "Вернитесь назад, нажмите на название камеры -> посмотрите её IP-адрес (например: 192.168.1.15).": {
+        "uz": "Orqaga qayting, kamera nomini bosing -> uning IP-manzilini ko'ring (masalan: 192.168.1.15).",
+        "en": "Go back, tap camera name -> check its IP address (e.g. 192.168.1.15).",
+    },
+    "IP-адрес камеры Tapo в Wi-Fi сети": {
+        "uz": "Tapo kamerasining Wi-Fi tarmog'idagi IP-manzili",
+        "en": "Tapo Camera Wi-Fi IP Address",
+    },
+    "Указан в приложении Tapo в информации об устройстве.": {
+        "uz": "Tapo ilovasida qurilma ma'lumotlarida ko'rsatilgan.",
+        "en": "Shown in Tapo app device info.",
+    },
+    "Логин из Tapo": {
+        "uz": "Tapo logini",
+        "en": "Tapo Login",
+    },
+    "Пароль из Tapo": {
+        "uz": "Tapo paroli",
+        "en": "Tapo Password",
+    },
+    "Где наклейка с кодом?": {
+        "uz": "Kodli stiker qayerda?",
+        "en": "Where is the code sticker?",
+    },
+    "На дне камеры или на обратной стороне регистратора под столом. Написаны 9 цифр S/N и 6 букв проверочного кода.": {
+        "uz": "Kamera ostida yoki registrator orqasida. 9 xonali S/N va 6 ta harfli kod yozilgan.",
+        "en": "Under the camera or back of DVR. Displays 9-digit S/N and 6-letter verification code.",
+    },
+    "Выберите тип камеры вашего магазина (Tapo, Hikvision или Dahua) для подключения за 1 минуту.": {
+        "uz": "1 daqiqada ulash uchun do'koningizdagi kamera turini tanlang (Tapo, Hikvision yoki Dahua).",
+        "en": "Choose your store camera type (Tapo, Hikvision, or Dahua) to connect in 1 minute.",
+    },
+    "Включить анализ возражений и жалоб покупателей (микрофон)": {
+        "uz": "Xaridorlar e'tiroz va shikoyatlari tahlilini yoqish (mikrofon)",
+        "en": "Enable customer objection and complaint analysis (microphone)",
+    },
     # ─── P2P QR-КОД КАМЕРЫ HIKVISION / DAHUA ───
     "Подключение камеры наблюдения": {
         "uz": "Kuzatuv kamerasini ulash",

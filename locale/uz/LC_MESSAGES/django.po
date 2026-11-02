@@ -55,6 +55,9 @@ msgstr "Gemini mijozlaringiz tavsifi va rasmlariga qarab tovarlarni avtomatik ta
 msgid "ID выплаты"
 msgstr "To'lov ID"
 
+msgid "IP-адрес камеры Tapo в Wi-Fi сети"
+msgstr "Tapo kamerasining Wi-Fi tarmog'idagi IP-manzili"
+
 msgid "Instagram аккаунт (без @)"
 msgstr "Instagram akkaunt (@ siz)"
 
@@ -217,6 +220,9 @@ msgstr "Ism va familiyangiz"
 msgid "Ваши товары, категории и настройки магазина останутся нетронутыми."
 msgstr "Tovarlaringiz, toifalar va do'kon sozlamalari saqlanib qoladi."
 
+msgid "Вернитесь назад, нажмите на название камеры -> посмотрите её IP-адрес (например: 192.168.1.15)."
+msgstr "Orqaga qayting, kamera nomini bosing -> uning IP-manzilini ko'ring (masalan: 192.168.1.15)."
+
 msgid "Вернуться в каталог"
 msgstr "Katalogga qaytish"
 
@@ -228,6 +234,9 @@ msgstr "Vitrina + MiniApp"
 
 msgid "Включить автоматический вывод денег при подтверждении доставки заказа"
 msgstr "Buyurtma yetkazilganda avtomatik pul o'tkazishni yoqish"
+
+msgid "Включить анализ возражений и жалоб покупателей (микрофон)"
+msgstr "Xaridorlar e'tiroz va shikoyatlari tahlilini yoqish (mikrofon)"
 
 msgid "Владелец карты (ФИО)"
 msgstr "Karta egasi (F.I.SH)"
@@ -304,6 +313,9 @@ msgstr "To'lov usulini tanlang"
 msgid "Выберите срок продления"
 msgstr "Muddatni tanlang"
 
+msgid "Выберите тип камеры вашего магазина (Tapo, Hikvision или Dahua) для подключения за 1 минуту."
+msgstr "1 daqiqada ulash uchun do'koningizdagi kamera turini tanlang (Tapo, Hikvision yoki Dahua)."
+
 msgid "Выберите, на каком языке вам будут приходить карточки заказов, кнопки и уведомления в Telegram-боте:"
 msgstr "Telegram-botda buyurtma kartochkalari, tugmalar va bildirishnomalar qaysi tilda kelishini tanlang:"
 
@@ -345,6 +357,9 @@ msgstr "Asl mahsulot kafolati"
 
 msgid "Где найти наклейку?"
 msgstr "Stiker qayerda joylashgan?"
+
+msgid "Где наклейка с кодом?"
+msgstr "Kodli stiker qayerda?"
 
 msgid "Геолокация не поддерживается вашим браузером. Напишите адрес текстом."
 msgstr "Brauzeringiz geolokatsiyani qo'llab-quvvatlamaydi. Manzilni matn shaklida yozing."
@@ -625,6 +640,9 @@ msgstr "TO'LOV UCHUN SOTUVCHI KARTASI"
 msgid "Каждый дополнительный филиал (со 2-го по 10-й)"
 msgstr "Har bir qo'shimcha filial (2-dan 10-gacha)"
 
+msgid "Как включить поток в приложении Tapo на телефоне (1 минута):"
+msgstr "Telefonda Tapo ilovasida oqimni qanday yoqish mumkin (1 daqiqa):"
+
 msgid "Как клиенты платят за заказы"
 msgstr "Mijozlar buyurtmalar uchun qanday to'laydilar"
 
@@ -739,6 +757,9 @@ msgstr "Chegirma bilan olish 🛒"
 msgid "Лист ожидания"
 msgstr "Kutish ro'yxati"
 
+msgid "Логин из Tapo"
+msgstr "Tapo logini"
+
 msgid "Логотип виден клиентам в вашем каталоге."
 msgstr "Logotip mijozlarga katalogingizda ko'rinadi."
 
@@ -814,6 +835,9 @@ msgstr "Biz xodimni Telegram orqali xabardor qildik. Yetkazib berish bo'yicha ha
 msgid "На балансе"
 msgstr "Balansda"
 
+msgid "На дне камеры или на обратной стороне регистратора под столом. Написаны 9 цифр S/N и 6 букв проверочного кода."
+msgstr "Kamera ostida yoki registrator orqasida. 9 xonali S/N va 6 ta harfli kod yozilgan."
+
 msgid "На дне камеры или на обратной стороне регистратора под столом. Там напечатаны 9 цифр S/N и 6 букв проверочного кода."
 msgstr "Kameraning tagida yoki stol ostidagi registratorning orqa tomonida. U yerda 9 xonali S/N va 6 ta harfli tasdiqlash kodi yozilgan."
 
@@ -826,11 +850,17 @@ msgstr "Uchrashuvga"
 msgid "Наведите камеру на QR-код с наклейки регистратора или камеры"
 msgstr "Kamerani registrator yoki kameradagi QR-kodga qarating"
 
+msgid "Нажмите 'Учетная запись камеры' (Camera Account) -> введите логин и пароль (например: admin / Tapo12345)."
+msgstr "'Kamera hisob qaydnomasi' (Camera Account) ni bosing -> login va parol kiriting (masalan: admin / Tapo12345)."
+
 msgid "Нажмите здесь, чтобы изменить выбор фото"
 msgstr "Rasmlarni o'zgartirish uchun bu yerni bosing"
 
 msgid "Нажмите или перетащите фото"
 msgstr "Rasm tanlash uchun bosing yoki bu yerga torting"
+
+msgid "Нажмите ⚙️ (вверху справа) -> 'Расширенные настройки' (Advanced Settings)."
+msgstr "⚙️ (yuqorida o'ngda) -> 'Kengaytirilgan sozlamalar' (Advanced Settings) ni bosing."
 
 msgid "Нажмите, чтобы выбрать фото чека"
 msgstr "Chek rasmini tanlash uchun bosing"
@@ -1105,6 +1135,9 @@ msgstr "Rad etilgan"
 msgid "Откройте магазин с витриной, ботом продаж и подключите камеры филиалов к BrainMart Vision AI!"
 msgstr "Vitrina, sotuv boti bilan do'kon oching va filial kameralarini BrainMart Vision AI ga ulang!"
 
+msgid "Откройте приложение Tapo на телефоне -> выберите камеру."
+msgstr "Telefonda Tapo ilovasini oching -> kamerani tanlang."
+
 msgid "Открыть"
 msgstr "Ochish"
 
@@ -1188,6 +1221,9 @@ msgstr "Sotuvchi paneli"
 
 msgid "Панель управления SuperAdmin"
 msgstr "SuperAdmin boshqaruv paneli"
+
+msgid "Пароль из Tapo"
+msgstr "Tapo paroli"
 
 msgid "Партнёрство с brainmart"
 msgstr "brainmart bilan hamkorlik"
@@ -1674,6 +1710,9 @@ msgstr "Brend nomi, nisha va kontaktlarni qulay shaklda kiriting."
 
 msgid "Укажите номер транзакции или карту, с которой был сделан перевод. Подписка активируется после проверки."
 msgstr "Tranzaksiya raqami yoki to'lov qilingan kartani ko'rsating. Obuna tekshiruvdan so'ng faollashtiriladi."
+
+msgid "Указан в приложении Tapo в информации об устройстве."
+msgstr "Tapo ilovasida qurilma ma'lumotlarida ko'rsatilgan."
 
 msgid "Умная CRM и Склад"
 msgstr "Aqlli CRM va Ombor"
