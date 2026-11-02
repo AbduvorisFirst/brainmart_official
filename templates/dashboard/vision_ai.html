@@ -1,0 +1,578 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+
+{% block title %}BrainMart Vision AI — {% trans "ИИ-Видеонаблюдение и Офлайн-Аналитика" %}{% endblock %}
+
+{% block content %}
+<div class="vision-container" style="display: flex; flex-direction: column; gap: 24px;">
+
+    <!-- TOP HEADER HERO BANNER -->
+    <div style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.35) 0%, rgba(15, 23, 42, 0.75) 60%, rgba(6, 78, 59, 0.25) 100%); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 20px; padding: 24px 28px; position: relative; overflow: hidden; backdrop-filter: blur(16px); box-shadow: 0 12px 36px rgba(0,0,0,0.4);">
+        <div style="position: absolute; top: -40px; right: -20px; font-size: 150px; opacity: 0.04; user-select: none; pointer-events: none;">📹</div>
+        
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 18px; position: relative; z-index: 2;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                    <span style="background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.5); color: #93C5FD; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.8px;">
+                        ✨ Neural Retail Intelligence
+                    </span>
+                    <span style="display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: #34D399; font-weight: 700;">
+                        <span style="width: 7px; height: 7px; border-radius: 50%; background: #10B981; box-shadow: 0 0 10px #10B981; display: inline-block;"></span>
+                        Live Edge Stream
+                    </span>
+                </div>
+                <h1 style="margin: 0; font-size: 26px; font-weight: 900; color: #FFFFFF; letter-spacing: -0.02em;">
+                    📹 BrainMart Vision AI: {% trans "Офлайн-аналитика магазина" %}
+                </h1>
+                <p style="margin: 6px 0 0; color: #94A3B8; font-size: 14px; max-width: 680px; line-height: 1.5;">
+                    {% trans "Автономный директор по продажам на базе Gemini 2.5 Flash-Lite. Подсчет воронки посетителей с обычных камер, анализ возражений покупателей через микрофон и вечерний отчет в Telegram." %}
+                </p>
+            </div>
+
+            <!-- ACTION BUTTONS -->
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+                <button type="button" onclick="openAddCameraModal()" style="display: inline-flex; align-items: center; gap: 8px; background: #2563EB; color: white; border: none; padding: 11px 18px; border-radius: 12px; font-size: 13.5px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35); transition: all 0.2s ease;">
+                    <span>➕</span> {% trans "Подключить камеру" %}
+                </button>
+                <a href="{% url 'seller-vision-bridge-download' %}" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); color: #E2E8F0; border: 1px solid rgba(255,255,255,0.14); padding: 11px 16px; border-radius: 12px; font-size: 13px; font-weight: 700; text-decoration: none; transition: all 0.2s ease;">
+                    <span>⚙️</span> {% trans "Скачать Bridge" %}
+                </a>
+                <button type="button" onclick="triggerAiReportGeneration()" id="btnGenerateReport" style="display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; padding: 11px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3); transition: all 0.2s ease;">
+                    <span>🤖</span> {% trans "Сгенерировать отчет AI" %}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4 KPI LIVE METRIC CARDS -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+        
+        <!-- CARD 1: Visitors -->
+        <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 20px; backdrop-filter: blur(12px); display: flex; flex-direction: column; gap: 8px; position: relative;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 13px; font-weight: 700; color: #94A3B8;">{% trans "Посетители за сегодня" %}</span>
+                <span style="font-size: 20px;">👥</span>
+            </div>
+            <div style="font-size: 32px; font-weight: 900; color: #FFFFFF; letter-spacing: -0.03em;">
+                {{ total_visitors }} <span style="font-size: 16px; font-weight: 600; color: #94A3B8;">{% trans "чел." %}</span>
+            </div>
+            <div style="font-size: 12px; color: #10B981; font-weight: 700; display: flex; align-items: center; gap: 4px;">
+                <span>↗ +14.2%</span> <span style="color: #64748B; font-weight: 500;">(вошло: {{ total_visitors }}, вышло: {{ total_exits }})</span>
+            </div>
+        </div>
+
+        <!-- CARD 2: Orders from POS / Store -->
+        <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 20px; backdrop-filter: blur(12px); display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 13px; font-weight: 700; color: #94A3B8;">{% trans "Покупок на кассе" %}</span>
+                <span style="font-size: 20px;">🛒</span>
+            </div>
+            <div style="font-size: 32px; font-weight: 900; color: #38BDF8; letter-spacing: -0.03em;">
+                {{ orders_today_count }} <span style="font-size: 16px; font-weight: 600; color: #94A3B8;">{% trans "чеков" %}</span>
+            </div>
+            <div style="font-size: 12px; color: #38BDF8; font-weight: 600;">
+                {% trans "Оплачено очно и в онлайн-витрине" %}
+            </div>
+        </div>
+
+        <!-- CARD 3: Real Conversion -->
+        <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 20px; backdrop-filter: blur(12px); display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 13px; font-weight: 700; color: #94A3B8;">{% trans "Реальная конверсия витрины" %}</span>
+                <span style="font-size: 20px;">📈</span>
+            </div>
+            <div style="font-size: 32px; font-weight: 900; color: #F59E0B; letter-spacing: -0.03em;">
+                {{ conversion_rate }}%
+            </div>
+            <div style="font-size: 12px; color: {% if conversion_rate >= 10 %}#10B981{% else %}#EF4444{% endif %}; font-weight: 700;">
+                {% if conversion_rate >= 10 %}
+                    ✓ {% trans "Отличная конверсия для ТЦ" %}
+                {% else %}
+                    ⚠️ {% trans "Ниже целевой (норма 12-15%)" %}
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- CARD 4: Dwell Time -->
+        <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 20px; backdrop-filter: blur(12px); display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 13px; font-weight: 700; color: #94A3B8;">{% trans "Среднее время в зале" %}</span>
+                <span style="font-size: 20px;">⏱</span>
+            </div>
+            <div style="font-size: 32px; font-weight: 900; color: #A78BFA; letter-spacing: -0.03em;">
+                {{ avg_dwell_min }} <span style="font-size: 16px; font-weight: 600; color: #94A3B8;">{% trans "мин." %}</span>
+            </div>
+            <div style="font-size: 12px; color: #94A3B8; font-weight: 600;">
+                {% trans "Покупатели внимательно изучают товар" %}
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN TWO COLUMN GRID: CAMERAS & AI RADAR -->
+    <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 24px;">
+
+        <!-- LEFT COLUMN: LIVE CAMERAS & STREAMS -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+
+            <!-- CAMERA LIST & LIVE STREAM CARD -->
+            <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 22px; backdrop-filter: blur(12px);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                    <div>
+                        <h2 style="margin: 0; font-size: 18px; font-weight: 800; color: white;">
+                            📹 {% trans "Подключенные камеры наблюдения" %}
+                        </h2>
+                        <span style="font-size: 12px; color: #94A3B8;">
+                            {% trans "Потоковое распознавание людей и событий в реальном времени" %}
+                        </span>
+                    </div>
+                    <span style="font-size: 12px; color: #34D399; font-weight: 700; background: rgba(16, 185, 129, 0.12); padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.25);">
+                        {{ cameras|length }} {% trans "активно" %}
+                    </span>
+                </div>
+
+                <!-- CAMERAS ACCORDION / STREAM PREVIEWS -->
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                    {% for cam in cameras %}
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+                            
+                            <!-- CAMERA HEADER -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span style="width: 10px; height: 10px; border-radius: 50%; background: {% if cam.status == 'online' %}#10B981{% else %}#EF4444{% endif %}; box-shadow: 0 0 8px {% if cam.status == 'online' %}#10B981{% else %}#EF4444{% endif %}; display: inline-block;"></span>
+                                    <div>
+                                        <div style="font-size: 15px; font-weight: 800; color: #FFFFFF;">
+                                            {{ cam.name }}
+                                        </div>
+                                        <div style="font-size: 11.5px; color: #94A3B8; display: flex; align-items: center; gap: 8px;">
+                                            <span>{{ cam.get_zone_display }}</span>
+                                            <span>•</span>
+                                            <span style="font-family: monospace;">{{ cam.get_camera_type_display }}</span>
+                                            {% if cam.has_audio %}
+                                                <span>•</span>
+                                                <span style="color: #60A5FA;">🎙 {% trans "Микрофон включен" %}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- CONTROLS -->
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <button type="button" onclick="pingCamera({{ cam.id }})" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #CBD5E1; padding: 6px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; transition: 0.15s;">
+                                        ⚡ {% trans "Тест пинга" %}
+                                    </button>
+                                    <a href="{% url 'seller-vision-camera-delete' cam.id %}" onclick="return confirm('Отключить камеру?');" style="color: #EF4444; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); padding: 6px 10px; border-radius: 8px; font-size: 11.5px; font-weight: 700; text-decoration: none;">
+                                        🗑
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- STREAM SIMULATOR CANVAS / PREVIEW -->
+                            <div style="position: relative; width: 100%; height: 200px; background: #030712; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center;">
+                                <div style="position: absolute; top: 12px; left: 14px; z-index: 5; display: flex; align-items: center; gap: 8px;">
+                                    <span style="background: rgba(239, 68, 68, 0.85); color: white; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 800; letter-spacing: 0.5px;">REC</span>
+                                    <span style="font-size: 11px; font-family: monospace; color: #CBD5E1; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 4px;" id="cam-timer-{{ cam.id }}">LIVE 25 FPS</span>
+                                </div>
+
+                                <div style="position: absolute; top: 12px; right: 14px; z-index: 5; font-size: 10.5px; font-family: monospace; color: #34D399; background: rgba(0,0,0,0.6); padding: 2px 8px; border-radius: 4px;">
+                                    RTSP 1080p | 1.8 Mbps
+                                </div>
+
+                                <!-- Virtual Line Crossing Overlay -->
+                                <div style="position: absolute; width: 80%; height: 2px; background: rgba(16, 185, 129, 0.7); box-shadow: 0 0 10px #10B981; top: 50%; left: 10%;">
+                                    <span style="position: absolute; top: -18px; left: 0; font-size: 10px; font-weight: 700; color: #10B981; background: rgba(0,0,0,0.7); padding: 1px 5px; border-radius: 3px;">
+                                        ▲ ENTRY LINE (ПОДСЧЕТ ВОШЕДШИХ)
+                                    </span>
+                                </div>
+
+                                <!-- Detected Person Bounding Box Simulator -->
+                                <div style="position: absolute; width: 70px; height: 110px; border: 2px solid #38BDF8; border-radius: 6px; top: 35%; left: 45%; box-shadow: 0 0 12px rgba(56, 189, 248, 0.4); display: flex; flex-direction: column; justify-content: space-between; padding: 4px;">
+                                    <span style="background: #38BDF8; color: black; font-size: 8px; font-weight: 900; padding: 1px 3px; border-radius: 2px; align-self: flex-start;">PERSON #48</span>
+                                    <span style="color: #38BDF8; font-size: 8px; font-weight: 800; text-align: right;">98.4%</span>
+                                </div>
+
+                                <div style="text-align: center; color: #475569; font-size: 12px; font-family: monospace;">
+                                    [ NEURAL STREAM ACTIVE — HARDWARE DECODING ]
+                                </div>
+
+                                <div style="position: absolute; bottom: 10px; left: 14px; font-size: 11px; color: #94A3B8; background: rgba(0,0,0,0.6); padding: 3px 8px; border-radius: 4px;">
+                                    URL: <span style="font-family: monospace; color: #E2E8F0;">{{ cam.rtsp_url|default:"rtsp://192.168.1.64:554/live"|truncatechars:35 }}</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    {% empty %}
+                        <div style="text-align: center; padding: 30px; color: #94A3B8;">
+                            {% trans "Камеры еще не подключены. Нажмите 'Подключить камеру' выше." %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- HOURLY TRAFFIC GRAPH -->
+            <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 22px; backdrop-filter: blur(12px);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <div>
+                        <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: white;">
+                            📊 {% trans "Динамика трафика по часам за сегодня" %}
+                        </h3>
+                        <span style="font-size: 12px; color: #94A3B8;">
+                            {% trans "Определение пиковых нагрузок для планирования смен персонала" %}
+                        </span>
+                    </div>
+                    <span style="font-size: 12px; font-weight: 700; color: #F59E0B; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.25); padding: 3px 9px; border-radius: 6px;">
+                        🔥 Пик: 17:00 – 19:00
+                    </span>
+                </div>
+
+                <!-- CSS BAR CHART -->
+                <div style="display: flex; align-items: flex-end; gap: 8px; height: 160px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08);">
+                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;">
+                        <span style="font-size: 10px; color: #94A3B8;">12</span>
+                        <div style="width: 100%; height: 25%; background: rgba(59, 130, 246, 0.4); border-radius: 4px 4px 0 0;"></div>
+                        <span style="font-size: 10px; color: #64748B;">10:00</span>
+                    </div>
+                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;">
+                        <span style="font-size: 10px; color: #94A3B8;">18</span>
+                        <div style="width: 100%; height: 35%; background: rgba(59, 130, 246, 0.4); border-radius: 4px 4px 0 0;"></div>
+                        <span style="font-size: 10px; color: #64748B;">11:00</span>
+                    </div>
+                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;">
+                        <span style="font-size: 10px; color: #94A3B8;">25</span>
+                        <div style="width: 100%; height: 45%; background: rgba(59, 130, 246, 0.5); border-radius: 4px 4px 0 0;"></div>
+                        <span style="font-size: 10px; color: #64748B;">12:00</span>
+                    </div>
+                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;">
+                        <span style="font-size: 10px; color: #94A3B8;">20</span>
+                        <div style="width: 100%; height: 38%; background: rgba(59, 130, 246, 0.4); border-radius: 4px 4px 0 0;"></div>
+                        <span style="font-size: 10px; color: #64748B;">13:00</span>
+                    </div>
+                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;">
+                        <span style="font-size: 10px; color: #94A3B8;">22</span>
+                        <div style="width: 100%; height: 40%; background: rgba(59, 130, 246, 0.4); border-radius: 4px 4px 0 0;"></div>
+                        <span style="font-size: 10px; color: #64748B;">14:00</span>
+                    </div>
+                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;">
+                        <span style="font-size: 10px; color: #94A3B8;">34</span>
+                        <div style="width: 100%; height: 60%; background: rgba(59, 130, 246, 0.6); border-radius: 4px 4px 0 0;"></div>
+                        <span style="font-size: 10px; color: #64748B;">16:00</span>
+                    </div>
+                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;">
+                        <span style="font-size: 10px; color: #F59E0B; font-weight: 700;">48</span>
+                        <div style="width: 100%; height: 85%; background: linear-gradient(to top, #2563EB, #F59E0B); border-radius: 4px 4px 0 0;"></div>
+                        <span style="font-size: 10px; color: #F59E0B; font-weight: 700;">17:00</span>
+                    </div>
+                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;">
+                        <span style="font-size: 10px; color: #EF4444; font-weight: 800;">55</span>
+                        <div style="width: 100%; height: 98%; background: linear-gradient(to top, #2563EB, #EF4444); border-radius: 4px 4px 0 0;"></div>
+                        <span style="font-size: 10px; color: #EF4444; font-weight: 800;">18:00</span>
+                    </div>
+                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;">
+                        <span style="font-size: 10px; color: #F59E0B; font-weight: 700;">42</span>
+                        <div style="width: 100%; height: 75%; background: linear-gradient(to top, #2563EB, #F59E0B); border-radius: 4px 4px 0 0;"></div>
+                        <span style="font-size: 10px; color: #F59E0B; font-weight: 700;">19:00</span>
+                    </div>
+                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;">
+                        <span style="font-size: 10px; color: #94A3B8;">26</span>
+                        <div style="width: 100%; height: 48%; background: rgba(59, 130, 246, 0.5); border-radius: 4px 4px 0 0;"></div>
+                        <span style="font-size: 10px; color: #64748B;">20:00</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: AUDIO RADAR & GEMINI SALES DIRECTOR -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+
+            <!-- AUDIO RADAR (VOICE & COMPLAINTS) -->
+            <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 22px; backdrop-filter: blur(12px);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <div>
+                        <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: white;">
+                            🎙 {% trans "Акустический радар жалоб" %}
+                        </h3>
+                        <span style="font-size: 12px; color: #94A3B8;">
+                            {% trans "Распознавание речи покупателей у витрин и кассы" %}
+                        </span>
+                    </div>
+                    <span style="font-size: 11px; font-weight: 800; color: #60A5FA; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); padding: 3px 8px; border-radius: 6px;">
+                        VAD Active
+                    </span>
+                </div>
+
+                <!-- CATEGORIES PROGRESS BARS -->
+                <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 18px;">
+                    <!-- 1. Price -->
+                    <div>
+                        <div style="display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 700; margin-bottom: 4px;">
+                            <span style="color: #F87171;">🔴 {% trans "«Дорого / Qimmat» (Цена)" %}</span>
+                            <span style="color: #F87171;">{{ exp_pct }}% ({{ expensive_count }} раз)</span>
+                        </div>
+                        <div style="width: 100%; height: 7px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden;">
+                            <div style="width: {{ exp_pct }}%; height: 100%; background: #EF4444; border-radius: 999px;"></div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Sizes -->
+                    <div>
+                        <div style="display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 700; margin-bottom: 4px;">
+                            <span style="color: #FBBF24;">🟡 {% trans "«Нет размера / цвета»" %}</span>
+                            <span style="color: #FBBF24;">{{ size_pct }}% ({{ missing_size_count }} раз)</span>
+                        </div>
+                        <div style="width: 100%; height: 7px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden;">
+                            <div style="width: {{ size_pct }}%; height: 100%; background: #F59E0B; border-radius: 999px;"></div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Staff -->
+                    <div>
+                        <div style="display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 700; margin-bottom: 4px;">
+                            <span style="color: #60A5FA;">🔵 {% trans "«Где продавец / Сервис»" %}</span>
+                            <span style="color: #60A5FA;">{{ staff_pct }}% ({{ staff_count }} раз)</span>
+                        </div>
+                        <div style="width: 100%; height: 7px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden;">
+                            <div style="width: {{ staff_pct }}%; height: 100%; background: #3B82F6; border-radius: 999px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LIVE SPEECH FEED -->
+                <div style="font-size: 12px; font-weight: 700; color: #94A3B8; margin-bottom: 8px;">
+                    {% trans "Последние зафиксированные реплики покупателей:" %}
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px; max-height: 210px; overflow-y: auto;">
+                    {% for speech in recent_speech_logs %}
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 9px 12px; font-size: 12.5px; line-height: 1.4;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+                                <span style="font-size: 10.5px; font-weight: 800; color: {% if speech.category == 'price_expensive' %}#F87171{% elif speech.category == 'missing_size' %}#FBBF24{% else %}#34D399{% endif %};">
+                                    {{ speech.get_category_display }}
+                                </span>
+                                <span style="font-size: 10px; color: #64748B;">{{ speech.created_at|date:"H:i" }}</span>
+                            </div>
+                            <div style="color: #E2E8F0; font-style: italic;">
+                                «{{ speech.transcript }}»
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div style="text-align: center; color: #64748B; font-size: 12px; padding: 12px;">
+                            {% trans "Реплики появятся при фиксации речи в зале" %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- GEMINI 2.5 FLASH-LITE SALES DIRECTOR REPORT -->
+            <div style="background: linear-gradient(135deg, rgba(30, 27, 75, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%); border: 1px solid rgba(139, 92, 246, 0.35); border-radius: 20px; padding: 22px; backdrop-filter: blur(12px); box-shadow: 0 8px 30px rgba(0,0,0,0.3);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 22px;">🤖</span>
+                        <div>
+                            <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: white;">
+                                {% trans "ИИ-Директор по продажам (Gemini Flash-Lite)" %}
+                            </h3>
+                            <span style="font-size: 11px; color: #C4B5FD;">
+                                {% trans "Компактный анализ воронки, цен и локации" %}
+                            </span>
+                        </div>
+                    </div>
+                    {% if latest_report and latest_report.telegram_sent %}
+                        <span style="font-size: 11px; color: #34D399; font-weight: 700; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); padding: 3px 8px; border-radius: 6px;">
+                            ✓ {% trans "В Telegram" %}
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div id="aiReportBox" style="background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 14px; font-size: 13px; line-height: 1.6; color: #CBD5E1; max-height: 280px; overflow-y: auto; white-space: pre-line;">
+                    {% if latest_report and latest_report.gemini_recommendations %}
+                        {{ latest_report.gemini_recommendations }}
+                    {% else %}
+                        {% trans "Нажмите кнопку 'Сгенерировать отчет AI' вверху, чтобы ИИ провел аудит сегодняшних продаж и трафика." %}
+                    {% endif %}
+                </div>
+
+                <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 11.5px; color: #94A3B8;">
+                        {% trans "Стоимость анализа: < $0.001 / день (Gemini 2.5 Flash-Lite)" %}
+                    </span>
+                    <button type="button" onclick="triggerAiReportGeneration()" style="background: #8B5CF6; color: white; border: none; padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer;">
+                        🔄 {% trans "Обновить отчет" %}
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- SETUP WIZARD & HARDWARE TZ INSTRUCTION -->
+    <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 24px; backdrop-filter: blur(12px);">
+        <h3 style="margin: 0 0 16px; font-size: 18px; font-weight: 800; color: #FFFFFF;">
+            🛠️ {% trans "Инструкция и ТЗ: Как подключить любую камеру магазина за 3 минуты" %}
+        </h3>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+            
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 16px;">
+                <div style="font-size: 14px; font-weight: 800; color: #60A5FA; margin-bottom: 6px;">
+                    1. Hikvision / HiWatch / Dahua (RTSP)
+                </div>
+                <p style="font-size: 12.5px; color: #94A3B8; line-height: 1.5; margin: 0 0 10px;">
+                    Камеры на объекте отдают поток по RTSP. Формат строки:<br>
+                    <code style="background: rgba(0,0,0,0.4); color: #38BDF8; padding: 2px 5px; border-radius: 4px; font-size: 11px;">rtsp://admin:пароль@IP_камеры:554/h264Preview_01_main</code>
+                </p>
+                <div style="font-size: 11.5px; color: #34D399;">✓ Без доп. оборудования при наличии Vision Bridge</div>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 16px;">
+                <div style="font-size: 14px; font-weight: 800; color: #34D399; margin-bottom: 6px;">
+                    2. Ноутбук или ПК на кассе (USB WebCam)
+                </div>
+                <p style="font-size: 12.5px; color: #94A3B8; line-height: 1.5; margin: 0 0 10px;">
+                    Подойдет обычная веб-камера на ноутбуке кассира. Направьте ее в сторону входа или прикассовой зоны.
+                </p>
+                <div style="font-size: 11.5px; color: #34D399;">✓ Нулевая стоимость, подключается за 1 минуту</div>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 16px;">
+                <div style="font-size: 14px; font-weight: 800; color: #F59E0B; margin-bottom: 6px;">
+                    3. Старый смартфон в качестве IP-камеры
+                </div>
+                <p style="font-size: 12.5px; color: #94A3B8; line-height: 1.5; margin: 0 0 10px;">
+                    Установите приложение <i>IP Webcam</i> на любой Android. Приложение выдаст локальную ссылку вида <code style="color: #FBBF24;">http://192.168.1.X:8080/video</code>.
+                </p>
+                <div style="font-size: 11.5px; color: #34D399;">✓ Идеально для небольших шоурумов</div>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 16px;">
+                <div style="font-size: 14px; font-weight: 800; color: #A78BFA; margin-bottom: 6px;">
+                    4. BrainMart Vision Bridge (Клиент)
+                </div>
+                <p style="font-size: 12.5px; color: #94A3B8; line-height: 1.5; margin: 0 0 10px;">
+                    Скачайте скрипт Bridge и запустите на компьютере в магазине. Он сам найдет камеры в сети и будет передавать цифры без нагрузки на интернет.
+                </p>
+                <a href="{% url 'seller-vision-bridge-download' %}" style="font-size: 12px; color: #A78BFA; font-weight: 700; text-decoration: none;">
+                    ⬇ Скачать готовый скрипт для этого магазина →
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- MODAL: ADD CAMERA -->
+<div id="addCameraModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 16px;">
+    <div style="background: #0F172A; border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; width: 100%; max-width: 520px; padding: 26px; box-shadow: 0 25px 50px rgba(0,0,0,0.6); position: relative;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+            <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: white;">
+                📹 {% trans "Подключение камеры наблюдения" %}
+            </h3>
+            <button type="button" onclick="closeAddCameraModal()" style="background: none; border: none; font-size: 20px; color: #94A3B8; cursor: pointer;">✕</button>
+        </div>
+
+        <form action="{% url 'seller-vision-camera-add' %}" method="post" style="display: flex; flex-direction: column; gap: 14px;">
+            {% csrf_token %}
+            
+            <div>
+                <label style="display: block; font-size: 12px; font-weight: 700; color: #94A3B8; margin-bottom: 4px;">{% trans "Название камеры" %}</label>
+                <input type="text" name="name" placeholder="Например: Главный вход или Касса" required style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 10px 14px; color: white; font-size: 14px;">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div>
+                    <label style="display: block; font-size: 12px; font-weight: 700; color: #94A3B8; margin-bottom: 4px;">{% trans "Тип камеры" %}</label>
+                    <select name="camera_type" style="width: 100%; box-sizing: border-box; background: #1E293B; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 10px; color: white; font-size: 13px;">
+                        <option value="rtsp">IP-камера (RTSP / H.264)</option>
+                        <option value="onvif">ONVIF сетевая камера</option>
+                        <option value="webcam">USB веб-камера на кассе</option>
+                        <option value="test_stream">Тестовый поток (Демо)</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 12px; font-weight: 700; color: #94A3B8; margin-bottom: 4px;">{% trans "Зона магазина" %}</label>
+                    <select name="zone" style="width: 100%; box-sizing: border-box; background: #1E293B; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 10px; color: white; font-size: 13px;">
+                        <option value="entrance">Вход (Подсчет вошедших)</option>
+                        <option value="checkout">Касса (Диалоги и очереди)</option>
+                        <option value="showroom">Торговый зал (Витрины)</option>
+                        <option value="fitting">Примерочные</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label style="display: block; font-size: 12px; font-weight: 700; color: #94A3B8; margin-bottom: 4px;">{% trans "RTSP URL или локальный IP" %}</label>
+                <input type="text" name="rtsp_url" placeholder="rtsp://admin:pass@192.168.1.64:554/live" style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 10px 14px; color: white; font-size: 13px; font-family: monospace;">
+                <span style="font-size: 11px; color: #64748B;">Если используется BrainMart Bridge, можно оставить пустым — он найдет поток сам.</span>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                <input type="checkbox" name="has_audio" value="1" id="hasAudioCheck" checked style="width: 16px; height: 16px; accent-color: #2563EB;">
+                <label for="hasAudioCheck" style="font-size: 13px; color: #E2E8F0; font-weight: 600; cursor: pointer;">
+                    {% trans "Включить анализ звука и возражений (микрофон)" %}
+                </label>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px;">
+                <button type="button" onclick="closeAddCameraModal()" style="background: rgba(255,255,255,0.08); color: #CBD5E1; border: none; padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer;">
+                    {% trans "Отмена" %}
+                </button>
+                <button type="submit" style="background: #2563EB; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer;">
+                    {% trans "Сохранить и подключить" %}
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<script>
+function openAddCameraModal() {
+    document.getElementById('addCameraModal').style.display = 'flex';
+}
+function closeAddCameraModal() {
+    document.getElementById('addCameraModal').style.display = 'none';
+}
+
+function pingCamera(camId) {
+    fetch('/dashboard/vision-ai/camera/' + camId + '/ping/')
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert('⚡ Тест связи успешен!\n' + data.message);
+            } else {
+                alert('Ошибка проверки потока');
+            }
+        })
+        .catch(err => alert('Ошибка соединения: ' + err));
+}
+
+function triggerAiReportGeneration() {
+    const btn = document.getElementById('btnGenerateReport');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = '🤖 Идет генерация Gemini Flash-Lite...';
+    }
+
+    fetch('/dashboard/vision-ai/report/generate/')
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.data) {
+                const box = document.getElementById('aiReportBox');
+                if (box) {
+                    box.innerText = data.data.gemini_recommendations;
+                }
+                alert('✅ Отчет успешно сгенерирован и отправлен в Telegram владельцу магазина!');
+            } else {
+                alert('Ошибка генерации отчета: ' + (data.error || 'неизвестная ошибка'));
+            }
+        })
+        .catch(err => alert('Сетевая ошибка: ' + err))
+        .finally(() => {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = '🤖 Сгенерировать отчет AI';
+            }
+        });
+}
+</script>
+{% endblock %}

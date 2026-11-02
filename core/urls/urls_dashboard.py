@@ -12,6 +12,7 @@ from django.contrib.auth import views as auth_views
 
 from core.working_views import views_dashboard
 from core.working_views.views_branches import seller_branches_view
+from core.working_views import views_vision
 
 
 urlpatterns = [
@@ -68,4 +69,14 @@ urlpatterns = [
     path('api/ai-generate-broadcast/', views_dashboard.ai_generate_broadcast_view, name='api-ai-generate-broadcast'),
     path('api/ai-generate-description/', views_dashboard.ai_generate_description_view, name='api-ai-generate-description'),
     path('api/set-theme/', views_dashboard.set_store_theme_view, name='api-set-store-theme'),
+
+    # BrainMart Vision AI (Видеоаналитика и акустический аудит)
+    path('vision-ai/', views_vision.vision_ai_dashboard_view, name='seller-vision-ai'),
+    path('vision-ai/camera/add/', views_vision.vision_ai_camera_add, name='seller-vision-camera-add'),
+    path('vision-ai/camera/<int:camera_id>/toggle/', views_vision.vision_ai_camera_toggle, name='seller-vision-camera-toggle'),
+    path('vision-ai/camera/<int:camera_id>/delete/', views_vision.vision_ai_camera_delete, name='seller-vision-camera-delete'),
+    path('vision-ai/camera/<int:camera_id>/ping/', views_vision.vision_ai_camera_ping, name='seller-vision-camera-ping'),
+    path('vision-ai/report/generate/', views_vision.vision_ai_generate_report_now, name='seller-vision-report-generate'),
+    path('vision-ai/bridge/download/', views_vision.vision_ai_download_bridge, name='seller-vision-bridge-download'),
+    path('api/vision/push/', views_vision.vision_ai_push_telemetry, name='api-vision-push-telemetry'),
 ]

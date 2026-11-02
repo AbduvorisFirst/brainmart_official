@@ -1624,3 +1624,125 @@ class PromoBanner(models.Model):
                 cls.objects.create(**b_data)
             active = list(cls.objects.filter(is_active=True).order_by("order", "-id"))
         return active
+
+
+# ---------------------------------------------------------------------------
+# BrainMart Vision AI: Модели видеонаблюдения и офлайн-аналитики магазинов
+# ---------------------------------------------------------------------------
+
+class StoreCamera(models.Model):
+    """Камера видеонаблюдения, подключенная к магазину продавца."""
+    class CameraType(models.TextChoices):
+        RTSP = "rtsp", "IP-камера (RTSP / H.264)"
+        ONVIF = "onvif", "ONVIF сетевая камера"
+        WEBCAM = "webcam", "USB веб-камера на кассе"
+        TEST_STREAM = "test_stream", "Тестовый демо-поток"
+
+    class Zone(models.TextChoices):
+        ENTRANCE = "entrance", "Входная группа (Подсчет посетителей)"
+        CHECKOUT = "checkout", "Кассовая зона (Очереди и диалоги)"
+        SHOWROOM = "showroom", "Торговый зал (Тепловая карта)"
+        FITTING = "fitting", "Примерочные (Воронка примерки)"
+
+    class Status(models.TextChoices):
+        ONLINE = "online", "В сети (Online)"
+        OFFLINE = "offline", "Не в сети (Offline)"
+        TESTING = "testing", "Калибровка / Тест"
+
+    store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name="cameras", verbose_name="Магазин")
+    branch = models.ForeignKey(StoreBranch, on_delete=models.SET_NULL, null=True, blank=True, related_name="cameras", verbose_name="Филиал")
+    name = models.CharField(max_length=150, default="Камера на входе", verbose_name="Название камеры")
+    camera_type = models.CharField(max_length=30, choices=CameraType.choices, default=CameraType.RTSP, verbose_name="Тип подключения")
+    zone = models.CharField(max_length=50, choices=Zone.choices, default=Zone.ENTRANCE, verbose_name="Зона магазина")
+    rtsp_url = models.CharField(max_length=500, blank=True, default="", verbose_name="RTSP / Ссылка на поток")
+    stream_username = models.CharField(max_length=100, blank=True, default="", verbose_name="Логин камеры")
+    stream_password = models.CharField(max_length=100, blank=True, default="", verbose_name="Пароль камеры")
+    is_active = models.BooleanField(default=True, verbose_name="Активна")
+    has_audio = models.BooleanField(default=True, verbose_name="Анализ речи / микрофон")
+    status = models.CharField(max_length=30, choices=Status.choices, default=Status.ONLINE, verbose_name="Статус")
+    last_ping_at = models.DateTimeField(null=True, blank=True, verbose_name="Последний отклик")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")
+
+    class Meta:
+        verbose_name = "Камера магазина (Vision AI)"
+        verbose_name_plural = "Камеры магазинов (Vision AI)"
+        ordering = ["-id"]
+
+    def __str__(self):
+        return f"{self.store.name} — {self.name} ({self.get_zone_display()})"
+
+
+class CameraTrafficEvent(models.Model):
+    """Почасовая статистика посещаемости магазина с камер наблюдения."""
+    store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name="traffic_events", verbose_name="Магазин")
+    camera = models.ForeignKey(StoreCamera, on_delete=models.SET_NULL, null=True, blank=True, related_name="traffic_events", verbose_name="Камера")
+    date = models.DateField(db_index=True, verbose_name="Дата")
+    hour = models.PositiveSmallIntegerField(default=12, verbose_name="Час (0-23)")
+    entries_count = models.PositiveIntegerField(default=0, verbose_name="Вошедшие посетители")
+    exits_count = models.PositiveIntegerField(default=0, verbose_name="Вышедшие посетители")
+    avg_dwell_seconds = models.PositiveIntegerField(default=0, verbose_name="Среднее время в магазине (сек)")
+
+    class Meta:
+        verbose_name = "Трафик посетителей (Vision AI)"
+        verbose_name_plural = "Трафик посетителей (Vision AI)"
+        unique_together = ("store", "camera", "date", "hour")
+        ordering = ["-date", "-hour"]
+
+    def __str__(self):
+        return f"{self.store.name} | {self.date} {self.hour:02d}:00 | +{self.entries_count} чел."
+
+
+class CustomerSpeechLog(models.Model):
+    """Транскрипт и семантический анализ реплик покупателей у витрины или кассы."""
+    class Category(models.TextChoices):
+        PRICE_EXPENSIVE = "price_expensive", "Жалоба: Высокая цена / Qimmat"
+        MISSING_SIZE = "missing_size", "Вопрос: Нет нужного размера / цвета"
+        STAFF_SERVICE = "staff_service", "Оценка работы персонала"
+        PRODUCT_QUALITY = "product_quality", "Качество ткани / товара"
+        GENERAL = "general", "Общие вопросы и примерка"
+
+    class Sentiment(models.TextChoices):
+        NEGATIVE = "negative", "Негативная / Жалоба"
+        NEUTRAL = "neutral", "Нейтральная"
+        POSITIVE = "positive", "Позитивная / Похвала"
+
+    store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name="speech_logs", verbose_name="Магазин")
+    camera = models.ForeignKey(StoreCamera, on_delete=models.SET_NULL, null=True, blank=True, related_name="speech_logs", verbose_name="Камера")
+    transcript = models.TextField(verbose_name="Текст реплики покупателя")
+    category = models.CharField(max_length=50, choices=Category.choices, default=Category.GENERAL, verbose_name="Категория")
+    sentiment = models.CharField(max_length=20, choices=Sentiment.choices, default=Sentiment.NEUTRAL, verbose_name="Тональность")
+    language = models.CharField(max_length=10, default="uz", verbose_name="Язык (uz/ru)")
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name="Время реплики")
+
+    class Meta:
+        verbose_name = "Реплика покупателя (Аудио AI)"
+        verbose_name_plural = "Реплики покупателей (Аудио AI)"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.store.name} [{self.category}]: {self.transcript[:40]}"
+
+
+class DailyVisionReport(models.Model):
+    """Ежедневный сводный отчет и стратегический анализ директора по продажам Gemini Flash-Lite."""
+    store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name="vision_reports", verbose_name="Магазин")
+    date = models.DateField(db_index=True, verbose_name="Дата отчета")
+    total_visitors = models.PositiveIntegerField(default=0, verbose_name="Всего посетителей")
+    total_orders = models.PositiveIntegerField(default=0, verbose_name="Оплаченных заказов")
+    conversion_rate = models.FloatField(default=0.0, verbose_name="Реальная конверсия (%)")
+    avg_dwell_minutes = models.FloatField(default=0.0, verbose_name="Среднее время в зале (мин)")
+    peak_hour = models.CharField(max_length=50, blank=True, default="", verbose_name="Пиковый час")
+    audio_summary = models.TextField(blank=True, default="", verbose_name="Сводка разговоров и жалоб")
+    gemini_recommendations = models.TextField(blank=True, default="", verbose_name="Анализ и рекомендации Gemini 2.5 Flash-Lite")
+    telegram_sent = models.BooleanField(default=False, verbose_name="Отправлен в Telegram")
+    telegram_sent_at = models.DateTimeField(null=True, blank=True, verbose_name="Время отправки в Telegram")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создан")
+
+    class Meta:
+        verbose_name = "Ежедневный отчет Vision AI"
+        verbose_name_plural = "Ежедневные отчеты Vision AI"
+        unique_together = ("store", "date")
+        ordering = ["-date"]
+
+    def __str__(self):
+        return f"{self.store.name} | Отчет за {self.date} (Конверсия: {self.conversion_rate}%)"

@@ -29,6 +29,7 @@ from core.working_views.views import (
 from core.working_views.telegram_bot import TelegramWebhookView, StoreCustomTelegramWebhookView
 
 from core.working_views import views_web
+from core.working_views import views_vision
 
 router = DefaultRouter()
 router.register("products", ProductViewSet, basename="product")
@@ -66,4 +67,6 @@ urlpatterns = [
         StoreCustomTelegramWebhookView.as_view(),
         name="store-telegram-webhook",
     ),
+
+    path('vision/push/', views_vision.vision_ai_push_telemetry, name='api-root-vision-push'),
 ]
