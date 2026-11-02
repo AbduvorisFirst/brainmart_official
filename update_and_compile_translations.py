@@ -17,6 +17,75 @@ LOCALE_DIR = BASE_DIR / "locale"
 
 # Complete dictionary of dashboard translations
 TRANSLATIONS = {
+    # ─── МОБИЛЬНОЕ МЕНЮ И ЗАГРУЗКА ЛОГОТИПА ───
+    "ИИ-Видеонаблюдение": {
+        "uz": "AI Video kuzatuv",
+        "en": "AI Video Surveillance",
+    },
+    "Быстрые сервисы": {
+        "uz": "Tezkor xizmatlar",
+        "en": "Quick Services",
+    },
+    "сервисов": {
+        "uz": "xizmatlar",
+        "en": "services",
+    },
+    "Видеонаблюдение": {
+        "uz": "Video kuzatuv",
+        "en": "Video Surveillance",
+    },
+    "Нейросеть и акустика зала": {
+        "uz": "Neyrotarmoq va zal akustikasi",
+        "en": "Neural vision & Hall acoustics",
+    },
+    "Лист ожидания": {
+        "uz": "Kutish ro'yxati",
+        "en": "Waitlist",
+    },
+    "Предзаказы отсутствующих товаров": {
+        "uz": "Mavjud bo'lmagan tovarlarga buyurtma",
+        "en": "Pre-orders for out of stock items",
+    },
+    "Изменить логотип": {
+        "uz": "Logotipni o'zgartirish",
+        "en": "Change Logo",
+    },
+    "Загрузить логотип": {
+        "uz": "Logotip yuklash",
+        "en": "Upload Logo",
+    },
+    "Логотип магазина успешно обновлен!": {
+        "uz": "Do'kon logotipi muvaffaqiyatli yangilandi!",
+        "en": "Store logo successfully updated!",
+    },
+    "Меню": {
+        "uz": "Menyu",
+        "en": "Menu",
+    },
+    "Меню управления": {
+        "uz": "Boshqaruv menyusi",
+        "en": "Control Menu",
+    },
+    "Бизнес и клиенты": {
+        "uz": "Biznes va mijozlar",
+        "en": "Business & Customers",
+    },
+    "Инновации и настройки": {
+        "uz": "Innovatsiyalar va sozlamalar",
+        "en": "Innovations & Settings",
+    },
+    "Логотип магазина": {
+        "uz": "Do'kon logotipi",
+        "en": "Store Logo",
+    },
+    "Заменить логотип": {
+        "uz": "Logotipni almashtirish",
+        "en": "Replace Logo",
+    },
+    "квадрат 500 × 500 px": {
+        "uz": "kvadrat 500 × 500 px",
+        "en": "square 500 × 500 px",
+    },
     # ─── 1. ФИЛИАЛЫ И ТОЧКИ (BRANCHES) ───
     "Точки и филиалы магазина": {
         "uz": "Do'kon nuqtalari va filiallari",

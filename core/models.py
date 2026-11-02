@@ -14,6 +14,7 @@ models.py
 
 from django.db import models
 
+import os
 import uuid
 
 def store_logo_upload_path(instance, filename):

@@ -22,8 +22,14 @@ msgstr "0%% commission"
 msgid "1 магазин (База)"
 msgstr "1 store (Base)"
 
+msgid "100% Оригинал"
+msgstr "100% Original"
+
 msgid "450 000 сум/мес"
 msgstr "450,000 UZS/mo"
+
+msgid "APPLE & PRO ГАДЖЕТЫ"
+msgstr "APPLE & PRO GADGETS"
 
 msgid "BrainMart работает по фиксированной подписке. 0% комиссии с продаж. Никаких скрытых платежей."
 msgstr "BrainMart works on a fixed subscription. 0% commission on sales. No hidden fees."
@@ -57,6 +63,9 @@ msgstr "SaaS CRM & AI Subscription"
 
 msgid "SaaS-подписка"
 msgstr "SaaS Subscription"
+
+msgid "Telegram CRM + ИИ-продавец 24/7 + витрина для вашего бизнеса. Запуск за 2 минуты!"
+msgstr "Telegram CRM + 24/7 AI Seller + storefront for your business. Launch in 2 minutes!"
 
 msgid "Telegram SMS & Push Рассылки"
 msgstr "Telegram SMS & Push Broadcasts"
@@ -115,6 +124,9 @@ msgstr "AI Sales Analytics"
 msgid "Артикул:"
 msgstr "SKU:"
 
+msgid "БОЛЬШАЯ РАСПРОДАЖА 2026"
+msgstr "BIG SALE 2026"
+
 msgid "Базовая подписка включает 1-ю точку (450 000 сум). Каждый дополнительный филиал: +150 000 сум/мес."
 msgstr "Base subscription includes 1st point (450,000 UZS). Each additional branch: +150,000 UZS/mo."
 
@@ -124,14 +136,23 @@ msgstr "Base plan (1 point): 450,000 UZS + branches:"
 msgid "Без фото чека заказ не может быть отправлен"
 msgstr "Order cannot be dispatched without a receipt photo"
 
+msgid "Бизнес и клиенты"
+msgstr "Business & Customers"
+
 msgid "Более 100+ заказов"
 msgstr "Over 100+ orders"
 
 msgid "Будьте первым, кто оставит отзыв об этом товаре!"
 msgstr "Be the first to review this product!"
 
+msgid "Быстрая доставка"
+msgstr "Fast Delivery"
+
 msgid "Быстрые действия"
 msgstr "Quick Actions"
+
+msgid "Быстрые сервисы"
+msgstr "Quick Services"
 
 msgid "В каталоге"
 msgstr "In catalog"
@@ -193,6 +214,9 @@ msgstr "Your products, categories, and store settings will remain untouched."
 msgid "Вернуться в каталог"
 msgstr "Return to catalog"
 
+msgid "Видеонаблюдение"
+msgstr "Video Surveillance"
+
 msgid "Витрина + MiniApp"
 msgstr "Storefront + MiniApp"
 
@@ -214,8 +238,14 @@ msgstr "Warning! Grace period is active:"
 msgid "Возврат спящих клиентов"
 msgstr "Re-engaging inactive customers"
 
+msgid "Вперёд"
+msgstr "Next"
+
 msgid "Временно на доработке (Скоро)"
 msgstr "Temporarily under maintenance (Soon)"
+
+msgid "Все категории"
+msgstr "All categories"
 
 msgid "Все клиенты"
 msgstr "All Customers"
@@ -277,6 +307,9 @@ msgstr "Only 1 photo selected. 2 to 10 photos recommended!"
 msgid "Выбрано фото:"
 msgstr "Selected photos:"
 
+msgid "Выбрать гаджет 📱"
+msgstr "Choose gadget 📱"
+
 msgid "Вывести баланс сейчас"
 msgstr "Withdraw balance now"
 
@@ -298,6 +331,9 @@ msgstr "Revenue"
 msgid "Выход"
 msgstr "Logout"
 
+msgid "Гарантия оригинала"
+msgstr "Authentic Guarantee"
+
 msgid "Геолокация не поддерживается вашим браузером. Напишите адрес текстом."
 msgstr "Geolocation is not supported by your browser. Please type the address."
 
@@ -315,6 +351,12 @@ msgstr "Main location"
 
 msgid "Главное фото"
 msgstr "Cover photo"
+
+msgid "Глобальный Маркетплейс"
+msgstr "Global Marketplace"
+
+msgid "Глобальный маркетплейс"
+msgstr "Global Marketplace"
 
 msgid "Глобальный рынок"
 msgstr "Global market"
@@ -445,6 +487,9 @@ msgstr "Uploading photos, creating product..."
 msgid "Загрузите фото, укажите доступные цвета, размеры и цены за пару минут."
 msgstr "Upload photos, specify colors, sizes, and prices in a few minutes."
 
+msgid "Загрузить логотип"
+msgstr "Upload Logo"
+
 msgid "Заказ"
 msgstr "Order"
 
@@ -469,6 +514,9 @@ msgstr "Orders"
 msgid "Заканчиваются на складе"
 msgstr "Low in stock"
 
+msgid "Заменить логотип"
+msgstr "Replace Logo"
+
 msgid "Запустите продажи в Instagram и Telegram с ИИ за 5 минут"
 msgstr "Launch sales in Instagram and Telegram with AI in 5 minutes"
 
@@ -484,11 +532,17 @@ msgstr "Register store now"
 msgid "Зарегистрируйте магазин"
 msgstr "Register your store"
 
+msgid "Защита покупателя"
+msgstr "Buyer Protection"
+
 msgid "ИИ думает..."
 msgstr "AI is thinking..."
 
 msgid "ИИ пишет..."
 msgstr "AI is writing..."
+
+msgid "ИИ-Видеонаблюдение"
+msgstr "AI Video Surveillance"
 
 msgid "ИИ-Копирайтер рассылок (Gemini AI)"
 msgstr "AI Broadcast Copywriter (Gemini AI)"
@@ -502,8 +556,14 @@ msgstr "AI Sales Growth Advisor (Gemini AI)"
 msgid "Изменить"
 msgstr "Change"
 
+msgid "Изменить логотип"
+msgstr "Change Logo"
+
 msgid "Изменить точку на карте"
 msgstr "Edit Map Location"
+
+msgid "Инновации и настройки"
+msgstr "Innovations & Settings"
 
 msgid "Инструкция"
 msgstr "Instructions"
@@ -567,6 +627,9 @@ msgstr "No categories created"
 
 msgid "Категория товара"
 msgstr "Product Category"
+
+msgid "Качественный товар с быстрой доставкой от проверенного продавца."
+msgstr "High-quality product with fast delivery from a verified seller."
 
 msgid "Клиент"
 msgstr "Customer"
@@ -640,8 +703,20 @@ msgstr "Cosmetics & Perfumes"
 msgid "Купить"
 msgstr "Buy"
 
+msgid "Купить со скидкой 🛒"
+msgstr "Buy with discount 🛒"
+
+msgid "Лист ожидания"
+msgstr "Waitlist"
+
 msgid "Логотип виден клиентам в вашем каталоге."
 msgstr "The logo is visible to customers in your catalog."
+
+msgid "Логотип магазина"
+msgstr "Store Logo"
+
+msgid "Логотип магазина успешно обновлен!"
+msgstr "Store logo successfully updated!"
 
 msgid "Локация прикреплена"
 msgstr "Location attached"
@@ -669,6 +744,12 @@ msgstr "Instant Auto-Payouts"
 
 msgid "Менеджер магазина:"
 msgstr "Store manager:"
+
+msgid "Меню"
+msgstr "Menu"
+
+msgid "Меню управления"
+msgstr "Control Menu"
 
 msgid "Метод оплаты"
 msgstr "Payment method"
@@ -726,6 +807,9 @@ msgstr "Click to change file"
 
 msgid "Нажмите, чтобы прикрепить фото или скан чека"
 msgstr "Click to attach photo or receipt scan"
+
+msgid "Назад"
+msgstr "Prev"
 
 msgid "Назад к адресу"
 msgstr "Back to address"
@@ -796,6 +880,9 @@ msgstr "Could not get GPS coordinates. Please write your address below."
 msgid "Не удалось получить геолокацию. Пожалуйста, введите точный адрес и ориентир."
 msgstr "Failed to get geolocation. Please enter the exact address and landmark."
 
+msgid "Нейросеть и акустика зала"
+msgstr "Neural vision & Hall acoustics"
+
 msgid "Нет в наличии"
 msgstr "Out of stock"
 
@@ -840,6 +927,9 @@ msgstr "Receipt number or last 4 digits of card"
 
 msgid "О товаре"
 msgstr "About product"
+
+msgid "ОТКРОЙ СВОЙ МАГАЗИН В BRAINMART"
+msgstr "OPEN YOUR STORE ON BRAINMART"
 
 msgid "Общий LTV (Выручка)"
 msgstr "Total LTV (Revenue)"
@@ -931,6 +1021,15 @@ msgstr "Getting GPS coordinates..."
 msgid "Опубликовать товар"
 msgstr "Publish Product"
 
+msgid "Оригинальное качество с быстрой доставкой"
+msgstr "Original quality with fast delivery"
+
+msgid "Оригинальное качество с быстрой доставкой от магазина"
+msgstr "Original quality with fast delivery from store"
+
+msgid "Оригинальные смартфоны, смарт-часы и ультрабуки с гарантией и быстрой доставкой по Ташкенту"
+msgstr "Original smartphones, smartwatches and laptops with warranty and fast delivery in Tashkent"
+
 msgid "Ориентир для такси (подъезд, этаж, вывеска рядом)"
 msgstr "Taxi landmark (entrance, floor, nearby landmark)"
 
@@ -1006,6 +1105,9 @@ msgstr "Send promos, discounts, and collection drops directly to your customers'
 msgid "Официальная витрина"
 msgstr "Official storefront"
 
+msgid "Официальные магазины"
+msgstr "Official Stores"
+
 msgid "Оформить"
 msgstr "Checkout"
 
@@ -1060,6 +1162,12 @@ msgstr "Direct transfer to seller card (with receipt)"
 msgid "Передать курьеру"
 msgstr "Hand to courier"
 
+msgid "Перейти"
+msgstr "View"
+
+msgid "Перейти в магазин"
+msgstr "Visit store"
+
 msgid "Перейти к оформлению"
 msgstr "Proceed to checkout"
 
@@ -1086,6 +1194,9 @@ msgstr "Connect Telegram and receive orders"
 
 msgid "Подключите бота и получайте заказы"
 msgstr "Connect the bot and receive orders"
+
+msgid "Подобрать шины 🛠️"
+msgstr "Pick tires 🛠️"
 
 msgid "Подписка CRM & ИИ заканчивается через"
 msgstr "CRM & AI subscription expires in"
@@ -1141,6 +1252,9 @@ msgstr "Please provide a contact phone number."
 msgid "Поиск по товарам или стилю (напр: айтишник, на свидание)..."
 msgstr "Search products or style (e.g. tech/IT, date night)..."
 
+msgid "Поиск по товарам или стилю (напр: айтишник, оверсайз)..."
+msgstr "Search products or styles (e.g.: oversize, tech)..."
+
 msgid "Пока нет оплаченных заказов для сплитования."
 msgstr "No paid orders for commission breakdown yet."
 
@@ -1176,6 +1290,9 @@ msgstr "View on map"
 
 msgid "Почему продавцы выбирают brainmart?"
 msgstr "Why do sellers choose brainmart?"
+
+msgid "Предзаказы отсутствующих товаров"
+msgstr "Pre-orders for out of stock items"
 
 msgid "Премиум / Old Money"
 msgstr "Premium / Old Money"
@@ -1225,6 +1342,9 @@ msgstr "Broadcasts"
 msgid "Реквизиты карты для выплат (Uzcard / Humo)"
 msgstr "Payout card details (Uzcard / Humo)"
 
+msgid "СЕЗОН АВТОТОВАРОВ & ШИНЫ"
+msgstr "AUTO PARTS & TIRES SEASON"
+
 msgid "СОХРАНИТЬ ИЗМЕНЕНИЯ"
 msgstr "SAVE CHANGES"
 
@@ -1264,6 +1384,9 @@ msgstr "The offline POS cashier system is not finished yet. Our team is actively
 msgid "Скан / Фото чека перевода"
 msgstr "Transfer receipt scan / photo"
 
+msgid "Скидки до -70% на трендовые коллекции одежды, обуви и аксессуаров от топовых брендов"
+msgstr "Discounts up to -70% on trending clothing, shoes and accessories from top brands"
+
 msgid "Скопировано"
 msgstr "Copied"
 
@@ -1290,6 +1413,9 @@ msgstr "Hide"
 
 msgid "Следующая дата списания:"
 msgstr "Next billing date:"
+
+msgid "Смартфоны, планшеты, смарт-часы и аксессуары от проверенных поставщиков"
+msgstr "Smartphones, tablets, smart watches and accessories from verified suppliers"
 
 msgid "Смотреть чек"
 msgstr "View receipt"
@@ -1363,6 +1489,9 @@ msgstr "Order status"
 msgid "Стать продавцом"
 msgstr "Become a Seller"
 
+msgid "Стать продавцом ✨"
+msgstr "Become a seller ✨"
+
 msgid "Страна: Узбекистан"
 msgstr "Country: Uzbekistan"
 
@@ -1417,6 +1546,9 @@ msgstr "Products"
 msgid "Товары от лучших магазинов"
 msgstr "Products from the best stores"
 
+msgid "Товары от лучших магазинов, официальные бренды и экспресс-доставка"
+msgstr "Products from top stores, official brands and express delivery"
+
 msgid "Только VIP (LTV > 500k сум или > 2 заказов)"
 msgstr "VIP Only (LTV > 500k UZS or > 2 orders)"
 
@@ -1446,6 +1578,9 @@ msgstr "Transaction"
 
 msgid "Трекинг доставки"
 msgstr "Delivery tracking"
+
+msgid "Тысячи товаров по суперценам с быстрой доставкой по всему Узбекистану"
+msgstr "Thousands of products at super prices with fast delivery across Uzbekistan"
 
 msgid "У курьера"
 msgstr "With courier"
@@ -1546,11 +1681,17 @@ msgstr "Black"
 msgid "Честная модель Win-Win"
 msgstr "Fair Win-Win Model"
 
+msgid "Шины Michelin, Pirelli, масла Motul и автоаксессуары от проверенных магазинов"
+msgstr "Michelin, Pirelli tires, Motul oils and auto accessories from verified stores"
+
 msgid "Широта"
 msgstr "Latitude"
 
 msgid "Широта (Lat)"
 msgstr "Latitude (Lat)"
+
+msgid "Экспресс доставка"
+msgstr "Express Delivery"
 
 msgid "Электроника и гаджеты"
 msgstr "Electronics & Gadgets"
@@ -1594,8 +1735,14 @@ msgstr "extra branches: +150,000 UZS/mo each"
 msgid "доставлено"
 msgstr "delivered"
 
+msgid "заказов"
+msgstr "orders"
+
 msgid "й день (осталось"
 msgstr "th day (remaining"
+
+msgid "квадрат 500 × 500 px"
+msgstr "square 500 × 500 px"
 
 msgid "комиссии с продаж"
 msgstr "sales commission"
@@ -1611,6 +1758,9 @@ msgstr "reviews"
 
 msgid "подписчиков в боте"
 msgstr "bot subscribers"
+
+msgid "сервисов"
+msgstr "services"
 
 msgid "сум"
 msgstr "UZS"
@@ -1645,20 +1795,8 @@ msgstr "⚙️ Online acquiring is undergoing technical updates.\\n\\nPlease cho
 msgid "⚠️ Пожалуйста, обязательно прикрепите фото или скриншот чека об оплате!"
 msgstr "⚠️ Please be sure to attach a photo or screenshot of the payment receipt!"
 
-msgid "✅ Чек успешно передан магазину! Скоро заказ будет доставлен."
-msgstr "✅ Receipt successfully forwarded to store! The order will be delivered soon."
-
-msgid "🔍 Поиск адреса (напр: Чорсу, ЦУМ, Юнусабад...)"
-msgstr "🔍 Search address (e.g. Chorsu, TSUM, Yunusabad...)"
-
-
-# --- AUTO ADDED MARKETPLACE TRANSLATIONS ---
-
-msgid "Глобальный Маркетплейс"
-msgstr "Global Marketplace"
-
-msgid "Глобальный маркетплейс"
-msgstr "Global Marketplace"
+msgid "⚡ 100% Оригинал"
+msgstr "⚡ 100% Original"
 
 msgid "⚡ Глобальный Маркетплейс"
 msgstr "⚡ Global Marketplace"
@@ -1666,140 +1804,45 @@ msgstr "⚡ Global Marketplace"
 msgid "⚡ Глобальный маркетплейс"
 msgstr "⚡ Global Marketplace"
 
-msgid "Товары от лучших магазинов, официальные бренды и экспресс-доставка"
-msgstr "Products from top stores, official brands and express delivery"
+msgid "⚡ ОФИЦИАЛЬНАЯ ГАРАНТИЯ"
+msgstr "⚡ OFFICIAL WARRANTY"
 
-msgid "100% Оригинал"
-msgstr "100% Original"
-
-msgid "Экспресс доставка"
-msgstr "Express Delivery"
-
-msgid "Защита покупателя"
-msgstr "Buyer Protection"
-
-msgid "Официальные магазины"
-msgstr "Official Stores"
-
-msgid "Быстрая доставка"
-msgstr "Fast Delivery"
-
-msgid "Все категории"
-msgstr "All categories"
-
-msgid "Поиск по товарам или стилю (напр: айтишник, оверсайз)..."
-msgstr "Search products or styles (e.g.: oversize, tech)..."
-
-msgid "🚗 Автотовары и шины"
-msgstr "🚗 Auto parts & tires"
-
-msgid "👕 Одежда и обувь"
-msgstr "👕 Clothing & shoes"
-
-msgid "🍏 Продукты питания"
-msgstr "🍏 Groceries & food"
-
-msgid "📱 Электроника и техника"
-msgstr "📱 Electronics & tech"
-
-msgid "🛋️ Мебель и товары для дома"
-msgstr "🛋️ Home & furniture"
-
-msgid "💄 Красота и здоровье"
-msgstr "💄 Beauty & health"
-
-msgid "🧸 Детские товары"
-msgstr "🧸 Kids products"
+msgid "⚡ СКИДКИ ДО -70%"
+msgstr "⚡ UP TO -70% OFF"
 
 msgid "⚽ Спорт и отдых"
 msgstr "⚽ Sports & outdoors"
 
-msgid "заказов"
-msgstr "orders"
+msgid "✅ Чек успешно передан магазину! Скоро заказ будет доставлен."
+msgstr "✅ Receipt successfully forwarded to store! The order will be delivered soon."
 
-msgid "Перейти в магазин"
-msgstr "Visit store"
-
-msgid "Оригинальное качество с быстрой доставкой от магазина"
-msgstr "Original quality with fast delivery from store"
-
-msgid "Оригинальное качество с быстрой доставкой"
-msgstr "Original quality with fast delivery"
-
-msgid "Качественный товар с быстрой доставкой от проверенного продавца."
-msgstr "High-quality product with fast delivery from a verified seller."
-
-msgid "БОЛЬШАЯ РАСПРОДАЖА 2026"
-msgstr "BIG SALE 2026"
-
-msgid "⚡ СКИДКИ ДО -70%"
-msgstr "⚡ UP TO -70% OFF"
-
-msgid "Купить со скидкой 🛒"
-msgstr "Buy with discount 🛒"
-
-msgid "Тысячи товаров по суперценам с быстрой доставкой по всему Узбекистану"
-msgstr "Thousands of products at super prices with fast delivery across Uzbekistan"
-
-msgid "APPLE & PRO ГАДЖЕТЫ"
-msgstr "APPLE & PRO GADGETS"
-
-msgid "⚡ ОФИЦИАЛЬНАЯ ГАРАНТИЯ"
-msgstr "⚡ OFFICIAL WARRANTY"
-
-msgid "Выбрать гаджет 📱"
-msgstr "Choose gadget 📱"
-
-msgid "Смартфоны, планшеты, смарт-часы и аксессуары от проверенных поставщиков"
-msgstr "Smartphones, tablets, smart watches and accessories from verified suppliers"
-
-msgid "СЕЗОН АВТОТОВАРОВ & ШИНЫ"
-msgstr "AUTO PARTS & TIRES SEASON"
+msgid "🍏 Продукты питания"
+msgstr "🍏 Groceries & food"
 
 msgid "🏎️ ТОП СЕЗОНА"
 msgstr "🏎️ TOP OF SEASON"
 
-msgid "Подобрать шины 🛠️"
-msgstr "Pick tires 🛠️"
+msgid "👕 Одежда и обувь"
+msgstr "👕 Clothing & shoes"
 
-msgid "Шины Michelin, Pirelli, масла Motul и автоаксессуары от проверенных магазинов"
-msgstr "Michelin, Pirelli tires, Motul oils and auto accessories from verified stores"
+msgid "💄 Красота и здоровье"
+msgstr "💄 Beauty & health"
 
-msgid "ОТКРОЙ СВОЙ МАГАЗИН В BRAINMART"
-msgstr "OPEN YOUR STORE ON BRAINMART"
+msgid "📱 Электроника и техника"
+msgstr "📱 Electronics & tech"
+
+msgid "🔍 Поиск адреса (напр: Чорсу, ЦУМ, Юнусабад...)"
+msgstr "🔍 Search address (e.g. Chorsu, TSUM, Yunusabad...)"
 
 msgid "🚀 ДЛЯ БИЗНЕСА"
 msgstr "🚀 FOR BUSINESS"
 
-msgid "Стать продавцом ✨"
-msgstr "Become a seller ✨"
+msgid "🚗 Автотовары и шины"
+msgstr "🚗 Auto parts & tires"
 
-msgid "Telegram CRM + ИИ-продавец 24/7 + витрина для вашего бизнеса. Запуск за 2 минуты!"
-msgstr "Telegram CRM + 24/7 AI Seller + storefront for your business. Launch in 2 minutes!"
+msgid "🛋️ Мебель и товары для дома"
+msgstr "🛋️ Home & furniture"
 
-msgid "Перейти"
-msgstr "View"
+msgid "🧸 Детские товары"
+msgstr "🧸 Kids products"
 
-msgid "Назад"
-msgstr "Prev"
-
-msgid "Вперёд"
-msgstr "Next"
-
-msgid "Скидки до -70% на трендовые коллекции одежды, обуви и аксессуаров от топовых брендов"
-msgstr "Discounts up to -70% on trending clothing, shoes and accessories from top brands"
-
-msgid "Оригинальные смартфоны, смарт-часы и ультрабуки с гарантией и быстрой доставкой по Ташкенту"
-msgstr "Original smartphones, smartwatches and laptops with warranty and fast delivery in Tashkent"
-
-msgid "⚡ СКИДКИ ДО -70%"
-msgstr "⚡ UP TO -70% OFF"
-
-msgid "100% Оригинал"
-msgstr "100% Original"
-
-msgid "Гарантия оригинала"
-msgstr "Authentic Guarantee"
-
-msgid "⚡ 100% Оригинал"
-msgstr "⚡ 100% Original"

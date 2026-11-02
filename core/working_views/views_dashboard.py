@@ -1897,6 +1897,32 @@ def store_settings_view(request):
             return redirect("seller-settings")
 
         else:
+            # --- БЛОК ЗАГРУЗКИ / ОБНОВЛЕНИЯ ЛОГОТИПА ИЗ НАСТРОЕК ---
+            if request.FILES.get("logo"):
+                logo_file = request.FILES.get("logo")
+                if logo_file.size > 5 * 1024 * 1024:
+                    messages.error(request, "Файл слишком большой. Максимальный размер логотипа — 5 МБ.")
+                    return redirect("seller-settings")
+                try:
+                    from PIL import Image
+                    img = Image.open(logo_file)
+                    img.verify()
+                    if img.format not in ['JPEG', 'PNG', 'WEBP']:
+                        messages.error(request, "Неподдерживаемый формат. Разрешены только JPG, PNG, WEBP.")
+                        return redirect("seller-settings")
+                    logo_file.seek(0)
+                except Exception:
+                    messages.error(request, "Загруженный файл не является допустимым изображением.")
+                    return redirect("seller-settings")
+                store.logo = logo_file
+            elif request.POST.get("clear_logo") == "1":
+                if store.logo:
+                    try:
+                        store.logo.delete(save=False)
+                    except Exception:
+                        pass
+                    store.logo = None
+
             store_name = request.POST.get("store_name", "").strip()
             phone_number = request.POST.get("phone_number", "").strip()
             address = request.POST.get("address", "").strip()
@@ -1977,7 +2003,7 @@ def store_settings_view(request):
             store.enable_card_transfer = True
             store.show_global_market_button = (request.POST.get("show_global_market_button") == "on")
 
-            store.save(update_fields=[
+            update_fields = [
                 "name", "slug", "phone_number", "address", "instagram_username",
                 "payout_card", "payout_card_holder",
                 "category", "niche",
@@ -1986,7 +2012,10 @@ def store_settings_view(request):
                 "telegram_notification_language",
                 "enable_auto_acquiring", "enable_card_transfer",
                 "show_global_market_button"
-            ])
+            ]
+            if request.FILES.get("logo") or request.POST.get("clear_logo") == "1":
+                update_fields.append("logo")
+            store.save(update_fields=update_fields)
             # Синхронизируем язык текущей сессии
             if hasattr(request, "session") and telegram_notification_language in ("ru", "uz", "en"):
                 request.session["django_language"] = telegram_notification_language

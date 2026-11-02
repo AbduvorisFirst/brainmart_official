@@ -874,12 +874,13 @@
             <a href="{% if current_store %}{{ current_store.get_subdomain_url }}{% else %}{{ global_market_url|default:'/' }}{% endif %}" class="btn-back" title="{% trans 'Назад в каталог' %}" onclick="if (window.history.length > 1) { event.preventDefault(); window.history.back(); }">
                 ←
             </a>
-            <a href="{% if current_store %}{{ current_store.get_subdomain_url }}{% else %}{{ global_market_url|default:'/' }}{% endif %}" class="store-nav-badge">
+            <a href="{{ product.store.get_subdomain_url }}" class="store-nav-badge" title="{% trans 'Перейти в магазин' %} {{ product.store.name }}">
                 <div class="store-nav-avatar">
                     {% if product.store.logo %}
-                        <img src="{{ product.store.logo.url }}" alt="{{ product.store.name }}">
+                        <img src="{{ product.store.logo.url }}" alt="{{ product.store.name }}" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
+                        <span style="display: none;">{{ product.store.name|slice:':1'|upper|default:'M' }}</span>
                     {% else %}
-                        <span>{{ product.store.name|make_list|first|upper }}</span>
+                        <span>{{ product.store.name|slice:':1'|upper|default:'M' }}</span>
                     {% endif %}
                 </div>
                 <div style="display: flex; align-items: center; gap: 6px; overflow: hidden;">

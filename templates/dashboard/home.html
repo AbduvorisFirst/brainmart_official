@@ -380,6 +380,209 @@
         box-shadow: 0 2px 10px rgba(37, 99, 235, 0.45);
         transform: scale(1.02);
     }
+
+    /* ─── Интерактивный Squircle Аватар & Кнопка Логотипа ─── */
+    .insta-avatar-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+    }
+    .insta-avatar-container {
+        position: relative;
+        cursor: pointer;
+        border-radius: 18px;
+        user-select: none;
+        outline: none;
+        transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .insta-avatar-container:hover { transform: scale(1.04); }
+    .insta-avatar-container:active { transform: scale(0.97); }
+    .insta-avatar-container:focus-visible { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.6); }
+
+    .insta-avatar-square {
+        width: 68px; height: 68px;
+        border-radius: 18px; /* Squircle */
+        background: linear-gradient(135deg, #2563EB, #10B981);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 26px; font-weight: 900; color: #FFFFFF;
+        flex-shrink: 0; overflow: hidden; position: relative;
+        border: 2px solid rgba(255, 255, 255, 0.18);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .insta-avatar-container:hover .insta-avatar-square {
+        border-color: #3B82F6;
+        box-shadow: 0 4px 20px rgba(37, 99, 235, 0.45);
+    }
+    .insta-avatar-square img {
+        width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+
+    .insta-avatar-overlay {
+        position: absolute; inset: 0;
+        background: rgba(15, 23, 42, 0.72);
+        backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 3px; opacity: 0; pointer-events: none;
+        transition: opacity 0.2s ease; border-radius: 16px; z-index: 2;
+    }
+    .insta-avatar-container:hover .insta-avatar-overlay { opacity: 1; }
+    .insta-avatar-overlay-text {
+        font-size: 9.5px; font-weight: 700; color: #FFFFFF; text-transform: uppercase; letter-spacing: 0.3px;
+    }
+
+    .insta-avatar-badge {
+        position: absolute; bottom: -3px; right: -3px;
+        width: 24px; height: 24px; border-radius: 50%;
+        background: #2563EB; border: 2px solid #131722;
+        display: flex; align-items: center; justify-content: center;
+        color: #FFFFFF; font-size: 11px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45); z-index: 3;
+        transition: transform 0.18s ease;
+    }
+    .insta-avatar-container:hover .insta-avatar-badge { transform: scale(1.1); }
+
+    .insta-avatar-spinner-overlay {
+        position: absolute; inset: 0;
+        background: rgba(15, 23, 42, 0.9);
+        backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+        display: none; flex-direction: column; align-items: center; justify-content: center;
+        gap: 5px; border-radius: 16px; z-index: 5;
+    }
+    .insta-avatar-spinner-overlay.is-active { display: flex !important; }
+    .insta-avatar-spinner {
+        width: 22px; height: 22px;
+        border: 2.5px solid rgba(255, 255, 255, 0.2);
+        border-top-color: #38BDF8; border-radius: 50%;
+        animation: spinAvatar 0.7s linear infinite;
+    }
+    @keyframes spinAvatar { to { transform: rotate(360deg); } }
+    .insta-avatar-spinner-text { font-size: 9px; font-weight: 700; color: #E2E8F0; }
+
+    .insta-avatar-change-btn {
+        display: inline-flex; align-items: center; justify-content: center;
+        gap: 4px; padding: 3px 8px; border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #CBD5E1; font-size: 11px; font-weight: 600;
+        cursor: pointer; transition: all 0.16s ease;
+        white-space: nowrap; user-select: none;
+    }
+    .insta-avatar-change-btn:hover {
+        background: rgba(37, 99, 235, 0.22); border-color: rgba(59, 130, 246, 0.45); color: #FFFFFF;
+    }
+
+    /* ─── Apple Glassmorphism Quick Shortcuts Hub ─── */
+    .quick-services-panel {
+        background: var(--card-bg, #111319);
+        border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+        border-radius: 22px;
+        padding: 16px 18px;
+        margin-bottom: 22px;
+        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06), 0 8px 28px rgba(0, 0, 0, 0.4);
+        position: relative;
+        overflow: hidden;
+    }
+    .quick-services-panel::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #6366F1, #8B5CF6, #38BDF8, #10B981);
+        opacity: 0.8;
+    }
+    .quick-services-header {
+        display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
+    }
+    .quick-services-title {
+        font-size: 14px; font-weight: 800; color: #FFFFFF; display: flex; align-items: center; gap: 7px; letter-spacing: -0.015em;
+    }
+    .quick-services-badge {
+        font-size: 10px; font-weight: 800; color: var(--text-muted, #8E92A4);
+        background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 2px 8px; border-radius: 20px; letter-spacing: 0.5px;
+    }
+    .quick-services-grid {
+        display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+    }
+    @media (min-width: 680px) {
+        .quick-services-grid { grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    }
+
+    .quick-service-card {
+        background: rgba(255, 255, 255, 0.035);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 14px; padding: 11px 12px;
+        display: flex; align-items: center; gap: 11px;
+        text-decoration: none; color: #FFFFFF;
+        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative; overflow: hidden;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .quick-service-card:hover {
+        background: rgba(255, 255, 255, 0.075); border-color: rgba(255, 255, 255, 0.18);
+        transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+    }
+    .quick-service-card:active {
+        transform: scale(0.97); background: rgba(255, 255, 255, 0.09);
+    }
+
+    .quick-service-squircle {
+        width: 40px; height: 40px; border-radius: 11px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 19px; flex-shrink: 0;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 3px 10px rgba(0, 0, 0, 0.35);
+    }
+    .quick-service-info { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+    .quick-service-name {
+        font-size: 13px; font-weight: 700; color: #FFFFFF;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.01em; line-height: 1.25;
+    }
+    .quick-service-desc {
+        font-size: 10.5px; color: var(--text-muted, #8E92A4);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;
+    }
+
+    .quick-service-card.card-vision-ai {
+        grid-column: span 2;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.08) 100%);
+        border-color: rgba(139, 92, 246, 0.38);
+        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 4px 16px rgba(99, 102, 241, 0.18);
+    }
+    .quick-service-card.card-vision-ai:hover {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.22) 0%, rgba(139, 92, 246, 0.14) 100%);
+        border-color: rgba(139, 92, 246, 0.6); box-shadow: 0 6px 24px rgba(124, 58, 237, 0.3);
+    }
+    .quick-service-card.card-vision-ai .quick-service-squircle {
+        background: linear-gradient(135deg, #6366F1, #8B5CF6);
+        box-shadow: 0 0 14px rgba(139, 92, 246, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    }
+    .badge-ai-vision {
+        display: inline-flex; align-items: center; gap: 4px;
+        font-size: 9px; font-weight: 800; letter-spacing: 0.5px;
+        color: #93C5FD; background: rgba(37, 99, 235, 0.25);
+        border: 1px solid rgba(59, 130, 246, 0.5); padding: 3px 7px; border-radius: 6px;
+        margin-left: auto; flex-shrink: 0; box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+    }
+    .ai-pulse-dot {
+        width: 6px; height: 6px; border-radius: 50%;
+        background: #38BDF8; box-shadow: 0 0 8px #38BDF8;
+        display: inline-block; animation: aiPulse 1.8s infinite ease-in-out;
+    }
+    @keyframes aiPulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.35; transform: scale(0.75); }
+    }
+    .sq-branches   { background: linear-gradient(135deg, #0D9488, #14B8A6); }
+    .sq-reviews    { background: linear-gradient(135deg, #D97706, #F59E0B); }
+    .sq-settings   { background: linear-gradient(135deg, #475569, #64748B); }
+    .sq-finance    { background: linear-gradient(135deg, #059669, #10B981); }
+    .sq-customers  { background: linear-gradient(135deg, #1D4ED8, #3B82F6); }
+    .sq-broadcasts { background: linear-gradient(135deg, #BE185D, #F43F5E); }
+    
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -387,14 +590,46 @@
     <!-- ─── INSTAGRAM / APPLE STORE PROFILE CARD ("через квадрат") ─── -->
     <div class="insta-profile-card">
         <div class="insta-profile-row">
-            <!-- Squircle Avatar (Instagram style) -->
-            <div class="insta-avatar-square">
-                {% if store.logo %}
-                    <img src="{{ store.logo.url }}" alt="{{ store.name }}">
-                {% else %}
-                    <span>{{ store.name|slice:":1"|upper }}</span>
-                {% endif %}
+            <!-- Squircle Interactive Avatar Wrapper (Instagram / Apple style) -->
+            <div class="insta-avatar-wrapper">
+                <div class="insta-avatar-container" id="storeAvatarContainer" onclick="triggerStoreLogoUpload()" role="button" tabindex="0" title="{% trans 'Нажмите, чтобы изменить логотип' %}" aria-label="{% trans 'Изменить логотип магазина' %}">
+                    <div class="insta-avatar-square">
+                        {% if store.logo %}
+                            <img id="storeAvatarImg" src="{{ store.logo.url }}" alt="{{ store.name }}">
+                        {% else %}
+                            <span id="storeAvatarFallback">{{ store.name|slice:":1"|upper }}</span>
+                        {% endif %}
+
+                        <!-- Hover overlay with camera icon & text -->
+                        <div class="insta-avatar-overlay">
+                            <span style="font-size: 16px;">📷</span>
+                            <span class="insta-avatar-overlay-text">{% trans "Изменить" %}</span>
+                        </div>
+
+                        <!-- Loading Spinner Overlay -->
+                        <div id="storeAvatarSpinner" class="insta-avatar-spinner-overlay" aria-hidden="true">
+                            <div class="insta-avatar-spinner"></div>
+                            <span class="insta-avatar-spinner-text">{% trans "Загрузка..." %}</span>
+                        </div>
+                    </div>
+
+                    <!-- Corner Camera Badge -->
+                    <div class="insta-avatar-badge" title="{% trans 'Изменить фото' %}">
+                        📷
+                    </div>
+                </div>
+
+                <!-- Text button below avatar -->
+                <button type="button" id="storeAvatarChangeBtn" class="insta-avatar-change-btn" onclick="triggerStoreLogoUpload()" title="{% trans 'Загрузить логотип магазина' %}">
+                    📷 {% trans "Изменить" %}
+                </button>
             </div>
+
+            <!-- Скрытая форма для моментальной загрузки логотипа -->
+            <form id="storeLogoForm" method="post" enctype="multipart/form-data" action="{% url 'seller-dashboard' %}" style="display: none;">
+                {% csrf_token %}
+                <input type="file" id="storeLogoFileInput" name="logo" accept="image/jpeg,image/png,image/webp" onchange="submitStoreLogo(this)">
+            </form>
 
             <!-- 3 Stat Columns (Публикации / Заказы / Выручка) -->
             <div class="insta-stats-container">
@@ -435,6 +670,86 @@
             </a>
             <a href="{% url 'seller-settings' %}" class="insta-action-icon-btn" title="{% trans 'Настройки магазина' %}">
                 ⚙️
+            </a>
+        </div>
+    </div>
+
+    <!-- ─── БЫСТРЫЕ СЕРВИСЫ (Quick Shortcuts Hub) ─── -->
+    <div class="quick-services-panel">
+        <div class="quick-services-header">
+            <div class="quick-services-title">
+                <span>⚡</span>
+                <span>{% trans "Быстрые сервисы" %}</span>
+            </div>
+            <span class="quick-services-badge">7 {% trans "сервисов" %}</span>
+        </div>
+
+        <div class="quick-services-grid">
+            <!-- 1. ИИ-Видеонаблюдение (Hero Card, Span 2) -->
+            <a href="{% url 'seller-vision-ai' %}" class="quick-service-card card-vision-ai">
+                <div class="quick-service-squircle">📹</div>
+                <div class="quick-service-info">
+                    <div class="quick-service-name">{% trans "Видеонаблюдение" %}</div>
+                    <div class="quick-service-desc">{% trans "Нейросеть и акустика зала" %}</div>
+                </div>
+                <span class="badge-ai-vision">
+                    <span class="ai-pulse-dot"></span>
+                    AI VISION
+                </span>
+            </a>
+
+            <!-- 2. Финансы -->
+            <a href="{% url 'seller-finance' %}" class="quick-service-card">
+                <div class="quick-service-squircle sq-finance">💰</div>
+                <div class="quick-service-info">
+                    <div class="quick-service-name">{% trans "Финансы" %}</div>
+                    <div class="quick-service-desc">{% trans "Выручка и баланс" %}</div>
+                </div>
+            </a>
+
+            <!-- 3. Клиенты -->
+            <a href="{% url 'seller-customers' %}" class="quick-service-card">
+                <div class="quick-service-squircle sq-customers">👥</div>
+                <div class="quick-service-info">
+                    <div class="quick-service-name">{% trans "Клиенты" %}</div>
+                    <div class="quick-service-desc">{% trans "База покупателей" %}</div>
+                </div>
+            </a>
+
+            <!-- 4. Филиалы -->
+            <a href="{% url 'seller-branches' %}" class="quick-service-card">
+                <div class="quick-service-squircle sq-branches">🏢</div>
+                <div class="quick-service-info">
+                    <div class="quick-service-name">{% trans "Филиалы" %}</div>
+                    <div class="quick-service-desc">{% trans "Точки продаж" %}</div>
+                </div>
+            </a>
+
+            <!-- 5. Отзывы -->
+            <a href="{% url 'seller-reviews' %}" class="quick-service-card">
+                <div class="quick-service-squircle sq-reviews">⭐</div>
+                <div class="quick-service-info">
+                    <div class="quick-service-name">{% trans "Отзывы" %}</div>
+                    <div class="quick-service-desc">{% trans "Рейтинг и оценки" %}</div>
+                </div>
+            </a>
+
+            <!-- 6. Рассылки -->
+            <a href="{% url 'seller-broadcasts' %}" class="quick-service-card">
+                <div class="quick-service-squircle sq-broadcasts">📢</div>
+                <div class="quick-service-info">
+                    <div class="quick-service-name">{% trans "Рассылки" %}</div>
+                    <div class="quick-service-desc">{% trans "Telegram и акции" %}</div>
+                </div>
+            </a>
+
+            <!-- 7. Настройки -->
+            <a href="{% url 'seller-settings' %}" class="quick-service-card">
+                <div class="quick-service-squircle sq-settings">⚙️</div>
+                <div class="quick-service-info">
+                    <div class="quick-service-name">{% trans "Настройки" %}</div>
+                    <div class="quick-service-desc">{% trans "Магазин и бот" %}</div>
+                </div>
             </a>
         </div>
     </div>
@@ -1282,5 +1597,69 @@
                 if (nameInput) nameInput.focus();
             });
         }
+    </script>
+<script>
+    // ─── Обработка загрузки логотипа магазина ───
+    function triggerStoreLogoUpload() {
+        var fileInput = document.getElementById('storeLogoFileInput');
+        if (fileInput) {
+            fileInput.click();
+        }
+    }
+
+    function submitStoreLogo(input) {
+        if (!input || !input.files || !input.files[0]) {
+            return;
+        }
+
+        var file = input.files[0];
+        var maxSize = 5 * 1024 * 1024; // 5 МБ
+        var allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+
+        if (allowedTypes.indexOf(file.type) === -1 && !file.name.match(/\.(jpe?g|png|webp)$/i)) {
+            alert('{% filter escapejs %}{% trans "Пожалуйста, выберите изображение в формате JPG, PNG или WEBP." %}{% endfilter %}');
+            input.value = '';
+            return;
+        }
+
+        if (file.size > maxSize) {
+            alert('{% filter escapejs %}{% trans "Файл слишком большой. Максимальный размер логотипа — 5 МБ." %}{% endfilter %}');
+            input.value = '';
+            return;
+        }
+
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var existingImg = document.getElementById('storeAvatarImg');
+            var fallback = document.getElementById('storeAvatarFallback');
+            if (existingImg) {
+                existingImg.src = e.target.result;
+            } else if (fallback) {
+                fallback.style.display = 'none';
+                var newImg = document.createElement('img');
+                newImg.id = 'storeAvatarImg';
+                newImg.src = e.target.result;
+                newImg.alt = 'Store Logo';
+                fallback.parentNode.insertBefore(newImg, fallback);
+            }
+        };
+        reader.readAsDataURL(file);
+
+        var spinner = document.getElementById('storeAvatarSpinner');
+        if (spinner) {
+            spinner.classList.add('is-active');
+            spinner.setAttribute('aria-hidden', 'false');
+        }
+        var changeBtn = document.getElementById('storeAvatarChangeBtn');
+        if (changeBtn) {
+            changeBtn.disabled = true;
+            changeBtn.innerHTML = '⏳ {% filter escapejs %}{% trans "Загрузка..." %}{% endfilter %}';
+        }
+
+        var form = document.getElementById('storeLogoForm');
+        if (form) {
+            form.submit();
+        }
+    }
     </script>
 {% endblock %}

@@ -1031,9 +1031,10 @@
             <div class="uzum-store-left">
                 <div class="uzum-store-avatar">
                     {% if current_store.logo %}
-                        <img src="{{ current_store.logo.url }}" alt="{{ current_store.name }}">
+                        <img src="{{ current_store.logo.url }}" alt="{{ current_store.name }}" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
+                        <span style="display: none;">{{ current_store.name|slice:':1'|upper|default:'M' }}</span>
                     {% else %}
-                        <span>{{ current_store.name|make_list|first|upper }}</span>
+                        <span>{{ current_store.name|slice:':1'|upper|default:'M' }}</span>
                     {% endif %}
                 </div>
                 <div class="uzum-store-meta">

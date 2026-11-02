@@ -74,11 +74,11 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", -system-ui, "Segoe UI", Roboto, sans-serif;
-            margin: 0;
-            background: var(--bg);
-            color: var(--text-main);
-            padding-bottom: 90px;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", -system-ui, "Segoe UI", Roboto, sans-serif;
+        margin: 0;
+        background: var(--bg);
+        color: var(--text-main);
+        padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px));
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             letter-spacing: -0.015em;
@@ -179,13 +179,16 @@
         /* ─── НИЖНЕЕ МЕНЮ (Bottom Nav — только смартфоны) ─── */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0;
-            background: rgba(10, 12, 17, 0.92);
+            background: rgba(10, 12, 17, 0.94);
             backdrop-filter: blur(32px) saturate(200%);
             -webkit-backdrop-filter: blur(32px) saturate(200%);
             border-top: 1px solid var(--border);
-            display: flex; justify-content: space-around; align-items: center;
+            display: flex; justify-content: space-around; align-items: stretch;
             height: auto; min-height: 60px;
-            padding: 6px 4px env(safe-area-inset-bottom, 0px);
+            padding-top: 6px;
+            padding-left: max(4px, env(safe-area-inset-left, 0px));
+            padding-right: max(4px, env(safe-area-inset-right, 0px));
+            padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
             z-index: 1000;
             overflow: visible;
             scrollbar-width: none;
@@ -198,6 +201,15 @@
             transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
             flex: 1; min-width: 0; padding: 5px 4px; border-radius: 12px;
             position: relative;
+        }
+        .nav-item {
+            min-height: 48px;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .nav-item:active {
+            transform: scale(0.92);
+            opacity: 0.75;
         }
         .nav-item.active {
             color: var(--primary);
@@ -227,9 +239,8 @@
         /* FAB — Floating Action Button */
         .nav-fab-wrap {
             flex: 1; display: flex; flex-direction: column; align-items: center;
-            justify-content: center; position: relative; min-width: 0;
-            /* push FAB above nav bar */
-            margin-top: -20px;
+            justify-content: center; position: relative; min-width: 52px;
+            margin-top: -22px; text-decoration: none; cursor: pointer; user-select: none;
         }
         .nav-fab {
             width: 52px; height: 52px; border-radius: 50%;
@@ -400,6 +411,155 @@
         .apple-lang-control button:hover:not(.active) {
             color: #FFFFFF;
         }
+    
+        /* ─── Apple Bottom Sheet Drawer Styles ─── */
+        .apple-drawer-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            z-index: 10001;
+            opacity: 0; visibility: hidden;
+            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s ease;
+        }
+        .apple-drawer-overlay.open { opacity: 1; visibility: visible; }
+
+        .apple-drawer-sheet {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            max-width: 540px; margin: 0 auto;
+            background: rgba(18, 20, 26, 0.98);
+            backdrop-filter: blur(36px) saturate(200%); -webkit-backdrop-filter: blur(36px) saturate(200%);
+            border-top: 1px solid rgba(255, 255, 255, 0.14);
+            border-left: 1px solid rgba(255, 255, 255, 0.08);
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px 28px 0 0;
+            box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            z-index: 10002;
+            transform: translateY(105%);
+            transition: transform 0.34s cubic-bezier(0.32, 0.72, 0, 1);
+            max-height: 88vh;
+            display: flex; flex-direction: column;
+            padding-bottom: calc(20px + env(safe-area-inset-bottom, 12px));
+            will-change: transform;
+        }
+        .apple-drawer-sheet.open { transform: translateY(0); }
+
+        .apple-drawer-handle-zone {
+            width: 100%; padding: 12px 0 6px;
+            display: flex; justify-content: center; cursor: grab; touch-action: none;
+        }
+        .apple-drawer-pill {
+            width: 42px; height: 5px;
+            background: rgba(255, 255, 255, 0.3); border-radius: 999px;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+        .apple-drawer-handle-zone:active .apple-drawer-pill {
+            background: rgba(255, 255, 255, 0.5); transform: scaleX(1.1);
+        }
+
+        .apple-drawer-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 6px 18px 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            flex-shrink: 0;
+        }
+        .apple-drawer-store { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+        .apple-drawer-avatar {
+            width: 38px; height: 38px; border-radius: 11px;
+            background: linear-gradient(135deg, #2563EB, #10B981);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; font-weight: 800; color: #FFFFFF;
+            flex-shrink: 0; overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.14);
+        }
+        .apple-drawer-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .apple-drawer-store-meta { min-width: 0; }
+        .apple-drawer-store-name {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 14.5px; font-weight: 800; color: #FFFFFF;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.015em;
+        }
+        .apple-verified-badge { color: #38BDF8; font-size: 11.5px; line-height: 1; }
+        .apple-drawer-store-sub { font-size: 11.5px; color: var(--text-muted); font-weight: 600; letter-spacing: -0.01em; }
+
+        .apple-drawer-close {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #8E92A4; font-size: 13px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.16s ease; flex-shrink: 0; margin-left: 8px;
+        }
+        .apple-drawer-close:active { background: rgba(255, 255, 255, 0.16); color: #FFFFFF; transform: scale(0.92); }
+
+        .apple-drawer-body {
+            padding: 14px 16px; overflow-y: auto; -webkit-overflow-scrolling: touch;
+            display: flex; flex-direction: column; gap: 16px;
+        }
+        .apple-drawer-body::-webkit-scrollbar { width: 3px; }
+        .apple-drawer-body::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 3px; }
+
+        .apple-drawer-section-title {
+            font-size: 11px; font-weight: 700; color: var(--text-dim, #8E92A4);
+            text-transform: uppercase; letter-spacing: 0.06em; padding: 0 4px 6px;
+        }
+
+        .apple-drawer-group {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 16px; overflow: hidden;
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        }
+
+        .apple-drawer-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 11px 14px; text-decoration: none; color: var(--text-main);
+            transition: background 0.15s ease; position: relative;
+        }
+        .apple-drawer-item:not(:last-child) { border-bottom: 1px solid rgba(255, 255, 255, 0.045); }
+        .apple-drawer-item:active { background: rgba(255, 255, 255, 0.08); }
+        .apple-drawer-item.active { background: rgba(41, 151, 255, 0.12); }
+        .apple-drawer-item.active .apple-drawer-item-title { color: #60A5FA; font-weight: 700; }
+
+        .apple-drawer-item-left { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1; }
+        .apple-drawer-icon-box {
+            width: 34px; height: 34px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 17px; flex-shrink: 0;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        .icon-emerald { background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.4)); border: 1px solid rgba(16, 185, 129, 0.35); }
+        .icon-purple  { background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(109, 40, 217, 0.4)); border: 1px solid rgba(139, 92, 246, 0.35); }
+        .icon-amber   { background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(217, 119, 6, 0.4)); border: 1px solid rgba(245, 158, 11, 0.35); }
+        .icon-pink    { background: linear-gradient(135deg, rgba(236, 72, 153, 0.25), rgba(219, 39, 119, 0.4)); border: 1px solid rgba(236, 72, 153, 0.35); }
+        .icon-gold    { background: linear-gradient(135deg, rgba(251, 191, 36, 0.25), rgba(217, 119, 6, 0.4)); border: 1px solid rgba(251, 191, 36, 0.35); }
+        .icon-blue    { background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(29, 78, 216, 0.4)); border: 1px solid rgba(59, 130, 246, 0.35); }
+        .icon-cyan    { background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(8, 145, 178, 0.4)); border: 1px solid rgba(6, 182, 212, 0.35); }
+        .icon-slate   { background: linear-gradient(135deg, rgba(100, 116, 139, 0.25), rgba(71, 85, 105, 0.4)); border: 1px solid rgba(100, 116, 139, 0.35); }
+        .icon-indigo  { background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(79, 70, 229, 0.4)); border: 1px solid rgba(99, 102, 241, 0.35); }
+        .icon-red     { background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(185, 28, 28, 0.3)); border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        .apple-drawer-item-text { min-width: 0; }
+        .apple-drawer-item-title { font-size: 13.5px; font-weight: 600; color: #FFFFFF; letter-spacing: -0.01em; }
+        .apple-drawer-item-desc {
+            font-size: 11px; color: var(--text-muted); letter-spacing: -0.005em;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px;
+        }
+
+        .apple-drawer-item-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; margin-left: 8px; }
+        .apple-chevron { font-size: 15px; color: #545768; line-height: 1; }
+        .apple-active-dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: #38BDF8; box-shadow: 0 0 8px rgba(56, 189, 248, 0.8);
+        }
+
+        .apple-tag-pill { font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 5px; letter-spacing: 0.5px; }
+        .tag-blue { background: rgba(59, 130, 246, 0.2); color: #60A5FA; border: 1px solid rgba(59, 130, 246, 0.4); }
+        .tag-amber { background: rgba(255, 159, 10, 0.15); color: #FF9F0A; border: 1px solid rgba(255, 159, 10, 0.3); }
+
+        @media (min-width: 900px) {
+            .apple-drawer-overlay, .apple-drawer-sheet { display: none !important; }
+        }
+    
     </style>
 </head>
 <body>
@@ -557,21 +717,21 @@
             <span class="nav-icon">📦</span>
             <span class="nav-label">{% trans "Товары" %}</span>
         </a>
-        <!-- FAB: Add product -->
-        <div class="nav-fab-wrap">
-            <a href="{% url 'seller-product-add' %}" class="nav-fab" title="{% trans 'Добавить товар' %}">＋</a>
+        <!-- FAB: Add product (кликабельный блок целиком) -->
+        <a href="{% url 'seller-product-add' %}" class="nav-fab-wrap" title="{% trans 'Добавить товар' %}">
+            <div class="nav-fab">＋</div>
             <span class="nav-fab-label">{% trans "Создать" %}</span>
-        </div>
+        </a>
         <!-- Заказы -->
         <a href="{% url 'seller-orders' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-orders' %}active{% endif %}">
             <span class="nav-pill"></span>
             <span class="nav-icon">🚚</span>
             <span class="nav-label">{% trans "Заказы" %}</span>
         </a>
-        <!-- Меню -->
-        <a href="{% url 'seller-settings' %}" class="nav-item {% if request.resolver_match.url_name == 'seller-settings' or request.resolver_match.url_name == 'seller-branches' or request.resolver_match.url_name == 'seller-reviews' %}active{% endif %}">
+        <!-- Меню (Apple Bottom Sheet Trigger) -->
+        <a href="javascript:void(0)" onclick="openMobileMenuDrawer()" class="nav-item {% if request.resolver_match.url_name == 'seller-settings' or request.resolver_match.url_name == 'seller-branches' or request.resolver_match.url_name == 'seller-reviews' or request.resolver_match.url_name == 'seller-finance' or request.resolver_match.url_name == 'seller-customers' or request.resolver_match.url_name == 'seller-waitlist' or request.resolver_match.url_name == 'seller-broadcasts' or request.resolver_match.url_name == 'seller-vision-ai' %}active{% endif %}" id="mobileMenuNavBtn" role="button" aria-haspopup="dialog" aria-expanded="false">
             <span class="nav-pill"></span>
-            <span class="nav-icon">⚙️</span>
+            <span class="nav-icon">☰</span>
             <span class="nav-label">{% trans "Меню" %}</span>
         </a>
     </nav>
@@ -732,5 +892,308 @@
     handleLayout();
     window.addEventListener('resize', handleLayout);
 </script>
+
+<!-- ─── APPLE BOTTOM SHEET DRAWER (МОБИЛЬНОЕ МЕНЮ) ─── -->
+<div id="mobileMenuOverlay" class="apple-drawer-overlay" onclick="closeMobileMenuDrawer()" aria-hidden="true"></div>
+
+<div id="mobileMenuSheet" class="apple-drawer-sheet" role="dialog" aria-modal="true" aria-labelledby="mobileDrawerTitle" aria-hidden="true">
+    <!-- Apple Drag Pill Handle -->
+    <div class="apple-drawer-handle-zone" id="mobileDrawerHandle">
+        <div class="apple-drawer-pill"></div>
+    </div>
+
+    <!-- Header: Аватар магазина + Название + Кнопка закрытия -->
+    <div class="apple-drawer-header">
+        <div class="apple-drawer-store">
+            <div class="apple-drawer-avatar">
+                {% if user.store.logo %}
+                    <img src="{{ user.store.logo.url }}" alt="{{ user.store.name }}">
+                {% else %}
+                    <span>{{ user.store.name|slice:":1"|upper }}</span>
+                {% endif %}
+            </div>
+            <div class="apple-drawer-store-meta">
+                <div class="apple-drawer-store-name">
+                    <span>{{ user.store.name }}</span>
+                    <span class="apple-verified-badge" title="{% trans 'Официальный магазин' %}">✓</span>
+                </div>
+                <div class="apple-drawer-store-sub" id="mobileDrawerTitle">{% trans "Меню управления" %}</div>
+            </div>
+        </div>
+        <button type="button" class="apple-drawer-close" onclick="closeMobileMenuDrawer()" aria-label="{% trans 'Закрыть' %}">
+            ✕
+        </button>
+    </div>
+
+    <!-- Scrollable Content -->
+    <div class="apple-drawer-body">
+
+        <!-- Группа 1: Бизнес и клиенты -->
+        <div class="apple-drawer-section">
+            <div class="apple-drawer-section-title">{% trans "Бизнес и клиенты" %}</div>
+            <div class="apple-drawer-group">
+                <!-- 💰 Финансы -->
+                <a href="{% url 'seller-finance' %}" class="apple-drawer-item {% if request.resolver_match.url_name == 'seller-finance' %}active{% endif %}">
+                    <div class="apple-drawer-item-left">
+                        <div class="apple-drawer-icon-box icon-emerald">💰</div>
+                        <div class="apple-drawer-item-text">
+                            <div class="apple-drawer-item-title">{% trans "Финансы" %}</div>
+                            <div class="apple-drawer-item-desc">{% trans "Баланс, тарифы и транзакции" %}</div>
+                        </div>
+                    </div>
+                    <div class="apple-drawer-item-right">
+                        {% if request.resolver_match.url_name == 'seller-finance' %}<span class="apple-active-dot"></span>{% endif %}
+                        <span class="apple-chevron">›</span>
+                    </div>
+                </a>
+
+                <!-- 👥 Клиенты -->
+                <a href="{% url 'seller-customers' %}" class="apple-drawer-item {% if request.resolver_match.url_name == 'seller-customers' %}active{% endif %}">
+                    <div class="apple-drawer-item-left">
+                        <div class="apple-drawer-icon-box icon-purple">👥</div>
+                        <div class="apple-drawer-item-text">
+                            <div class="apple-drawer-item-title">{% trans "Клиенты" %}</div>
+                            <div class="apple-drawer-item-desc">{% trans "База покупателей и CRM" %}</div>
+                        </div>
+                    </div>
+                    <div class="apple-drawer-item-right">
+                        {% if request.resolver_match.url_name == 'seller-customers' %}<span class="apple-active-dot"></span>{% endif %}
+                        <span class="apple-chevron">›</span>
+                    </div>
+                </a>
+
+                <!-- ⏳ Лист ожидания -->
+                <a href="{% url 'seller-waitlist' %}" class="apple-drawer-item {% if request.resolver_match.url_name == 'seller-waitlist' %}active{% endif %}">
+                    <div class="apple-drawer-item-left">
+                        <div class="apple-drawer-icon-box icon-amber">⏳</div>
+                        <div class="apple-drawer-item-text">
+                            <div class="apple-drawer-item-title">{% trans "Лист ожидания" %}</div>
+                            <div class="apple-drawer-item-desc">{% trans "Предзаказы отсутствующих товаров" %}</div>
+                        </div>
+                    </div>
+                    <div class="apple-drawer-item-right">
+                        {% if request.resolver_match.url_name == 'seller-waitlist' %}<span class="apple-active-dot"></span>{% endif %}
+                        <span class="apple-chevron">›</span>
+                    </div>
+                </a>
+
+                <!-- 📢 Рассылки -->
+                <a href="{% url 'seller-broadcasts' %}" class="apple-drawer-item {% if request.resolver_match.url_name == 'seller-broadcasts' %}active{% endif %}">
+                    <div class="apple-drawer-item-left">
+                        <div class="apple-drawer-icon-box icon-pink">📢</div>
+                        <div class="apple-drawer-item-text">
+                            <div class="apple-drawer-item-title">{% trans "Рассылки" %}</div>
+                            <div class="apple-drawer-item-desc">{% trans "Telegram и акции" %}</div>
+                        </div>
+                    </div>
+                    <div class="apple-drawer-item-right">
+                        {% if request.resolver_match.url_name == 'seller-broadcasts' %}<span class="apple-active-dot"></span>{% endif %}
+                        <span class="apple-chevron">›</span>
+                    </div>
+                </a>
+
+                <!-- ⭐ Отзывы -->
+                <a href="{% url 'seller-reviews' %}" class="apple-drawer-item {% if request.resolver_match.url_name == 'seller-reviews' %}active{% endif %}">
+                    <div class="apple-drawer-item-left">
+                        <div class="apple-drawer-icon-box icon-gold">⭐</div>
+                        <div class="apple-drawer-item-text">
+                            <div class="apple-drawer-item-title">{% trans "Отзывы" %}</div>
+                            <div class="apple-drawer-item-desc">{% trans "Рейтинг и оценки покупателей" %}</div>
+                        </div>
+                    </div>
+                    <div class="apple-drawer-item-right">
+                        {% if request.resolver_match.url_name == 'seller-reviews' %}<span class="apple-active-dot"></span>{% endif %}
+                        <span class="apple-chevron">›</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Группа 2: Инновации и конфигурация -->
+        <div class="apple-drawer-section">
+            <div class="apple-drawer-section-title">{% trans "Инновации и настройки" %}</div>
+            <div class="apple-drawer-group">
+                <!-- 📹 ИИ-Видеонаблюдение -->
+                <a href="{% url 'seller-vision-ai' %}" class="apple-drawer-item {% if request.resolver_match.url_name == 'seller-vision-ai' %}active{% endif %}">
+                    <div class="apple-drawer-item-left">
+                        <div class="apple-drawer-icon-box icon-blue">📹</div>
+                        <div class="apple-drawer-item-text">
+                            <div class="apple-drawer-item-title">{% trans "ИИ-Видеонаблюдение" %}</div>
+                            <div class="apple-drawer-item-desc">{% trans "Видеоаналитика и акустический аудит" %}</div>
+                        </div>
+                    </div>
+                    <div class="apple-drawer-item-right">
+                        <span class="apple-tag-pill tag-blue">AI VISION</span>
+                        <span class="apple-chevron">›</span>
+                    </div>
+                </a>
+
+                <!-- 🏢 Филиалы -->
+                <a href="{% url 'seller-branches' %}" class="apple-drawer-item {% if request.resolver_match.url_name == 'seller-branches' %}active{% endif %}">
+                    <div class="apple-drawer-item-left">
+                        <div class="apple-drawer-icon-box icon-cyan">🏢</div>
+                        <div class="apple-drawer-item-text">
+                            <div class="apple-drawer-item-title">{% trans "Филиалы" %}</div>
+                            <div class="apple-drawer-item-desc">{% trans "Точки продаж и склады" %}</div>
+                        </div>
+                    </div>
+                    <div class="apple-drawer-item-right">
+                        {% if request.resolver_match.url_name == 'seller-branches' %}<span class="apple-active-dot"></span>{% endif %}
+                        <span class="apple-chevron">›</span>
+                    </div>
+                </a>
+
+                <!-- 📟 POS Касса -->
+                <a href="javascript:void(0)" onclick="closeMobileMenuDrawer(); showPosUnderDevModal();" class="apple-drawer-item">
+                    <div class="apple-drawer-item-left">
+                        <div class="apple-drawer-icon-box icon-amber">📟</div>
+                        <div class="apple-drawer-item-text">
+                            <div class="apple-drawer-item-title">{% trans "POS Касса" %}</div>
+                            <div class="apple-drawer-item-desc">{% trans "Оффлайн-терминал для продавцов" %}</div>
+                        </div>
+                    </div>
+                    <div class="apple-drawer-item-right">
+                        <span class="apple-tag-pill tag-amber">{% trans "В разработке" %}</span>
+                        <span class="apple-chevron">›</span>
+                    </div>
+                </a>
+
+                <!-- ⚙️ Настройки -->
+                <a href="{% url 'seller-settings' %}" class="apple-drawer-item {% if request.resolver_match.url_name == 'seller-settings' %}active{% endif %}">
+                    <div class="apple-drawer-item-left">
+                        <div class="apple-drawer-icon-box icon-slate">⚙️</div>
+                        <div class="apple-drawer-item-text">
+                            <div class="apple-drawer-item-title">{% trans "Настройки" %}</div>
+                            <div class="apple-drawer-item-desc">{% trans "Параметры магазина, логотип и бот" %}</div>
+                        </div>
+                    </div>
+                    <div class="apple-drawer-item-right">
+                        {% if request.resolver_match.url_name == 'seller-settings' %}<span class="apple-active-dot"></span>{% endif %}
+                        <span class="apple-chevron">›</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Группа 3: Быстрые действия -->
+        <div class="apple-drawer-section">
+            <div class="apple-drawer-group">
+                <!-- 👁️ Витрина -->
+                {% get_current_language as CURRENT_LANG %}
+                <a href="/{{ CURRENT_LANG|default:'ru' }}/?store_id={{ user.store.id }}" target="_blank" class="apple-drawer-item">
+                    <div class="apple-drawer-item-left">
+                        <div class="apple-drawer-icon-box icon-indigo">👁️</div>
+                        <div class="apple-drawer-item-text">
+                            <div class="apple-drawer-item-title">{% trans "Открыть витрину" %}</div>
+                            <div class="apple-drawer-item-desc">{% trans "Внешний вид для покупателей" %}</div>
+                        </div>
+                    </div>
+                    <div class="apple-drawer-item-right">
+                        <span style="font-size: 13px; color: #60A5FA; font-weight: 700;">↗</span>
+                    </div>
+                </a>
+
+                <!-- 🚪 Выйти -->
+                <a href="{% url 'seller-logout' %}" class="apple-drawer-item">
+                    <div class="apple-drawer-item-left">
+                        <div class="apple-drawer-icon-box icon-red">🚪</div>
+                        <div class="apple-drawer-item-text">
+                            <div class="apple-drawer-item-title" style="color: #FF453A;">{% trans "Выйти из кабинета" %}</div>
+                            <div class="apple-drawer-item-desc">{% trans "Завершить сессию на этом устройстве" %}</div>
+                        </div>
+                    </div>
+                    <div class="apple-drawer-item-right">
+                        <span class="apple-chevron" style="color: rgba(255, 69, 58, 0.4);">›</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+// ─── Apple Bottom Sheet Drawer Controller ───
+function openMobileMenuDrawer() {
+    const overlay = document.getElementById('mobileMenuOverlay');
+    const sheet = document.getElementById('mobileMenuSheet');
+    const navBtn = document.getElementById('mobileMenuNavBtn');
+    if (!overlay || !sheet) return;
+
+    overlay.classList.add('open');
+    sheet.classList.add('open');
+    overlay.setAttribute('aria-hidden', 'false');
+    sheet.setAttribute('aria-hidden', 'false');
+    if (navBtn) navBtn.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeMobileMenuDrawer() {
+    const overlay = document.getElementById('mobileMenuOverlay');
+    const sheet = document.getElementById('mobileMenuSheet');
+    const navBtn = document.getElementById('mobileMenuNavBtn');
+    if (!overlay || !sheet) return;
+
+    overlay.classList.remove('open');
+    sheet.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+    sheet.setAttribute('aria-hidden', 'true');
+    if (navBtn) navBtn.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' || e.key === 'Esc') {
+        const sheet = document.getElementById('mobileMenuSheet');
+        if (sheet && sheet.classList.contains('open')) {
+            closeMobileMenuDrawer();
+        }
+    }
+});
+
+(function initDrawerSwipe() {
+    let startY = 0;
+    let currentY = 0;
+    let isDragging = false;
+    const sheet = document.getElementById('mobileMenuSheet');
+    const handleZone = document.getElementById('mobileDrawerHandle');
+    if (!sheet) return;
+
+    const dragTarget = handleZone || sheet;
+
+    dragTarget.addEventListener('touchstart', function(e) {
+        const bodyEl = sheet.querySelector('.apple-drawer-body');
+        if (bodyEl && bodyEl.scrollTop > 5 && e.target !== handleZone) return;
+        startY = e.touches[0].clientY;
+        isDragging = true;
+        sheet.style.transition = 'none';
+    }, { passive: true });
+
+    dragTarget.addEventListener('touchmove', function(e) {
+        if (!isDragging) return;
+        currentY = e.touches[0].clientY;
+        const diff = currentY - startY;
+        if (diff > 0) {
+            sheet.style.transform = `translateY(${diff}px)`;
+        }
+    }, { passive: true });
+
+    dragTarget.addEventListener('touchend', function() {
+        if (!isDragging) return;
+        isDragging = false;
+        sheet.style.transition = '';
+        const diff = currentY - startY;
+        if (diff > 80) {
+            closeMobileMenuDrawer();
+            sheet.style.transform = '';
+        } else {
+            sheet.style.transform = '';
+        }
+        startY = 0;
+        currentY = 0;
+    }, { passive: true });
+})();
+</script>
+
 </body>
 </html>

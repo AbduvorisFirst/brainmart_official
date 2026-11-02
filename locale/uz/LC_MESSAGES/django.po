@@ -22,8 +22,14 @@ msgstr "0%% komissiya"
 msgid "1 магазин (База)"
 msgstr "1 ta do'kon (Baza)"
 
+msgid "100% Оригинал"
+msgstr "100% Asl tovar"
+
 msgid "450 000 сум/мес"
 msgstr "450 000 so'm/oy"
+
+msgid "APPLE & PRO ГАДЖЕТЫ"
+msgstr "APPLE VA PRO GADJETLAR"
 
 msgid "BrainMart работает по фиксированной подписке. 0% комиссии с продаж. Никаких скрытых платежей."
 msgstr "BrainMart qat'iy obuna asosida ishlaydi. Savdolardan 0% komissiya. Hech qanday yashirin to'lovlarsiz."
@@ -57,6 +63,9 @@ msgstr "SaaS CRM & AI obunasi"
 
 msgid "SaaS-подписка"
 msgstr "SaaS-obuna"
+
+msgid "Telegram CRM + ИИ-продавец 24/7 + витрина для вашего бизнеса. Запуск за 2 минуты!"
+msgstr "Telegram CRM + 24/7 AI-sotuvchi + biznesingiz uchun vitrina. 2 daqiqada ishga tushirish!"
 
 msgid "Telegram SMS & Push Рассылки"
 msgstr "Telegram SMS & Push Xabarnomalar"
@@ -115,6 +124,9 @@ msgstr "AI-Sotuvchi tahlili"
 msgid "Артикул:"
 msgstr "Artikul:"
 
+msgid "БОЛЬШАЯ РАСПРОДАЖА 2026"
+msgstr "KATTA SOTUV 2026"
+
 msgid "Базовая подписка включает 1-ю точку (450 000 сум). Каждый дополнительный филиал: +150 000 сум/мес."
 msgstr "Asosiy obuna 1-nuqtani o'z ichiga oladi (450 000 so'm). Har bir qo'shimcha filial: +150 000 so'm/oy."
 
@@ -124,14 +136,23 @@ msgstr "Asosiy tarif (1 nuqta): 450 000 so'm + filiallar:"
 msgid "Без фото чека заказ не может быть отправлен"
 msgstr "Chek rasmi bo'lmasa buyurtma yuborilmaydi"
 
+msgid "Бизнес и клиенты"
+msgstr "Biznes va mijozlar"
+
 msgid "Более 100+ заказов"
 msgstr "100 dan ortiq buyurtmalar"
 
 msgid "Будьте первым, кто оставит отзыв об этом товаре!"
 msgstr "Ushbu mahsulot haqida birinchi bo'lib fikr bildiring!"
 
+msgid "Быстрая доставка"
+msgstr "Tez yetkazib berish"
+
 msgid "Быстрые действия"
 msgstr "Tezkor amallar"
+
+msgid "Быстрые сервисы"
+msgstr "Tezkor xizmatlar"
 
 msgid "В каталоге"
 msgstr "Katalogda"
@@ -193,6 +214,9 @@ msgstr "Tovarlaringiz, toifalar va do'kon sozlamalari saqlanib qoladi."
 msgid "Вернуться в каталог"
 msgstr "Katalogga qaytish"
 
+msgid "Видеонаблюдение"
+msgstr "Video kuzatuv"
+
 msgid "Витрина + MiniApp"
 msgstr "Vitrina + MiniApp"
 
@@ -214,8 +238,14 @@ msgstr "Diqqat! Imtiyozli davr amal qilmoqda:"
 msgid "Возврат спящих клиентов"
 msgstr "Nofaol mijozlarni qaytarish"
 
+msgid "Вперёд"
+msgstr "Oldinga"
+
 msgid "Временно на доработке (Скоро)"
 msgstr "Vaqtinchalik yangilanmoqda (Tez orada)"
+
+msgid "Все категории"
+msgstr "Barcha toifalar"
 
 msgid "Все клиенты"
 msgstr "Barcha mijozlar"
@@ -277,6 +307,9 @@ msgstr "Faqat 1 ta rasm tanlandi. 2 tadan 10 tagacha tavsiya etiladi!"
 msgid "Выбрано фото:"
 msgstr "Tanlangan rasmlar:"
 
+msgid "Выбрать гаджет 📱"
+msgstr "Gadjet tanlash 📱"
+
 msgid "Вывести баланс сейчас"
 msgstr "Balansni hozir yechib olish"
 
@@ -298,6 +331,9 @@ msgstr "Tushum"
 msgid "Выход"
 msgstr "Chiqish"
 
+msgid "Гарантия оригинала"
+msgstr "Asl mahsulot kafolati"
+
 msgid "Геолокация не поддерживается вашим браузером. Напишите адрес текстом."
 msgstr "Brauzeringiz geolokatsiyani qo'llab-quvvatlamaydi. Manzilni matn shaklida yozing."
 
@@ -315,6 +351,12 @@ msgstr "Asosiy nuqta"
 
 msgid "Главное фото"
 msgstr "Asosiy rasm"
+
+msgid "Глобальный Маркетплейс"
+msgstr "Global bozor"
+
+msgid "Глобальный маркетплейс"
+msgstr "Global bozor"
 
 msgid "Глобальный рынок"
 msgstr "Global bozor"
@@ -445,6 +487,9 @@ msgstr "Rasmlar yuklanmoqda, tovar yaratilmoqda..."
 msgid "Загрузите фото, укажите доступные цвета, размеры и цены за пару минут."
 msgstr "Rasmlarni yuklang, mavjud ranglar, o'lchamlar va narxlarni bir necha daqiqada ko'rsating."
 
+msgid "Загрузить логотип"
+msgstr "Logotip yuklash"
+
 msgid "Заказ"
 msgstr "Buyurtma"
 
@@ -469,6 +514,9 @@ msgstr "Buyurtmalar"
 msgid "Заканчиваются на складе"
 msgstr "Omborda tugamoqda"
 
+msgid "Заменить логотип"
+msgstr "Logotipni almashtirish"
+
 msgid "Запустите продажи в Instagram и Telegram с ИИ за 5 минут"
 msgstr "Instagram va Telegramda AI bilan 5 daqiqada savdoni boshlang"
 
@@ -484,11 +532,17 @@ msgstr "Do'konni hoziroq ro'yxatdan o'tkazish"
 msgid "Зарегистрируйте магазин"
 msgstr "Do'konni ro'yxatdan o'tkazing"
 
+msgid "Защита покупателя"
+msgstr "Xaridor himoyasi"
+
 msgid "ИИ думает..."
 msgstr "AI o'ylamoqda..."
 
 msgid "ИИ пишет..."
 msgstr "AI yozmoqda..."
+
+msgid "ИИ-Видеонаблюдение"
+msgstr "AI Video kuzatuv"
 
 msgid "ИИ-Копирайтер рассылок (Gemini AI)"
 msgstr "Xabarnomalar AI-Kopirayteri (Gemini AI)"
@@ -502,8 +556,14 @@ msgstr "Savdoni oshirish bo'yicha AI-Maslahatchi (Gemini AI)"
 msgid "Изменить"
 msgstr "O'zgartirish"
 
+msgid "Изменить логотип"
+msgstr "Logotipni o'zgartirish"
+
 msgid "Изменить точку на карте"
 msgstr "Xaritadagi nuqtani o'zgartirish"
+
+msgid "Инновации и настройки"
+msgstr "Innovatsiyalar va sozlamalar"
 
 msgid "Инструкция"
 msgstr "Qo'llanma"
@@ -567,6 +627,9 @@ msgstr "Kategoriyalar yaratilmagan"
 
 msgid "Категория товара"
 msgstr "Tovar toifasi"
+
+msgid "Качественный товар с быстрой доставкой от проверенного продавца."
+msgstr "Ishonchli sotuvchidan sifatli mahsulot va tez yetkazish."
 
 msgid "Клиент"
 msgstr "Mijoz"
@@ -640,8 +703,20 @@ msgstr "Kosmetika va parfyumeriya"
 msgid "Купить"
 msgstr "Sotib olish"
 
+msgid "Купить со скидкой 🛒"
+msgstr "Chegirma bilan olish 🛒"
+
+msgid "Лист ожидания"
+msgstr "Kutish ro'yxati"
+
 msgid "Логотип виден клиентам в вашем каталоге."
 msgstr "Logotip mijozlarga katalogingizda ko'rinadi."
+
+msgid "Логотип магазина"
+msgstr "Do'kon logotipi"
+
+msgid "Логотип магазина успешно обновлен!"
+msgstr "Do'kon logotipi muvaffaqiyatli yangilandi!"
 
 msgid "Локация прикреплена"
 msgstr "Lokatsiya biriktirildi"
@@ -669,6 +744,12 @@ msgstr "Tezkor avtoto'lovlar"
 
 msgid "Менеджер магазина:"
 msgstr "Do'kon menejeri:"
+
+msgid "Меню"
+msgstr "Menyu"
+
+msgid "Меню управления"
+msgstr "Boshqaruv menyusi"
 
 msgid "Метод оплаты"
 msgstr "To'lov usuli"
@@ -726,6 +807,9 @@ msgstr "Faylni almashtirish uchun bosing"
 
 msgid "Нажмите, чтобы прикрепить фото или скан чека"
 msgstr "Chek fotosurati yoki skanini yuklash uchun bosing"
+
+msgid "Назад"
+msgstr "Orqaga"
 
 msgid "Назад к адресу"
 msgstr "Manzilga qaytish"
@@ -796,6 +880,9 @@ msgstr "GPS koordinatalarini olib bo'lmadi. Iltimos, manzilni matn ko'rinishida 
 msgid "Не удалось получить геолокацию. Пожалуйста, введите точный адрес и ориентир."
 msgstr "Geolokatsiyani aniqlab bo'lmadi. Iltimos, aniq manzil va mo'ljalni kiriting."
 
+msgid "Нейросеть и акустика зала"
+msgstr "Neyrotarmoq va zal akustikasi"
+
 msgid "Нет в наличии"
 msgstr "Mavjud emas"
 
@@ -840,6 +927,9 @@ msgstr "Chek raqami yoki kartaning oxirgi 4 raqami"
 
 msgid "О товаре"
 msgstr "Mahsulot haqida"
+
+msgid "ОТКРОЙ СВОЙ МАГАЗИН В BRAINMART"
+msgstr "BRAINMART'DA O'Z DO'KONINGIZNI OCHING"
 
 msgid "Общий LTV (Выручка)"
 msgstr "Umumiy LTV (Daromad)"
@@ -931,6 +1021,15 @@ msgstr "Koordinatalar aniqlanmoqda..."
 msgid "Опубликовать товар"
 msgstr "Tovarni chop etish"
 
+msgid "Оригинальное качество с быстрой доставкой"
+msgstr "Tezkor yetkazib beriladigan sifatli mahsulot"
+
+msgid "Оригинальное качество с быстрой доставкой от магазина"
+msgstr "Do'kondan tezkor yetkazib beriladigan sifatli mahsulot"
+
+msgid "Оригинальные смартфоны, смарт-часы и ультрабуки с гарантией и быстрой доставкой по Ташкенту"
+msgstr "Toshkent bo'yicha kafolat va tezkor yetkazib berish bilan asl smartfonlar, aqlli soatlar va noutbuklar"
+
 msgid "Ориентир для такси (подъезд, этаж, вывеска рядом)"
 msgstr "Taksi uchun mo'ljal (podyezd, qavat, yaqin atrofdagi belgi)"
 
@@ -1006,6 +1105,9 @@ msgstr "Aksiya, chegirma va yangiliklarni to'g'ridan-to'g'ri mijozlaringiz Teleg
 msgid "Официальная витрина"
 msgstr "Rasmiy vitrina"
 
+msgid "Официальные магазины"
+msgstr "Rasmiy do'konlar"
+
 msgid "Оформить"
 msgstr "Rasmiylashtirish"
 
@@ -1060,6 +1162,12 @@ msgstr "Sotuvchining kartasiga o'tkazma (chek bilan)"
 msgid "Передать курьеру"
 msgstr "Kuryerga topshirish"
 
+msgid "Перейти"
+msgstr "O'tish"
+
+msgid "Перейти в магазин"
+msgstr "Do'konga o'tish"
+
 msgid "Перейти к оформлению"
 msgstr "Buyurtma berishga o'tish"
 
@@ -1086,6 +1194,9 @@ msgstr "Telegramni ulang va buyurtmalarni qabul qiling"
 
 msgid "Подключите бота и получайте заказы"
 msgstr "Botni ulang va buyurtmalarni qabul qiling"
+
+msgid "Подобрать шины 🛠️"
+msgstr "Shinalarni tanlash 🛠️"
 
 msgid "Подписка CRM & ИИ заканчивается через"
 msgstr "CRM & AI obunasi tugashiga qoldi:"
@@ -1141,6 +1252,9 @@ msgstr "Iltimos, bog'lanish uchun telefon raqamini kiriting."
 msgid "Поиск по товарам или стилю (напр: айтишник, на свидание)..."
 msgstr "Mahsulotlar yoki uslub bo'yicha qidirish (masalan: dasturchi, uchrashuv)..."
 
+msgid "Поиск по товарам или стилю (напр: айтишник, оверсайз)..."
+msgstr "Tovarlar yoki uslub bo'yicha qidiruv (masalan: oversayz)..."
+
 msgid "Пока нет оплаченных заказов для сплитования."
 msgstr "Taqsimlash uchun to'langan buyurtmalar hozircha yo'q."
 
@@ -1176,6 +1290,9 @@ msgstr "Xaritada ko'rish"
 
 msgid "Почему продавцы выбирают brainmart?"
 msgstr "Nega sotuvchilar brainmartni tanlaydi?"
+
+msgid "Предзаказы отсутствующих товаров"
+msgstr "Mavjud bo'lmagan tovarlarga buyurtma"
 
 msgid "Премиум / Old Money"
 msgstr "Premium / Old Money"
@@ -1228,6 +1345,9 @@ msgstr "Xabarnomalar"
 msgid "Реквизиты карты для выплат (Uzcard / Humo)"
 msgstr "To'lovlar uchun karta rekvizitlari (Uzcard / Humo)"
 
+msgid "СЕЗОН АВТОТОВАРОВ & ШИНЫ"
+msgstr "AVTOTAVORLAR VA SHINALAR MAVSUMI"
+
 msgid "СОХРАНИТЬ ИЗМЕНЕНИЯ"
 msgstr "O'ZGARISHLARNI SAQLASH"
 
@@ -1267,6 +1387,9 @@ msgstr "Oflayn nuqtalar uchun POS-kassa tizimi hali to'liq yakunlanmadi. Jamoami
 msgid "Скан / Фото чека перевода"
 msgstr "O'tkazma chekining fotosurati / skani"
 
+msgid "Скидки до -70% на трендовые коллекции одежды, обуви и аксессуаров от топовых брендов"
+msgstr "Top brendlarning kiyim, poyabzal va aksessuarlari kolleksiyalariga -70% gacha chegirmalar"
+
 msgid "Скопировано"
 msgstr "Nusxalandi"
 
@@ -1293,6 +1416,9 @@ msgstr "Yashirish"
 
 msgid "Следующая дата списания:"
 msgstr "Keyingi to'lov sanasi:"
+
+msgid "Смартфоны, планшеты, смарт-часы и аксессуары от проверенных поставщиков"
+msgstr "Ishonchli yetkazib beruvchilardan smartfonlar, planshetlar va aqlli soatlar"
 
 msgid "Смотреть чек"
 msgstr "Chekni ko'rish"
@@ -1366,6 +1492,9 @@ msgstr "Buyurtma holati"
 msgid "Стать продавцом"
 msgstr "Sotuvchi bo'lish"
 
+msgid "Стать продавцом ✨"
+msgstr "Sotuvchi bo'lish ✨"
+
 msgid "Страна: Узбекистан"
 msgstr "Mamlakat: O'zbekiston"
 
@@ -1420,6 +1549,9 @@ msgstr "Mahsulotlar"
 msgid "Товары от лучших магазинов"
 msgstr "Eng yaxshi do'konlardan mahsulotlar"
 
+msgid "Товары от лучших магазинов, официальные бренды и экспресс-доставка"
+msgstr "Eng yaxshi do'konlar tovarlari, rasmiy brendlar va tezkor yetkazib berish"
+
 msgid "Только VIP (LTV > 500k сум или > 2 заказов)"
 msgstr "Faqat VIP (LTV > 500k so'm yoki > 2 buyurtma)"
 
@@ -1449,6 +1581,9 @@ msgstr "Tranzaksiya"
 
 msgid "Трекинг доставки"
 msgstr "Yetkazib berish trekingi"
+
+msgid "Тысячи товаров по суперценам с быстрой доставкой по всему Узбекистану"
+msgstr "O'zbekiston bo'ylab tezkor yetkazish bilan minglab tovarlar arzon narxlarda"
 
 msgid "У курьера"
 msgstr "Kuryerda"
@@ -1549,11 +1684,17 @@ msgstr "Qora"
 msgid "Честная модель Win-Win"
 msgstr "Adolatli Win-Win modeli"
 
+msgid "Шины Michelin, Pirelli, масла Motul и автоаксессуары от проверенных магазинов"
+msgstr "Ishonchli do'konlardan Michelin, Pirelli shinalari va Motul moylari"
+
 msgid "Широта"
 msgstr "Kenglik"
 
 msgid "Широта (Lat)"
 msgstr "Kenglik (Lat)"
+
+msgid "Экспресс доставка"
+msgstr "Tezkor yetkazish"
 
 msgid "Электроника и гаджеты"
 msgstr "Elektronika va gadjetlar"
@@ -1597,8 +1738,14 @@ msgstr "qo'shimcha filiallar: har biri uchun +150 000 so'm/oy"
 msgid "доставлено"
 msgstr "yetkazildi"
 
+msgid "заказов"
+msgstr "buyurtma"
+
 msgid "й день (осталось"
 msgstr "-kun (bloklanishgacha"
+
+msgid "квадрат 500 × 500 px"
+msgstr "kvadrat 500 × 500 px"
 
 msgid "комиссии с продаж"
 msgstr "savdolardan komissiya"
@@ -1614,6 +1761,9 @@ msgstr "ta sharh"
 
 msgid "подписчиков в боте"
 msgstr "botdagi obunachi"
+
+msgid "сервисов"
+msgstr "xizmatlar"
 
 msgid "сум"
 msgstr "so'm"
@@ -1648,20 +1798,8 @@ msgstr "⚙️ Avtomatik ekvayring texnik yangilanishda.\\n\\nIltimos, kartaga t
 msgid "⚠️ Пожалуйста, обязательно прикрепите фото или скриншот чека об оплате!"
 msgstr "⚠️ Iltimos, albatta to'lov cheki fotosurati yoki skrinshotini biriktiring!"
 
-msgid "✅ Чек успешно передан магазину! Скоро заказ будет доставлен."
-msgstr "✅ Chek do'konga muvaffaqiyatli topshirildi! Tez orada buyurtma yetkaziladi."
-
-msgid "🔍 Поиск адреса (напр: Чорсу, ЦУМ, Юнусабад...)"
-msgstr "🔍 Manzil qidirish (masalan: Chorsu, TSUM, Yunusobod...)"
-
-
-# --- AUTO ADDED MARKETPLACE TRANSLATIONS ---
-
-msgid "Глобальный Маркетплейс"
-msgstr "Global bozor"
-
-msgid "Глобальный маркетплейс"
-msgstr "Global bozor"
+msgid "⚡ 100% Оригинал"
+msgstr "⚡ 100% Asl tovar"
 
 msgid "⚡ Глобальный Маркетплейс"
 msgstr "⚡ Global bozor"
@@ -1669,140 +1807,45 @@ msgstr "⚡ Global bozor"
 msgid "⚡ Глобальный маркетплейс"
 msgstr "⚡ Global bozor"
 
-msgid "Товары от лучших магазинов, официальные бренды и экспресс-доставка"
-msgstr "Eng yaxshi do'konlar tovarlari, rasmiy brendlar va tezkor yetkazib berish"
+msgid "⚡ ОФИЦИАЛЬНАЯ ГАРАНТИЯ"
+msgstr "⚡ RASMIY KAFOLAT"
 
-msgid "100% Оригинал"
-msgstr "100% Asl mahsulot"
-
-msgid "Экспресс доставка"
-msgstr "Tezkor yetkazish"
-
-msgid "Защита покупателя"
-msgstr "Xaridor himoyasi"
-
-msgid "Официальные магазины"
-msgstr "Rasmiy do'konlar"
-
-msgid "Быстрая доставка"
-msgstr "Tez yetkazib berish"
-
-msgid "Все категории"
-msgstr "Barcha toifalar"
-
-msgid "Поиск по товарам или стилю (напр: айтишник, оверсайз)..."
-msgstr "Tovarlar yoki uslub bo'yicha qidiruv (masalan: oversayz)..."
-
-msgid "🚗 Автотовары и шины"
-msgstr "🚗 Avtotovarlar va shinalar"
-
-msgid "👕 Одежда и обувь"
-msgstr "👕 Kiyim va poyabzal"
-
-msgid "🍏 Продукты питания"
-msgstr "🍏 Oziq-ovqat mahsulotlari"
-
-msgid "📱 Электроника и техника"
-msgstr "📱 Elektronika va texnika"
-
-msgid "🛋️ Мебель и товары для дома"
-msgstr "🛋️ Mebel va uy jihozlari"
-
-msgid "💄 Красота и здоровье"
-msgstr "💄 Go'zallik va salomatlik"
-
-msgid "🧸 Детские товары"
-msgstr "🧸 Bolalar tovarlari"
+msgid "⚡ СКИДКИ ДО -70%"
+msgstr "⚡ -70% GACHA CHEGIRMALAR"
 
 msgid "⚽ Спорт и отдых"
 msgstr "⚽ Sport va hordiq"
 
-msgid "заказов"
-msgstr "buyurtma"
+msgid "✅ Чек успешно передан магазину! Скоро заказ будет доставлен."
+msgstr "✅ Chek do'konga muvaffaqiyatli topshirildi! Tez orada buyurtma yetkaziladi."
 
-msgid "Перейти в магазин"
-msgstr "Do'konga o'tish"
-
-msgid "Оригинальное качество с быстрой доставкой от магазина"
-msgstr "Do'kondan tezkor yetkazib beriladigan sifatli mahsulot"
-
-msgid "Оригинальное качество с быстрой доставкой"
-msgstr "Tezkor yetkazib beriladigan sifatli mahsulot"
-
-msgid "Качественный товар с быстрой доставкой от проверенного продавца."
-msgstr "Ishonchli sotuvchidan sifatli mahsulot va tez yetkazish."
-
-msgid "БОЛЬШАЯ РАСПРОДАЖА 2026"
-msgstr "KATTA SOTUV 2026"
-
-msgid "⚡ СКИДКИ ДО -70%"
-msgstr "⚡ -70% GACHA CHEGIRMALAR"
-
-msgid "Купить со скидкой 🛒"
-msgstr "Chegirma bilan olish 🛒"
-
-msgid "Тысячи товаров по суперценам с быстрой доставкой по всему Узбекистану"
-msgstr "O'zbekiston bo'ylab tezkor yetkazish bilan minglab tovarlar arzon narxlarda"
-
-msgid "APPLE & PRO ГАДЖЕТЫ"
-msgstr "APPLE VA PRO GADJETLAR"
-
-msgid "⚡ ОФИЦИАЛЬНАЯ ГАРАНТИЯ"
-msgstr "⚡ RASMIY KAFOLAT"
-
-msgid "Выбрать гаджет 📱"
-msgstr "Gadjet tanlash 📱"
-
-msgid "Смартфоны, планшеты, смарт-часы и аксессуары от проверенных поставщиков"
-msgstr "Ishonchli yetkazib beruvchilardan smartfonlar, planshetlar va aqlli soatlar"
-
-msgid "СЕЗОН АВТОТОВАРОВ & ШИНЫ"
-msgstr "AVTOTAVORLAR VA SHINALAR MAVSUMI"
+msgid "🍏 Продукты питания"
+msgstr "🍏 Oziq-ovqat mahsulotlari"
 
 msgid "🏎️ ТОП СЕЗОНА"
 msgstr "🏎️ MAVSUM TOPI"
 
-msgid "Подобрать шины 🛠️"
-msgstr "Shinalarni tanlash 🛠️"
+msgid "👕 Одежда и обувь"
+msgstr "👕 Kiyim va poyabzal"
 
-msgid "Шины Michelin, Pirelli, масла Motul и автоаксессуары от проверенных магазинов"
-msgstr "Ishonchli do'konlardan Michelin, Pirelli shinalari va Motul moylari"
+msgid "💄 Красота и здоровье"
+msgstr "💄 Go'zallik va salomatlik"
 
-msgid "ОТКРОЙ СВОЙ МАГАЗИН В BRAINMART"
-msgstr "BRAINMART'DA O'Z DO'KONINGIZNI OCHING"
+msgid "📱 Электроника и техника"
+msgstr "📱 Elektronika va texnika"
+
+msgid "🔍 Поиск адреса (напр: Чорсу, ЦУМ, Юнусабад...)"
+msgstr "🔍 Manzil qidirish (masalan: Chorsu, TSUM, Yunusobod...)"
 
 msgid "🚀 ДЛЯ БИЗНЕСА"
 msgstr "🚀 BIZNES UCHUN"
 
-msgid "Стать продавцом ✨"
-msgstr "Sotuvchi bo'lish ✨"
+msgid "🚗 Автотовары и шины"
+msgstr "🚗 Avtotovarlar va shinalar"
 
-msgid "Telegram CRM + ИИ-продавец 24/7 + витрина для вашего бизнеса. Запуск за 2 минуты!"
-msgstr "Telegram CRM + 24/7 AI-sotuvchi + biznesingiz uchun vitrina. 2 daqiqada ishga tushirish!"
+msgid "🛋️ Мебель и товары для дома"
+msgstr "🛋️ Mebel va uy jihozlari"
 
-msgid "Перейти"
-msgstr "O'tish"
+msgid "🧸 Детские товары"
+msgstr "🧸 Bolalar tovarlari"
 
-msgid "Назад"
-msgstr "Orqaga"
-
-msgid "Вперёд"
-msgstr "Oldinga"
-
-msgid "Скидки до -70% на трендовые коллекции одежды, обуви и аксессуаров от топовых брендов"
-msgstr "Top brendlarning kiyim, poyabzal va aksessuarlari kolleksiyalariga -70% gacha chegirmalar"
-
-msgid "Оригинальные смартфоны, смарт-часы и ультрабуки с гарантией и быстрой доставкой по Ташкенту"
-msgstr "Toshkent bo'yicha kafolat va tezkor yetkazib berish bilan asl smartfonlar, aqlli soatlar va noutbuklar"
-
-msgid "⚡ СКИДКИ ДО -70%"
-msgstr "⚡ -70% GACHA CHEGIRMALAR"
-
-msgid "100% Оригинал"
-msgstr "100% Asl tovar"
-
-msgid "Гарантия оригинала"
-msgstr "Asl mahsulot kafolati"
-
-msgid "⚡ 100% Оригинал"
-msgstr "⚡ 100% Asl tovar"

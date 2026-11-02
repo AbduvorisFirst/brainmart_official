@@ -244,8 +244,56 @@
 
 <div class="card">
     <h4 class="section-title">✏️ {% trans "Данные магазина и Брендинг" %}</h4>
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
+        <input type="hidden" name="action" value="update_store">
+
+        <!-- ─── БЛОК ЗАГРУЗКИ И ПРЕДПРОСМОТРА ЛОГОТИПА ─── -->
+        <div class="store-logo-upload-card" style="background: rgba(255, 255, 255, 0.02); border: 1.5px solid var(--border); border-radius: 16px; padding: 18px 20px; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+                <label style="margin: 0; font-size: 14px; font-weight: 800; color: white; display: flex; align-items: center; gap: 8px;">
+                    🖼️ {% trans "Логотип магазина" %}
+                </label>
+                <span style="font-size: 11px; color: #818CF8; font-weight: 700; background: rgba(99,102,241,0.12); padding: 3px 8px; border-radius: 6px;">
+                    {% trans "квадрат 500 × 500 px" %}
+                </span>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                <!-- Squircle-превью логотипа (Apple / Instagram стиль) -->
+                <div style="width: 88px; height: 88px; border-radius: 20px; background: linear-gradient(135deg, #2563EB, #10B981); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; box-shadow: 0 4px 16px rgba(0,0,0,0.35); border: 1.5px solid rgba(255,255,255,0.15); position: relative;">
+                    <img id="storeLogoPreviewImg" src="{% if store.logo %}{{ store.logo.url }}{% endif %}" alt="{{ store.name }}" style="width: 100%; height: 100%; object-fit: cover; {% if not store.logo %}display: none;{% endif %}">
+                    <div id="storeLogoInitial" style="{% if store.logo %}display: none;{% else %}display: flex;{% endif %} width: 100%; height: 100%; align-items: center; justify-content: center; font-size: 32px; font-weight: 800; color: #FFFFFF;">
+                        {{ store.name|slice:":1"|upper|default:"🏪" }}
+                    </div>
+                </div>
+
+                <!-- Кнопки выбора, удаления и подсказка -->
+                <div style="flex: 1; min-width: 240px;">
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <!-- Кнопка выбора файла -->
+                        <label for="storeLogoInput" class="btn" style="width: auto; padding: 9px 18px; font-size: 13px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; margin: 0; background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); border-radius: 10px; color: #FFFFFF;">
+                            📁 <span id="storeLogoBtnText">{% if store.logo %}{% trans "Заменить логотип" %}{% else %}{% trans "Выбрать файл" %}{% endif %}</span>
+                        </label>
+                        <input type="file" name="logo" id="storeLogoInput" accept="image/jpeg,image/png,image/webp" style="display: none;" onchange="previewStoreLogo(this);">
+                        <input type="hidden" name="clear_logo" id="clearLogoInput" value="0">
+
+                        <!-- Кнопка удаления логотипа -->
+                        <button type="button" id="removeLogoBtn" onclick="removeStoreLogo();" style="{% if not store.logo %}display: none;{% else %}display: inline-flex;{% endif %} align-items: center; gap: 6px; background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 14px; border-radius: 10px; font-size: 12.5px; font-weight: 700; cursor: pointer; transition: all 0.2s;">
+                            🗑️ {% trans "Удалить" %}
+                        </button>
+
+                        <!-- Бейдж имени выбранного файла -->
+                        <span id="logoFileName" style="font-size: 12px; color: #34d399; font-weight: 600; display: none;"></span>
+                    </div>
+
+                    <p style="margin: 10px 0 0; font-size: 11.5px; color: var(--text-muted); line-height: 1.45;">
+                        💡 {% trans "Рекомендуемый размер: квадратное изображение 500×500 px (JPEG, PNG или WEBP, до 5 МБ). Логотип появится в шапке витрины, в карточке магазина и в Telegram-боте." %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
         <label>{% trans "Название магазина" %}</label>
         <input type="text" name="store_name" value="{{ store.name }}" required>
 
@@ -1807,5 +1855,78 @@ document.addEventListener('DOMContentLoaded', function() {
     updateLivePreview();
     updateSignaturePreview();
 });
+</script>
+<script>
+function previewStoreLogo(input) {
+    if (input.files && input.files[0]) {
+        var file = input.files[0];
+        if (file.size > 5 * 1024 * 1024) {
+            alert('{% filter escapejs %}{% trans "Файл слишком большой! Максимальный размер 5 МБ." %}{% endfilter %}');
+            input.value = '';
+            return;
+        }
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var imgEl = document.getElementById('storeLogoPreviewImg');
+            var initialEl = document.getElementById('storeLogoInitial');
+            var removeBtn = document.getElementById('removeLogoBtn');
+            var clearInput = document.getElementById('clearLogoInput');
+            var nameEl = document.getElementById('logoFileName');
+            var btnText = document.getElementById('storeLogoBtnText');
+
+            if (imgEl) {
+                imgEl.src = e.target.result;
+                imgEl.style.display = 'block';
+            }
+            if (initialEl) {
+                initialEl.style.display = 'none';
+            }
+            if (removeBtn) {
+                removeBtn.style.display = 'inline-flex';
+            }
+            if (clearInput) {
+                clearInput.value = '0';
+            }
+            if (nameEl) {
+                nameEl.textContent = '✓ ' + file.name;
+                nameEl.style.display = 'inline';
+            }
+            if (btnText) {
+                btnText.textContent = '{% filter escapejs %}{% trans "Заменить файл" %}{% endfilter %}';
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function removeStoreLogo() {
+    var input = document.getElementById('storeLogoInput');
+    var imgEl = document.getElementById('storeLogoPreviewImg');
+    var initialEl = document.getElementById('storeLogoInitial');
+    var removeBtn = document.getElementById('removeLogoBtn');
+    var clearInput = document.getElementById('clearLogoInput');
+    var nameEl = document.getElementById('logoFileName');
+    var btnText = document.getElementById('storeLogoBtnText');
+
+    if (input) input.value = '';
+    if (clearInput) clearInput.value = '1';
+    if (imgEl) {
+        imgEl.src = '';
+        imgEl.style.display = 'none';
+    }
+    if (initialEl) {
+        initialEl.style.display = 'flex';
+    }
+    if (removeBtn) {
+        removeBtn.style.display = 'none';
+    }
+    if (nameEl) {
+        nameEl.textContent = '';
+        nameEl.style.display = 'none';
+    }
+    if (btnText) {
+        btnText.textContent = '{% filter escapejs %}{% trans "Выбрать файл" %}{% endfilter %}';
+    }
+}
 </script>
 {% endblock %}
