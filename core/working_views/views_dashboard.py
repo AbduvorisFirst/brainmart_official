@@ -2538,14 +2538,106 @@ def seller_waitlist_view(request):
 
 
 
+# --- 🎨 ЭКСКЛЮЗИВНЫЕ СТИЛИ ОФОРМЛЕНИЯ МАГАЗИНА (12 ГОТОВЫХ ДИЗАЙНОВ) ---
+THEME_PALETTES = {
+    # --- ☀️ Светлые и Пастельные Дизайны (White & Light) ---
+    "clean_white": {
+        "primary": "#0066FF", "accent": "#10B981", "bg": "#FFFFFF", "mode": "light",
+        "name": "Apple White Minimalist", "category": "light",
+        "name_ru": "Apple Белоснежный", "name_uz": "Apple Oq Minimal", "name_en": "Apple White Minimalist"
+    },
+    "warm_beige": {
+        "primary": "#9A7B56", "accent": "#C5A880", "bg": "#FAF7F2", "mode": "light",
+        "name": "Warm Silk Beige", "category": "light",
+        "name_ru": "Теплый Французский Крем", "name_uz": "Iliq Ipak Krem", "name_en": "Warm French Cream"
+    },
+    "pastel_sakura": {
+        "primary": "#FF4B72", "accent": "#FFAAA6", "bg": "#FFF5F7", "mode": "light",
+        "name": "Sweet Sakura Rose", "category": "light",
+        "name_ru": "Нежная Сакура", "name_uz": "Nozik Sakura Atirgul", "name_en": "Sweet Sakura Rose"
+    },
+    "fresh_sky": {
+        "primary": "#0284C7", "accent": "#38BDF8", "bg": "#F0F9FF", "mode": "light",
+        "name": "Fresh Azure Sky", "category": "light",
+        "name_ru": "Кристальная Лазурь", "name_uz": "Tiniq Moviy Osmon", "name_en": "Fresh Azure Sky"
+    },
+    "nordic_sage": {
+        "primary": "#059669", "accent": "#10B981", "bg": "#F3FAF6", "mode": "light",
+        "name": "Nordic Sage Matcha", "category": "light",
+        "name_ru": "Скандинавский Шалфей", "name_uz": "Skandinaviya Matcha", "name_en": "Nordic Matcha Sage"
+    },
+    "soft_lavender": {
+        "primary": "#7C3AED", "accent": "#C084FC", "bg": "#F8F5FF", "mode": "light",
+        "name": "Soft Lilac Day", "category": "light",
+        "name_ru": "Мягкая Лаванда", "name_uz": "Yumshoq Lavanda", "name_en": "Soft Lilac Lavender"
+    },
+
+    # --- 💎 Глубокие Цветные Дизайны (Rich Colored) ---
+    "royal_navy": {
+        "primary": "#48CAE4", "accent": "#5BC0BE", "bg": "#0B132B", "mode": "dark",
+        "name": "Midnight Royal Sapphire", "category": "colored",
+        "name_ru": "Королевский Сапфир", "name_uz": "Qirollik Sapfiri", "name_en": "Midnight Royal Sapphire"
+    },
+    "emerald_dark": {
+        "primary": "#10B981", "accent": "#34D399", "bg": "#061812", "mode": "dark",
+        "name": "Emerald Midnight Onyx", "category": "colored",
+        "name_ru": "Изумрудный Оникс", "name_uz": "Zumrad Oniks", "name_en": "Emerald Onyx Forest"
+    },
+
+    # --- 🌙 Темные & OLED Дизайны (Dark & OLED) ---
+    "uzum_violet": {
+        "primary": "#7000FF", "accent": "#00C853", "bg": "#0B0C10", "mode": "dark",
+        "name": "Uzum Market Signature", "category": "dark",
+        "name_ru": "Uzum Market Топ-1", "name_uz": "Uzum Market Top-1", "name_en": "Uzum Market Signature"
+    },
+    "apple_hightech": {
+        "primary": "#2997FF", "accent": "#30D158", "bg": "#000000", "mode": "dark",
+        "name": "Apple Titanium OLED", "category": "dark",
+        "name_ru": "Apple Космический Титан", "name_uz": "Apple Kosmik Titan", "name_en": "Apple Space Titanium"
+    },
+    "fashion_genz": {
+        "primary": "#00F0FF", "accent": "#FF0055", "bg": "#070712", "mode": "dark",
+        "name": "Street Cyber / Neon Drip", "category": "dark",
+        "name_ru": "Street Cyber Неон", "name_uz": "Street Kiber Neon", "name_en": "Street Cyber Drip"
+    },
+    "alibaba_orange": {
+        "primary": "#FF5000", "accent": "#FF8C00", "bg": "#0D0C0B", "mode": "dark",
+        "name": "Sunset Orange Global", "category": "dark",
+        "name_ru": "Alibaba Закатный Оранж", "name_uz": "Alibaba Quyosh Zarg'aldoq", "name_en": "Sunset Orange Global"
+    },
+
+    # Fallbacks for legacy selections
+    "fashion_premium": {
+        "primary": "#D4AF37", "accent": "#E2C974", "bg": "#0A0908", "mode": "dark",
+        "name": "Old Money / Silk", "category": "dark",
+        "name_ru": "Old Money Шёлк", "name_uz": "Old Money Ipak", "name_en": "Old Money Silk"
+    },
+    "shopify_mint": {
+        "primary": "#00A86B", "accent": "#10B981", "bg": "#090D0B", "mode": "dark",
+        "name": "Nordic Mint", "category": "dark",
+        "name_ru": "Shopify Мята", "name_uz": "Shopify Yalpiz", "name_en": "Shopify Mint"
+    },
+    "midnight_gold": {
+        "primary": "#D4AF37", "accent": "#F59E0B", "bg": "#080709", "mode": "dark",
+        "name": "Midnight Luxury", "category": "dark",
+        "name_ru": "Полночная Роскошь", "name_uz": "Yarim Tun Hashamat", "name_en": "Midnight Luxury"
+    },
+    "fashion_casual": {
+        "primary": "#4F46E5", "accent": "#06B6D4", "bg": "#0C0E14", "mode": "dark",
+        "name": "Smart Casual", "category": "dark",
+        "name_ru": "Смарт Кэжуал", "name_uz": "Smart Kejul", "name_en": "Smart Casual"
+    },
+}
+
+
 @login_required
 def set_store_theme_view(request):
     """Быстрое 1-клик переключение готового оформления магазина из Dashboard."""
     if request.method != "POST":
-        return JsonResponse({"success": False, "error": "Only POST allowed"}, status=405)
+        return JsonResponse({"success": False, "status": "error", "error": "Only POST allowed"}, status=405)
     store = _get_store_or_none(request)
     if not store:
-        return JsonResponse({"success": False, "error": "Store not found"}, status=404)
+        return JsonResponse({"success": False, "status": "error", "error": "Store not found"}, status=404)
 
     import json
     try:
@@ -2553,18 +2645,7 @@ def set_store_theme_view(request):
     except Exception:
         data = request.POST
 
-    theme_style = data.get("theme_style", "uzum_violet").strip()
-
-    THEME_PALETTES = {
-        "uzum_violet": {"primary": "#7000FF", "accent": "#00C853", "bg": "#0B0C10", "mode": "dark", "name": "Uzum Market"},
-        "apple_hightech": {"primary": "#2997FF", "accent": "#30D158", "bg": "#000000", "mode": "dark", "name": "Apple Titanium"},
-        "fashion_premium": {"primary": "#D4AF37", "accent": "#E2C974", "bg": "#0A0908", "mode": "dark", "name": "Old Money / Silk"},
-        "fashion_genz": {"primary": "#00F0FF", "accent": "#FF0055", "bg": "#070712", "mode": "dark", "name": "Street Drip / Cyber"},
-        "shopify_mint": {"primary": "#00A86B", "accent": "#10B981", "bg": "#090D0B", "mode": "dark", "name": "Nordic Mint"},
-        "alibaba_orange": {"primary": "#FF5000", "accent": "#FF8C00", "bg": "#0D0C0B", "mode": "dark", "name": "Sunset Orange"},
-        "midnight_gold": {"primary": "#D4AF37", "accent": "#F59E0B", "bg": "#080709", "mode": "dark", "name": "Midnight Luxury"},
-        "fashion_casual": {"primary": "#4F46E5", "accent": "#06B6D4", "bg": "#0C0E14", "mode": "dark", "name": "Smart Casual"},
-    }
+    theme_style = (data.get("theme_style") or data.get("theme") or "uzum_violet").strip()
 
     palette = THEME_PALETTES.get(theme_style, THEME_PALETTES["uzum_violet"])
     store.theme_style = theme_style
@@ -2574,10 +2655,15 @@ def set_store_theme_view(request):
     store.theme_mode = palette["mode"]
     store.save(update_fields=["theme_style", "primary_color", "accent_color", "bg_color", "theme_mode"])
 
+    theme_display_name = palette.get("name_ru") or palette.get("name")
     return JsonResponse({
         "success": True,
+        "status": "ok",
         "theme_style": theme_style,
-        "theme_name": palette["name"],
+        "theme_name": theme_display_name,
         "primary_color": store.primary_color,
-        "message": f"Оформление «{palette['name']}» успешно применено к вашей витрине!"
+        "accent_color": store.accent_color,
+        "bg_color": store.bg_color,
+        "theme_mode": store.theme_mode,
+        "message": f"Оформление «{theme_display_name}» успешно применено к вашей витрине!"
     })

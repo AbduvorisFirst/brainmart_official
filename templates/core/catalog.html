@@ -79,8 +79,8 @@
        2. CLEAN STORE HEADER (NO ROBOTIC NEON, NO BRAINMART LOGO FOR SELLERS)
        ========================================================================== */
     .uzum-store-card {
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.02) 100%);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--surface-card, linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.02) 100%));
+        border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
         border-radius: 16px;
         padding: 12px 14px;
         margin-bottom: 12px;
@@ -131,7 +131,7 @@
         margin: 0;
         font-size: 16px;
         font-weight: 800;
-        color: #FFFFFF;
+        color: var(--text-main, #FFFFFF);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -269,13 +269,13 @@
     .uzum-search-input {
         width: 100%;
         height: 44px;
-        background: #181C28;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--input-bg, #181C28);
+        border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
         border-radius: 12px;
         padding: 0 42px 0 40px;
         font-size: 14px;
         font-weight: 500;
-        color: #FFFFFF;
+        color: var(--text-main, #FFFFFF);
         outline: none;
         box-sizing: border-box;
         transition: all 0.15s ease;
@@ -311,9 +311,9 @@
         width: 44px;
         height: 44px;
         border-radius: 12px;
-        background: #181C28;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: #FFFFFF;
+        background: var(--surface-card, #181C28);
+        border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+        color: var(--text-main, #FFFFFF);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -388,13 +388,13 @@
     }
 
     .uzum-card {
-        background: #141824;
-        border: 1px solid rgba(255, 255, 255, 0.07);
+        background: var(--surface-card, #141824);
+        border: 1px solid var(--border, rgba(255, 255, 255, 0.07));
         border-radius: 14px;
         display: flex;
         flex-direction: column;
         overflow: hidden;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+        box-shadow: var(--card-shadow, 0 4px 16px rgba(0, 0, 0, 0.25));
         transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
         position: relative;
     }
@@ -417,7 +417,7 @@
         position: relative;
         width: 100%;
         aspect-ratio: 1 / 1;
-        background: #0B0E14;
+        background: var(--input-bg, #0B0E14);
         overflow: hidden;
         border-radius: 14px 14px 0 0;
     }
@@ -438,8 +438,8 @@
         align-items: center;
         justify-content: center;
         font-size: 38px;
-        background: #0E121B;
-        color: #475569;
+        background: var(--input-bg, #0E121B);
+        color: var(--text-muted, #475569);
     }
 
     /* Swipeable Image Gallery for Multi-photo / Multi-color Products (Uzum/Wildberries style) */
@@ -638,7 +638,7 @@
     .uzum-price-current {
         font-size: 16px;
         font-weight: 800;
-        color: #FFFFFF;
+        color: var(--text-main, #FFFFFF);
         letter-spacing: -0.01em;
         line-height: 1.1;
     }
@@ -686,7 +686,7 @@
         font-size: 12.5px;
         font-weight: 500;
         line-height: 1.35;
-        color: #E2E8F0;
+        color: var(--text-main, #E2E8F0);
         margin: 0;
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -709,7 +709,7 @@
     }
     .uzum-rating-line .rating-number {
         font-weight: 700;
-        color: #FFFFFF;
+        color: var(--text-main, #FFFFFF);
     }
     .uzum-rating-line .reviews-count {
         color: #64748B;

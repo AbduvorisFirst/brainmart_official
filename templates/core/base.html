@@ -32,7 +32,7 @@
                     /* Свой дизайн: используем цвета продавца на тёмном/светлом фоне */
                     --primary: {{ store.primary_color|default:"#4F46E5" }};
                     --accent: {{ store.accent_color|default:"#10B981" }};
-                    {% if store.theme_mode == 'light' %}
+                    {% if current_store and current_store.theme_mode == 'light' %}
                         {% if store.bg_color %}
                         --bg-app: {{ store.bg_color }};
                         --surface: {{ store.bg_color }};
@@ -70,6 +70,150 @@
                     --radius-lg: 20px;
                     --radius-md: 14px;
                     --btn-gradient: linear-gradient(135deg, {{ store.primary_color|default:"#4F46E5" }} 0%, {{ store.accent_color|default:"#10B981" }} 100%);
+                {% elif store.theme_style == 'clean_white' %}
+                    /* 1. Apple White Minimalist (Чистый белый минимализм) */
+                    --primary: #0066FF;
+                    --primary-hover: #0052CC;
+                    --accent: #10B981;
+                    --bg-app: #FFFFFF;
+                    --surface: #FFFFFF;
+                    --surface-card: #FFFFFF;
+                    --text-main: #0F172A;
+                    --text-muted: #64748B;
+                    --border: rgba(0, 0, 0, 0.08);
+                    --input-bg: #F8FAFC;
+                    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+                    --badge-bg: #FFFFFF;
+                    --header-bg: rgba(255, 255, 255, 0.94);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #0066FF 0%, #0052CC 100%);
+                {% elif store.theme_style == 'warm_beige' %}
+                    /* 2. Warm Silk Beige (Французский крем и беж) */
+                    --primary: #9A7B56;
+                    --primary-hover: #826543;
+                    --accent: #C5A880;
+                    --bg-app: #FAF7F2;
+                    --surface: #FFFFFF;
+                    --surface-card: #FFFFFF;
+                    --text-main: #2A2521;
+                    --text-muted: #7D7267;
+                    --border: rgba(154, 123, 86, 0.14);
+                    --input-bg: #F4EFEB;
+                    --card-shadow: 0 4px 18px rgba(154, 123, 86, 0.07);
+                    --badge-bg: #FFFFFF;
+                    --header-bg: rgba(250, 247, 242, 0.94);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #9A7B56 0%, #C5A880 100%);
+                {% elif store.theme_style == 'pastel_sakura' %}
+                    /* 3. Sweet Sakura Blush (Нежная сакура и розовый) */
+                    --primary: #FF4B72;
+                    --primary-hover: #E0355B;
+                    --accent: #FFAAA6;
+                    --bg-app: #FFF5F7;
+                    --surface: #FFFFFF;
+                    --surface-card: #FFFFFF;
+                    --text-main: #331D24;
+                    --text-muted: #8C656F;
+                    --border: rgba(255, 75, 114, 0.12);
+                    --input-bg: #FDE8ED;
+                    --card-shadow: 0 4px 18px rgba(255, 75, 114, 0.08);
+                    --badge-bg: #FFFFFF;
+                    --header-bg: rgba(255, 245, 247, 0.94);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #FF4B72 0%, #FF758C 100%);
+                {% elif store.theme_style == 'fresh_sky' %}
+                    /* 4. Fresh Azure Sky (Небесно-голубой и лазурь) */
+                    --primary: #0284C7;
+                    --primary-hover: #0369A1;
+                    --accent: #38BDF8;
+                    --bg-app: #F0F9FF;
+                    --surface: #FFFFFF;
+                    --surface-card: #FFFFFF;
+                    --text-main: #0C2B45;
+                    --text-muted: #53758F;
+                    --border: rgba(2, 132, 199, 0.12);
+                    --input-bg: #E0F2FE;
+                    --card-shadow: 0 4px 18px rgba(2, 132, 199, 0.08);
+                    --badge-bg: #FFFFFF;
+                    --header-bg: rgba(240, 249, 255, 0.94);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #0284C7 0%, #38BDF8 100%);
+                {% elif store.theme_style == 'nordic_sage' %}
+                    /* 5. Nordic Sage Matcha (Фисташка и эко-мята) */
+                    --primary: #059669;
+                    --primary-hover: #047857;
+                    --accent: #10B981;
+                    --bg-app: #F3FAF6;
+                    --surface: #FFFFFF;
+                    --surface-card: #FFFFFF;
+                    --text-main: #0F2F20;
+                    --text-muted: #507563;
+                    --border: rgba(5, 150, 105, 0.12);
+                    --input-bg: #E3F4EB;
+                    --card-shadow: 0 4px 18px rgba(5, 150, 105, 0.08);
+                    --badge-bg: #FFFFFF;
+                    --header-bg: rgba(243, 250, 246, 0.94);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #059669 0%, #10B981 100%);
+                {% elif store.theme_style == 'soft_lavender' %}
+                    /* 6. Soft Lilac Day (Лавандовый светлый) */
+                    --primary: #7C3AED;
+                    --primary-hover: #6D28D9;
+                    --accent: #C084FC;
+                    --bg-app: #F8F5FF;
+                    --surface: #FFFFFF;
+                    --surface-card: #FFFFFF;
+                    --text-main: #1E1035;
+                    --text-muted: #6B5585;
+                    --border: rgba(124, 58, 237, 0.12);
+                    --input-bg: #EFE7FE;
+                    --card-shadow: 0 4px 18px rgba(124, 58, 237, 0.08);
+                    --badge-bg: #FFFFFF;
+                    --header-bg: rgba(248, 245, 255, 0.94);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #7C3AED 0%, #A855F7 100%);
+                {% elif store.theme_style == 'royal_navy' %}
+                    /* 7. Midnight Royal Sapphire (Королевский сапфир) */
+                    --primary: #48CAE4;
+                    --primary-hover: #00B4D8;
+                    --accent: #5BC0BE;
+                    --bg-app: #0B132B;
+                    --surface: #131F42;
+                    --surface-card: #182650;
+                    --text-main: #F0F4F8;
+                    --text-muted: #8FA5C2;
+                    --border: rgba(72, 202, 228, 0.16);
+                    --input-bg: #0F1A3A;
+                    --card-shadow: 0 10px 30px rgba(11, 19, 43, 0.55);
+                    --badge-bg: rgba(24, 38, 80, 0.95);
+                    --header-bg: rgba(11, 19, 43, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #48CAE4 0%, #0077B6 100%);
+                {% elif store.theme_style == 'emerald_dark' %}
+                    /* 8. Emerald Midnight Onyx (Изумрудный оникс) */
+                    --primary: #10B981;
+                    --primary-hover: #059669;
+                    --accent: #34D399;
+                    --bg-app: #061812;
+                    --surface: #0C261D;
+                    --surface-card: #123328;
+                    --text-main: #E8F7F0;
+                    --text-muted: #7BA896;
+                    --border: rgba(16, 185, 129, 0.16);
+                    --input-bg: #092018;
+                    --card-shadow: 0 10px 30px rgba(6, 24, 18, 0.55);
+                    --badge-bg: rgba(18, 51, 40, 0.95);
+                    --header-bg: rgba(6, 24, 18, 0.92);
+                    --radius-lg: 18px;
+                    --radius-md: 12px;
+                    --btn-gradient: linear-gradient(135deg, #10B981 0%, #059669 100%);
                 {% elif store.theme_style == 'apple_hightech' %}
                     /* Apple Cupertino (Space Titanium & Black) */
                     --primary: #2997FF;
@@ -928,7 +1072,22 @@
         }
 
         
-        /* Apple High-Tech Dark Mode for Select & Inputs across all browsers */
+        /* Adaptive Theme Mode for Form Controls & Inputs */
+        {% if current_store.theme_mode == 'light' or store.theme_mode == 'light' %}
+        :root, html, select, input, textarea {
+            color-scheme: light;
+        }
+        select {
+            background-color: var(--surface-card, #FFFFFF) !important;
+            color: var(--text-main, #0F172A) !important;
+            border-color: var(--border, rgba(0,0,0,0.1)) !important;
+        }
+        select option {
+            background-color: #FFFFFF !important;
+            color: #0F172A !important;
+            padding: 10px !important;
+        }
+        {% else %}
         :root, html, select, input, textarea {
             color-scheme: dark;
         }
@@ -941,6 +1100,7 @@
             color: #FFFFFF !important;
             padding: 10px !important;
         }
+        {% endif %}
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
@@ -1130,7 +1290,66 @@
             filter: drop-shadow(0 1px 6px rgba(0, 0, 0, 0.25));
         }
 
+        
+        /* New Light, Pastel & Rich Colored Themes Badges */
+        .badge-white-minimal .sig-text {
+            background: linear-gradient(135deg, #0F172A 0%, #475569 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;
+        }
+        .badge-warm-silk .sig-text {
+            background: linear-gradient(135deg, #8B5E3C 0%, #D4AF37 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;
+        }
+        .badge-sakura .sig-text {
+            background: linear-gradient(135deg, #E11D48 0%, #FB7185 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;
+        }
+        .badge-fresh-sky .sig-text {
+            background: linear-gradient(135deg, #0284C7 0%, #06B6D4 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;
+        }
+        .badge-nordic-sage .sig-text {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;
+        }
+        .badge-soft-lavender .sig-text {
+            background: linear-gradient(135deg, #7C3AED 0%, #A855F7 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;
+        }
+        .badge-royal-navy .sig-text {
+            background: linear-gradient(135deg, #60A5FA 0%, #38BDF8 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;
+        }
+        .badge-emerald-dark .sig-text {
+            background: linear-gradient(135deg, #34D399 0%, #10B981 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;
+        }
+        .badge-uzum .sig-text {
+            background: linear-gradient(135deg, #7000FF 0%, #A855F7 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;
+        }
+        .badge-alibaba .sig-text {
+            background: linear-gradient(135deg, #FF5000 0%, #FF8C00 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;
+        }
+        .badge-shopify .sig-text {
+            background: linear-gradient(135deg, #00A86B 0%, #10B981 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;
+        }
+
         /* Fallback text colors for older browsers or simple tags */
+        
+        .badge-white-minimal { color: #0F172A; }
+        .badge-warm-silk { color: #8B5E3C; }
+        .badge-sakura { color: #E11D48; }
+        .badge-fresh-sky { color: #0284C7; }
+        .badge-nordic-sage { color: #059669; }
+        .badge-soft-lavender { color: #7C3AED; }
+        .badge-royal-navy { color: #3B82F6; }
+        .badge-emerald-dark { color: #10B981; }
+        .badge-uzum { color: #7000FF; }
+        .badge-alibaba { color: #FF5000; }
+        .badge-shopify { color: #00A86B; }
         .badge-kids { color: #EC4899; }
         .badge-genz { color: #C084FC; }
         .badge-premium { color: #D4AF37; }

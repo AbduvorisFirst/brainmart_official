@@ -181,7 +181,7 @@
         aspect-ratio: 1 / 1;
         border-radius: 20px;
         overflow: hidden;
-        background: #0D111A;
+        background: var(--input-bg, #0D111A);
         box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
         border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
         touch-action: pan-y pinch-zoom;
@@ -195,7 +195,7 @@
             max-height: 40vh !important;
             aspect-ratio: 1 / 1;
             border-radius: 16px;
-            background: #0B0E14;
+            background: var(--input-bg, #0B0E14);
         }
         .gallery-slide {
             height: 100%;
@@ -203,7 +203,7 @@
         .gallery-slide img {
             max-height: 40vh !important;
             object-fit: contain !important;
-            background: #0B0E14;
+            background: var(--input-bg, #0B0E14);
         }
         /* Uzum / WB hide thumbnail row on smartphones to keep the screen uncluttered and compact */
         .gallery-thumbnails-row {

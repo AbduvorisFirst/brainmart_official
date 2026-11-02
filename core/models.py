@@ -353,6 +353,15 @@ class Store(models.Model):
         max_length=50, default="default_black",
         choices=[
             # Флагманские стили маркетплейсов и брендов
+            # 🌟 12 Готовых стилей BrainMart (Светлые, Цветные, Темные)
+            ("clean_white", "Apple White Minimalist (Чистый белый минимализм)"),
+            ("warm_beige", "Warm Silk Beige (Французский крем и беж)"),
+            ("pastel_sakura", "Sweet Sakura Blush (Нежная сакура и розовый)"),
+            ("fresh_sky", "Fresh Azure Sky (Небесно-голубой и лазурь)"),
+            ("nordic_sage", "Nordic Sage Matcha (Фисташка и эко-мята)"),
+            ("soft_lavender", "Soft Lilac Day (Лавандовый светлый)"),
+            ("royal_navy", "Midnight Royal Sapphire (Королевский сапфир)"),
+            ("emerald_dark", "Malachite Forest (Изумрудный оникс)"),
             ("apple_hightech", "Apple Cupertino (Space Titanium and Black)"),
             ("uzum_violet", "Uzum Signature (Royal Violet and Crisp Dark)"),
             ("shopify_mint", "Shopify Nordic (Clean Tech Mint)"),
@@ -464,6 +473,15 @@ class Store(models.Model):
         # 1. Базовый бейдж, иконка и текст по нише/стилю оформления
         SIG_LOOKUP = {
             # Флагманы маркетплейсов
+            # 🌟 Новые стили с богатыми светлыми и цветными фонами
+            "clean_white": ("badge-white-minimal", "☀️", "apple white"),
+            "warm_beige": ("badge-warm-silk", "✨", "french cream"),
+            "pastel_sakura": ("badge-sakura", "🌸", "sakura rose"),
+            "fresh_sky": ("badge-fresh-sky", "🌊", "ocean azure"),
+            "nordic_sage": ("badge-nordic-sage", "🍃", "matcha sage"),
+            "soft_lavender": ("badge-soft-lavender", "💜", "soft lilac"),
+            "royal_navy": ("badge-royal-navy", "💎", "royal sapphire"),
+            "emerald_dark": ("badge-emerald-dark", "🌿", "emerald onyx"),
             "apple_hightech": ("badge-tech-minimal", "⚡", "titanium pro"),
             "uzum_violet": ("badge-uzum", "💜", "uzum market"),
             "shopify_mint": ("badge-shopify", "🌿", "shopify pro"),
@@ -551,12 +569,17 @@ class Store(models.Model):
 
         return {
             "badge_class": badge_class,
+            "class": badge_class,
             "icon": icon,
             "text": text,
             "is_custom": bool((self.brand_signature_text or "").strip() or (self.brand_signature_icon or "").strip()),
             "default_text": def_text,
             "default_icon": def_icon,
         }
+
+    def get_theme_signature(self) -> dict:
+        """Псевдоним для get_brand_signature для удобства работы с темами оформления."""
+        return self.get_brand_signature()
 
     @property
     def effective_category(self):
