@@ -186,54 +186,75 @@
        2. FLAGSHIP SELLER STORE HEADER (ADAPTIVE TO ALL 12 READY-MADE THEMES)
        ========================================================================== */
     .uzum-store-card {
-        background:
-            radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--primary) 13%, transparent) 0%, transparent 65%),
-            radial-gradient(100% 120% at 100% 100%, color-mix(in srgb, var(--accent) 10%, transparent) 0%, transparent 65%),
-            var(--surface-card, #141824);
-        border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
-        border-radius: 22px;
-        padding: 16px 18px;
-        margin-bottom: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 14px;
-        box-shadow: var(--card-shadow, 0 10px 30px rgba(0, 0, 0, 0.22));
         position: relative;
+        isolation: isolate;
         overflow: hidden;
-        transition: all 0.22s ease;
+        margin-bottom: 14px;
+        padding: 14px 14px 12px;
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        background:
+            radial-gradient(90% 130% at 0% 0%, color-mix(in srgb, var(--primary) 20%, transparent) 0%, transparent 62%),
+            radial-gradient(70% 110% at 100% 100%, color-mix(in srgb, var(--accent) 13%, transparent) 0%, transparent 60%),
+            linear-gradient(180deg, color-mix(in srgb, var(--surface-card, #141824) 93%, #FFFFFF 7%) 0%, var(--surface-card, #141824) 100%);
+        border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--border, rgba(255, 255, 255, 0.1)));
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.09),
+            var(--card-shadow, 0 10px 30px rgba(0, 0, 0, 0.22));
     }
+    /* Тонкая световая линия сверху */
     .uzum-store-card::before {
         content: '';
         position: absolute;
-        top: 0; left: 0; right: 0;
-        height: 3px;
+        top: 0; left: 12%; right: 12%;
+        height: 2px;
+        border-radius: 0 0 4px 4px;
         background: var(--btn-gradient, linear-gradient(90deg, var(--primary), var(--accent)));
+        box-shadow: 0 0 14px color-mix(in srgb, var(--primary) 60%, transparent);
         opacity: 0.95;
     }
+    /* Текстура: мягкая точечная сетка, угасающая к центру */
+    .uzum-store-card::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        background-image: radial-gradient(color-mix(in srgb, var(--text-main, #FFFFFF) 11%, transparent) 1px, transparent 1.3px);
+        background-size: 13px 13px;
+        -webkit-mask-image: radial-gradient(120% 90% at 100% 0%, #000 0%, transparent 55%);
+        mask-image: radial-gradient(120% 90% at 100% 0%, #000 0%, transparent 55%);
+        opacity: 0.9;
+    }
+
+    /* ── Верхний ряд: логотип + название ── */
     .uzum-store-left {
         display: flex;
         align-items: center;
-        gap: 14px;
+        gap: 12px;
         min-width: 0;
-        flex: 1;
     }
     .uzum-store-avatar {
-        width: 52px;
-        height: 52px;
-        border-radius: 16px;
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
         overflow: hidden;
         flex-shrink: 0;
         background: var(--btn-gradient, linear-gradient(135deg, var(--primary, #7000FF) 0%, var(--accent, #4F46E5) 100%));
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 21px;
+        font-size: 19px;
         font-weight: 900;
         color: var(--on-primary, #FFFFFF);
-        border: 2px solid color-mix(in srgb, var(--primary) 35%, rgba(255,255,255,0.25));
-        box-shadow: 0 6px 18px color-mix(in srgb, var(--primary) 28%, rgba(0,0,0,0.2));
+        border: 1.5px solid rgba(255, 255, 255, 0.22);
+        box-shadow:
+            0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent),
+            0 6px 16px color-mix(in srgb, var(--primary) 26%, rgba(0, 0, 0, 0.25));
     }
+    .uzum-store-avatar:has(img) { background: #FFFFFF; }
     .uzum-store-avatar img {
         width: 100%;
         height: 100%;
@@ -242,18 +263,21 @@
     .uzum-store-meta {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 6px;
         min-width: 0;
+        flex: 1;
     }
     .uzum-store-name-row {
         display: flex;
         align-items: center;
-        gap: 7px;
-        flex-wrap: wrap;
+        gap: 6px;
+        min-width: 0;
     }
     .uzum-store-title {
         margin: 0;
-        font-size: 18px;
+        min-width: 0;
+        font-size: 17px;
+        line-height: 1.2;
         font-weight: 900;
         color: var(--text-main, #FFFFFF);
         white-space: nowrap;
@@ -265,59 +289,96 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 18px;
-        height: 18px;
+        width: 17px;
+        height: 17px;
         border-radius: 50%;
         background: var(--btn-gradient, linear-gradient(135deg, #0088CC, #38BDF8));
         color: var(--on-primary, #FFFFFF);
-        font-size: 10px;
+        font-size: 9.5px;
         font-weight: 900;
         flex-shrink: 0;
-        box-shadow: 0 2px 8px color-mix(in srgb, var(--primary) 35%, transparent);
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent), 0 2px 8px color-mix(in srgb, var(--primary) 35%, transparent);
     }
     .uzum-store-sub {
-        font-size: 12px;
-        color: var(--text-muted, #94A3B8);
         display: flex;
         align-items: center;
-        gap: 6px;
-        flex-wrap: wrap;
-        font-weight: 600;
+        gap: 5px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
     }
-    .uzum-store-sub .star-rating {
+    .uzum-store-sub::-webkit-scrollbar { display: none; }
+    .uzum-store-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        flex-shrink: 0;
+        white-space: nowrap;
+        font-size: 10.5px;
+        font-weight: 700;
+        line-height: 1;
+        padding: 4px 7px;
+        border-radius: 999px;
+        color: var(--text-muted, #94A3B8);
+        background: color-mix(in srgb, var(--text-main, #FFFFFF) 6%, transparent);
+        border: 1px solid color-mix(in srgb, var(--text-main, #FFFFFF) 9%, transparent);
+    }
+    .uzum-store-chip.is-rating {
         color: #F59E0B;
         font-weight: 800;
         background: rgba(245, 158, 11, 0.12);
-        border: 1px solid rgba(245, 158, 11, 0.25);
-        padding: 1px 6px;
-        border-radius: 6px;
-        font-size: 11px;
+        border-color: rgba(245, 158, 11, 0.28);
     }
+
+    /* ── Нижний ряд: кнопки ── */
     .uzum-store-actions {
         display: flex;
         align-items: center;
         gap: 8px;
-        flex-shrink: 0;
+        padding-top: 11px;
+        border-top: 1px solid color-mix(in srgb, var(--text-main, #FFFFFF) 8%, transparent);
     }
     .uzum-btn-contact {
-        background: color-mix(in srgb, var(--primary) 14%, transparent);
-        color: var(--primary);
-        border: 1px solid color-mix(in srgb, var(--primary) 32%, transparent);
-        padding: 7px 13px;
-        border-radius: 12px;
-        font-size: 12px;
-        font-weight: 800;
-        text-decoration: none;
+        flex: 1;
+        min-width: 0;
+        height: 36px;
+        padding: 0 12px;
+        border-radius: 11px;
         display: inline-flex;
         align-items: center;
-        gap: 5px;
-        transition: all 0.18s ease;
-    }
-    .uzum-btn-contact:hover {
-        background: var(--primary);
+        justify-content: center;
+        gap: 6px;
+        font-size: 12.5px;
+        font-weight: 800;
+        text-decoration: none;
+        white-space: nowrap;
         color: var(--on-primary, #FFFFFF);
-        transform: translateY(-1px);
+        background: var(--btn-gradient, linear-gradient(135deg, var(--primary), var(--accent)));
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.22),
+            0 4px 14px color-mix(in srgb, var(--primary) 30%, transparent);
+        transition: transform 0.16s ease, filter 0.16s ease;
     }
+    .uzum-btn-contact:hover { filter: brightness(1.07); transform: translateY(-1px); }
+    .uzum-btn-contact:active { transform: scale(0.97); }
+    .uzum-btn-icon {
+        width: 36px;
+        height: 36px;
+        flex-shrink: 0;
+        border-radius: 11px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        text-decoration: none;
+        background: color-mix(in srgb, var(--text-main, #FFFFFF) 6%, transparent);
+        border: 1px solid color-mix(in srgb, var(--text-main, #FFFFFF) 10%, transparent);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        transition: transform 0.16s ease, background 0.16s ease;
+    }
+    .uzum-btn-icon:active { transform: scale(0.94); }
     .uzum-lang-toggle {
         background: var(--input-bg, rgba(255, 255, 255, 0.06));
         border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
@@ -325,6 +386,12 @@
         padding: 2.5px;
         display: inline-flex;
         gap: 2px;
+        flex-shrink: 0;
+    }
+    .uzum-store-actions .uzum-lang-toggle {
+        height: 36px;
+        margin-left: auto;
+        align-items: stretch;
     }
     .uzum-lang-btn {
         border: none;
@@ -340,7 +407,24 @@
     .uzum-lang-btn.active {
         background: var(--primary, #7000FF);
         color: var(--on-primary, #FFFFFF);
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 2px 6px rgba(0, 0, 0, 0.18);
+    }
+
+    /* На широких экранах — в одну строку */
+    @media (min-width: 760px) {
+        .uzum-store-card {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 18px;
+        }
+        .uzum-store-left { flex: 1; }
+        .uzum-store-actions {
+            padding-top: 0;
+            border-top: none;
+            flex-shrink: 0;
+        }
+        .uzum-btn-contact { flex: 0 0 auto; padding: 0 16px; }
     }
 
     /* Global Market Header */
@@ -1227,11 +1311,9 @@
                         <span class="uzum-verified-badge" title="{% trans 'Проверенный магазин' %}">✓</span>
                     </div>
                     <div class="uzum-store-sub">
-                        <span class="star-rating">★ 4.9</span>
-                        <span>•</span>
-                        <span>{% trans "100% Оригинал" %}</span>
-                        <span>•</span>
-                        <span>⚡ {% trans "Отправка 24ч" %}</span>
+                        <span class="uzum-store-chip is-rating">★ 4.9</span>
+                        <span class="uzum-store-chip">🛡️ {% trans "100% Оригинал" %}</span>
+                        <span class="uzum-store-chip">⚡ {% trans "Отправка 24ч" %}</span>
                     </div>
                 </div>
             </div>
@@ -1248,7 +1330,7 @@
                 {% endif %}
 
                 {% if request.user.is_authenticated and request.user.store and request.user.store == current_store %}
-                    <a href="{% url 'seller-dashboard' %}" class="uzum-btn-contact" style="background: rgba(37, 99, 235, 0.2); border-color: #2563EB; color: #93C5FD;">
+                    <a href="{% url 'seller-dashboard' %}" class="uzum-btn-icon" title="{% trans 'Панель продавца' %}">
                         <span>⚙️</span>
                     </a>
                 {% endif %}
