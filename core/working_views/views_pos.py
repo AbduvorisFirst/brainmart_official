@@ -1,9 +1,13 @@
 import json
+import logging
+from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.utils import timezone
 from core.models import Store, CashierProfile, CashShift, ProductVariant, Order, OrderItem, StockMovement, Customer
+
+logger = logging.getLogger(__name__)
 
 def get_current_cashier(request):
     """Возвращает текущего кассира из сессии, если он авторизован в POS."""
@@ -96,60 +100,80 @@ def api_checkout(request):
         items = data.get('items', [])
         payment_method = data.get('payment_method', 'cash') # cash, card
         
-        if not items:
+        if not items or not isinstance(items, list):
             return JsonResponse({'error': 'Корзина пуста'}, status=400)
             
-        # Создаем или получаем Dummy клиента для офлайн продаж
-        offline_customer, _ = Customer.objects.get_or_create(
-            instagram_scoped_id=f"pos_offline_{cashier.store.id}",
-            defaults={'full_name': 'Покупатель (Офлайн)'}
-        )
-            
-        # Создаем "офлайн" заказ для учета
-        order = Order.objects.create(
-            store=cashier.store,
-            customer=offline_customer,
-            status=Order.Status.DELIVERED, # Оффлайн покупка сразу доставлена
-            payment_method=payment_method,
-            total_price=0
-        )
-        
-        total = 0
-        for item in items:
-            variant_id = item.get('id')
-            qty = int(item.get('qty', 1))
-            
-            variant = ProductVariant.objects.get(id=variant_id, product__store=cashier.store)
-            price = variant.final_price
-            
-            OrderItem.objects.create(
-                order=order,
-                variant=variant,
-                quantity=qty,
-                price_at_purchase=price
+        with transaction.atomic():
+            # Создаем или получаем Dummy клиента для офлайн продаж
+            offline_customer, _ = Customer.objects.get_or_create(
+                instagram_scoped_id=f"pos_offline_{cashier.store.id}",
+                defaults={'full_name': 'Покупатель (Офлайн)'}
+            )
+                
+            # Создаем "офлайн" заказ для учета
+            order = Order.objects.create(
+                store=cashier.store,
+                customer=offline_customer,
+                status=Order.Status.DELIVERED, # Оффлайн покупка сразу доставлена
+                payment_method=payment_method,
+                total_price=0
             )
             
-            total += price * qty
-            
-            # Списание остатков
-            variant.stock_quantity -= qty
-            variant.save(update_fields=['stock_quantity'])
-            
-            # Запись движения
-            StockMovement.objects.create(
-                variant=variant,
-                movement_type=StockMovement.MovementType.SALE,
-                quantity=-qty,
-                author=cashier,
-                reason=f"Продажа, чек #{order.id}"
-            )
-            
-        order.recalculate_total()
+            total = 0
+            for item in items:
+                variant_id = item.get('id')
+                try:
+                    qty = int(item.get('qty', 1))
+                except (ValueError, TypeError):
+                    transaction.set_rollback(True)
+                    return JsonResponse({'error': 'Некорректное количество товара'}, status=400)
+                if qty <= 0:
+                    transaction.set_rollback(True)
+                    return JsonResponse({'error': 'Количество товара должно быть больше 0'}, status=400)
+                
+                try:
+                    variant = ProductVariant.objects.select_for_update().get(id=variant_id, product__store=cashier.store)
+                except (ProductVariant.DoesNotExist, ValueError, TypeError):
+                    transaction.set_rollback(True)
+                    return JsonResponse({'error': 'Товар не найден'}, status=404)
+
+                if variant.stock_quantity < qty:
+                    transaction.set_rollback(True)
+                    return JsonResponse({
+                        'error': f'Недостаточно товара «{variant.product.name}» на складе (доступно: {variant.stock_quantity} шт.)'
+                    }, status=400)
+
+                price = variant.final_price
+                
+                OrderItem.objects.create(
+                    order=order,
+                    variant=variant,
+                    quantity=qty,
+                    price_at_purchase=price
+                )
+                
+                total += price * qty
+                
+                # Списание остатков
+                variant.stock_quantity -= qty
+                variant.save(update_fields=['stock_quantity'])
+                
+                # Запись движения
+                StockMovement.objects.create(
+                    variant=variant,
+                    movement_type=StockMovement.MovementType.SALE,
+                    quantity=-qty,
+                    author=cashier,
+                    reason=f"Продажа, чек #{order.id}"
+                )
+                
+            order.recalculate_total()
         
         return JsonResponse({'success': True, 'order_id': order.id, 'total': float(order.total_price)})
         
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        logger.exception("POS checkout error: %s", e)
+        return JsonResponse({'error': 'Внутренняя ошибка при оформлении продажи.'}, status=500)
 
 @require_POST
 def api_shift_open(request):

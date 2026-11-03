@@ -20,6 +20,7 @@ Telegram Mini App интеграция + уведомления продавцу
 Поэтому вся обработка обёрнута в try/except.
 """
 
+import hmac
 import logging
 import re
 import requests
@@ -27,15 +28,44 @@ import secrets
 
 from django.conf import settings
 from django.core.cache import cache
+from django.db import transaction
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from core.models import (
-    Store, Order, StoreManager, Customer, StoreBranch, SubscriptionPayment, PlatformSettings
+    Store, Order, StoreManager, Customer, StoreBranch, SubscriptionPayment, PlatformSettings, ProductVariant
 )
 
 logger = logging.getLogger(__name__)
+
+
+def _is_superadmin(chat_id) -> bool:
+    """Проверяет, является ли chat_id Главным Администратором платформы."""
+    if not chat_id:
+        return False
+    ps = PlatformSettings.get_settings()
+    sa_id = str(ps.superadmin_telegram_chat_id or "").strip() or "1821219115"
+    return str(chat_id).strip() == sa_id
+
+
+def _is_store_staff(store, chat_id) -> bool:
+    """Проверяет, является ли chat_id владельцем магазина, активным менеджером или суперадмином."""
+    if not store or not chat_id:
+        return False
+    chat_id_str = str(chat_id).strip()
+    if store.telegram_chat_id and chat_id_str == str(store.telegram_chat_id).strip():
+        return True
+    if store.managers.filter(telegram_chat_id=chat_id_str, is_active=True).exists():
+        return True
+    return _is_superadmin(chat_id_str)
+
+
+def _escape_telegram_markdown(text: str) -> str:
+    """Экранирует спецсимволы legacy Markdown Telegram (_ * ` [), чтобы названия с '_' не вызывали 400 Bad Request."""
+    if not text:
+        return ""
+    return re.sub(r'([_*`\[])', r'\\\1', str(text))
 
 
 def build_telegram_deep_link(product_id: int) -> str:
@@ -1146,7 +1176,7 @@ class TelegramWebhookView(APIView):
         webhook_secret = getattr(settings, "TELEGRAM_WEBHOOK_SECRET", "")
         if webhook_secret:
             incoming_secret = request.META.get("HTTP_X_TELEGRAM_BOT_API_SECRET_TOKEN", "")
-            if incoming_secret != webhook_secret:
+            if not incoming_secret or not secrets.compare_digest(str(incoming_secret or ""), str(webhook_secret)):
                 logger.warning("Telegram webhook: неверный secret_token — запрос отклонён")
                 return Response(status=status.HTTP_403_FORBIDDEN)
 
@@ -1242,7 +1272,7 @@ class TelegramWebhookView(APIView):
                     }
                 }
                 if curr_token:
-                    requests.post(f"https://api.telegram.org/bot{curr_token}/sendMessage", json=payload)
+                    requests.post(f"https://api.telegram.org/bot{curr_token}/sendMessage", json=payload, timeout=10)
                 return
 
             # Шаг 1.5: Клиент прислал текстовый ориентир для такси (подъезд, этаж, ориентир)
@@ -1267,7 +1297,7 @@ class TelegramWebhookView(APIView):
                     }
                 }
                 if curr_token:
-                    requests.post(f"https://api.telegram.org/bot{curr_token}/sendMessage", json=payload)
+                    requests.post(f"https://api.telegram.org/bot{curr_token}/sendMessage", json=payload, timeout=10)
                 return
 
             # Шаг 2: Клиент прислал контакт
@@ -1291,14 +1321,16 @@ class TelegramWebhookView(APIView):
                 # Запоминаем, что ждем чек / подтверждение
                 cache.set(f"tg_state_{chat_id}", {"state": "WAITING_RECEIPT", "order_id": order.id}, timeout=3600 * 48)
 
-                card_number = store.payout_card or _t(chat_id, "card_number_pending")
-                card_holder_line = _t(chat_id, "card_holder_prefix", holder=store.payout_card_holder) if store.payout_card_holder else ""
+                card_number = _escape_telegram_markdown(store.payout_card or _t(chat_id, "card_number_pending"))
+                safe_holder = _escape_telegram_markdown(store.payout_card_holder)
+                card_holder_line = _t(chat_id, "card_holder_prefix", holder=safe_holder) if store.payout_card_holder else ""
+                safe_store_name = _escape_telegram_markdown(store.name)
 
                 ready_text = _t(
                     chat_id,
                     "checkout_card_info",
                     order_id=order.id,
-                    store=store.name,
+                    store=safe_store_name,
                     total=f"{int(order.total_price):,}",
                     card_number=card_number,
                     card_holder_line=card_holder_line,
@@ -1311,21 +1343,22 @@ class TelegramWebhookView(APIView):
                     dist_line = f" ({dist_km} km)" if dist_km is not None else ""
                     fare_str = f"{fare:,}".replace(",", " ")
                     cust_l = _get_customer_lang(chat_id)
+                    safe_branch_name = _escape_telegram_markdown(order.branch.name)
                     if cust_l == "uz":
                         branch_card_text = (
-                            f"\n\n📍 *Eng yaqin filial:* «{order.branch.name}»{dist_line}\n"
+                            f"\n\n📍 *Eng yaqin filial:* «{safe_branch_name}»{dist_line}\n"
                             f"🚕 *Yetkazish hisobi:* ~{mins} daqiqa (taxminan {fare_str} so'm taksi)\n"
                             f"🚀 Buyurtma tez va arzon yetkazilishi uchun aynan shu filialdan yuboriladi!"
                         )
                     elif cust_l == "en":
                         branch_card_text = (
-                            f"\n\n📍 *Nearest dispatch branch:* «{order.branch.name}»{dist_line}\n"
+                            f"\n\n📍 *Nearest dispatch branch:* «{safe_branch_name}»{dist_line}\n"
                             f"🚕 *Taxi estimate:* ~{mins} mins (~{fare_str} UZS taxi fare)\n"
                             f"🚀 Dispatched from this branch for fastest and most affordable delivery!"
                         )
                     else:
                         branch_card_text = (
-                            f"\n\n📍 *Ближайший филиал:* «{order.branch.name}»{dist_line}\n"
+                            f"\n\n📍 *Ближайший филиал:* «{safe_branch_name}»{dist_line}\n"
                             f"🚕 *Расчёт доставки:* ~{mins} мин (такси ~{fare_str} сум)\n"
                             f"🚀 Заказ будет отправлен именно из этой точки для быстрой и выгодной доставки!"
                         )
@@ -1340,7 +1373,14 @@ class TelegramWebhookView(APIView):
                     }
                 }
                 if curr_token:
-                    requests.post(f"https://api.telegram.org/bot{curr_token}/sendMessage", json=payload)
+                    resp = requests.post(f"https://api.telegram.org/bot{curr_token}/sendMessage", json=payload, timeout=10)
+                    if resp.status_code != 200:
+                        fallback_payload = {
+                            "chat_id": chat_id,
+                            "text": ready_text.replace("*", "").replace("`", "").replace("\\_", "_"),
+                            "reply_markup": {"remove_keyboard": True},
+                        }
+                        requests.post(f"https://api.telegram.org/bot{curr_token}/sendMessage", json=fallback_payload, timeout=10)
 
                 # Магазин и менеджеров НЕ беспокоим, пока клиент не переведет оплату и не прикрепит фото чека!
                 return
@@ -1492,7 +1532,7 @@ class TelegramWebhookView(APIView):
             }
             lang_token = bot_token or getattr(settings, "TELEGRAM_BOT_TOKEN", None)
             if lang_token:
-                requests.post(f"https://api.telegram.org/bot{lang_token}/sendMessage", json=payload)
+                requests.post(f"https://api.telegram.org/bot{lang_token}/sendMessage", json=payload, timeout=10)
             return
 
         elif requested_lang in ("uz", "ru", "en"):
@@ -1597,25 +1637,43 @@ class TelegramWebhookView(APIView):
                 last_name = tg_from.get("last_name", "") or ""
                 full_name = f"{first_name} {last_name}".strip()
 
-                cust_update_fields = []
-                if str(customer.telegram_chat_id) != str(chat_id):
-                    customer.telegram_chat_id = str(chat_id)
-                    cust_update_fields.append("telegram_chat_id")
-                if tg_username and customer.telegram_username != tg_username:
-                    customer.telegram_username = tg_username
-                    cust_update_fields.append("telegram_username")
-                if full_name and (not customer.full_name or customer.full_name in ("Покупатель", "Пользователь Telegram", "Клиент Telegram")):
-                    customer.full_name = full_name
-                    cust_update_fields.append("full_name")
+                existing_tg_id = str(customer.telegram_chat_id or "").strip()
+                caller_tg_id = str(chat_id).strip()
+                is_staff_caller = _is_store_staff(order.store, chat_id)
 
-                if cust_update_fields:
-                    customer.save(update_fields=cust_update_fields)
+                if existing_tg_id and existing_tg_id != caller_tg_id:
+                    if not is_staff_caller:
+                        _send_telegram_message(
+                            chat_id,
+                            "⛔ У вас нет доступа к этому заказу.",
+                            bot_token=order_token,
+                        )
+                        return
+                else:
+                    cust_update_fields = []
+                    if (
+                        not existing_tg_id
+                        or existing_tg_id == caller_tg_id
+                        or (customer.instagram_scoped_id or "").startswith("web_")
+                    ) and existing_tg_id != caller_tg_id:
+                        customer.telegram_chat_id = caller_tg_id
+                        cust_update_fields.append("telegram_chat_id")
+                    if tg_username and customer.telegram_username != tg_username:
+                        customer.telegram_username = tg_username
+                        cust_update_fields.append("telegram_username")
+                    if full_name and (not customer.full_name or customer.full_name in ("Покупатель", "Пользователь Telegram", "Клиент Telegram")):
+                        customer.full_name = full_name
+                        cust_update_fields.append("full_name")
+
+                    if cust_update_fields:
+                        customer.save(update_fields=cust_update_fields)
 
                 # Синхронизируем язык клиента из заказа с чатом
                 cust_lang = getattr(customer, "language", None) or _get_customer_lang(chat_id) or "uz"
                 if cust_lang not in ("ru", "uz", "en"):
                     cust_lang = "uz"
-                Customer.objects.filter(telegram_chat_id=str(chat_id)).update(language=cust_lang)
+                if not existing_tg_id or existing_tg_id == caller_tg_id:
+                    Customer.objects.filter(telegram_chat_id=str(chat_id)).update(language=cust_lang)
 
                 # Проверяем, нужна ли локация по GPS (только если заказ открыт в Telegram без адреса и без чека)
                 is_location_needed = (
@@ -1638,7 +1696,7 @@ class TelegramWebhookView(APIView):
                         }
                     }
                     if order_token:
-                        requests.post(f"https://api.telegram.org/bot{order_token}/sendMessage", json=payload)
+                        requests.post(f"https://api.telegram.org/bot{order_token}/sendMessage", json=payload, timeout=10)
                     return
 
                 # --- КАРТОЧКА ОТСЛЕЖИВАНИЯ ЗАКАЗА ДЛЯ ПОКУПАТЕЛЯ ИЗ БРАУЗЕРА ---
@@ -2177,13 +2235,21 @@ class TelegramWebhookView(APIView):
 
         elif callback_data.startswith("track_"):
             order_id = callback_data.replace("track_", "")
+            order_check = Order.objects.filter(id=order_id).select_related("store").first()
+            store_obj = order_check.store if order_check else Store.objects.filter(telegram_chat_id=str(chat_id)).first()
+            curr_token = bot_token or (store_obj.telegram_bot_token if (store_obj and store_obj.telegram_bot_token and store_obj.telegram_bot_active) else getattr(settings, "TELEGRAM_BOT_TOKEN", None))
+
+            if not order_check or not _is_store_staff(order_check.store, chat_id):
+                if curr_token and callback_query_id:
+                    requests.post(
+                        f"https://api.telegram.org/bot{curr_token}/answerCallbackQuery",
+                        json={"callback_query_id": callback_query_id, "text": "⛔ Нет прав доступа к заказам этого магазина", "show_alert": True},
+                        timeout=5,
+                    )
+                return
+
             cache.set(f"tg_state_{chat_id}", {"state": "SELLER_WAITING_TRACKING", "order_id": order_id}, timeout=3600)
             caller_lang = "ru"
-            store_obj = Store.objects.filter(telegram_chat_id=str(chat_id)).first()
-            if not store_obj:
-                order_check = Order.objects.filter(id=order_id).select_related("store").first()
-                if order_check:
-                    store_obj = order_check.store
             if store_obj:
                 caller_lang = _get_store_lang(store_obj)
             else:
@@ -2193,7 +2259,6 @@ class TelegramWebhookView(APIView):
                 else:
                     caller_lang = _get_customer_lang(chat_id)
 
-            curr_token = bot_token or (store_obj.telegram_bot_token if (store_obj and store_obj.telegram_bot_token and store_obj.telegram_bot_active) else getattr(settings, "TELEGRAM_BOT_TOKEN", None))
             if curr_token:
                 requests.post(
                     f"https://api.telegram.org/bot{curr_token}/answerCallbackQuery",
@@ -2209,16 +2274,31 @@ class TelegramWebhookView(APIView):
         elif callback_data.startswith("delivered_"):
             order_id = callback_data.replace("delivered_", "")
             try:
-                order = Order.objects.select_related("store", "customer").get(id=order_id)
-                order.status = Order.Status.DELIVERED
-                order.save(update_fields=["status"])
-                from core.payments.payout_service import release_order_funds_and_auto_payout
-                release_order_funds_and_auto_payout(order)
+                with transaction.atomic():
+                    order = Order.objects.select_for_update().select_related("store", "customer").get(id=order_id)
+                    store_obj = order.store
+                    curr_token = bot_token or (store_obj.telegram_bot_token if (store_obj and store_obj.telegram_bot_token and store_obj.telegram_bot_active) else getattr(settings, "TELEGRAM_BOT_TOKEN", None))
 
-                store_obj = order.store
+                    if not _is_store_staff(store_obj, chat_id):
+                        if curr_token and callback_query_id:
+                            requests.post(
+                                f"https://api.telegram.org/bot{curr_token}/answerCallbackQuery",
+                                json={"callback_query_id": callback_query_id, "text": "⛔ Нет прав доступа к заказам этого магазина", "show_alert": True},
+                                timeout=5,
+                            )
+                        return
+
+                    if order.status == Order.Status.DELIVERED:
+                        return
+
+                    order.status = Order.Status.DELIVERED
+                    order.save(update_fields=["status"])
+                    if order.payment_method != "card_transfer":
+                        from core.payments.payout_service import release_order_funds_and_auto_payout
+                        release_order_funds_and_auto_payout(order)
+
                 caller_lang = _get_store_lang(store_obj) if store_obj else "uz"
 
-                curr_token = bot_token or (store_obj.telegram_bot_token if (store_obj and store_obj.telegram_bot_token and store_obj.telegram_bot_active) else getattr(settings, "TELEGRAM_BOT_TOKEN", None))
                 if curr_token:
                     requests.post(
                         f"https://api.telegram.org/bot{curr_token}/answerCallbackQuery",
@@ -2257,6 +2337,15 @@ class TelegramWebhookView(APIView):
                 pass
 
         elif callback_data.startswith("sa_approve_"):
+            if not _is_superadmin(chat_id):
+                ans_token = bot_token or getattr(settings, "TELEGRAM_BOT_TOKEN", None)
+                if ans_token and callback_query_id:
+                    requests.post(
+                        f"https://api.telegram.org/bot{ans_token}/answerCallbackQuery",
+                        json={"callback_query_id": callback_query_id, "text": "⛔ Нет прав доступа", "show_alert": True},
+                        timeout=5,
+                    )
+                return
             store_id = callback_data.replace("sa_approve_", "")
             try:
                 store = Store.objects.get(id=store_id)
@@ -2277,6 +2366,15 @@ class TelegramWebhookView(APIView):
                 pass
 
         elif callback_data.startswith("sa_reject_"):
+            if not _is_superadmin(chat_id):
+                ans_token = bot_token or getattr(settings, "TELEGRAM_BOT_TOKEN", None)
+                if ans_token and callback_query_id:
+                    requests.post(
+                        f"https://api.telegram.org/bot{ans_token}/answerCallbackQuery",
+                        json={"callback_query_id": callback_query_id, "text": "⛔ Нет прав доступа", "show_alert": True},
+                        timeout=5,
+                    )
+                return
             store_id = callback_data.replace("sa_reject_", "")
             try:
                 store = Store.objects.get(id=store_id)
@@ -2296,26 +2394,60 @@ class TelegramWebhookView(APIView):
                 pass
 
         elif callback_data.startswith("sub_approve_"):
+            if not _is_superadmin(chat_id):
+                ans_token = bot_token or getattr(settings, "TELEGRAM_BOT_TOKEN", None)
+                if ans_token and callback_query_id:
+                    requests.post(
+                        f"https://api.telegram.org/bot{ans_token}/answerCallbackQuery",
+                        json={"callback_query_id": callback_query_id, "text": "⛔ Нет прав доступа", "show_alert": True},
+                        timeout=5,
+                    )
+                return
             payment_id = callback_data.replace("sub_approve_", "")
             try:
-                payment = SubscriptionPayment.objects.select_related("store", "store__owner").get(id=payment_id)
-                if payment.status == "completed":
+                with transaction.atomic():
+                    payment = SubscriptionPayment.objects.select_for_update().select_related("store", "store__owner").get(id=payment_id)
+                    if payment.status == "completed":
+                        already_completed = True
+                        store = payment.store
+                        new_date = payment.period_end
+                    else:
+                        already_completed = False
+                        store = payment.store
+                        tx_id = payment.transaction_id or f"TG_APPROVED_{payment.id}"
+                        try:
+                            new_date = store.renew_subscription(
+                                months=payment.months,
+                                payment_method="transfer",
+                                transaction_id=tx_id,
+                                create_payment_record=False,
+                            )
+                        except TypeError:
+                            new_date = store.renew_subscription(
+                                months=payment.months,
+                                payment_method="transfer",
+                                transaction_id=tx_id,
+                            )
+                            SubscriptionPayment.objects.filter(
+                                store=store,
+                                status="completed",
+                                transaction_id=tx_id,
+                            ).exclude(id=payment.id).delete()
+                        payment.status = "completed"
+                        payment.period_end = new_date
+                        if not payment.transaction_id:
+                            payment.transaction_id = tx_id
+                            payment.save(update_fields=["status", "period_end", "transaction_id"])
+                        else:
+                            payment.save(update_fields=["status", "period_end"])
+
+                if already_completed:
                     requests.post(
                         f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/answerCallbackQuery",
                         json={"callback_query_id": callback_query_id, "text": "Платёж уже был подтверждён ранее."},
                         timeout=5,
                     )
                 else:
-                    store = payment.store
-                    new_date = store.renew_subscription(
-                        months=payment.months,
-                        payment_method="transfer",
-                        transaction_id=payment.transaction_id
-                    )
-                    payment.status = "completed"
-                    payment.period_end = new_date
-                    payment.save(update_fields=["status", "period_end"])
-
                     requests.post(
                         f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/answerCallbackQuery",
                         json={"callback_query_id": callback_query_id, "text": f"✅ Подписка '{store.name}' продлена до {new_date.strftime('%d.%m.%Y')}!"},
@@ -2340,6 +2472,15 @@ class TelegramWebhookView(APIView):
                 logger.error("Ошибка при подтверждении подписки: %s", e)
 
         elif callback_data.startswith("sub_reject_"):
+            if not _is_superadmin(chat_id):
+                ans_token = bot_token or getattr(settings, "TELEGRAM_BOT_TOKEN", None)
+                if ans_token and callback_query_id:
+                    requests.post(
+                        f"https://api.telegram.org/bot{ans_token}/answerCallbackQuery",
+                        json={"callback_query_id": callback_query_id, "text": "⛔ Нет прав доступа", "show_alert": True},
+                        timeout=5,
+                    )
+                return
             payment_id = callback_data.replace("sub_reject_", "")
             try:
                 payment = SubscriptionPayment.objects.select_related("store").get(id=payment_id)
@@ -2367,20 +2508,33 @@ class TelegramWebhookView(APIView):
         elif callback_data.startswith("confirm_pay_"):
             order_id = callback_data.replace("confirm_pay_", "")
             try:
-                order = Order.objects.select_related("store", "customer").get(id=order_id)
-                if order.status != Order.Status.PAID:
-                    order.status = Order.Status.PAID
-                    order.save(update_fields=["status"])
+                with transaction.atomic():
+                    order = Order.objects.select_for_update().select_related("store", "customer").get(id=order_id)
+                    store_obj = order.store
+                    curr_token = bot_token or (store_obj.telegram_bot_token if (store_obj and store_obj.telegram_bot_token and store_obj.telegram_bot_active) else getattr(settings, "TELEGRAM_BOT_TOKEN", None))
 
-                    # СПИСЫВАЕМ ТОВАР В МАРКЕТПЛЕЙСЕ ТОЛЬКО ПОСЛЕ ПОДТВЕРЖДЕНИЯ ПРОДАВЦОМ В БОТЕ
-                    for item in order.items.select_related("variant").all():
-                        if item.variant:
-                            item.variant.stock_quantity = max(0, item.variant.stock_quantity - item.quantity)
-                            item.variant.save(update_fields=["stock_quantity"])
+                    if not _is_store_staff(store_obj, chat_id):
+                        if curr_token and callback_query_id:
+                            requests.post(
+                                f"https://api.telegram.org/bot{curr_token}/answerCallbackQuery",
+                                json={"callback_query_id": callback_query_id, "text": "⛔ Нет прав доступа к заказам этого магазина", "show_alert": True},
+                                timeout=5,
+                            )
+                        return
 
-                store_obj = order.store
+                    if order.status != Order.Status.PAID:
+                        order.status = Order.Status.PAID
+                        order.save(update_fields=["status"])
+
+                        # СПИСЫВАЕМ ТОВАР В МАРКЕТПЛЕЙСЕ ТОЛЬКО ПОСЛЕ ПОДТВЕРЖДЕНИЯ ПРОДАВЦОМ В БОТЕ
+                        for item in order.items.select_related("variant").all():
+                            if item.variant_id:
+                                locked_variant = ProductVariant.objects.select_for_update().filter(id=item.variant_id).first()
+                                if locked_variant:
+                                    locked_variant.stock_quantity = max(0, locked_variant.stock_quantity - item.quantity)
+                                    locked_variant.save(update_fields=["stock_quantity"])
+
                 caller_lang = _get_store_lang(store_obj) if store_obj else "ru"
-                curr_token = bot_token or (store_obj.telegram_bot_token if (store_obj and store_obj.telegram_bot_token and store_obj.telegram_bot_active) else getattr(settings, "TELEGRAM_BOT_TOKEN", None))
 
                 if curr_token:
                     requests.post(
@@ -2402,21 +2556,34 @@ class TelegramWebhookView(APIView):
         elif callback_data.startswith("reject_pay_"):
             order_id = callback_data.replace("reject_pay_", "")
             try:
-                order = Order.objects.select_related("store", "customer").get(id=order_id)
-                was_paid = (order.status == Order.Status.PAID)
-                if order.status != Order.Status.CANCELLED:
-                    order.status = Order.Status.CANCELLED
-                    order.save(update_fields=["status"])
-                    # Если ранее заказ уже был подтверждён и списан со склада — возвращаем остатки
-                    if was_paid:
-                        for item in order.items.select_related("variant").all():
-                            if item.variant:
-                                item.variant.stock_quantity += item.quantity
-                                item.variant.save(update_fields=["stock_quantity"])
+                with transaction.atomic():
+                    order = Order.objects.select_for_update().select_related("store", "customer").get(id=order_id)
+                    store_obj = order.store
+                    curr_token = bot_token or (store_obj.telegram_bot_token if (store_obj and store_obj.telegram_bot_token and store_obj.telegram_bot_active) else getattr(settings, "TELEGRAM_BOT_TOKEN", None))
 
-                store_obj = order.store
+                    if not _is_store_staff(store_obj, chat_id):
+                        if curr_token and callback_query_id:
+                            requests.post(
+                                f"https://api.telegram.org/bot{curr_token}/answerCallbackQuery",
+                                json={"callback_query_id": callback_query_id, "text": "⛔ Нет прав доступа к заказам этого магазина", "show_alert": True},
+                                timeout=5,
+                            )
+                        return
+
+                    was_paid = (order.status == Order.Status.PAID)
+                    if order.status != Order.Status.CANCELLED:
+                        order.status = Order.Status.CANCELLED
+                        order.save(update_fields=["status"])
+                        # Если ранее заказ уже был подтверждён и списан со склада — возвращаем остатки
+                        if was_paid:
+                            for item in order.items.select_related("variant").all():
+                                if item.variant_id:
+                                    locked_variant = ProductVariant.objects.select_for_update().filter(id=item.variant_id).first()
+                                    if locked_variant:
+                                        locked_variant.stock_quantity += item.quantity
+                                        locked_variant.save(update_fields=["stock_quantity"])
+
                 caller_lang = _get_store_lang(store_obj) if store_obj else "ru"
-                curr_token = bot_token or (store_obj.telegram_bot_token if (store_obj and store_obj.telegram_bot_token and store_obj.telegram_bot_active) else getattr(settings, "TELEGRAM_BOT_TOKEN", None))
 
                 if curr_token:
                     requests.post(
@@ -2527,7 +2694,8 @@ class StoreCustomTelegramWebhookView(APIView):
         webhook_secret = getattr(settings, "TELEGRAM_WEBHOOK_SECRET", "")
         if webhook_secret:
             incoming_secret = request.META.get("HTTP_X_TELEGRAM_BOT_API_SECRET_TOKEN", "")
-            if incoming_secret and incoming_secret != webhook_secret:
+            if not incoming_secret or not secrets.compare_digest(str(incoming_secret or ""), str(webhook_secret)):
+                logger.warning("Store custom Telegram webhook (%s): неверный secret_token — запрос отклонён", store_id)
                 return Response(status=status.HTTP_403_FORBIDDEN)
 
         try:
@@ -2667,54 +2835,74 @@ class StoreCustomTelegramWebhookView(APIView):
         if query_text or photo_file_id or voice_file_id:
             _send_telegram_chat_action(chat_id, "typing", bot_token=bot_token)
             tg_from = message.get("from", {}) or {}
-            from core.working_views.services import handle_incoming_telegram_message
-            ai_reply, matched_products = handle_incoming_telegram_message(
-                chat_id=str(chat_id),
-                message_text=query_text,
-                first_name=tg_from.get("first_name", ""),
-                username=tg_from.get("username", ""),
-                photo_file_id=photo_file_id,
-                voice_file_id=voice_file_id,
-                store=store,
-                bot_token=bot_token
-            )
-            if ai_reply:
-                site_url = getattr(settings, "SITE_URL", "https://brainmart.uz")
-                cust = Customer.objects.filter(telegram_chat_id=str(chat_id)).first()
-                cust_lang = getattr(cust, "language", "uz") or "uz"
+            dispatched_async = False
+            try:
+                import inspect
+                from core.tasks import handle_incoming_telegram_message_task
+                if "store_id" in inspect.signature(handle_incoming_telegram_message_task).parameters:
+                    handle_incoming_telegram_message_task.delay(
+                        chat_id=str(chat_id),
+                        message_text=query_text,
+                        first_name=tg_from.get("first_name", ""),
+                        username=tg_from.get("username", ""),
+                        photo_file_id=photo_file_id,
+                        voice_file_id=voice_file_id,
+                        bot_token=bot_token,
+                        store_id=store.id,
+                    )
+                    dispatched_async = True
+            except Exception:
+                dispatched_async = False
 
-                # Если найдены подходящие товары — отправляем реальное фото каждого товара с кнопкой оформления
-                if matched_products:
-                    for v in matched_products[:3]:
-                        photo = v.image or v.product.main_image
-                        product_url = f"{site_url}/{cust_lang}/product/{v.product.id}/"
-                        caption = (
-                            f"✨ {v.product.name}\n"
-                            f"💰 Цена: {int(v.final_price):,} сум\n"
-                            f"🎨 Цвет: {v.color or '—'} | Размер: {v.size or 'One Size'}"
-                        )
-                        kb = {
+            if not dispatched_async:
+                from core.working_views.services import handle_incoming_telegram_message
+                ai_reply, matched_products = handle_incoming_telegram_message(
+                    chat_id=str(chat_id),
+                    message_text=query_text,
+                    first_name=tg_from.get("first_name", ""),
+                    username=tg_from.get("username", ""),
+                    photo_file_id=photo_file_id,
+                    voice_file_id=voice_file_id,
+                    store=store,
+                    bot_token=bot_token
+                )
+                if ai_reply:
+                    site_url = getattr(settings, "SITE_URL", "https://brainmart.uz")
+                    cust = Customer.objects.filter(telegram_chat_id=str(chat_id)).first()
+                    cust_lang = getattr(cust, "language", "uz") or "uz"
+
+                    # Если найдены подходящие товары — отправляем реальное фото каждого товара с кнопкой оформления
+                    if matched_products:
+                        for v in matched_products[:3]:
+                            photo = v.image or v.product.main_image
+                            product_url = f"{site_url}/{cust_lang}/product/{v.product.id}/"
+                            caption = (
+                                f"✨ {v.product.name}\n"
+                                f"💰 Цена: {int(v.final_price):,} сум\n"
+                                f"🎨 Цвет: {v.color or '—'} | Размер: {v.size or 'One Size'}"
+                            )
+                            kb = {
+                                "inline_keyboard": [
+                                    [{"text": f"🛒 Оформить заказ ({v.product.name[:25]})", "web_app": {"url": product_url}}],
+                                ]
+                            }
+                            if photo:
+                                _send_telegram_photo(chat_id, photo, caption=caption, reply_markup=kb, bot_token=bot_token)
+                            else:
+                                _send_telegram_message(chat_id, caption, reply_markup=kb, bot_token=bot_token)
+
+                        # Отправляем сообщение-консультацию ИИ с кнопкой всей витрины
+                        store_kb = {
                             "inline_keyboard": [
-                                [{"text": f"🛒 Оформить заказ ({v.product.name[:25]})", "web_app": {"url": product_url}}],
+                                [{"text": f"🛍 Вся витрина «{store.name}»", "web_app": {"url": store_url}}]
                             ]
                         }
-                        if photo:
-                            _send_telegram_photo(chat_id, photo, caption=caption, reply_markup=kb, bot_token=bot_token)
-                        else:
-                            _send_telegram_message(chat_id, caption, reply_markup=kb, bot_token=bot_token)
-
-                    # Отправляем сообщение-консультацию ИИ с кнопкой всей витрины
-                    store_kb = {
-                        "inline_keyboard": [
-                            [{"text": f"🛍 Вся витрина «{store.name}»", "web_app": {"url": store_url}}]
-                        ]
-                    }
-                    _send_telegram_message(chat_id, ai_reply, reply_markup=store_kb, bot_token=bot_token)
-                else:
-                    store_kb = {
-                        "inline_keyboard": [
-                            [{"text": f"🛍 Открыть витрину «{store.name}»", "web_app": {"url": store_url}}]
-                        ]
-                    }
-                    _send_telegram_message(chat_id, ai_reply, reply_markup=store_kb, bot_token=bot_token)
+                        _send_telegram_message(chat_id, ai_reply, reply_markup=store_kb, bot_token=bot_token)
+                    else:
+                        store_kb = {
+                            "inline_keyboard": [
+                                [{"text": f"🛍 Открыть витрину «{store.name}»", "web_app": {"url": store_url}}]
+                            ]
+                        }
+                        _send_telegram_message(chat_id, ai_reply, reply_markup=store_kb, bot_token=bot_token)
 

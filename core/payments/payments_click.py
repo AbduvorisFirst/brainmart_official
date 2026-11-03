@@ -23,7 +23,8 @@ https://docs.click.uz/en/click-api/#merchant-api
 """
 
 import hashlib
-from decimal import Decimal
+import hmac
+from decimal import Decimal, InvalidOperation
 
 from django.conf import settings
 from django.db import transaction
@@ -31,7 +32,7 @@ from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from core.models import Order
+from core.models import Order, ProductVariant
 from core.working_views.telegram_bot import notify_seller_about_order
 
 
@@ -76,6 +77,13 @@ class ClickWebhookView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
+        secret_key = (getattr(settings, "CLICK_SECRET_KEY", "") or "").strip()
+        if not secret_key:
+            return Response(
+                {"error": CLICK_ERROR_SIGN_CHECK_FAILED, "error_note": "Click secret key is not configured"},
+                status=status.HTTP_200_OK,
+            )
+
         data = request.data
         action = str(data.get("action"))
 
@@ -94,19 +102,26 @@ class ClickWebhookView(APIView):
         Шаг 1: Click спрашивает "этот заказ вообще существует и его можно оплатить?"
         Здесь мы НЕ подтверждаем оплату, только проверяем корректность данных.
         """
+        secret_key = (getattr(settings, "CLICK_SECRET_KEY", "") or "").strip()
+        if not secret_key:
+            return Response(
+                {"error": CLICK_ERROR_SIGN_CHECK_FAILED, "error_note": "Sign check failed"}
+            )
+
         merchant_trans_id = data.get("merchant_trans_id")  # это наш order.id
         amount = data.get("amount")
 
         sign_check = _make_sign_string(
             data.get("click_trans_id"),
             data.get("service_id"),
-            settings.CLICK_SECRET_KEY,
+            secret_key,
             merchant_trans_id,
             amount,
             data.get("action"),
             data.get("sign_time"),
         )
-        if sign_check != data.get("sign_string"):
+        provided_sign = str(data.get("sign_string") or "")
+        if not hmac.compare_digest(sign_check, provided_sign):
             return Response(
                 {"error": CLICK_ERROR_SIGN_CHECK_FAILED, "error_note": "Sign check failed"}
             )
@@ -123,7 +138,14 @@ class ClickWebhookView(APIView):
                 {"error": CLICK_ERROR_ALREADY_PAID, "error_note": "Already paid"}
             )
 
-        if Decimal(str(amount)) != order.total_price:
+        try:
+            parsed_amount = Decimal(str(amount))
+        except (InvalidOperation, ValueError, TypeError):
+            return Response(
+                {"error": CLICK_ERROR_AMOUNT_MISMATCH, "error_note": "Amount mismatch"}
+            )
+
+        if parsed_amount != order.total_price:
             return Response(
                 {"error": CLICK_ERROR_AMOUNT_MISMATCH, "error_note": "Amount mismatch"}
             )
@@ -142,70 +164,87 @@ class ClickWebhookView(APIView):
         ТОЛЬКО здесь мы помечаем заказ оплаченным и списываем остатки на складе —
         именно это правило (не раньше!) обсуждали с самого начала проекта.
         """
+        secret_key = (getattr(settings, "CLICK_SECRET_KEY", "") or "").strip()
+        if not secret_key:
+            return Response(
+                {"error": CLICK_ERROR_SIGN_CHECK_FAILED, "error_note": "Sign check failed"}
+            )
+
         merchant_trans_id = data.get("merchant_trans_id")
         amount = data.get("amount")
 
         sign_check = _make_sign_string(
             data.get("click_trans_id"),
             data.get("service_id"),
-            settings.CLICK_SECRET_KEY,
+            secret_key,
             merchant_trans_id,
             data.get("merchant_prepare_id"),
             amount,
             data.get("action"),
             data.get("sign_time"),
         )
-        if sign_check != data.get("sign_string"):
+        provided_sign = str(data.get("sign_string") or "")
+        if not hmac.compare_digest(sign_check, provided_sign):
             return Response(
                 {"error": CLICK_ERROR_SIGN_CHECK_FAILED, "error_note": "Sign check failed"}
             )
 
-        try:
-            order = Order.objects.select_related("store").get(id=merchant_trans_id)
-        except (Order.DoesNotExist, ValueError, TypeError):
-            return Response(
-                {"error": CLICK_ERROR_ORDER_NOT_FOUND, "error_note": "Order not found"}
-            )
-
-        # Защита от повторной обработки: Click иногда шлёт Complete повторно.
-        # Если заказ уже оплачен — просто отвечаем "успех", ничего не списываем повторно.
-        if order.status == Order.Status.PAID:
-            return Response({
-                "click_trans_id": data.get("click_trans_id"),
-                "merchant_trans_id": merchant_trans_id,
-                "merchant_confirm_id": order.id,
-                "error": CLICK_ERROR_SUCCESS,
-                "error_note": "Already confirmed",
-            })
-
-        error_code = data.get("error")
-        if str(error_code) != "0":
-            # Click сообщает, что оплата не удалась на его стороне
-            order.status = Order.Status.CANCELLED
-            order.save(update_fields=["status"])
-            return Response({
-                "click_trans_id": data.get("click_trans_id"),
-                "merchant_trans_id": merchant_trans_id,
-                "merchant_confirm_id": order.id,
-                "error": CLICK_ERROR_SUCCESS,
-                "error_note": "Payment failure noted",
-            })
-
-        # Всё хорошо — помечаем заказ оплаченным и списываем остатки товара.
-        # transaction.atomic гарантирует: либо оба действия (статус + склад)
-        # выполнятся вместе, либо ни одно — на случай сбоя посреди операции.
+        # Всё хорошо — блокируем заказ, проверяем сумму, помечаем заказ оплаченным и списываем остатки товара.
         with transaction.atomic():
+            try:
+                order = Order.objects.select_for_update().select_related("store").get(id=merchant_trans_id)
+            except (Order.DoesNotExist, ValueError, TypeError):
+                return Response(
+                    {"error": CLICK_ERROR_ORDER_NOT_FOUND, "error_note": "Order not found"}
+                )
+
+            # Защита от повторной обработки: Click иногда шлёт Complete повторно.
+            # Если заказ уже оплачен — просто отвечаем "успех", ничего не списываем повторно.
+            if order.status == Order.Status.PAID:
+                return Response({
+                    "click_trans_id": data.get("click_trans_id"),
+                    "merchant_trans_id": merchant_trans_id,
+                    "merchant_confirm_id": order.id,
+                    "error": CLICK_ERROR_SUCCESS,
+                    "error_note": "Already confirmed",
+                })
+
+            try:
+                parsed_amount = Decimal(str(amount))
+            except (InvalidOperation, ValueError, TypeError):
+                return Response(
+                    {"error": CLICK_ERROR_AMOUNT_MISMATCH, "error_note": "Amount mismatch"}
+                )
+
+            if parsed_amount != order.total_price:
+                return Response(
+                    {"error": CLICK_ERROR_AMOUNT_MISMATCH, "error_note": "Amount mismatch"}
+                )
+
+            error_code = data.get("error")
+            if str(error_code) != "0":
+                # Click сообщает, что оплата не удалась на его стороне
+                order.status = Order.Status.CANCELLED
+                order.save(update_fields=["status"])
+                return Response({
+                    "click_trans_id": data.get("click_trans_id"),
+                    "merchant_trans_id": merchant_trans_id,
+                    "merchant_confirm_id": order.id,
+                    "error": CLICK_ERROR_SUCCESS,
+                    "error_note": "Payment failure noted",
+                })
+
             order.status = Order.Status.PAID
             order.payment_method = "click"
             order.payment_transaction_id = str(data.get("click_trans_id"))
             order.save(update_fields=["status", "payment_method", "payment_transaction_id"])
 
-            # Финансовый сплит: рассчитываем комиссию 10% и замораживаем 90% в холде магазина
+            # Финансовый сплит: рассчитываем комиссию и замораживаем средства в холде магазина
             from .payout_service import hold_order_funds
             hold_order_funds(order)
 
             for item in order.items.select_related("variant").all():
-                variant = item.variant
+                variant = ProductVariant.objects.select_for_update().get(id=item.variant_id)
                 variant.stock_quantity = max(0, variant.stock_quantity - item.quantity)
                 variant.save(update_fields=["stock_quantity"])
 

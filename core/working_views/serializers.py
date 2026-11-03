@@ -6,6 +6,7 @@ serializers.py
 данные на фронтенд маркетплейса.
 """
 
+from django.db import transaction
 from rest_framework import serializers
 from core.models import (
     Store,
@@ -90,11 +91,17 @@ class CustomerSerializer(serializers.ModelSerializer):
 
 class OrderItemSerializer(serializers.ModelSerializer):
     variant_label = serializers.CharField(source="variant.__str__", read_only=True)
+    quantity = serializers.IntegerField(min_value=1)
 
     class Meta:
         model = OrderItem
         fields = ["id", "variant", "variant_label", "quantity", "price_at_purchase"]
         read_only_fields = ["price_at_purchase"]
+
+    def validate_quantity(self, value):
+        if value < 1:
+            raise serializers.ValidationError("Количество должно быть не менее 1.")
+        return value
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -126,16 +133,29 @@ class OrderSerializer(serializers.ModelSerializer):
         так клиент не сможет подделать цену через запрос.
         """
         items_data = validated_data.pop("items")
-        order = Order.objects.create(**validated_data)
+        store = validated_data.get("store")
 
-        for item_data in items_data:
-            variant = item_data["variant"]
-            OrderItem.objects.create(
-                order=order,
-                variant=variant,
-                quantity=item_data["quantity"],
-                price_at_purchase=variant.final_price,
-            )
+        if not store or not store.is_active or store.is_frozen_by_admin:
+            raise serializers.ValidationError("Магазин недоступен для оформления заказов.")
 
-        order.recalculate_total()
-        return order
+        with transaction.atomic():
+            for item_data in items_data:
+                variant = item_data["variant"]
+                if variant.product.store_id != store.id or not variant.product.is_active:
+                    raise serializers.ValidationError(
+                        f"Товар '{variant}' не принадлежит выбранному магазину или неактивен."
+                    )
+
+            order = Order.objects.create(**validated_data)
+
+            for item_data in items_data:
+                variant = item_data["variant"]
+                OrderItem.objects.create(
+                    order=order,
+                    variant=variant,
+                    quantity=item_data["quantity"],
+                    price_at_purchase=variant.final_price,
+                )
+
+            order.recalculate_total()
+            return order

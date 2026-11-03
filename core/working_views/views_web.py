@@ -534,7 +534,9 @@ def _resolve_cart_variant(item):
     """
     if not isinstance(item, dict):
         return None
-    v_id = item.get("variant_id") or item.get("id")
+    raw_variant_id = item.get("variant_id")
+    raw_product_id = item.get("id")
+    v_id = raw_variant_id or raw_product_id
     if not v_id:
         return None
     try:
@@ -542,15 +544,37 @@ def _resolve_cart_variant(item):
     except (ValueError, TypeError):
         return None
 
+    prod_id_int = None
+    if raw_product_id is not None:
+        try:
+            prod_id_int = int(raw_product_id)
+        except (ValueError, TypeError):
+            prod_id_int = None
+
+    active_variant_filters = {
+        "product__is_active": True,
+        "product__store__is_active": True,
+        "product__store__is_frozen_by_admin": False,
+    }
+
     # 1. Прямой поиск по ID варианта
-    v = ProductVariant.objects.select_related("product__store").filter(id=v_id_int).first()
+    v = ProductVariant.objects.select_related("product__store").filter(
+        id=v_id_int,
+        **active_variant_filters,
+    ).first()
+    if v and prod_id_int is not None and raw_variant_id is not None and v.product_id != prod_id_int:
+        v = None
     if v:
         return v
 
     # 2. Поиск по product_id с учетом цвета / размера (если переданы)
+    target_prod_id = prod_id_int if prod_id_int is not None else v_id_int
     color = str(item.get("color") or "").strip()
     size = str(item.get("size") or "").strip()
-    variants_qs = ProductVariant.objects.select_related("product__store").filter(product_id=v_id_int)
+    variants_qs = ProductVariant.objects.select_related("product__store").filter(
+        product_id=target_prod_id,
+        **active_variant_filters,
+    )
 
     if color and size:
         v = variants_qs.filter(color__iexact=color, size__iexact=size).first()
@@ -563,7 +587,12 @@ def _resolve_cart_variant(item):
 
     # 3. Если вариантов вообще нет в базе (товар без вариаций), автоматически создаем вариант по умолчанию
     if not v:
-        p = Product.objects.select_related("store").filter(id=v_id_int).first()
+        p = Product.objects.select_related("store").filter(
+            id=target_prod_id,
+            is_active=True,
+            store__is_active=True,
+            store__is_frozen_by_admin=False,
+        ).first()
         if p:
             import secrets
             v, _var_created = ProductVariant.objects.get_or_create(
@@ -654,7 +683,12 @@ def create_telegram_order(request):
                     break
 
         if not target_store:
+            transaction.set_rollback(True)
             return JsonResponse({"success": False, "error": "Не удалось определить магазин для выбранных товаров."})
+
+        if not target_store.is_active or target_store.is_frozen_by_admin:
+            transaction.set_rollback(True)
+            return JsonResponse({"success": False, "error": "Магазин временно не принимает заказы."})
 
         valid_items = []
         for item in cart_items:
@@ -666,7 +700,17 @@ def create_telegram_order(request):
             valid_items.append((item, v))
 
         if not valid_items:
+            transaction.set_rollback(True)
             return JsonResponse({"success": False, "error": "В корзине нет доступных товаров для данного магазина."})
+
+        aggregated_quantities = {}
+        for item, variant in valid_items:
+            try:
+                raw_q = item.get("quantity") if isinstance(item, dict) else 1
+                item_qty = max(1, min(999, int(raw_q or 1)))
+            except (ValueError, TypeError):
+                item_qty = 1
+            aggregated_quantities[variant.id] = aggregated_quantities.get(variant.id, 0) + item_qty
 
         from core.working_views.views_branches import find_nearest_branch, _parse_coord
         initial_branch, _dist_km = find_nearest_branch(target_store)
@@ -686,7 +730,9 @@ def create_telegram_order(request):
                 qty = max(1, min(999, int(raw_q or 1)))
             except (ValueError, TypeError):
                 qty = 1
-            if qty > variant.stock_quantity:
+            total_variant_qty = aggregated_quantities.get(variant.id, qty)
+            if qty > variant.stock_quantity or total_variant_qty > variant.stock_quantity:
+                transaction.set_rollback(True)
                 return JsonResponse({
                     "success": False,
                     "error": f"К сожалению, товара «{variant.product.name}» ({variant.color or '—'}/{variant.size or '—'}) осталось всего {variant.stock_quantity} шт. Пожалуйста, уменьшите количество."
@@ -835,7 +881,12 @@ def create_web_order(request):
                         break
 
             if not target_store:
+                transaction.set_rollback(True)
                 return JsonResponse({"success": False, "error": _("Не удалось определить магазин для выбранных товаров.")})
+
+            if not target_store.is_active or target_store.is_frozen_by_admin:
+                transaction.set_rollback(True)
+                return JsonResponse({"success": False, "error": _("Магазин временно не принимает заказы.")})
 
             # Фильтруем товары: включаем ТОЛЬКО позиции, принадлежащие целевому магазину!
             valid_items = []
@@ -849,7 +900,17 @@ def create_web_order(request):
                 valid_items.append((item, v))
 
             if not valid_items:
+                transaction.set_rollback(True)
                 return JsonResponse({"success": False, "error": _("В корзине нет доступных товаров для данного магазина.")})
+
+            aggregated_quantities = {}
+            for item, variant in valid_items:
+                try:
+                    raw_q = item.get("quantity", 1) if isinstance(item, dict) else 1
+                    item_qty = max(1, min(999, int(raw_q or 1)))
+                except (ValueError, TypeError):
+                    item_qty = 1
+                aggregated_quantities[variant.id] = aggregated_quantities.get(variant.id, 0) + item_qty
 
             from core.working_views.views_branches import find_nearest_branch
             nearest_branch, _dist_km = find_nearest_branch(
@@ -872,8 +933,14 @@ def create_web_order(request):
             )
 
             for item, variant in valid_items:
-                qty = max(1, int(item.get("quantity", 1)))
-                if qty > variant.stock_quantity:
+                try:
+                    raw_q = item.get("quantity", 1) if isinstance(item, dict) else 1
+                    qty = max(1, min(999, int(raw_q or 1)))
+                except (ValueError, TypeError):
+                    qty = 1
+                total_variant_qty = aggregated_quantities.get(variant.id, qty)
+                if qty > variant.stock_quantity or total_variant_qty > variant.stock_quantity:
+                    transaction.set_rollback(True)
                     return JsonResponse({
                         "success": False,
                         "error": _("К сожалению, товара «%(name)s» осталось только %(stock)d шт. Пожалуйста, измените количество в корзине.") % {
@@ -911,7 +978,7 @@ def create_web_order(request):
         })
     except Exception as e:
         logger.exception("create_web_order failed with error: %s", e)
-        return JsonResponse({"success": False, "error": f"Ошибка создания заказа: {str(e)}"})
+        return JsonResponse({"success": False, "error": _("Произошла ошибка при оформлении заказа. Пожалуйста, попробуйте еще раз.")})
 
 
 @xframe_options_exempt
@@ -957,6 +1024,22 @@ def order_upload_receipt_view(request, order_id):
         if getattr(receipt_file, "size", 0) > 15 * 1024 * 1024:
             messages.error(request, _("⚠️ Размер файла чека не должен превышать 15 МБ."))
             return redirect(f"/{lang}/order/{order.id}/success/")
+
+        import os
+        ext = os.path.splitext(getattr(receipt_file, "name", "") or "")[1].lower()
+        allowed_extensions = (".jpg", ".jpeg", ".png", ".webp", ".pdf")
+        if ext not in allowed_extensions:
+            messages.error(request, _("⚠️ Допустимые форматы файла чека: JPG, PNG, WEBP или PDF."))
+            return redirect(f"/{lang}/order/{order.id}/success/")
+
+        if ext in (".jpg", ".jpeg", ".png", ".webp"):
+            try:
+                from PIL import Image
+                Image.open(receipt_file).verify()
+                receipt_file.seek(0)
+            except Exception:
+                messages.error(request, _("⚠️ Загруженный файл поврежден или не является корректным изображением."))
+                return redirect(f"/{lang}/order/{order.id}/success/")
 
         order.payment_receipt = receipt_file
         order.payment_confirmed_by_customer = True

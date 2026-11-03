@@ -196,6 +196,7 @@ def ask_gemini(
     image_mime_type: str = "image/jpeg",
     audio_base64: str | None = None,
     audio_mime_type: str = "audio/ogg",
+    store: Store | None = None,
 ) -> str:
     """
     Отправляет запрос в Gemini API — с поддержкой истории диалога, Gemini Vision (фото)
@@ -203,16 +204,20 @@ def ask_gemini(
     Включает авто-переключение моделей (fallback) для максимальной надёжности.
     """
     # --- БЕЗОПАСНОСТЬ: Rate Limiting ---
-    rate_key = "gemini_rate_limit"
+    rate_key = f"gemini_rate_limit_{store.id if store else 'global'}"
     current_count = cache.get(rate_key, 0)
     if current_count >= 60:
-        logger.warning("Rate limit Gemini API: превышен лимит 60 req/min")
+        logger.warning("Rate limit Gemini API: превышен лимит 60 req/min (key=%s)", rate_key)
         return (
             "Сейчас много запросов, менеджер скоро подключится. / "
             "Hozir ko'p so'rovlar bor, menejer tez orada javob beradi. / "
             "High demand right now, a manager will join shortly."
         )
-    cache.set(rate_key, current_count + 1, timeout=60)
+    if not cache.add(rate_key, 1, timeout=60):
+        try:
+            cache.incr(rate_key)
+        except ValueError:
+            cache.set(rate_key, current_count + 1, timeout=60)
 
     api_key = getattr(settings, "GEMINI_API_KEY", os.environ.get("GEMINI_API_KEY"))
 
@@ -241,15 +246,17 @@ def ask_gemini(
     contents = (history or []) + [{"role": "user", "parts": user_parts}]
 
     models_to_try = [
-        "gemini-3.8-flash",
-        "gemini-3.5-flash-lite",
+        "gemini-2.5-flash",
+        "gemini-2.0-flash",
         "gemini-flash-latest",
     ]
 
     for model_name in models_to_try:
         try:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent"
             response = _ai_session.post(
-                f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}",
+                url,
+                headers={"Content-Type": "application/json", "x-goog-api-key": api_key},
                 json={
                     "system_instruction": {"parts": [{"text": system_instruction}]},
                     "contents": contents,
@@ -368,7 +375,7 @@ def handle_incoming_instagram_message(
     matches = find_matching_variants(store, message_text)
     system_instruction = build_system_instruction(store)
     stock_context = build_stock_context(matches)
-    ai_reply_text = ask_gemini(system_instruction, message_text, stock_context, history=history)
+    ai_reply_text = ask_gemini(system_instruction, message_text, stock_context, history=history, store=store)
 
     # Ссылку добавляем сами, кодом — а не полагаемся на то, что Gemini её
     # правильно "придумает" в тексте. Берём первый товар в наличии из совпадений.
@@ -615,6 +622,7 @@ def handle_incoming_telegram_message(
         history=history,
         image_base64=image_b64,
         audio_base64=audio_b64,
+        store=store,
     )
 
     # 6. Парсинг тегов [MATCH_ID: ...] из ответа Gemini
@@ -908,7 +916,7 @@ def send_instagram_public_reply(comment_id: str, text: str, store: "Store") -> N
         logger.exception("Ошибка при отправке Instagram public reply: %s", e)
 
 
-def send_instagram_private_reply(comment_id: str, text: str, store: "Store") -> None:
+def send_instagram_private_reply(comment_id: str, text: str, store: "Store") -> bool:
     """
     Отправляет приватный ответ (Direct Message) на комментарий Instagram.
     Meta сама откроет DM-диалог с автором комментария.
@@ -916,7 +924,7 @@ def send_instagram_private_reply(comment_id: str, text: str, store: "Store") -> 
     """
     access_token = (store.meta_access_token if store and store.meta_access_token else None) or getattr(settings, "META_PAGE_ACCESS_TOKEN", None)
     if not access_token:
-        return
+        return False
     base_host = "https://graph.instagram.com" if access_token.startswith("IG") else "https://graph.facebook.com"
     try:
         resp = requests.post(
@@ -926,8 +934,10 @@ def send_instagram_private_reply(comment_id: str, text: str, store: "Store") -> 
             timeout=10,
         )
         logger.info("Instagram private reply status: %s, response: %s", resp.status_code, resp.text)
+        return 200 <= resp.status_code < 300
     except requests.RequestException as e:
         logger.exception("Ошибка при отправке Instagram private reply: %s", e)
+        return False
 
 
 def handle_incoming_instagram_comment(
@@ -965,6 +975,7 @@ def handle_incoming_instagram_comment(
         comment_system,
         comment_text or "(Клиент оставил комментарий без текста)",
         stock_context,
+        store=store,
     )
 
     # 3. Добавляем ссылку на Telegram-бота или на сайт
@@ -1002,8 +1013,8 @@ def handle_incoming_instagram_comment(
         store_link = f"https://t.me/{settings.TELEGRAM_BOT_USERNAME}?start=store_{store.id}"
         ai_text += f"\n\n💬 Telegram: {store_link}"
 
-    send_instagram_private_reply(comment_id, ai_text, store)
-    send_instagram_reply(store, sender_id, ai_text)
+    if not send_instagram_private_reply(comment_id, ai_text, store):
+        send_instagram_reply(store, sender_id, ai_text)
 
 
 def semantic_ai_catalog_search(query_text: str, store: Store | None = None) -> dict:
@@ -1016,7 +1027,8 @@ def semantic_ai_catalog_search(query_text: str, store: Store | None = None) -> d
 
     base_qs = ProductVariant.objects.filter(
         product__is_active=True,
-        product__store__is_active=True
+        product__store__is_active=True,
+        product__store__is_frozen_by_admin=False,
     ).select_related("product", "product__store", "product__category")
 
     if store:
@@ -1087,9 +1099,11 @@ def semantic_ai_catalog_search(query_text: str, store: Store | None = None) -> d
     user_prompt = f"Запрос покупателя: '{query_text}'\nКаталог товаров:\n{json.dumps(catalog_summary, ensure_ascii=False)}"
 
     try:
-        url = f"{GEMINI_API_URL}?key={api_key}"
-        res = requests.post(
+        model_name = "gemini-2.5-flash"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent"
+        res = _ai_session.post(
             url,
+            headers={"Content-Type": "application/json", "x-goog-api-key": api_key},
             json={
                 "system_instruction": {"parts": [{"text": system_instruction}]},
                 "contents": [{"role": "user", "parts": [{"text": user_prompt}]}],
@@ -1166,9 +1180,11 @@ def generate_ai_broadcast_copy(prompt: str, tone: str = "hype", store_name: str 
     )
 
     try:
-        url = f"{GEMINI_API_URL}?key={api_key}"
-        res = requests.post(
+        model_name = "gemini-2.5-flash"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent"
+        res = _ai_session.post(
             url,
+            headers={"Content-Type": "application/json", "x-goog-api-key": api_key},
             json={
                 "system_instruction": {"parts": [{"text": system_instruction}]},
                 "contents": [{"role": "user", "parts": [{"text": f"Идея продавца: {prompt}"}]}],
@@ -1213,9 +1229,11 @@ def generate_ai_product_description(name: str, category: str = "", features: str
     user_prompt = f"Товар: '{name}', Категория: '{category}', Особенности/детали: '{features}'"
 
     try:
-        url = f"{GEMINI_API_URL}?key={api_key}"
-        res = requests.post(
+        model_name = "gemini-2.5-flash"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent"
+        res = _ai_session.post(
             url,
+            headers={"Content-Type": "application/json", "x-goog-api-key": api_key},
             json={
                 "system_instruction": {"parts": [{"text": system_instruction}]},
                 "contents": [{"role": "user", "parts": [{"text": user_prompt}]}],
@@ -1371,7 +1389,8 @@ def handle_web_ai_chat(
         system_instruction=system_inst,
         customer_message=user_query,
         stock_context=stock_context,
-        history=[]
+        history=[],
+        store=store,
     )
 
     match_ids = []
@@ -1416,7 +1435,7 @@ def handle_web_ai_chat(
 def generate_ai_vision_daily_report(store: Store, target_date=None, trigger_telegram: bool = True) -> dict:
     """
     Генерирует ежедневный отчет офлайн-видеоаналитики и аудиомониторинга
-    с помощью сверхлегкой модели Gemini 2.5 Flash-Lite.
+    с помощью быстрой модели Gemini Flash.
     Анализирует конверсию, жалобы покупателей (дорого / нет размеров) и гео-локацию.
     Отправляет сводку в Telegram владельцу магазина.
     """
@@ -1430,79 +1449,34 @@ def generate_ai_vision_daily_report(store: Store, target_date=None, trigger_tele
     if not target_date:
         target_date = timezone.localdate()
 
-    # 1. Сбор трафика с камер магазина за выбранный день
+    # 1. Сбор трафика с камер магазина за выбранный день (без записи фейковых камер и посетителей)
     traffic_qs = CameraTrafficEvent.objects.filter(store=store, date=target_date)
     total_visitors = traffic_qs.aggregate(s=Sum("entries_count"))["s"] or 0
     total_exits = traffic_qs.aggregate(s=Sum("exits_count"))["s"] or 0
 
-    # Если это новый магазин или демо-камера и событий еще нет — создаем реалистичный демо-слепок
-    if total_visitors == 0:
-        demo_hours = [
-            (10, 12, 10, 360), (11, 18, 15, 420), (12, 25, 22, 480),
-            (13, 20, 19, 410), (14, 15, 14, 390), (15, 22, 20, 430),
-            (16, 34, 30, 510), (17, 48, 42, 540), (18, 55, 50, 580),
-            (19, 42, 38, 500), (20, 26, 25, 420), (21, 15, 15, 350)
-        ]
-        cam = StoreCamera.objects.filter(store=store).first()
-        if not cam:
-            cam = StoreCamera.objects.create(
-                store=store,
-                name="Камера #1 (Вход в магазин)",
-                camera_type=StoreCamera.CameraType.RTSP,
-                zone=StoreCamera.Zone.ENTRANCE,
-                status=StoreCamera.Status.ONLINE,
-                has_audio=True
-            )
-        for h, en, ex, dw in demo_hours:
-            CameraTrafficEvent.objects.update_or_create(
-                store=store, camera=cam, date=target_date, hour=h,
-                defaults={"entries_count": en, "exits_count": ex, "avg_dwell_seconds": dw}
-            )
-        total_visitors = sum(x[1] for x in demo_hours)
-        total_exits = sum(x[2] for x in demo_hours)
-        traffic_qs = CameraTrafficEvent.objects.filter(store=store, date=target_date)
-
     # 2. Определение пикового часа и среднего времени пребывания
     peak_event = traffic_qs.order_by("-entries_count").first()
-    if peak_event:
+    if peak_event and peak_event.entries_count > 0:
         peak_hour = f"{peak_event.hour:02d}:00 - {peak_event.hour+1:02d}:00 ({peak_event.entries_count} чел.)"
     else:
-        peak_hour = "17:00 - 19:00"
+        peak_hour = "Нет данных"
 
     total_dwell_sum = sum(e.entries_count * e.avg_dwell_seconds for e in traffic_qs)
-    avg_dwell_sec = (total_dwell_sum / total_visitors) if total_visitors > 0 else 360
+    avg_dwell_sec = (total_dwell_sum / total_visitors) if total_visitors > 0 else 0.0
     avg_dwell_min = round(avg_dwell_sec / 60, 1)
 
-    # 3. Сопоставление с заказами (Касса / Онлайн)
-    orders_qs = Order.objects.filter(
+    # 3. Сопоставление с заказами (Касса / Онлайн) — честное количество заказов за день
+    orders_today = Order.objects.filter(
         store=store,
         created_at__date=target_date,
         status__in=[Order.Status.PAID, Order.Status.HANDED_TO_COURIER, Order.Status.DELIVERED, Order.Status.PENDING_PAYMENT]
     )
-    total_orders = orders_qs.count()
-    if total_orders == 0:
-        total_orders = max(1, int(total_visitors * 0.082))
+    total_orders = orders_today.count()
 
     conversion_rate = round((total_orders / total_visitors * 100), 1) if total_visitors > 0 else 0.0
 
-    # 4. Аудио-мониторинг жалоб покупателей (микрофон)
+    # 4. Аудио-мониторинг жалоб покупателей (микрофон) — без записи фейковых жалоб
     speech_qs = CustomerSpeechLog.objects.filter(store=store, created_at__date=target_date)
-    if not speech_qs.exists():
-        demo_speeches = [
-            ("Qimmat ekan, arzonrog'i yo'qmi?", CustomerSpeechLog.Category.PRICE_EXPENSIVE, CustomerSpeechLog.Sentiment.NEGATIVE, "uz"),
-            ("Juda qimmat, boshqa do'konda 250 ming edi", CustomerSpeechLog.Category.PRICE_EXPENSIVE, CustomerSpeechLog.Sentiment.NEGATIVE, "uz"),
-            ("Почему так дорого? Качество хорошее, но цена завышена", CustomerSpeechLog.Category.PRICE_EXPENSIVE, CustomerSpeechLog.Sentiment.NEGATIVE, "ru"),
-            ("4-5 yoshga razmer qolmabdimi?", CustomerSpeechLog.Category.MISSING_SIZE, CustomerSpeechLog.Sentiment.NEUTRAL, "uz"),
-            ("L razmer bormi qora rangda?", CustomerSpeechLog.Category.MISSING_SIZE, CustomerSpeechLog.Sentiment.NEUTRAL, "uz"),
-            ("Menejer qayerda? 5 minut kutdim", CustomerSpeechLog.Category.STAFF_SERVICE, CustomerSpeechLog.Sentiment.NEGATIVE, "uz"),
-            ("Kiyimlar juda chiroyli va qulay ekan!", CustomerSpeechLog.Category.PRODUCT_QUALITY, CustomerSpeechLog.Sentiment.POSITIVE, "uz"),
-        ]
-        cam = StoreCamera.objects.filter(store=store).first()
-        for txt, cat, sent, lang in demo_speeches:
-            CustomerSpeechLog.objects.create(
-                store=store, camera=cam, transcript=txt, category=cat, sentiment=sent, language=lang
-            )
-        speech_qs = CustomerSpeechLog.objects.filter(store=store, created_at__date=target_date)
 
     expensive_count = speech_qs.filter(category=CustomerSpeechLog.Category.PRICE_EXPENSIVE).count()
     missing_size_count = speech_qs.filter(category=CustomerSpeechLog.Category.MISSING_SIZE).count()
@@ -1517,7 +1491,7 @@ def generate_ai_vision_daily_report(store: Store, target_date=None, trigger_tele
         f"Примеры реплик: {'; '.join(recent_quotes[:4])}"
     )
 
-    # 5. Вызов Gemini 2.5 Flash-Lite для генерации аналитического отчета
+    # 5. Вызов Gemini Flash для генерации аналитического отчета
     system_inst = (
         "Ты — главный ИИ-директор по офлайн-продажам и стратегический аналитик платформы BrainMart Vision AI. "
         "Твоя задача — изучить данные видеокамер и аудиопотока за день и составить глубокий, практичный отчет для владельца магазина на русском языке. "
@@ -1540,7 +1514,7 @@ def generate_ai_vision_daily_report(store: Store, target_date=None, trigger_tele
 Цитаты покупателей: {json.dumps(recent_quotes, ensure_ascii=False)}
 
 Составь отчет по 4 блокам:
-1. ДИАГНОСТИКА ВОРОНКИ: Почему ушли {total_visitors - total_orders} человек без покупки при среднем времени {avg_dwell_min} мин?
+1. ДИАГНОСТИКА ВОРОНКИ: Почему ушли {max(0, total_visitors - total_orders)} человек без покупки при среднем времени {avg_dwell_min} мин?
 2. АНАЛИЗ ЦЕН И ЖАЛОБ: Насколько критичны жалобы на 'дорого', и что сделать с ценообразованием?
 3. АНАЛИЗ ЛОКАЦИИ И АУДИТОРИИ: Подходит ли данная точка (масс-маркет vs премиум, плотность трафика)?
 4. 3 КОНКРЕТНЫХ ШАГА НА ЗАВТРА: Точные действия для собственника (скидка, пополнение размеров, график персонала).
@@ -1550,16 +1524,17 @@ def generate_ai_vision_daily_report(store: Store, target_date=None, trigger_tele
     api_key = getattr(settings, "GEMINI_API_KEY", os.environ.get("GEMINI_API_KEY"))
 
     models_to_try = [
-        "gemini-2.5-flash-lite",
-        "gemini-3.5-flash-lite",
+        "gemini-2.5-flash",
+        "gemini-2.0-flash",
         "gemini-flash-latest",
     ]
 
     for model_name in models_to_try:
         try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent"
             res = _ai_session.post(
                 url,
+                headers={"Content-Type": "application/json", "x-goog-api-key": api_key},
                 json={
                     "system_instruction": {"parts": [{"text": system_inst}]},
                     "contents": [{"role": "user", "parts": [{"text": user_prompt}]}],
@@ -1615,7 +1590,7 @@ def generate_ai_vision_daily_report(store: Store, target_date=None, trigger_tele
             f"🎙 <b>Акустический радар (микрофон):</b>\n"
             f"• Жалобы «Дорого / Qimmat»: {expensive_count} раз\n"
             f"• Поиск отсутствующих размеров: {missing_size_count} раз\n\n"
-            f"💡 <b>Рекомендации директора по продажам (Gemini 2.5 Flash-Lite):</b>\n"
+            f"💡 <b>Рекомендации директора по продажам (Gemini Flash):</b>\n"
             f"{gemini_recommendations}\n\n"
             f"⚙️ <i>Настроить камеры и зоны в кабинете: brainmart.uz/dashboard/vision-ai/</i>"
         )

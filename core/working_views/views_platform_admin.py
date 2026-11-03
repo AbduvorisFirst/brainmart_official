@@ -22,12 +22,12 @@ from core.models import (
 
 
 def superuser_required(view_func):
-    """Декоратор для доступа к главной панели управления платформы (superuser / staff)."""
+    """Декоратор для доступа к главной панели управления платформы (только superuser)."""
     def _wrapped(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return redirect(f"/dashboard/login/?next={request.path}")
-        if not (request.user.is_superuser or request.user.is_staff):
-            messages.warning(request, "Для доступа к этой панели требуются права администратора.")
+        if not request.user.is_superuser:
+            messages.warning(request, "Для доступа к этой панели требуются права супер-администратора.")
             return redirect("/dashboard/")
         return view_func(request, *args, **kwargs)
     return _wrapped
@@ -44,6 +44,9 @@ def platform_admin_dashboard_view(request):
         store_id = request.POST.get("store_id")
 
         if action == "unlink_telegram":
+            if not request.user.is_superuser:
+                messages.error(request, "Недостаточно прав для этого действия.")
+                return redirect("platform-admin-dashboard")
             from core.models import PlatformSettings
             ps = PlatformSettings.get_settings()
             ps.superadmin_telegram_chat_id = None
@@ -195,7 +198,7 @@ def platform_admin_dashboard_view(request):
     # Общий оборот платформы (Total GMV)
     total_gmv = paid_or_delivered.aggregate(total=Sum("total_price"))["total"] or Decimal("0")
     total_commission_revenue = Decimal("0")
-    total_subscription_revenue = SubscriptionPayment.objects.aggregate(total=Sum("amount"))["total"] or Decimal("0")
+    total_subscription_revenue = SubscriptionPayment.objects.filter(status="completed").aggregate(total=Sum("amount"))["total"] or Decimal("0")
     total_platform_net_revenue = total_commission_revenue + total_subscription_revenue
 
     # Всего покупателей в системе
@@ -210,7 +213,7 @@ def platform_admin_dashboard_view(request):
         "variant__product__store__id"
     ).annotate(
         units_sold=Sum("quantity"),
-        total_revenue=Sum("price_at_purchase")
+        total_revenue=Sum(F("price_at_purchase") * F("quantity"))
     ).order_by("-units_sold")[:7]
 
     # --- 3. ГРАФИК ОБОРОТА И ЗАКАЗОВ ЗА 7 ДНЕЙ ---

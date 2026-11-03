@@ -183,6 +183,7 @@ class Store(models.Model):
     )
     is_active = models.BooleanField(
         default=True,
+        db_index=True,
         help_text="Если False — магазин временно не принимает заказы",
     )
     class VerificationStatus(models.TextChoices):
@@ -657,7 +658,7 @@ class Store(models.Model):
         """Активна ли подписка магазина (включая 6 дней льготного периода)."""
         import datetime
         from django.utils import timezone
-        today = timezone.now().date()
+        today = timezone.localdate()
         if not self.subscription_paid_until:
             created_date = self.created_at.date() if self.created_at else today
             self.subscription_paid_until = created_date + datetime.timedelta(days=30)
@@ -672,7 +673,7 @@ class Store(models.Model):
         """Сколько дней осталось до даты оплаты (если отрицательно — дни просрочки)."""
         import datetime
         from django.utils import timezone
-        today = timezone.now().date()
+        today = timezone.localdate()
         if not self.subscription_paid_until:
             return 30
         return (self.subscription_paid_until - today).days
@@ -699,11 +700,11 @@ class Store(models.Model):
             overdue = abs(days)
             return {"status": "suspended", "badge": "dark", "text": "Заморожен (просрочка > 6 дней)", "days": days, "overdue": overdue}
 
-    def renew_subscription(self, months: int = 1, payment_method: str = "transfer", transaction_id: str = ""):
+    def renew_subscription(self, months: int = 1, payment_method: str = "transfer", transaction_id: str = "", create_payment_record: bool = True):
         """Продлевает подписку на N месяцев с учётом просроченных дней льготного периода (6 дней)."""
         import datetime
         from django.utils import timezone
-        today = timezone.now().date()
+        today = timezone.localdate()
 
         # Если продление происходит во время 6 дней льготного периода,
         # новый период начинается от предыдущей даты окончания (например: 3 июня -> 3 июля)!
@@ -718,11 +719,17 @@ class Store(models.Model):
         new_end_date = start_date + datetime.timedelta(days=30 * months)
         fee = self.current_tier_fee * months
 
+        should_unfreeze = (
+            not self.is_frozen_by_admin
+            or self.subscription_status == "suspended"
+            or "подписк" in (self.freeze_reason or "").lower()
+        )
         self.subscription_paid_until = new_end_date
         self.subscription_status = "active"
         self.is_active = True
-        self.is_frozen_by_admin = False
-        self.freeze_reason = ""
+        if should_unfreeze:
+            self.is_frozen_by_admin = False
+            self.freeze_reason = ""
         self.last_subscription_payment = timezone.now()
         self.subscription_warning_sent_stage = ""
         self.save(update_fields=[
@@ -731,16 +738,17 @@ class Store(models.Model):
             "last_subscription_payment", "subscription_warning_sent_stage"
         ])
 
-        SubscriptionPayment.objects.create(
-            store=self,
-            amount=fee,
-            months=months,
-            period_start=start_date,
-            period_end=new_end_date,
-            payment_method=payment_method,
-            status="completed",
-            transaction_id=transaction_id
-        )
+        if create_payment_record:
+            SubscriptionPayment.objects.create(
+                store=self,
+                amount=fee,
+                months=months,
+                period_start=start_date,
+                period_end=new_end_date,
+                payment_method=payment_method,
+                status="completed",
+                transaction_id=transaction_id
+            )
         return new_end_date
 
     def clean_slug(self, raw_value: str = None) -> str:
@@ -893,7 +901,7 @@ class Product(models.Model):
         max_digits=12, decimal_places=2, validators=[MinValueValidator(0)]
     )
     main_image = models.ImageField(upload_to=product_image_upload_path, blank=True, null=True)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -1051,12 +1059,12 @@ class Customer(models.Model):
         help_text="ID пользователя в Instagram (уникален в рамках Meta API)",
     )
     full_name = models.CharField(max_length=255, blank=True)
-    phone_number = models.CharField(max_length=20, blank=True)
+    phone_number = models.CharField(max_length=20, blank=True, db_index=True)
     delivery_address = models.CharField(max_length=500, blank=True)
     # Telegram-данные клиента — заполняются при заказе через Telegram бота.
     # Нужны для: (1) отправки уведомлений о доставке, (2) показа @username продавцу.
     telegram_chat_id = models.CharField(
-        max_length=64, blank=True, null=True,
+        max_length=64, blank=True, null=True, db_index=True,
         help_text="Chat ID клиента в Telegram — для отправки уведомлений",
     )
     telegram_username = models.CharField(
@@ -1143,7 +1151,7 @@ class Order(models.Model):
         Customer, on_delete=models.PROTECT, related_name="orders"
     )
     status = models.CharField(
-        max_length=30, choices=Status.choices, default=Status.PENDING_PAYMENT
+        max_length=30, choices=Status.choices, default=Status.PENDING_PAYMENT, db_index=True
     )
     delivery_address = models.CharField(max_length=500, blank=True, default="")
     # Координаты точки доставки — если клиент разрешил геолокацию в браузере,
@@ -1156,7 +1164,7 @@ class Order(models.Model):
     payment_method = models.CharField(
         max_length=20, blank=True, help_text="click / payme"
     )
-    payment_transaction_id = models.CharField(max_length=255, blank=True)
+    payment_transaction_id = models.CharField(max_length=255, blank=True, db_index=True)
     # Ссылка на отслеживание доставки (Яндекс.Доставка, Fargo и т.д.)
     # Продавец вставляет при передаче курьеру → клиент получает в Telegram
     tracking_url = models.URLField(max_length=500, blank=True)
@@ -1204,7 +1212,7 @@ class Order(models.Model):
         max_length=20, choices=PayoutStatus.choices, default=PayoutStatus.HELD
     )
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

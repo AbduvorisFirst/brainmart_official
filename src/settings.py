@@ -154,6 +154,7 @@ if DB_ENGINE == "django.db.backends.postgresql":
             'HOST': os.environ.get('DB_HOST', 'localhost'),
             'PORT': os.environ.get('DB_PORT', '5432'),
             'CONN_MAX_AGE': 600,
+            'CONN_HEALTH_CHECKS': True,
         }
     }
 else:
@@ -234,7 +235,6 @@ CSRF_TRUSTED_ORIGINS = list(dict.fromkeys([
     "http://brainmart.uz",
     "http://www.brainmart.uz",
     "http://*.brainmart.uz",
-    "https://recapture-junction-unplowed.ngrok-free.dev",
     *_csrf_origins,
 ]))
 

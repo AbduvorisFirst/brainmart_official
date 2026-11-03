@@ -27,8 +27,8 @@ class TelegramAuthMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        tg_auth = request.GET.get("tg_auth")
-        if tg_auth and not request.user.is_authenticated:
+        tg_auth = (request.GET.get("tg_auth") or "").strip()
+        if tg_auth and len(tg_auth) >= 16 and not request.user.is_authenticated:
             try:
                 # 1. Поиск магазина по telegram_link_token
                 store = Store.objects.filter(telegram_link_token=tg_auth).select_related("owner").first()
@@ -51,6 +51,7 @@ class TelegramAuthMiddleware:
                         manager = StoreManager.objects.filter(telegram_link_token=tg_auth).select_related("store", "store__owner").first()
                         if manager and manager.is_active and manager.store and manager.store.owner:
                             login(request, manager.store.owner, backend="django.contrib.auth.backends.ModelBackend")
+                            request.session["active_manager_id"] = manager.id
                             request.session.save()
                             logger.info("Успешный вход менеджера по tg_auth для магазина '%s'", manager.store.name)
             except Exception as e:

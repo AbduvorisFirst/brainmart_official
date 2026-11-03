@@ -506,24 +506,37 @@
         }
     };
 
+    function escapeHtml(str) {
+        return String(str || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
     function appendAiMsg(text, role, matchedProducts) {
         const body = document.getElementById('bmAiBody');
         const msgDiv = document.createElement('div');
         msgDiv.className = 'bm-ai-msg ' + role;
-        msgDiv.innerHTML = text.replace(/\n/g, '<br>');
+        msgDiv.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
 
         if (matchedProducts && matchedProducts.length > 0) {
             const recBox = document.createElement('div');
             recBox.className = 'bm-ai-rec-cards';
             matchedProducts.forEach(prod => {
+                const safeName = escapeHtml(prod.name);
+                const safePrice = escapeHtml(prod.formatted_price);
+                const safeImg = escapeHtml(prod.image_url || '/static/images/no-image.png');
+                const safeUrl = escapeHtml(prod.product_url || '#');
                 const card = document.createElement('div');
                 card.className = 'bm-ai-rec-card';
                 card.innerHTML = `
-                    <img src="${prod.image_url || '/static/images/no-image.png'}" class="bm-ai-rec-img" alt="${prod.name}">
+                    <img src="${safeImg}" class="bm-ai-rec-img" alt="${safeName}">
                     <div class="bm-ai-rec-info">
-                        <div class="bm-ai-rec-name">${prod.name}</div>
-                        <div class="bm-ai-rec-price">${prod.formatted_price}</div>
-                        <a href="${prod.product_url}" class="bm-ai-rec-btn">{% trans "Смотреть" %}</a>
+                        <div class="bm-ai-rec-name">${safeName}</div>
+                        <div class="bm-ai-rec-price">${safePrice}</div>
+                        <a href="${safeUrl}" class="bm-ai-rec-btn">{% trans "Смотреть" %}</a>
                     </div>
                 `;
                 recBox.appendChild(card);

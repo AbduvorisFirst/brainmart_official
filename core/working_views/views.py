@@ -32,7 +32,15 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     Публичный каталог товаров для сайта-маркетплейса.
     Только чтение — товары добавляются через CRM продавца, не через этот API.
     """
-    queryset = Product.objects.filter(is_active=True, store__is_active=True)
+    queryset = (
+        Product.objects.filter(
+            is_active=True,
+            store__is_active=True,
+            store__is_frozen_by_admin=False,
+        )
+        .select_related("store", "category")
+        .prefetch_related("variants", "images")
+    )
     permission_classes = [permissions.AllowAny]
 
     def get_serializer_class(self):
@@ -59,7 +67,11 @@ class OrderViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         # Продавец должен видеть только заказы своего магазина
         if self.request.user.is_authenticated and hasattr(self.request.user, "store"):
-            return Order.objects.filter(store=self.request.user.store)
+            return (
+                Order.objects.filter(store=self.request.user.store)
+                .select_related("customer", "store", "branch")
+                .prefetch_related("items__variant__product")
+            )
         return Order.objects.none()
 
     @action(detail=True, methods=["post"])
@@ -104,8 +116,11 @@ class InstagramWebhookView(APIView):
         app_secret = getattr(settings, "META_APP_SECRET", "")
         signature_header = request.META.get("HTTP_X_HUB_SIGNATURE_256", "")
 
-        # Если задан глобальный секрет или подпись передана
-        if app_secret and signature_header.startswith("sha256="):
+        # Если задан глобальный секрет, подпись обязательна
+        if app_secret:
+            if not signature_header.startswith("sha256="):
+                logger.warning("Instagram webhook: отсутствует или некорректный заголовок X-Hub-Signature-256")
+                return Response({"error": "Missing or invalid signature"}, status=status.HTTP_403_FORBIDDEN)
             import hashlib, hmac
             expected_sig = signature_header[7:]
             body = request.body
@@ -128,7 +143,7 @@ class InstagramWebhookView(APIView):
                         break
                 if not matched:
                     logger.warning("Instagram webhook: неверная подпись X-Hub-Signature-256 — запрос отклонён")
-                    return Response(status=status.HTTP_403_FORBIDDEN)
+                    return Response({"error": "Missing or invalid signature"}, status=status.HTTP_403_FORBIDDEN)
 
         payload = request.data
         logger.info("Instagram webhook payload: %s", payload)
@@ -143,22 +158,12 @@ class InstagramWebhookView(APIView):
                 ).first()
 
             if not store:
-                store = Store.objects.filter(is_active=True).order_by("-id").first()
-
-            if not store:
                 logger.warning(
                     "Получено сообщение для неизвестного instagram_business_id=%s. "
                     "В базе нет подходящего активного Store.",
                     instagram_business_id,
                 )
                 continue
-
-            # Автоматически связываем instagram_business_id с текущим активным магазином
-            if instagram_business_id and store.instagram_business_id != str(instagram_business_id):
-                Store.objects.filter(instagram_business_id=str(instagram_business_id)).exclude(id=store.id).update(instagram_business_id=None)
-                store.instagram_business_id = str(instagram_business_id)
-                store.save(update_fields=["instagram_business_id"])
-                logger.info("Успешно привязан instagram_business_id=%s к магазину '%s'", instagram_business_id, store.name)
 
             # ── 1. Direct-сообщения (Instagram Messaging / DM) ────────────────
             for messaging_event in entry.get("messaging", []):
@@ -258,16 +263,18 @@ class StoreCustomInstagramWebhookView(APIView):
         if app_secret:
             import hashlib, hmac
             signature_header = request.META.get("HTTP_X_HUB_SIGNATURE_256", "")
-            if signature_header.startswith("sha256="):
-                expected_sig = signature_header[7:]
-                computed_sig = hmac.new(
-                    app_secret.encode("utf-8"),
-                    request.body,
-                    hashlib.sha256,
-                ).hexdigest()
-                if not hmac.compare_digest(computed_sig, expected_sig):
-                    logger.warning("Персональный Instagram Webhook: неверная подпись для '%s'", store.name)
-                    return Response(status=status.HTTP_403_FORBIDDEN)
+            if not signature_header.startswith("sha256="):
+                logger.warning("Персональный Instagram Webhook: отсутствует подпись для '%s'", store.name)
+                return Response({"error": "Missing or invalid signature"}, status=status.HTTP_403_FORBIDDEN)
+            expected_sig = signature_header[7:]
+            computed_sig = hmac.new(
+                app_secret.encode("utf-8"),
+                request.body,
+                hashlib.sha256,
+            ).hexdigest()
+            if not hmac.compare_digest(computed_sig, expected_sig):
+                logger.warning("Персональный Instagram Webhook: неверная подпись для '%s'", store.name)
+                return Response({"error": "Missing or invalid signature"}, status=status.HTTP_403_FORBIDDEN)
 
         payload = request.data
         logger.info("Персональный Instagram webhook [%s]: %s", store.name, payload)
@@ -312,4 +319,4 @@ class StoreCustomInstagramWebhookView(APIView):
                     daemon=True,
                 ).start()
 
-        return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)

@@ -40,6 +40,7 @@ else:
 response = requests.post(
     f"https://api.telegram.org/bot{token}/setWebhook",
     json=payload,
+    timeout=10,
 )
 
 result = response.json()
@@ -52,6 +53,6 @@ else:
     sys.exit(1)
 
 # Проверяем
-info = requests.get(f"https://api.telegram.org/bot{token}/getWebhookInfo").json()
+info = requests.get(f"https://api.telegram.org/bot{token}/getWebhookInfo", timeout=10).json()
 print(f"\n📋 Текущий вебхук: {info.get('result', {}).get('url', 'НЕ УСТАНОВЛЕН')}")
-print(f"   Has secret token: {info.get('result', {}).get('has_custom_certificate', 'N/A')}")
+print(f"   Pending updates: {info.get('result', {}).get('pending_update_count', 0)}")

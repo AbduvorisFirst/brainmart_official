@@ -60,6 +60,16 @@ def release_order_funds_and_auto_payout(order: Order) -> None:
     """
     with transaction.atomic():
         order = Order.objects.select_for_update().get(id=order.id)
+        if order.payment_method == "card_transfer":
+            if order.payout_status != Order.PayoutStatus.PAID_OUT:
+                order.payout_status = Order.PayoutStatus.PAID_OUT
+                order.save(update_fields=["payout_status"])
+            logger.info(
+                "Заказ #%s (прямой перевод на карту) доставлен: начисление на баланс и автовыплата не требуются.",
+                order.id,
+            )
+            return
+
         store = Store.objects.select_for_update().get(id=order.store_id)
 
         # Переводим из холда в доступный баланс
@@ -74,7 +84,7 @@ def release_order_funds_and_auto_payout(order: Order) -> None:
         # Автоматическая выплата на карту (Auto-Payout)
         if store.auto_payout_enabled and store.payout_card:
             payout_amount = order.seller_amount
-            if store.balance >= payout_amount and payout_amount > 0:
+            if (store.balance or Decimal("0.00")) >= payout_amount and payout_amount > 0:
                 execute_card_payout(store, payout_amount, order=order)
 
 
@@ -84,17 +94,18 @@ def execute_card_payout(store: Store, amount: Decimal, order: Order = None) -> P
     Списывает доступный баланс и сохраняет запись в PayoutTransaction.
     """
     amount = Decimal(str(amount))
-    card_number = (store.payout_card or "").strip()
-
-    if not card_number:
-        raise ValueError("У магазина не указана карта для выплат Uzcard / Humo.")
-
-    if store.balance < amount or amount <= 0:
-        raise ValueError("Недостаточно средств на балансе для выплаты.")
 
     with transaction.atomic():
         store = Store.objects.select_for_update().get(id=store.id)
-        store.balance -= amount
+        card_number = (store.payout_card or "").strip()
+
+        if not card_number:
+            raise ValueError("У магазина не указана карта для выплат Uzcard / Humo.")
+
+        if (store.balance or Decimal("0.00")) < amount or amount <= 0:
+            raise ValueError("Недостаточно средств на балансе для выплаты.")
+
+        store.balance = (store.balance or Decimal("0.00")) - amount
         store.save(update_fields=["balance"])
 
         # Создаем запись транзакции

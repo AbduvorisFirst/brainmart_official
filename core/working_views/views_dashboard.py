@@ -532,14 +532,16 @@ def order_mark_delivered_view(request, order_id):
     order = get_object_or_404(Order, id=order_id, store=store)
 
     if request.method == "POST":
-        order.status = Order.Status.DELIVERED
-        order.save(update_fields=["status"])
+        if order.status != Order.Status.DELIVERED:
+            order.status = Order.Status.DELIVERED
+            order.save(update_fields=["status"])
 
-        try:
-            from core.payments.payout_service import release_order_funds_and_auto_payout
-            release_order_funds_and_auto_payout(order)
-        except Exception as e:
-            logger.warning("Ошибка при авто-выплате по заказу #%s: %s", order.id, e)
+            if order.payment_method != "card_transfer":
+                try:
+                    from core.payments.payout_service import release_order_funds_and_auto_payout
+                    release_order_funds_and_auto_payout(order)
+                except Exception as e:
+                    logger.warning("Ошибка при авто-выплате по заказу #%s: %s", order.id, e)
 
         messages.success(request, f"Заказ #{order.id} успешно доставлен!")
 
@@ -553,15 +555,19 @@ def order_confirm_payment_view(request, order_id):
     order = get_object_or_404(Order, id=order_id, store=store)
 
     if request.method == "POST":
-        if order.status != Order.Status.PAID:
-            order.status = Order.Status.PAID
-            order.save(update_fields=["status"])
+        with transaction.atomic():
+            order = Order.objects.select_for_update().get(id=order.id, store=store)
+            if order.status != Order.Status.PAID:
+                order.status = Order.Status.PAID
+                order.save(update_fields=["status"])
 
-            # Списываем остаток товара на складе в маркетплейсе
-            for item in order.items.select_related("variant").all():
-                if item.variant:
-                    item.variant.stock_quantity = max(0, item.variant.stock_quantity - item.quantity)
-                    item.variant.save(update_fields=["stock_quantity"])
+                # Списываем остаток товара на складе в маркетплейсе
+                for item in order.items.select_related("variant").all():
+                    if item.variant_id:
+                        variant = ProductVariant.objects.select_for_update().filter(id=item.variant_id).first()
+                        if variant:
+                            variant.stock_quantity = max(0, variant.stock_quantity - item.quantity)
+                            variant.save(update_fields=["stock_quantity"])
 
         # Уведомляем менеджеров на сборку/такси и клиента об успешной оплате
         try:
@@ -776,7 +782,7 @@ def product_edit_view(request, product_id):
 @login_required
 def product_inventory_edit_view(request, product_id):
     """Управление остатками и себестоимостью товара (Приход)."""
-    store = getattr(request.user, "store", None)
+    store = _get_store_or_none(request)
     if not store:
         return redirect("seller-dashboard")
         
@@ -788,10 +794,21 @@ def product_inventory_edit_view(request, product_id):
             add_qty_str = request.POST.get(f"add_qty_{variant.id}")
             
             if cost_price_str:
-                variant.cost_price = float(cost_price_str)
+                try:
+                    variant.cost_price = Decimal(str(cost_price_str).strip())
+                except (ValueError, TypeError, Exception):
+                    try:
+                        variant.cost_price = float(cost_price_str)
+                    except (ValueError, TypeError):
+                        pass
                 
-            if add_qty_str and int(add_qty_str) != 0:
-                qty = int(add_qty_str)
+            qty = 0
+            if add_qty_str:
+                try:
+                    qty = int(add_qty_str)
+                except (ValueError, TypeError):
+                    qty = 0
+            if qty != 0:
                 variant.stock_quantity += qty
                 from core.models import StockMovement, CashierProfile
                 # Для прихода из дашборда используем владельца
@@ -829,7 +846,7 @@ def product_inventory_edit_view(request, product_id):
     html_form = f"""
     {{% extends "dashboard/base.html" %}}
     {{% block content %}}
-    <h2 style="margin-bottom: 24px;">📦 Склад: {{product.name}}</h2>
+    <h2 style="margin-bottom: 24px;">📦 Склад: {{{{ product.name }}}}</h2>
     <div class="card" style="max-width: 600px;">
         <form method="post">
             {{% csrf_token %}}
@@ -902,12 +919,21 @@ def telegram_init_auth_api(request):
     bot_token = getattr(settings, "TELEGRAM_BOT_TOKEN", "") or ""
 
     # Валидация подписи Telegram, если бот-токен настроен
-    is_valid = True
+    is_valid = False
     if bot_token and received_hash:
         data_check_string = "\n".join(f"{k}={v}" for k, v in sorted(parsed_data.items()))
         secret_key = hmac.new(b"WebAppData", bot_token.encode(), hashlib.sha256).digest()
         calc_hash = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).hexdigest()
-        is_valid = hmac.compare_digest(calc_hash, received_hash)
+        if hmac.compare_digest(calc_hash, received_hash):
+            is_valid = True
+
+    auth_date_raw = parsed_data.get("auth_date")
+    if is_valid and auth_date_raw:
+        try:
+            if (timezone.now().timestamp() - int(auth_date_raw)) > 86400:
+                is_valid = False
+        except (ValueError, TypeError):
+            is_valid = False
 
     if not is_valid:
         logger.warning("Недействительная HMAC-подпись initData от Telegram")
@@ -1083,6 +1109,7 @@ def seller_login_view(request):
             # Генерируем 6-значный OTP код (сохраняем в БД магазина для надёжности между воркерами)
             if store:
                 otp_code = store.generate_login_otp()
+                cache.delete(f"otp_attempts_store_{store.id}")
             else:
                 otp_code = f"{secrets.randbelow(900000) + 100000}"
             cache.set(f"store_pending_otp_{store.id if store else target_user.id}", otp_code, timeout=600)
@@ -1094,6 +1121,8 @@ def seller_login_view(request):
 
             # Сохраняем во временную сессию
             request.session["pre_2fa_user_id"] = target_user.id
+            request.session["pending_2fa_user_id"] = target_user.id
+            request.session["otp_attempts"] = 0
             request.session["otp_code"] = otp_code
             request.session["otp_expires_at"] = (timezone.now() + timedelta(minutes=10)).timestamp()
             request.session.save()
@@ -1194,7 +1223,11 @@ def seller_verify_otp_view(request):
     """
     Проверка одноразового кода OTP для завершения входа.
     """
-    user_id = request.session.get("pre_2fa_user_id")
+    session_2fa_uid = request.session.get("pending_2fa_user_id") or request.session.get("pre_2fa_user_id")
+    if session_2fa_uid and "pending_2fa_user_id" not in request.session:
+        request.session["pending_2fa_user_id"] = session_2fa_uid
+
+    user_id = session_2fa_uid
     username_param = request.GET.get("u", "").strip() or request.POST.get("username", "").strip()
 
     user = None
@@ -1207,7 +1240,7 @@ def seller_verify_otp_view(request):
             if s:
                 user = s.owner
 
-    if not user:
+    if not user or request.session.get("pending_2fa_user_id") != user.id:
         messages.error(request, "Сессия входа истекла. Пожалуйста, введите ваш логин.")
         return redirect("seller-login")
 
@@ -1223,6 +1256,22 @@ def seller_verify_otp_view(request):
     chat_id = store.telegram_chat_id if store else None
 
     if request.method == "POST":
+        session_attempts = request.session.get("otp_attempts", 0)
+        cache_attempts = cache.get(f"otp_attempts_store_{store.id}", 0) if store else 0
+        attempts = max(session_attempts, cache_attempts)
+
+        if attempts >= 5:
+            if store:
+                store.login_otp = ""
+                store.login_otp_expires_at = None
+                store.save(update_fields=["login_otp", "login_otp_expires_at"])
+                cache.delete(f"store_pending_otp_{store.id}")
+            cache.delete(f"user_login_otp_{user.id}")
+            cache.delete(f"username_pending_otp_{user.username.lower()}")
+            request.session.pop("otp_code", None)
+            messages.error(request, "Превышено количество попыток ввода кода. Пожалуйста, запросите новый код.")
+            return redirect("seller-login")
+
         entered_code = request.POST.get("otp_code", "").strip().replace(" ", "")
 
         # Собираем все валидные коды (сессия + кэш)
@@ -1239,11 +1288,13 @@ def seller_verify_otp_view(request):
             # Успешный вход!
             if store:
                 cache.delete(f"store_pending_otp_{store.id}")
+                cache.delete(f"otp_attempts_store_{store.id}")
                 store.clear_login_otp()
             cache.delete(f"user_login_otp_{user.id}")
             cache.delete(f"username_pending_otp_{user.username.lower()}")
 
             request.session.pop("pre_2fa_user_id", None)
+            request.session.pop("pending_2fa_user_id", None)
             request.session.pop("pre_2fa_store_id", None)
             request.session.pop("otp_code", None)
             request.session.pop("otp_expires_at", None)
@@ -1269,15 +1320,29 @@ def seller_verify_otp_view(request):
             messages.success(request, f"Вход выполнен! Добро пожаловать, {store.name if store else user.username}!")
             return redirect(next_url or "seller-dashboard")
         else:
-            attempts = request.session.get("otp_attempts", 0) + 1
-            request.session["otp_attempts"] = attempts
+            new_attempts = attempts + 1
+            request.session["otp_attempts"] = new_attempts
             request.session.save()
-            left_attempts = max(0, 5 - attempts)
+            if store:
+                cache.set(f"otp_attempts_store_{store.id}", new_attempts, timeout=900)
+            if new_attempts >= 5:
+                if store:
+                    store.login_otp = ""
+                    store.login_otp_expires_at = None
+                    store.save(update_fields=["login_otp", "login_otp_expires_at"])
+                    cache.delete(f"store_pending_otp_{store.id}")
+                cache.delete(f"user_login_otp_{user.id}")
+                cache.delete(f"username_pending_otp_{user.username.lower()}")
+                request.session.pop("otp_code", None)
+                messages.error(request, "Превышено количество попыток ввода кода. Пожалуйста, запросите новый код.")
+                return redirect("seller-login")
+            left_attempts = max(0, 5 - new_attempts)
             messages.error(request, f"Неверный код подтверждения! Проверьте код в Telegram или запросите новый. Осталось попыток: {left_attempts}")
 
     seconds_left = max(0, int(expires_ts - now_ts))
     bot_username = getattr(settings, "TELEGRAM_BOT_USERNAME", "")
-    link_url = f"https://t.me/{bot_username}?start=link_{store.telegram_link_token}" if (store and bot_username and store.telegram_link_token) else ""
+    is_authenticated_2fa_session = (request.session.get("pending_2fa_user_id") == user.id)
+    link_url = f"https://t.me/{bot_username}?start=link_{store.telegram_link_token}" if (is_authenticated_2fa_session and store and bot_username and store.telegram_link_token) else ""
 
     return render(request, "dashboard/verify_otp.html", {
         "store": store,
@@ -1293,7 +1358,7 @@ def seller_resend_otp_view(request):
     """
     Повторная отправка OTP-кода в Telegram с ограничением по времени (кулдаун 15 сек).
     """
-    user_id = request.session.get("pre_2fa_user_id")
+    user_id = request.session.get("pending_2fa_user_id") or request.session.get("pre_2fa_user_id")
     username_param = request.GET.get("u", "").strip() or request.POST.get("username", "").strip()
 
     user = None
@@ -1310,13 +1375,21 @@ def seller_resend_otp_view(request):
         return redirect("seller-login")
 
     store = getattr(user, "store", None)
+    cooldown_key = f"otp_resend_cooldown_{store.id}" if store else f"otp_resend_cooldown_user_{user.id}"
+    if cache.get(cooldown_key):
+        messages.warning(request, "Пожалуйста, подождите 15 секунд перед повторной отправкой кода.")
+        return redirect(f"/dashboard/login/verify-otp/?u={user.username}")
+    cache.set(cooldown_key, True, timeout=15)
+
     if store:
         new_code = store.generate_login_otp()
+        cache.delete(f"otp_attempts_store_{store.id}")
     else:
         new_code = f"{secrets.randbelow(900000) + 100000}"
     expires_ts = (timezone.now() + timedelta(minutes=10)).timestamp()
 
     request.session["pre_2fa_user_id"] = user.id
+    request.session["pending_2fa_user_id"] = user.id
     request.session["otp_code"] = new_code
     request.session["otp_expires_at"] = expires_ts
     request.session["otp_attempts"] = 0
@@ -1958,7 +2031,9 @@ def store_settings_view(request):
             category_id = request.POST.get("category_id")
             if category_id:
                 try:
-                    store.category_id = int(category_id)
+                    cat_id_int = int(category_id)
+                    if Category.objects.filter(id=cat_id_int).exists():
+                        store.category_id = cat_id_int
                 except (ValueError, TypeError):
                     pass
             elif "category_id" in request.POST:

@@ -204,7 +204,7 @@
                                     {% if cam.serial_number %}
                                         P2P Cloud: <span style="font-family: monospace; color: #C084FC; font-weight: 700;">{{ cam.serial_number }} (Канал #{{ cam.p2p_device_channel }})</span>
                                     {% else %}
-                                        URL: <span style="font-family: monospace; color: #E2E8F0;">{{ cam.rtsp_url|default:"rtsp://192.168.1.64:554/live"|truncatechars:35 }}</span>
+                                        URL: <span style="font-family: monospace; color: #E2E8F0;">{{ cam.masked_rtsp_url|default:cam.serial_number|default:"Cloud P2P"|truncatechars:35 }}</span>
                                     {% endif %}
                                 </div>
                             </div>
@@ -766,7 +766,7 @@ function pingCamera(camId) {
             if (data.success) {
                 alert('⚡ Тест связи успешен!\n' + data.message);
             } else {
-                alert('Ошибка проверки потока');
+                alert(data.message || 'Ошибка проверки потока');
             }
         })
         .catch(err => alert('Ошибка соединения: ' + err));
