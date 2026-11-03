@@ -134,18 +134,17 @@
         margin-left: 2px;
     }
     .bm-btn-settings {
-        background: rgba(255, 255, 255, 0.06);
-        border-color: rgba(255, 255, 255, 0.12);
-        color: #E2E8F0;
+        background: var(--surface-card, rgba(255, 255, 255, 0.06));
+        border-color: var(--border, rgba(255, 255, 255, 0.12));
+        color: var(--text-main, #E2E8F0);
     }
     .bm-btn-settings:hover {
-        background: rgba(255, 255, 255, 0.12);
-        color: #FFFFFF;
+        border-color: var(--primary);
     }
     .bm-btn-login {
-        background: rgba(255, 255, 255, 0.05);
-        border-color: rgba(255, 255, 255, 0.1);
-        color: #CBD5E1;
+        background: var(--surface-card, rgba(255, 255, 255, 0.05));
+        border-color: var(--border, rgba(255, 255, 255, 0.1));
+        color: var(--text-main, #CBD5E1);
     }
     @media (max-width: 480px) {
         .bm-topbar-right {
@@ -184,40 +183,56 @@
     }
 
     /* ==========================================================================
-       2. CLEAN STORE HEADER (NO ROBOTIC NEON, NO BRAINMART LOGO FOR SELLERS)
+       2. FLAGSHIP SELLER STORE HEADER (ADAPTIVE TO ALL 12 READY-MADE THEMES)
        ========================================================================== */
     .uzum-store-card {
-        background: var(--surface-card, linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.02) 100%));
-        border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
-        border-radius: 16px;
-        padding: 12px 14px;
-        margin-bottom: 12px;
+        background:
+            radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--primary) 13%, transparent) 0%, transparent 65%),
+            radial-gradient(100% 120% at 100% 100%, color-mix(in srgb, var(--accent) 10%, transparent) 0%, transparent 65%),
+            var(--surface-card, #141824);
+        border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+        border-radius: 22px;
+        padding: 16px 18px;
+        margin-bottom: 14px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        gap: 14px;
+        box-shadow: var(--card-shadow, 0 10px 30px rgba(0, 0, 0, 0.22));
+        position: relative;
+        overflow: hidden;
+        transition: all 0.22s ease;
+    }
+    .uzum-store-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        background: var(--btn-gradient, linear-gradient(90deg, var(--primary), var(--accent)));
+        opacity: 0.95;
     }
     .uzum-store-left {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 14px;
         min-width: 0;
+        flex: 1;
     }
     .uzum-store-avatar {
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
         overflow: hidden;
         flex-shrink: 0;
-        background: linear-gradient(135deg, #7000FF 0%, #4F46E5 100%);
+        background: var(--btn-gradient, linear-gradient(135deg, var(--primary, #7000FF) 0%, var(--accent, #4F46E5) 100%));
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 19px;
-        font-weight: 800;
-        color: #FFFFFF;
-        box-shadow: 0 4px 12px rgba(112, 0, 255, 0.3);
+        font-size: 21px;
+        font-weight: 900;
+        color: var(--on-primary, #FFFFFF);
+        border: 2px solid color-mix(in srgb, var(--primary) 35%, rgba(255,255,255,0.25));
+        box-shadow: 0 6px 18px color-mix(in srgb, var(--primary) 28%, rgba(0,0,0,0.2));
     }
     .uzum-store-avatar img {
         width: 100%;
@@ -227,50 +242,56 @@
     .uzum-store-meta {
         display: flex;
         flex-direction: column;
-        gap: 2px;
+        gap: 4px;
         min-width: 0;
     }
     .uzum-store-name-row {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 7px;
+        flex-wrap: wrap;
     }
     .uzum-store-title {
         margin: 0;
-        font-size: 16px;
-        font-weight: 800;
+        font-size: 18px;
+        font-weight: 900;
         color: var(--text-main, #FFFFFF);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        letter-spacing: -0.01em;
+        letter-spacing: -0.02em;
     }
     .uzum-verified-badge {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 16px;
-        height: 16px;
+        width: 18px;
+        height: 18px;
         border-radius: 50%;
-        background: #0088CC;
-        color: #FFFFFF;
+        background: var(--btn-gradient, linear-gradient(135deg, #0088CC, #38BDF8));
+        color: var(--on-primary, #FFFFFF);
         font-size: 10px;
         font-weight: 900;
         flex-shrink: 0;
+        box-shadow: 0 2px 8px color-mix(in srgb, var(--primary) 35%, transparent);
     }
     .uzum-store-sub {
-        font-size: 11.5px;
-        color: #94A3B8;
+        font-size: 12px;
+        color: var(--text-muted, #94A3B8);
         display: flex;
         align-items: center;
         gap: 6px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        flex-wrap: wrap;
+        font-weight: 600;
     }
     .uzum-store-sub .star-rating {
         color: #F59E0B;
-        font-weight: 700;
+        font-weight: 800;
+        background: rgba(245, 158, 11, 0.12);
+        border: 1px solid rgba(245, 158, 11, 0.25);
+        padding: 1px 6px;
+        border-radius: 6px;
+        font-size: 11px;
     }
     .uzum-store-actions {
         display: flex;
@@ -279,45 +300,47 @@
         flex-shrink: 0;
     }
     .uzum-btn-contact {
-        background: rgba(112, 0, 255, 0.15);
-        color: #B785FF;
-        border: 1px solid rgba(112, 0, 255, 0.35);
-        padding: 6px 12px;
-        border-radius: 10px;
+        background: color-mix(in srgb, var(--primary) 14%, transparent);
+        color: var(--primary);
+        border: 1px solid color-mix(in srgb, var(--primary) 32%, transparent);
+        padding: 7px 13px;
+        border-radius: 12px;
         font-size: 12px;
-        font-weight: 700;
+        font-weight: 800;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
         gap: 5px;
-        transition: all 0.15s ease;
+        transition: all 0.18s ease;
     }
     .uzum-btn-contact:hover {
-        background: #7000FF;
-        color: #FFFFFF;
+        background: var(--primary);
+        color: var(--on-primary, #FFFFFF);
+        transform: translateY(-1px);
     }
     .uzum-lang-toggle {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 9px;
-        padding: 2px;
+        background: var(--input-bg, rgba(255, 255, 255, 0.06));
+        border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+        border-radius: 11px;
+        padding: 2.5px;
         display: inline-flex;
         gap: 2px;
     }
     .uzum-lang-btn {
         border: none;
         background: transparent;
-        color: #94A3B8;
+        color: var(--text-muted, #94A3B8);
         font-size: 10.5px;
-        font-weight: 700;
-        padding: 4px 7px;
-        border-radius: 7px;
+        font-weight: 800;
+        padding: 4px 8px;
+        border-radius: 8px;
         cursor: pointer;
         transition: all 0.15s ease;
     }
     .uzum-lang-btn.active {
-        background: #FFFFFF;
-        color: #0B0E14;
+        background: var(--primary, #7000FF);
+        color: var(--on-primary, #FFFFFF);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
     }
 
     /* Global Market Header */
@@ -389,9 +412,9 @@
         transition: all 0.15s ease;
     }
     .uzum-search-input:focus {
-        border-color: #7000FF;
-        background: #1B2030;
-        box-shadow: 0 0 0 3px rgba(112, 0, 255, 0.2);
+        border-color: var(--primary, #7000FF);
+        background: var(--surface-card, #1B2030);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
     }
     .uzum-search-input::placeholder {
         color: #64748B;
@@ -453,28 +476,29 @@
         white-space: nowrap;
         text-decoration: none;
         font-size: 12.5px;
-        font-weight: 600;
-        padding: 7px 15px;
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        background: rgba(255, 255, 255, 0.04);
-        color: #CBD5E1;
+        font-weight: 700;
+        padding: 8px 16px;
+        border-radius: 99px;
+        border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+        background: var(--surface-card, rgba(255, 255, 255, 0.04));
+        color: var(--text-main, #CBD5E1);
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        transition: all 0.15s ease;
+        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
         flex-shrink: 0;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
     }
     .uzum-cat-pill:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: #FFFFFF;
+        border-color: var(--primary, #7000FF);
+        transform: translateY(-1px);
     }
     .uzum-cat-pill.active {
-        background: #7000FF !important;
-        border-color: #7000FF !important;
-        color: #FFFFFF !important;
-        font-weight: 700 !important;
-        box-shadow: 0 4px 14px rgba(112, 0, 255, 0.35) !important;
+        background: var(--btn-gradient, var(--primary, #7000FF)) !important;
+        border-color: transparent !important;
+        color: var(--on-primary, #FFFFFF) !important;
+        font-weight: 800 !important;
+        box-shadow: 0 4px 14px color-mix(in srgb, var(--primary) 35%, transparent) !important;
     }
 
     /* ==========================================================================
@@ -1065,9 +1089,10 @@
     .uzum-trust-footer {
         margin-top: 32px;
         padding: 20px 16px;
-        background: #111520;
-        border: 1px solid rgba(255, 255, 255, 0.07);
-        border-radius: 18px;
+        background: var(--surface-card, #111520);
+        border: 1px solid var(--border, rgba(255, 255, 255, 0.07));
+        border-radius: 20px;
+        box-shadow: var(--card-shadow);
         display: grid;
         grid-template-columns: 1fr;
         gap: 16px;
@@ -1098,14 +1123,14 @@
     .trust-text h4 {
         margin: 0 0 3px;
         font-size: 13.5px;
-        font-weight: 700;
-        color: #FFFFFF;
+        font-weight: 800;
+        color: var(--text-main, #FFFFFF);
     }
     .trust-text p {
         margin: 0;
         font-size: 11.5px;
         line-height: 1.4;
-        color: #94A3B8;
+        color: var(--text-muted, #94A3B8);
     }
 
     .empty-state { text-align: center; margin-top: 40px; padding: 0 16px; }

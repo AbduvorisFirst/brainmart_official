@@ -148,14 +148,28 @@
         background: rgba(41, 151, 255, 0.04);
     }
 
-    /* ─── Instagram / Apple Profile Card ("через квадрат") ─── */
+    /* ─── Luxury Obsidian Glass Seller Hero Card ─── */
     .insta-profile-card {
-        background: var(--card-bg, #131722);
-        border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
-        border-radius: 22px;
-        padding: 18px 20px;
+        background:
+            radial-gradient(120% 110% at 0% 0%, rgba(41, 151, 255, 0.11) 0%, rgba(112, 0, 255, 0.06) 42%, transparent 75%),
+            radial-gradient(100% 100% at 100% 100%, rgba(16, 185, 129, 0.06) 0%, transparent 65%),
+            linear-gradient(180deg, rgba(255, 255, 255, 0.035) 0%, rgba(255, 255, 255, 0.01) 100%),
+            #0D1017;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        padding: 20px 22px;
         margin-bottom: 20px;
-        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06), 0 8px 28px rgba(0, 0, 0, 0.4);
+        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.14), 0 16px 40px -8px rgba(0, 0, 0, 0.55);
+        position: relative;
+        overflow: hidden;
+    }
+    .insta-profile-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #2997FF 0%, #7000FF 35%, #38BDF8 70%, #10B981 100%);
+        opacity: 0.9;
     }
     .insta-profile-row {
         display: flex;
@@ -163,10 +177,10 @@
         gap: 18px;
     }
     .insta-avatar-square {
-        width: 66px;
-        height: 66px;
-        border-radius: 18px; /* Squircle */
-        background: linear-gradient(135deg, #2563EB, #10B981);
+        width: 68px;
+        height: 68px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #2563EB 0%, #7C3AED 55%, #10B981 100%);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -175,8 +189,8 @@
         color: #FFFFFF;
         flex-shrink: 0;
         overflow: hidden;
-        border: 2px solid rgba(255, 255, 255, 0.14);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        border: 2px solid rgba(255, 255, 255, 0.22);
+        box-shadow: 0 0 0 4px rgba(41, 151, 255, 0.12), 0 8px 24px rgba(0, 0, 0, 0.45);
     }
     .insta-avatar-square img {
         width: 100%;
@@ -185,9 +199,8 @@
         display: block;
     }
     .insta-stats-container {
-        display: flex;
-        align-items: center;
-        justify-content: space-around;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
         flex: 1;
         gap: 8px;
     }
@@ -197,99 +210,136 @@
         align-items: center;
         justify-content: center;
         text-align: center;
-        flex: 1;
+        background: rgba(255, 255, 255, 0.035);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 14px;
+        padding: 10px 8px;
+        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .insta-stat-item:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.14);
+        transform: translateY(-2px);
     }
     .insta-stat-number {
         font-size: 18px;
-        font-weight: 800;
+        font-weight: 900;
         color: #FFFFFF;
-        letter-spacing: -0.02em;
+        letter-spacing: -0.03em;
+        font-variant-numeric: tabular-nums;
         line-height: 1.1;
     }
     .insta-stat-label {
-        font-size: 11px;
-        color: var(--text-muted, #94A3B8);
-        font-weight: 600;
-        margin-top: 3px;
-        letter-spacing: -0.01em;
+        font-size: 10px;
+        color: #94A3B8;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-top: 4px;
+        letter-spacing: 0.05em;
     }
     .insta-info-row {
-        margin-top: 14px;
+        margin-top: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
     }
     .insta-name-text {
-        font-size: 16px;
-        font-weight: 800;
+        font-size: 17px;
+        font-weight: 900;
         color: #FFFFFF;
         display: flex;
         align-items: center;
-        gap: 6px;
-        letter-spacing: -0.01em;
+        gap: 7px;
+        letter-spacing: -0.02em;
     }
     .insta-check-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2px 7px;
+        border-radius: 99px;
+        background: rgba(56, 189, 248, 0.14);
+        border: 1px solid rgba(56, 189, 248, 0.35);
         color: #38BDF8;
-        font-size: 13px;
+        font-size: 10.5px;
+        font-weight: 800;
     }
     .insta-subdomain-tag {
         font-size: 12px;
-        color: var(--text-muted, #94A3B8);
-        font-weight: 500;
-        margin-top: 2px;
+        color: #94A3B8;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        padding: 3px 10px;
+        border-radius: 99px;
     }
     .insta-buttons-grid {
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin-top: 14px;
+        gap: 9px;
+        margin-top: 15px;
     }
     .insta-action-btn {
         flex: 1;
-        padding: 9px 12px;
-        border-radius: 12px;
+        padding: 10px 14px;
+        border-radius: 13px;
         font-size: 12.5px;
-        font-weight: 700;
+        font-weight: 800;
         text-align: center;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 6px;
-        transition: all 0.16s ease;
+        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
         border: 1px solid var(--border);
     }
     .insta-action-primary {
-        background: rgba(37, 99, 235, 0.18);
-        border-color: rgba(37, 99, 235, 0.4);
-        color: #93C5FD;
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.28) 0%, rgba(112, 0, 255, 0.22) 100%);
+        border-color: rgba(59, 130, 246, 0.45);
+        color: #FFFFFF;
+        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.16), 0 4px 14px rgba(37, 99, 235, 0.22);
     }
     .insta-action-primary:hover {
-        background: rgba(37, 99, 235, 0.3);
-        color: #FFFFFF;
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.42) 0%, rgba(112, 0, 255, 0.34) 100%);
+        border-color: rgba(96, 165, 250, 0.7);
+        transform: translateY(-1px);
+        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.25), 0 6px 20px rgba(37, 99, 235, 0.35);
     }
     .insta-action-secondary {
-        background: rgba(255, 255, 255, 0.05);
-        border-color: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.055);
+        border-color: rgba(255, 255, 255, 0.12);
         color: #FFFFFF;
+        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
     }
     .insta-action-secondary:hover {
-        background: rgba(255, 255, 255, 0.09);
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.22);
+        transform: translateY(-1px);
     }
     .insta-action-icon-btn {
-        width: 38px;
-        height: 38px;
-        border-radius: 12px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        width: 40px;
+        height: 40px;
+        border-radius: 13px;
+        background: rgba(255, 255, 255, 0.055);
+        border: 1px solid rgba(255, 255, 255, 0.12);
         display: flex;
         align-items: center;
         justify-content: center;
         color: #FFFFFF;
         text-decoration: none;
-        font-size: 15px;
+        font-size: 16px;
         flex-shrink: 0;
-        transition: all 0.16s ease;
+        transition: all 0.18s ease;
+        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
     }
     .insta-action-icon-btn:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(255, 255, 255, 0.24);
+        transform: translateY(-1px);
     }
 
     /* ─── Interactive Colors & Sizes Chips ─── */
@@ -582,7 +632,177 @@
     .sq-finance    { background: linear-gradient(135deg, #059669, #10B981); }
     .sq-customers  { background: linear-gradient(135deg, #1D4ED8, #3B82F6); }
     .sq-broadcasts { background: linear-gradient(135deg, #BE185D, #F43F5E); }
-    
+
+    /* ─── Luxury Ready-Made Themes Hub Banner & Miniature Storefront Mockups ─── */
+    .bm-theme-hub-card {
+        margin-bottom: 22px;
+        padding: 16px 20px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        border-radius: 22px;
+        background:
+            radial-gradient(120% 120% at 0% 0%, rgba(112, 0, 255, 0.2) 0%, rgba(41, 151, 255, 0.1) 45%, transparent 80%),
+            radial-gradient(100% 100% at 100% 100%, rgba(236, 72, 153, 0.12) 0%, transparent 70%),
+            linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%),
+            #0E111A;
+        border: 1px solid rgba(168, 85, 247, 0.42);
+        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.16), 0 12px 34px -6px rgba(112, 0, 255, 0.22);
+        transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .bm-theme-hub-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 2.5px;
+        background: linear-gradient(90deg, #7000FF, #EC4899, #2997FF, #10B981, #7000FF);
+        background-size: 200% 100%;
+        animation: bmAuroraFlow 6s linear infinite;
+    }
+    @keyframes bmAuroraFlow {
+        0% { background-position: 0% 50%; }
+        100% { background-position: 200% 50%; }
+    }
+    .bm-theme-hub-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(192, 132, 252, 0.75);
+        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.24), 0 16px 42px -6px rgba(112, 0, 255, 0.36);
+    }
+    .bm-theme-hub-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 15px;
+        background: linear-gradient(135deg, #7000FF 0%, #EC4899 55%, #2997FF 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 23px;
+        flex-shrink: 0;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 6px 18px rgba(112, 0, 255, 0.45);
+    }
+    .bm-theme-mini-dots {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 7px;
+        border-radius: 99px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .bm-theme-mini-dots span {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        display: inline-block;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    /* ─── Theme Quick Cards inside Modal ─── */
+    .theme-quick-card {
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0.02) 100%), #121622 !important;
+        border: 1.5px solid rgba(255, 255, 255, 0.09);
+        border-radius: 18px !important;
+        padding: 12px !important;
+        cursor: pointer;
+        transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        display: flex;
+        flex-direction: column;
+        gap: 10px !important;
+        position: relative;
+        overflow: hidden;
+        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.07), 0 6px 18px rgba(0, 0, 0, 0.35);
+    }
+    .theme-quick-card:hover {
+        transform: translateY(-4px);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.075) 0%, rgba(255, 255, 255, 0.03) 100%), #161B2A !important;
+        border-color: rgba(255, 255, 255, 0.26) !important;
+        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.14), 0 16px 34px -6px rgba(0, 0, 0, 0.6);
+    }
+    .theme-quick-card.active {
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2), 0 14px 34px -6px rgba(112, 0, 255, 0.4);
+    }
+    .bm-mockup-window {
+        border-radius: 12px;
+        overflow: hidden;
+        padding: 7px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 4px 12px rgba(0, 0, 0, 0.28);
+        position: relative;
+    }
+    .bm-mockup-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 4px 7px;
+        border-radius: 7px;
+    }
+    .bm-mockup-hero {
+        padding: 6px 8px;
+        border-radius: 7px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .bm-mockup-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 5px;
+    }
+    .bm-mockup-prod {
+        border-radius: 7px;
+        padding: 5px;
+        display: flex;
+        flex-direction: column;
+        gap: 3.5px;
+    }
+    .bm-mockup-thumb {
+        height: 22px;
+        border-radius: 5px;
+        width: 100%;
+    }
+    .bm-mockup-line {
+        height: 3.5px;
+        width: 72%;
+        border-radius: 2px;
+    }
+    .bm-mockup-btn {
+        height: 6px;
+        width: 48%;
+        border-radius: 3px;
+    }
+    .bm-swatches-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+    }
+    .bm-swatch-dots {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .bm-swatch-dot {
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 1px 3px rgba(0, 0, 0, 0.35);
+    }
+    .theme-active-indicator {
+        font-size: 9.5px;
+        font-weight: 800;
+        color: #10B981;
+        background: rgba(16, 185, 129, 0.14);
+        border: 1px solid rgba(16, 185, 129, 0.35);
+        padding: 2px 7px;
+        border-radius: 99px;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+    }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -773,28 +993,36 @@
         </div>
     {% endif %}
 
-    <!-- ─── ОТДЕЛЬНАЯ КНОПКА: ГОТОВЫЕ ДИЗАЙНЫ ВИТРИНЫ ─── -->
-    <div class="insta-profile-card" onclick="openThemeModal();" style="margin-bottom: 20px; padding: 14px 18px; cursor: pointer; transition: all 0.2s ease; border: 1.5px solid rgba(112, 0, 255, 0.35); background: linear-gradient(135deg, rgba(112,0,255,0.12) 0%, rgba(41,151,255,0.08) 100%); border-radius: 18px;">
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-            <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
-                <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #7000FF 0%, #2997FF 100%); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; box-shadow: 0 4px 14px rgba(112,0,255,0.4);">
+    <!-- ─── ПРЕМИАЛЬНЫЙ ХАБ: ГОТОВЫЕ СТИЛИ ОФОРМЛЕНИЯ ВИТРИНЫ ─── -->
+    <div class="bm-theme-hub-card" onclick="openThemeModal();">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 14px; min-width: 0; flex: 1;">
+                <div class="bm-theme-hub-icon">
                     🎨
                 </div>
-                <div style="min-width: 0;">
-                    <div style="font-size: 14.5px; font-weight: 800; color: #FFFFFF; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <div style="min-width: 0; flex: 1;">
+                    <div style="font-size: 15px; font-weight: 900; color: #FFFFFF; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; letter-spacing: -0.015em;">
                         <span>{% trans "Готовые стили оформления" %}</span>
-                        <span id="currentThemeBadge" style="font-size: 10px; font-weight: 800; color: #A855F7; background: rgba(168,85,247,0.18); border: 1px solid rgba(168,85,247,0.35); padding: 2px 7px; border-radius: 6px;">
-                            {{ store.get_theme_display_name }}
+                        <span id="currentThemeBadge" style="font-size: 10.5px; font-weight: 800; color: #E9D5FF; background: rgba(168, 85, 247, 0.22); border: 1px solid rgba(192, 132, 252, 0.45); padding: 2px 9px; border-radius: 99px; box-shadow: 0 2px 10px rgba(168, 85, 247, 0.25);">
+                            ✨ {{ store.get_theme_display_name }}
                         </span>
                     </div>
-                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
-                        {% trans "12 дизайнерских тем: Светлые, Цветные и OLED в 1 клик" %}
+                    <div style="font-size: 12px; color: #94A3B8; margin-top: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <span>{% trans "12 студийных тем: Apple White, Paris Luxe, Sakura, Cyber & OLED" %}</span>
+                        <span class="bm-theme-mini-dots" title="Палитра тем">
+                            <span style="background: #FFFFFF;"></span>
+                            <span style="background: #FAF0E6;"></span>
+                            <span style="background: #FF4B72;"></span>
+                            <span style="background: #10B981;"></span>
+                            <span style="background: #7000FF;"></span>
+                            <span style="background: #2997FF;"></span>
+                        </span>
                     </div>
                 </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
-                <button type="button" class="btn" style="width: auto; margin: 0; padding: 7px 15px; font-size: 12px; font-weight: 800; border-radius: 10px; background: linear-gradient(135deg, #7000FF 0%, #2563EB 100%); color: #FFFFFF; border: none; box-shadow: 0 3px 12px rgba(112,0,255,0.35); pointer-events: none; display: inline-flex; align-items: center; gap: 5px;">
-                    {% trans "Выбрать" %} ➔
+            <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                <button type="button" class="btn" style="width: auto; margin: 0; padding: 9px 16px; font-size: 12.5px; font-weight: 800; border-radius: 12px; background: linear-gradient(135deg, #7000FF 0%, #2563EB 100%); color: #FFFFFF; border: 1px solid rgba(255,255,255,0.22); box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 4px 16px rgba(112,0,255,0.4); pointer-events: none; display: inline-flex; align-items: center; gap: 6px;">
+                    <span>{% trans "Выбрать дизайн" %}</span> <span>➔</span>
                 </button>
             </div>
         </div>
@@ -1278,13 +1506,17 @@
                 c.style.opacity = '1';
                 c.style.pointerEvents = 'auto';
                 c.classList.remove('active');
-                c.style.borderColor = 'var(--border)';
+                c.style.borderColor = 'rgba(255,255,255,0.09)';
+                var ind = c.querySelector('.theme-active-indicator');
+                if (ind) ind.style.display = 'none';
             });
 
             if (data.success) {
                 if (cardEl) {
                     cardEl.classList.add('active');
                     cardEl.style.borderColor = data.primary_color || '#7000FF';
+                    var activeInd = cardEl.querySelector('.theme-active-indicator');
+                    if (activeInd) activeInd.style.display = 'inline-flex';
                 }
                 var toastMsg = '🎨 ' + (data.message || '{% filter escapejs %}{% trans "Тема успешно сохранена!" %}{% endfilter %}');
                 if (typeof showBmToast === 'function') {
@@ -1729,228 +1961,673 @@
     </script>
 
 <!-- ─── МОДАЛЬНОЕ ОКНО: 12 ГОТОВЫХ СТИЛЕЙ ОФОРМЛЕНИЯ ВИТРИНЫ ─── -->
-<div id="themeSelectionModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); z-index: 999999; align-items: center; justify-content: center; padding: 14px;">
-    <div style="background: #0E121B; border: 1.5px solid rgba(255,255,255,0.14); border-radius: 22px; width: 100%; max-width: 680px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 30px 70px rgba(0,0,0,0.9); position: relative;">
+<div id="themeSelectionModal" style="display: none; position: fixed; inset: 0; background: rgba(4, 7, 14, 0.86); backdrop-filter: blur(18px) saturate(180%); -webkit-backdrop-filter: blur(18px) saturate(180%); z-index: 999999; align-items: center; justify-content: center; padding: 14px;">
+    <div style="background: radial-gradient(100% 80% at 50% 0%, rgba(112, 0, 255, 0.1) 0%, transparent 65%), #0D1018; border: 1px solid rgba(255,255,255,0.14); border-radius: 24px; width: 100%; max-width: 780px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 32px 80px rgba(0,0,0,0.92); position: relative;">
         
         <!-- Header (Sticky) -->
-        <div style="padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); flex-shrink: 0;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #7000FF 0%, #2997FF 100%); display: flex; align-items: center; justify-content: center; font-size: 18px;">
+        <div style="padding: 18px 22px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); flex-shrink: 0;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #7000FF 0%, #EC4899 55%, #2997FF 100%); display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 4px 14px rgba(112,0,255,0.4);">
                     🎨
                 </div>
                 <div>
-                    <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: #FFFFFF;">{% trans "Готовые стили оформления" %}</h3>
-                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 1px;">{% trans "Применяется мгновенно в 1 клик" %}</div>
+                    <h3 style="margin: 0; font-size: 16px; font-weight: 900; color: #FFFFFF; letter-spacing: -0.02em;">{% trans "Студия готовых дизайнов витрины" %}</h3>
+                    <div style="font-size: 11.5px; color: #94A3B8; margin-top: 2px;">{% trans "Выберите тему — живой предпросмотр и мгновенное применение в 1 клик" %}</div>
                 </div>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
                 {% get_current_language as CURRENT_LANG %}
-                <a id="previewShowcaseLinkModal" href="/{{ CURRENT_LANG|default:'ru' }}/?store_id={{ store.id }}" target="_blank" style="font-size: 11.5px; font-weight: 700; color: var(--primary, #7000FF); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; background: rgba(112, 0, 255, 0.14); border: 1px solid rgba(112, 0, 255, 0.3); padding: 6px 11px; border-radius: 8px;">
+                <a id="previewShowcaseLinkModal" href="/{{ CURRENT_LANG|default:'ru' }}/?store_id={{ store.id }}" target="_blank" style="font-size: 12px; font-weight: 800; color: #FFFFFF; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; background: linear-gradient(135deg, rgba(112, 0, 255, 0.28) 0%, rgba(37, 99, 235, 0.24) 100%); border: 1px solid rgba(139, 92, 246, 0.45); padding: 7px 13px; border-radius: 10px;">
                     👁️ {% trans "Витрина" %} ↗
                 </a>
-                <button type="button" onclick="closeThemeModal()" style="background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: #CBD5E1; font-size: 16px; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s;" title="{% trans 'Закрыть' %}">
+                <button type="button" onclick="closeThemeModal()" style="background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); color: #CBD5E1; font-size: 15px; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s;" title="{% trans 'Закрыть' %}">
                     ✕
                 </button>
             </div>
         </div>
 
         <!-- Filter Tabs (Sticky) -->
-        <div style="padding: 10px 18px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.3); flex-shrink: 0;">
-            <div class="theme-filter-tabs" style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none;">
-                <button type="button" class="theme-tab-btn active" onclick="filterThemeCards('all', this);" style="background: rgba(255,255,255,0.14); color: #FFFFFF; border: 1px solid rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.15s;">
-                    {% trans "Все дизайны" %} (12)
+        <div style="padding: 11px 20px; border-bottom: 1px solid rgba(255,255,255,0.07); background: rgba(0,0,0,0.28); flex-shrink: 0;">
+            <div class="theme-filter-tabs" style="display: flex; gap: 7px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none;">
+                <button type="button" class="theme-tab-btn active" onclick="filterThemeCards('all', this);" style="background: rgba(255,255,255,0.14); color: #FFFFFF; border: 1px solid rgba(255,255,255,0.22); padding: 6px 13px; border-radius: 20px; font-size: 11.5px; font-weight: 800; cursor: pointer; white-space: nowrap; transition: all 0.15s;">
+                    ✨ {% trans "Все дизайны" %} (12)
                 </button>
-                <button type="button" class="theme-tab-btn" onclick="filterThemeCards('light', this);" style="background: rgba(255,255,255,0.04); color: #94A3B8; border: 1px solid var(--border); padding: 5px 12px; border-radius: 20px; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.15s;">
-                    ☀️ {% trans "Светлые & Белые" %} (6)
+                <button type="button" class="theme-tab-btn" onclick="filterThemeCards('light', this);" style="background: rgba(255,255,255,0.04); color: #94A3B8; border: 1px solid rgba(255,255,255,0.08); padding: 6px 13px; border-radius: 20px; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.15s;">
+                    ☀️ {% trans "Светлые & Пастельные" %} (6)
                 </button>
-                <button type="button" class="theme-tab-btn" onclick="filterThemeCards('colored', this);" style="background: rgba(255,255,255,0.04); color: #94A3B8; border: 1px solid var(--border); padding: 5px 12px; border-radius: 20px; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.15s;">
+                <button type="button" class="theme-tab-btn" onclick="filterThemeCards('colored', this);" style="background: rgba(255,255,255,0.04); color: #94A3B8; border: 1px solid rgba(255,255,255,0.08); padding: 6px 13px; border-radius: 20px; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.15s;">
                     💎 {% trans "Благородные Цветные" %} (2)
                 </button>
-                <button type="button" class="theme-tab-btn" onclick="filterThemeCards('dark', this);" style="background: rgba(255,255,255,0.04); color: #94A3B8; border: 1px solid var(--border); padding: 5px 12px; border-radius: 20px; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.15s;">
+                <button type="button" class="theme-tab-btn" onclick="filterThemeCards('dark', this);" style="background: rgba(255,255,255,0.04); color: #94A3B8; border: 1px solid rgba(255,255,255,0.08); padding: 6px 13px; border-radius: 20px; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.15s;">
                     🌙 {% trans "Темные & OLED" %} (4)
                 </button>
             </div>
         </div>
 
-        <!-- Scrollable Modal Body with 12 Theme Cards -->
-        <div style="padding: 16px; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch;">
-            <div id="themeCardsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: 10px;">
-                <!-- 1. Apple White Minimalist -->
-                <div class="theme-quick-card {% if store.theme_style == 'clean_white' %}active{% endif %}" onclick="applyFastTheme('clean_white', this)" data-theme="clean_white" data-category="light" style="background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'clean_white' %}#0066FF{% else %}var(--border){% endif %}; border-radius: 14px; padding: 12px; cursor: pointer; transition: all 0.18s ease; display: flex; flex-direction: column; gap: 8px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <strong style="font-size: 13px; color: #FFFFFF;">⚪ Clean White</strong>
-                        <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #0066FF; background: rgba(0, 102, 255, 0.15); padding: 2px 6px; border-radius: 4px;">WHITE</span>
+        <!-- Scrollable Modal Body with 12 Miniature Storefront Cards -->
+        <div style="padding: 18px; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch;">
+            <div id="themeCardsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 14px;">
+                <!-- ⚪ Clean White -->
+                <div class="theme-quick-card {% if store.theme_style == 'clean_white' %}active{% endif %}" onclick="applyFastTheme('clean_white', this)" data-theme="clean_white" data-category="light" style="border-color: {% if store.theme_style == 'clean_white' %}#0071E3{% else %}rgba(255,255,255,0.09){% endif %};">
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                        <strong style="font-size: 13.5px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.01em;">⚪ Clean White</strong>
+                        <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #0071E3; background: rgba(255,255,255,0.06); border: 1px solid rgba(0,0,0,0.08); padding: 2px 7px; border-radius: 6px;">APPLE MINIMAL</span>
                     </div>
-                    <div style="height: 18px; border-radius: 6px; display: flex; overflow: hidden; border: 1px solid rgba(0, 102, 255, 0.3);">
-                        <div style="flex: 2; background: #FFFFFF;" title="Белоснежный фон"></div>
-                        <div style="flex: 1.5; background: #0066FF;" title="Синий акцент"></div>
-                        <div style="flex: 1; background: #0F172A;" title="Глубокий шрифт"></div>
-                    </div>
-                    <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Чистый белый фон — стиль Apple Store и минимализма</span>
-                </div>
 
-                <!-- 2. Warm French Cream -->
-                <div class="theme-quick-card {% if store.theme_style == 'warm_beige' %}active{% endif %}" onclick="applyFastTheme('warm_beige', this)" data-theme="warm_beige" data-category="light" style="background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'warm_beige' %}#9A7B56{% else %}var(--border){% endif %}; border-radius: 14px; padding: 12px; cursor: pointer; transition: all 0.18s ease; display: flex; flex-direction: column; gap: 8px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <strong style="font-size: 13px; color: #FFFFFF;">🌾 Warm Cream</strong>
-                        <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #C5A880; background: rgba(197, 168, 128, 0.15); padding: 2px 6px; border-radius: 4px;">LUXE</span>
+                    <!-- Realistic Miniature Storefront Mockup -->
+                    <div class="bm-mockup-window" style="background: #F5F5F7; border: 1px solid rgba(0,0,0,0.08);">
+                        <div class="bm-mockup-top" style="background: #FFFFFF; border: 1px solid rgba(0,0,0,0.08);">
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                                <span style="width: 8px; height: 8px; border-radius: 3px; background: #0071E3; display: inline-block;"></span>
+                                <span style="width: 30px; height: 3.5px; border-radius: 2px; background: #94A3B8; display: inline-block; opacity: 0.7;"></span>
+                            </div>
+                            <span style="width: 10px; height: 5px; border-radius: 99px; background: #1D1D1F; display: inline-block;"></span>
+                        </div>
+                        <div class="bm-mockup-hero" style="background: linear-gradient(135deg, #0071E3 0%, #47A1FF 100%);">
+                            <div style="display: flex; flex-direction: column; gap: 2.5px;">
+                                <span style="width: 44px; height: 4px; border-radius: 2px; background: #FFFFFF; display: inline-block;"></span>
+                                <span style="width: 26px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.7); display: inline-block;"></span>
+                            </div>
+                            <span style="padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.28); color: #FFFFFF; font-size: 6.5px; font-weight: 800; letter-spacing: 0.3px;">STORE</span>
+                        </div>
+                        <div class="bm-mockup-grid">
+                            <div class="bm-mockup-prod" style="background: #FFFFFF; border: 1px solid rgba(0,0,0,0.08);">
+                                <div class="bm-mockup-thumb" style="background: #E8EEF5;"></div>
+                                <div class="bm-mockup-line" style="background: #94A3B8; opacity: 0.55;"></div>
+                                <div class="bm-mockup-btn" style="background: #0071E3;"></div>
+                            </div>
+                            <div class="bm-mockup-prod" style="background: #FFFFFF; border: 1px solid rgba(0,0,0,0.08);">
+                                <div class="bm-mockup-thumb" style="background: #E8EEF5;"></div>
+                                <div class="bm-mockup-line" style="background: #94A3B8; opacity: 0.55;"></div>
+                                <div class="bm-mockup-btn" style="background: #0071E3;"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div style="height: 18px; border-radius: 6px; display: flex; overflow: hidden; border: 1px solid rgba(154, 123, 86, 0.3);">
-                        <div style="flex: 2; background: #FAF7F2;" title="Кремовый беж"></div>
-                        <div style="flex: 1.5; background: #9A7B56;" title="Шелк"></div>
-                        <div style="flex: 1; background: #C5A880;" title="Золотистый кофе"></div>
-                    </div>
-                    <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Мягкий кремовый фон — для одежды, парфюма и косметики</span>
-                </div>
 
-                <!-- 3. Sweet Sakura Blush -->
-                <div class="theme-quick-card {% if store.theme_style == 'pastel_sakura' %}active{% endif %}" onclick="applyFastTheme('pastel_sakura', this)" data-theme="pastel_sakura" data-category="light" style="background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'pastel_sakura' %}#FF4B72{% else %}var(--border){% endif %}; border-radius: 14px; padding: 12px; cursor: pointer; transition: all 0.18s ease; display: flex; flex-direction: column; gap: 8px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <strong style="font-size: 13px; color: #FFFFFF;">🌸 Sweet Sakura</strong>
-                        <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #FF4B72; background: rgba(255, 75, 114, 0.15); padding: 2px 6px; border-radius: 4px;">BLUSH</span>
+                    <div class="bm-swatches-row">
+                        <div class="bm-swatch-dots">
+                            <span class="bm-swatch-dot" style="background: #F5F5F7;" title="Фон: #F5F5F7"></span>
+                            <span class="bm-swatch-dot" style="background: #FFFFFF;" title="Карточка: #FFFFFF"></span>
+                            <span class="bm-swatch-dot" style="background: #0071E3;" title="Акцент: #0071E3"></span>
+                            <span class="bm-swatch-dot" style="background: #1D1D1F;" title="Детали: #1D1D1F"></span>
+                        </div>
+                        <span class="theme-active-indicator" style="display: {% if store.theme_style == 'clean_white' %}inline-flex{% else %}none{% endif %};">
+                            ✓ {% trans "Активен" %}
+                        </span>
                     </div>
-                    <div style="height: 18px; border-radius: 6px; display: flex; overflow: hidden; border: 1px solid rgba(255, 75, 114, 0.3);">
-                        <div style="flex: 2; background: #FFF5F7;" title="Пудровый фон"></div>
-                        <div style="flex: 1.5; background: #FF4B72;" title="Розовый акцент"></div>
-                        <div style="flex: 1; background: #FFAAA6;" title="Пастель"></div>
-                    </div>
-                    <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Нежный розовый пудровый фон — красота, уход, цветы</span>
-                </div>
 
-                <!-- 4. Fresh Azure Sky -->
-                <div class="theme-quick-card {% if store.theme_style == 'fresh_sky' %}active{% endif %}" onclick="applyFastTheme('fresh_sky', this)" data-theme="fresh_sky" data-category="light" style="background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'fresh_sky' %}#0284C7{% else %}var(--border){% endif %}; border-radius: 14px; padding: 12px; cursor: pointer; transition: all 0.18s ease; display: flex; flex-direction: column; gap: 8px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <strong style="font-size: 13px; color: #FFFFFF;">💎 Fresh Sky</strong>
-                        <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #0284C7; background: rgba(2, 132, 199, 0.15); padding: 2px 6px; border-radius: 4px;">FRESH</span>
-                    </div>
-                    <div style="height: 18px; border-radius: 6px; display: flex; overflow: hidden; border: 1px solid rgba(2, 132, 199, 0.3);">
-                        <div style="flex: 2; background: #F0F9FF;" title="Лазурный фон"></div>
-                        <div style="flex: 1.5; background: #0284C7;" title="Океан"></div>
-                        <div style="flex: 1; background: #38BDF8;" title="Бирюза"></div>
-                    </div>
-                    <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Свежий лазурный фон — спорт, гигиена, детские товары</span>
+                    <span style="font-size: 11px; color: #94A3B8; line-height: 1.35;">Белоснежный минимализм Apple Store — чистый воздух, высокий контраст и доверие</span>
                 </div>
+                <!-- 🌾 Warm Cream -->
+                <div class="theme-quick-card {% if store.theme_style == 'warm_beige' %}active{% endif %}" onclick="applyFastTheme('warm_beige', this)" data-theme="warm_beige" data-category="light" style="border-color: {% if store.theme_style == 'warm_beige' %}#8B6844{% else %}rgba(255,255,255,0.09){% endif %};">
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                        <strong style="font-size: 13.5px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.01em;">🌾 Warm Cream</strong>
+                        <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #8B6844; background: rgba(255,255,255,0.06); border: 1px solid rgba(139,104,68,0.15); padding: 2px 7px; border-radius: 6px;">PARIS LUXE</span>
+                    </div>
 
-                <!-- 5. Nordic Matcha & Sage -->
-                <div class="theme-quick-card {% if store.theme_style == 'nordic_sage' %}active{% endif %}" onclick="applyFastTheme('nordic_sage', this)" data-theme="nordic_sage" data-category="light" style="background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'nordic_sage' %}#059669{% else %}var(--border){% endif %}; border-radius: 14px; padding: 12px; cursor: pointer; transition: all 0.18s ease; display: flex; flex-direction: column; gap: 8px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <strong style="font-size: 13px; color: #FFFFFF;">🌿 Nordic Sage</strong>
-                        <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #059669; background: rgba(5, 150, 105, 0.15); padding: 2px 6px; border-radius: 4px;">ECO</span>
+                    <!-- Realistic Miniature Storefront Mockup -->
+                    <div class="bm-mockup-window" style="background: #F3EEE6; border: 1px solid rgba(139,104,68,0.15);">
+                        <div class="bm-mockup-top" style="background: #FFFCF7; border: 1px solid rgba(139,104,68,0.15);">
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                                <span style="width: 8px; height: 8px; border-radius: 3px; background: #8B6844; display: inline-block;"></span>
+                                <span style="width: 30px; height: 3.5px; border-radius: 2px; background: #A89985; display: inline-block; opacity: 0.7;"></span>
+                            </div>
+                            <span style="width: 10px; height: 5px; border-radius: 99px; background: #C5A880; display: inline-block;"></span>
+                        </div>
+                        <div class="bm-mockup-hero" style="background: linear-gradient(135deg, #8B6844 0%, #C5A880 100%);">
+                            <div style="display: flex; flex-direction: column; gap: 2.5px;">
+                                <span style="width: 44px; height: 4px; border-radius: 2px; background: #FFFFFF; display: inline-block;"></span>
+                                <span style="width: 26px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.7); display: inline-block;"></span>
+                            </div>
+                            <span style="padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.28); color: #FFFFFF; font-size: 6.5px; font-weight: 800; letter-spacing: 0.3px;">STORE</span>
+                        </div>
+                        <div class="bm-mockup-grid">
+                            <div class="bm-mockup-prod" style="background: #FFFCF7; border: 1px solid rgba(139,104,68,0.15);">
+                                <div class="bm-mockup-thumb" style="background: #EAE2D6;"></div>
+                                <div class="bm-mockup-line" style="background: #A89985; opacity: 0.55;"></div>
+                                <div class="bm-mockup-btn" style="background: #8B6844;"></div>
+                            </div>
+                            <div class="bm-mockup-prod" style="background: #FFFCF7; border: 1px solid rgba(139,104,68,0.15);">
+                                <div class="bm-mockup-thumb" style="background: #EAE2D6;"></div>
+                                <div class="bm-mockup-line" style="background: #A89985; opacity: 0.55;"></div>
+                                <div class="bm-mockup-btn" style="background: #8B6844;"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div style="height: 18px; border-radius: 6px; display: flex; overflow: hidden; border: 1px solid rgba(5, 150, 105, 0.3);">
-                        <div style="flex: 2; background: #F3FAF6;" title="Шалфейный фон"></div>
-                        <div style="flex: 1.5; background: #059669;" title="Изумруд"></div>
-                        <div style="flex: 1; background: #10B981;" title="Мята"></div>
+
+                    <div class="bm-swatches-row">
+                        <div class="bm-swatch-dots">
+                            <span class="bm-swatch-dot" style="background: #F3EEE6;" title="Фон: #F3EEE6"></span>
+                            <span class="bm-swatch-dot" style="background: #FFFCF7;" title="Карточка: #FFFCF7"></span>
+                            <span class="bm-swatch-dot" style="background: #8B6844;" title="Акцент: #8B6844"></span>
+                            <span class="bm-swatch-dot" style="background: #C5A880;" title="Детали: #C5A880"></span>
+                        </div>
+                        <span class="theme-active-indicator" style="display: {% if store.theme_style == 'warm_beige' %}inline-flex{% else %}none{% endif %};">
+                            ✓ {% trans "Активен" %}
+                        </span>
                     </div>
-                    <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Скандинавский экостиль — органика, декор, чай и свечи</span>
+
+                    <span style="font-size: 11px; color: #94A3B8; line-height: 1.35;">Французский шелк и теплый крем — идеален для брендовой одежды, косметики и парфюма</span>
                 </div>
+                <!-- 🌸 Sweet Sakura -->
+                <div class="theme-quick-card {% if store.theme_style == 'pastel_sakura' %}active{% endif %}" onclick="applyFastTheme('pastel_sakura', this)" data-theme="pastel_sakura" data-category="light" style="border-color: {% if store.theme_style == 'pastel_sakura' %}#E11D48{% else %}rgba(255,255,255,0.09){% endif %};">
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                        <strong style="font-size: 13.5px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.01em;">🌸 Sweet Sakura</strong>
+                        <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #E11D48; background: rgba(255,255,255,0.06); border: 1px solid rgba(225,29,72,0.14); padding: 2px 7px; border-radius: 6px;">ROSE BLUSH</span>
+                    </div>
 
-                <!-- 6. Soft Lilac Lavender -->
-                <div class="theme-quick-card {% if store.theme_style == 'soft_lavender' %}active{% endif %}" onclick="applyFastTheme('soft_lavender', this)" data-theme="soft_lavender" data-category="light" style="background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'soft_lavender' %}#7C3AED{% else %}var(--border){% endif %}; border-radius: 14px; padding: 12px; cursor: pointer; transition: all 0.18s ease; display: flex; flex-direction: column; gap: 8px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <strong style="font-size: 13px; color: #FFFFFF;">💜 Soft Lilac</strong>
-                        <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #7C3AED; background: rgba(124, 58, 237, 0.15); padding: 2px 6px; border-radius: 4px;">LILAC</span>
+                    <!-- Realistic Miniature Storefront Mockup -->
+                    <div class="bm-mockup-window" style="background: #FBF4F6; border: 1px solid rgba(225,29,72,0.14);">
+                        <div class="bm-mockup-top" style="background: #FFFFFF; border: 1px solid rgba(225,29,72,0.14);">
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                                <span style="width: 8px; height: 8px; border-radius: 3px; background: #E11D48; display: inline-block;"></span>
+                                <span style="width: 30px; height: 3.5px; border-radius: 2px; background: #CDA4B0; display: inline-block; opacity: 0.7;"></span>
+                            </div>
+                            <span style="width: 10px; height: 5px; border-radius: 99px; background: #FB7185; display: inline-block;"></span>
+                        </div>
+                        <div class="bm-mockup-hero" style="background: linear-gradient(135deg, #E11D48 0%, #FB7185 100%);">
+                            <div style="display: flex; flex-direction: column; gap: 2.5px;">
+                                <span style="width: 44px; height: 4px; border-radius: 2px; background: #FFFFFF; display: inline-block;"></span>
+                                <span style="width: 26px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.7); display: inline-block;"></span>
+                            </div>
+                            <span style="padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.28); color: #FFFFFF; font-size: 6.5px; font-weight: 800; letter-spacing: 0.3px;">STORE</span>
+                        </div>
+                        <div class="bm-mockup-grid">
+                            <div class="bm-mockup-prod" style="background: #FFFFFF; border: 1px solid rgba(225,29,72,0.14);">
+                                <div class="bm-mockup-thumb" style="background: #F9E5EB;"></div>
+                                <div class="bm-mockup-line" style="background: #CDA4B0; opacity: 0.55;"></div>
+                                <div class="bm-mockup-btn" style="background: #E11D48;"></div>
+                            </div>
+                            <div class="bm-mockup-prod" style="background: #FFFFFF; border: 1px solid rgba(225,29,72,0.14);">
+                                <div class="bm-mockup-thumb" style="background: #F9E5EB;"></div>
+                                <div class="bm-mockup-line" style="background: #CDA4B0; opacity: 0.55;"></div>
+                                <div class="bm-mockup-btn" style="background: #E11D48;"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div style="height: 18px; border-radius: 6px; display: flex; overflow: hidden; border: 1px solid rgba(124, 58, 237, 0.3);">
-                        <div style="flex: 2; background: #F8F5FF;" title="Лавандовый фон"></div>
-                        <div style="flex: 1.5; background: #7C3AED;" title="Фиалка"></div>
-                        <div style="flex: 1; background: #C084FC;" title="Нежный сиреневый"></div>
+
+                    <div class="bm-swatches-row">
+                        <div class="bm-swatch-dots">
+                            <span class="bm-swatch-dot" style="background: #FBF4F6;" title="Фон: #FBF4F6"></span>
+                            <span class="bm-swatch-dot" style="background: #FFFFFF;" title="Карточка: #FFFFFF"></span>
+                            <span class="bm-swatch-dot" style="background: #E11D48;" title="Акцент: #E11D48"></span>
+                            <span class="bm-swatch-dot" style="background: #FB7185;" title="Детали: #FB7185"></span>
+                        </div>
+                        <span class="theme-active-indicator" style="display: {% if store.theme_style == 'pastel_sakura' %}inline-flex{% else %}none{% endif %};">
+                            ✓ {% trans "Активен" %}
+                        </span>
                     </div>
-                    <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Пастельная сирень — украшения, бижутерия, стиль</span>
+
+                    <span style="font-size: 11px; color: #94A3B8; line-height: 1.35;">Нежная пудра и лепестки сакуры — для бьюти-бутиков, цветов, подарков и женской моды</span>
                 </div>
+                <!-- 💎 Fresh Sky -->
+                <div class="theme-quick-card {% if store.theme_style == 'fresh_sky' %}active{% endif %}" onclick="applyFastTheme('fresh_sky', this)" data-theme="fresh_sky" data-category="light" style="border-color: {% if store.theme_style == 'fresh_sky' %}#0284C7{% else %}rgba(255,255,255,0.09){% endif %};">
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                        <strong style="font-size: 13.5px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.01em;">💎 Fresh Sky</strong>
+                        <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #0284C7; background: rgba(255,255,255,0.06); border: 1px solid rgba(2,132,199,0.14); padding: 2px 7px; border-radius: 6px;">AZURE AIR</span>
+                    </div>
 
-                <!-- 7. Midnight Royal Sapphire -->
-                <div class="theme-quick-card {% if store.theme_style == 'royal_navy' %}active{% endif %}" onclick="applyFastTheme('royal_navy', this)" data-theme="royal_navy" data-category="colored" style="background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'royal_navy' %}#48CAE4{% else %}var(--border){% endif %}; border-radius: 14px; padding: 12px; cursor: pointer; transition: all 0.18s ease; display: flex; flex-direction: column; gap: 8px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <strong style="font-size: 13px; color: #FFFFFF;">👑 Royal Sapphire</strong>
-                        <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #48CAE4; background: rgba(72, 202, 228, 0.15); padding: 2px 6px; border-radius: 4px;">SAPPHIRE</span>
+                    <!-- Realistic Miniature Storefront Mockup -->
+                    <div class="bm-mockup-window" style="background: #F0F8FF; border: 1px solid rgba(2,132,199,0.14);">
+                        <div class="bm-mockup-top" style="background: #FFFFFF; border: 1px solid rgba(2,132,199,0.14);">
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                                <span style="width: 8px; height: 8px; border-radius: 3px; background: #0284C7; display: inline-block;"></span>
+                                <span style="width: 30px; height: 3.5px; border-radius: 2px; background: #93B8D0; display: inline-block; opacity: 0.7;"></span>
+                            </div>
+                            <span style="width: 10px; height: 5px; border-radius: 99px; background: #38BDF8; display: inline-block;"></span>
+                        </div>
+                        <div class="bm-mockup-hero" style="background: linear-gradient(135deg, #0284C7 0%, #38BDF8 100%);">
+                            <div style="display: flex; flex-direction: column; gap: 2.5px;">
+                                <span style="width: 44px; height: 4px; border-radius: 2px; background: #FFFFFF; display: inline-block;"></span>
+                                <span style="width: 26px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.7); display: inline-block;"></span>
+                            </div>
+                            <span style="padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.28); color: #FFFFFF; font-size: 6.5px; font-weight: 800; letter-spacing: 0.3px;">STORE</span>
+                        </div>
+                        <div class="bm-mockup-grid">
+                            <div class="bm-mockup-prod" style="background: #FFFFFF; border: 1px solid rgba(2,132,199,0.14);">
+                                <div class="bm-mockup-thumb" style="background: #E1F1FD;"></div>
+                                <div class="bm-mockup-line" style="background: #93B8D0; opacity: 0.55;"></div>
+                                <div class="bm-mockup-btn" style="background: #0284C7;"></div>
+                            </div>
+                            <div class="bm-mockup-prod" style="background: #FFFFFF; border: 1px solid rgba(2,132,199,0.14);">
+                                <div class="bm-mockup-thumb" style="background: #E1F1FD;"></div>
+                                <div class="bm-mockup-line" style="background: #93B8D0; opacity: 0.55;"></div>
+                                <div class="bm-mockup-btn" style="background: #0284C7;"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div style="height: 18px; border-radius: 6px; display: flex; overflow: hidden; border: 1px solid rgba(72, 202, 228, 0.3);">
-                        <div style="flex: 2; background: #0B132B;" title="Полночный сапфир"></div>
-                        <div style="flex: 1.5; background: #48CAE4;" title="Циан сапфир"></div>
-                        <div style="flex: 1; background: #5BC0BE;" title="Аквамарин"></div>
+
+                    <div class="bm-swatches-row">
+                        <div class="bm-swatch-dots">
+                            <span class="bm-swatch-dot" style="background: #F0F8FF;" title="Фон: #F0F8FF"></span>
+                            <span class="bm-swatch-dot" style="background: #FFFFFF;" title="Карточка: #FFFFFF"></span>
+                            <span class="bm-swatch-dot" style="background: #0284C7;" title="Акцент: #0284C7"></span>
+                            <span class="bm-swatch-dot" style="background: #38BDF8;" title="Детали: #38BDF8"></span>
+                        </div>
+                        <span class="theme-active-indicator" style="display: {% if store.theme_style == 'fresh_sky' %}inline-flex{% else %}none{% endif %};">
+                            ✓ {% trans "Активен" %}
+                        </span>
                     </div>
-                    <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Глубокий королевский сапфир — премиум-часы, авто, гаджеты</span>
+
+                    <span style="font-size: 11px; color: #94A3B8; line-height: 1.35;">Кристальная океанская лазурь — для детских товаров, спорта, здоровья и гаджетов</span>
                 </div>
+                <!-- 🌿 Nordic Sage -->
+                <div class="theme-quick-card {% if store.theme_style == 'nordic_sage' %}active{% endif %}" onclick="applyFastTheme('nordic_sage', this)" data-theme="nordic_sage" data-category="light" style="border-color: {% if store.theme_style == 'nordic_sage' %}#059669{% else %}rgba(255,255,255,0.09){% endif %};">
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                        <strong style="font-size: 13.5px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.01em;">🌿 Nordic Sage</strong>
+                        <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #059669; background: rgba(255,255,255,0.06); border: 1px solid rgba(5,150,105,0.14); padding: 2px 7px; border-radius: 6px;">ORGANIC ECO</span>
+                    </div>
 
-                <!-- 8. Emerald Midnight Onyx -->
-                <div class="theme-quick-card {% if store.theme_style == 'emerald_dark' %}active{% endif %}" onclick="applyFastTheme('emerald_dark', this)" data-theme="emerald_dark" data-category="colored" style="background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'emerald_dark' %}#10B981{% else %}var(--border){% endif %}; border-radius: 14px; padding: 12px; cursor: pointer; transition: all 0.18s ease; display: flex; flex-direction: column; gap: 8px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <strong style="font-size: 13px; color: #FFFFFF;">🌲 Dark Emerald</strong>
-                        <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #10B981; background: rgba(16, 185, 129, 0.15); padding: 2px 6px; border-radius: 4px;">MALACHITE</span>
+                    <!-- Realistic Miniature Storefront Mockup -->
+                    <div class="bm-mockup-window" style="background: #F2F7F4; border: 1px solid rgba(5,150,105,0.14);">
+                        <div class="bm-mockup-top" style="background: #FFFFFF; border: 1px solid rgba(5,150,105,0.14);">
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                                <span style="width: 8px; height: 8px; border-radius: 3px; background: #059669; display: inline-block;"></span>
+                                <span style="width: 30px; height: 3.5px; border-radius: 2px; background: #8FB39E; display: inline-block; opacity: 0.7;"></span>
+                            </div>
+                            <span style="width: 10px; height: 5px; border-radius: 99px; background: #10B981; display: inline-block;"></span>
+                        </div>
+                        <div class="bm-mockup-hero" style="background: linear-gradient(135deg, #059669 0%, #34D399 100%);">
+                            <div style="display: flex; flex-direction: column; gap: 2.5px;">
+                                <span style="width: 44px; height: 4px; border-radius: 2px; background: #FFFFFF; display: inline-block;"></span>
+                                <span style="width: 26px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.7); display: inline-block;"></span>
+                            </div>
+                            <span style="padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.28); color: #FFFFFF; font-size: 6.5px; font-weight: 800; letter-spacing: 0.3px;">STORE</span>
+                        </div>
+                        <div class="bm-mockup-grid">
+                            <div class="bm-mockup-prod" style="background: #FFFFFF; border: 1px solid rgba(5,150,105,0.14);">
+                                <div class="bm-mockup-thumb" style="background: #E2F0E8;"></div>
+                                <div class="bm-mockup-line" style="background: #8FB39E; opacity: 0.55;"></div>
+                                <div class="bm-mockup-btn" style="background: #059669;"></div>
+                            </div>
+                            <div class="bm-mockup-prod" style="background: #FFFFFF; border: 1px solid rgba(5,150,105,0.14);">
+                                <div class="bm-mockup-thumb" style="background: #E2F0E8;"></div>
+                                <div class="bm-mockup-line" style="background: #8FB39E; opacity: 0.55;"></div>
+                                <div class="bm-mockup-btn" style="background: #059669;"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div style="height: 18px; border-radius: 6px; display: flex; overflow: hidden; border: 1px solid rgba(16, 185, 129, 0.3);">
-                        <div style="flex: 2; background: #061812;" title="Малахитовый лес"></div>
-                        <div style="flex: 1.5; background: #10B981;" title="Изумруд"></div>
-                        <div style="flex: 1; background: #34D399;" title="Нефрит"></div>
+
+                    <div class="bm-swatches-row">
+                        <div class="bm-swatch-dots">
+                            <span class="bm-swatch-dot" style="background: #F2F7F4;" title="Фон: #F2F7F4"></span>
+                            <span class="bm-swatch-dot" style="background: #FFFFFF;" title="Карточка: #FFFFFF"></span>
+                            <span class="bm-swatch-dot" style="background: #059669;" title="Акцент: #059669"></span>
+                            <span class="bm-swatch-dot" style="background: #10B981;" title="Детали: #10B981"></span>
+                        </div>
+                        <span class="theme-active-indicator" style="display: {% if store.theme_style == 'nordic_sage' %}inline-flex{% else %}none{% endif %};">
+                            ✓ {% trans "Активен" %}
+                        </span>
                     </div>
-                    <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Малахитовый темный лес — изделия из кожи, элитный парфюм</span>
+
+                    <span style="font-size: 11px; color: #94A3B8; line-height: 1.35;">Скандинавский матча и шалфей — для эко-продуктов, домашнего уюта, декора и органики</span>
                 </div>
+                <!-- 💜 Soft Lilac -->
+                <div class="theme-quick-card {% if store.theme_style == 'soft_lavender' %}active{% endif %}" onclick="applyFastTheme('soft_lavender', this)" data-theme="soft_lavender" data-category="light" style="border-color: {% if store.theme_style == 'soft_lavender' %}#7C3AED{% else %}rgba(255,255,255,0.09){% endif %};">
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                        <strong style="font-size: 13.5px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.01em;">💜 Soft Lilac</strong>
+                        <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #7C3AED; background: rgba(255,255,255,0.06); border: 1px solid rgba(124,58,237,0.14); padding: 2px 7px; border-radius: 6px;">VELVET LILAC</span>
+                    </div>
 
-                <!-- 9. Uzum Market Signature -->
-                <div class="theme-quick-card {% if store.theme_style == 'uzum_violet' or not store.theme_style %}active{% endif %}" onclick="applyFastTheme('uzum_violet', this)" data-theme="uzum_violet" data-category="dark" style="background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'uzum_violet' or not store.theme_style %}#7000FF{% else %}var(--border){% endif %}; border-radius: 14px; padding: 12px; cursor: pointer; transition: all 0.18s ease; display: flex; flex-direction: column; gap: 8px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <strong style="font-size: 13px; color: #FFFFFF;">🟣 Uzum Market</strong>
-                        <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #A855F7; background: rgba(112, 0, 255, 0.15); padding: 2px 6px; border-radius: 4px;">TOP 1</span>
+                    <!-- Realistic Miniature Storefront Mockup -->
+                    <div class="bm-mockup-window" style="background: #F6F4FB; border: 1px solid rgba(124,58,237,0.14);">
+                        <div class="bm-mockup-top" style="background: #FFFFFF; border: 1px solid rgba(124,58,237,0.14);">
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                                <span style="width: 8px; height: 8px; border-radius: 3px; background: #7C3AED; display: inline-block;"></span>
+                                <span style="width: 30px; height: 3.5px; border-radius: 2px; background: #B0A4C8; display: inline-block; opacity: 0.7;"></span>
+                            </div>
+                            <span style="width: 10px; height: 5px; border-radius: 99px; background: #C084FC; display: inline-block;"></span>
+                        </div>
+                        <div class="bm-mockup-hero" style="background: linear-gradient(135deg, #7C3AED 0%, #C084FC 100%);">
+                            <div style="display: flex; flex-direction: column; gap: 2.5px;">
+                                <span style="width: 44px; height: 4px; border-radius: 2px; background: #FFFFFF; display: inline-block;"></span>
+                                <span style="width: 26px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.7); display: inline-block;"></span>
+                            </div>
+                            <span style="padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.28); color: #FFFFFF; font-size: 6.5px; font-weight: 800; letter-spacing: 0.3px;">STORE</span>
+                        </div>
+                        <div class="bm-mockup-grid">
+                            <div class="bm-mockup-prod" style="background: #FFFFFF; border: 1px solid rgba(124,58,237,0.14);">
+                                <div class="bm-mockup-thumb" style="background: #ECE6FA;"></div>
+                                <div class="bm-mockup-line" style="background: #B0A4C8; opacity: 0.55;"></div>
+                                <div class="bm-mockup-btn" style="background: #7C3AED;"></div>
+                            </div>
+                            <div class="bm-mockup-prod" style="background: #FFFFFF; border: 1px solid rgba(124,58,237,0.14);">
+                                <div class="bm-mockup-thumb" style="background: #ECE6FA;"></div>
+                                <div class="bm-mockup-line" style="background: #B0A4C8; opacity: 0.55;"></div>
+                                <div class="bm-mockup-btn" style="background: #7C3AED;"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div style="height: 18px; border-radius: 6px; display: flex; overflow: hidden; border: 1px solid rgba(112, 0, 255, 0.3);">
-                        <div style="flex: 2; background: #0B0C10;" title="Графитовый фон"></div>
-                        <div style="flex: 1.5; background: #7000FF;" title="Фирменный фиолетовый"></div>
-                        <div style="flex: 1; background: #00C853;" title="Зеленый акцент"></div>
+
+                    <div class="bm-swatches-row">
+                        <div class="bm-swatch-dots">
+                            <span class="bm-swatch-dot" style="background: #F6F4FB;" title="Фон: #F6F4FB"></span>
+                            <span class="bm-swatch-dot" style="background: #FFFFFF;" title="Карточка: #FFFFFF"></span>
+                            <span class="bm-swatch-dot" style="background: #7C3AED;" title="Акцент: #7C3AED"></span>
+                            <span class="bm-swatch-dot" style="background: #C084FC;" title="Детали: #C084FC"></span>
+                        </div>
+                        <span class="theme-active-indicator" style="display: {% if store.theme_style == 'soft_lavender' %}inline-flex{% else %}none{% endif %};">
+                            ✓ {% trans "Активен" %}
+                        </span>
                     </div>
-                    <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Самый узнаваемый стиль маркетплейса №1 в Узбекистане</span>
+
+                    <span style="font-size: 11px; color: #94A3B8; line-height: 1.35;">Утонченная лаванда — для украшений, бижутерии, селективной парфюмерии и аксессуаров</span>
                 </div>
+                <!-- 👑 Royal Sapphire -->
+                <div class="theme-quick-card {% if store.theme_style == 'royal_navy' %}active{% endif %}" onclick="applyFastTheme('royal_navy', this)" data-theme="royal_navy" data-category="colored" style="border-color: {% if store.theme_style == 'royal_navy' %}#38BDF8{% else %}rgba(255,255,255,0.09){% endif %};">
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                        <strong style="font-size: 13.5px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.01em;">👑 Royal Sapphire</strong>
+                        <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #38BDF8; background: rgba(255,255,255,0.06); border: 1px solid rgba(56,189,248,0.2); padding: 2px 7px; border-radius: 6px;">SAPPHIRE VIP</span>
+                    </div>
 
-                <!-- 10. Apple Space Titanium -->
-                <div class="theme-quick-card {% if store.theme_style == 'apple_hightech' %}active{% endif %}" onclick="applyFastTheme('apple_hightech', this)" data-theme="apple_hightech" data-category="dark" style="background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'apple_hightech' %}#2997FF{% else %}var(--border){% endif %}; border-radius: 14px; padding: 12px; cursor: pointer; transition: all 0.18s ease; display: flex; flex-direction: column; gap: 8px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <strong style="font-size: 13px; color: #FFFFFF;">⚡ Apple Titanium</strong>
-                        <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #2997FF; background: rgba(41, 151, 255, 0.15); padding: 2px 6px; border-radius: 4px;">APPLE</span>
+                    <!-- Realistic Miniature Storefront Mockup -->
+                    <div class="bm-mockup-window" style="background: #0A1224; border: 1px solid rgba(56,189,248,0.2);">
+                        <div class="bm-mockup-top" style="background: #13203D; border: 1px solid rgba(56,189,248,0.2);">
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                                <span style="width: 8px; height: 8px; border-radius: 3px; background: #38BDF8; display: inline-block;"></span>
+                                <span style="width: 30px; height: 3.5px; border-radius: 2px; background: #5B7399; display: inline-block; opacity: 0.7;"></span>
+                            </div>
+                            <span style="width: 10px; height: 5px; border-radius: 99px; background: #C9A45C; display: inline-block;"></span>
+                        </div>
+                        <div class="bm-mockup-hero" style="background: linear-gradient(135deg, #0284C7 0%, #38BDF8 100%);">
+                            <div style="display: flex; flex-direction: column; gap: 2.5px;">
+                                <span style="width: 44px; height: 4px; border-radius: 2px; background: #FFFFFF; display: inline-block;"></span>
+                                <span style="width: 26px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.7); display: inline-block;"></span>
+                            </div>
+                            <span style="padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.28); color: #FFFFFF; font-size: 6.5px; font-weight: 800; letter-spacing: 0.3px;">STORE</span>
+                        </div>
+                        <div class="bm-mockup-grid">
+                            <div class="bm-mockup-prod" style="background: #13203D; border: 1px solid rgba(56,189,248,0.2);">
+                                <div class="bm-mockup-thumb" style="background: #1A2B50;"></div>
+                                <div class="bm-mockup-line" style="background: #5B7399; opacity: 0.55;"></div>
+                                <div class="bm-mockup-btn" style="background: #38BDF8;"></div>
+                            </div>
+                            <div class="bm-mockup-prod" style="background: #13203D; border: 1px solid rgba(56,189,248,0.2);">
+                                <div class="bm-mockup-thumb" style="background: #1A2B50;"></div>
+                                <div class="bm-mockup-line" style="background: #5B7399; opacity: 0.55;"></div>
+                                <div class="bm-mockup-btn" style="background: #38BDF8;"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div style="height: 18px; border-radius: 6px; display: flex; overflow: hidden; border: 1px solid rgba(41, 151, 255, 0.3);">
-                        <div style="flex: 2; background: #000000;" title="Чистый OLED"></div>
-                        <div style="flex: 1.5; background: #2997FF;" title="Cupertino Blue"></div>
-                        <div style="flex: 1; background: #30D158;" title="Сигнал зелёный"></div>
+
+                    <div class="bm-swatches-row">
+                        <div class="bm-swatch-dots">
+                            <span class="bm-swatch-dot" style="background: #0A1224;" title="Фон: #0A1224"></span>
+                            <span class="bm-swatch-dot" style="background: #13203D;" title="Карточка: #13203D"></span>
+                            <span class="bm-swatch-dot" style="background: #38BDF8;" title="Акцент: #38BDF8"></span>
+                            <span class="bm-swatch-dot" style="background: #C9A45C;" title="Детали: #C9A45C"></span>
+                        </div>
+                        <span class="theme-active-indicator" style="display: {% if store.theme_style == 'royal_navy' %}inline-flex{% else %}none{% endif %};">
+                            ✓ {% trans "Активен" %}
+                        </span>
                     </div>
-                    <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Глубокий чёрный OLED и синий хайтек — смартфоны, гаджеты</span>
+
+                    <span style="font-size: 11px; color: #94A3B8; line-height: 1.35;">Глубокий королевский сапфир — статусное оформление для часов, авто и премиум-техники</span>
                 </div>
+                <!-- 🌲 Dark Emerald -->
+                <div class="theme-quick-card {% if store.theme_style == 'emerald_dark' %}active{% endif %}" onclick="applyFastTheme('emerald_dark', this)" data-theme="emerald_dark" data-category="colored" style="border-color: {% if store.theme_style == 'emerald_dark' %}#10B981{% else %}rgba(255,255,255,0.09){% endif %};">
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                        <strong style="font-size: 13.5px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.01em;">🌲 Dark Emerald</strong>
+                        <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #10B981; background: rgba(255,255,255,0.06); border: 1px solid rgba(16,185,129,0.2); padding: 2px 7px; border-radius: 6px;">MALACHITE</span>
+                    </div>
 
-                <!-- 11. Street Cyber Neon Drip -->
-                <div class="theme-quick-card {% if store.theme_style == 'fashion_genz' %}active{% endif %}" onclick="applyFastTheme('fashion_genz', this)" data-theme="fashion_genz" data-category="dark" style="background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'fashion_genz' %}#00F0FF{% else %}var(--border){% endif %}; border-radius: 14px; padding: 12px; cursor: pointer; transition: all 0.18s ease; display: flex; flex-direction: column; gap: 8px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <strong style="font-size: 13px; color: #FFFFFF;">🔥 Street Cyber</strong>
-                        <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #00F0FF; background: rgba(0, 240, 255, 0.15); padding: 2px 6px; border-radius: 4px;">CYBER</span>
+                    <!-- Realistic Miniature Storefront Mockup -->
+                    <div class="bm-mockup-window" style="background: #071410; border: 1px solid rgba(16,185,129,0.2);">
+                        <div class="bm-mockup-top" style="background: #0E241C; border: 1px solid rgba(16,185,129,0.2);">
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                                <span style="width: 8px; height: 8px; border-radius: 3px; background: #10B981; display: inline-block;"></span>
+                                <span style="width: 30px; height: 3.5px; border-radius: 2px; background: #4F806B; display: inline-block; opacity: 0.7;"></span>
+                            </div>
+                            <span style="width: 10px; height: 5px; border-radius: 99px; background: #D4B36A; display: inline-block;"></span>
+                        </div>
+                        <div class="bm-mockup-hero" style="background: linear-gradient(135deg, #059669 0%, #10B981 100%);">
+                            <div style="display: flex; flex-direction: column; gap: 2.5px;">
+                                <span style="width: 44px; height: 4px; border-radius: 2px; background: #FFFFFF; display: inline-block;"></span>
+                                <span style="width: 26px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.7); display: inline-block;"></span>
+                            </div>
+                            <span style="padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.28); color: #FFFFFF; font-size: 6.5px; font-weight: 800; letter-spacing: 0.3px;">STORE</span>
+                        </div>
+                        <div class="bm-mockup-grid">
+                            <div class="bm-mockup-prod" style="background: #0E241C; border: 1px solid rgba(16,185,129,0.2);">
+                                <div class="bm-mockup-thumb" style="background: #15352A;"></div>
+                                <div class="bm-mockup-line" style="background: #4F806B; opacity: 0.55;"></div>
+                                <div class="bm-mockup-btn" style="background: #10B981;"></div>
+                            </div>
+                            <div class="bm-mockup-prod" style="background: #0E241C; border: 1px solid rgba(16,185,129,0.2);">
+                                <div class="bm-mockup-thumb" style="background: #15352A;"></div>
+                                <div class="bm-mockup-line" style="background: #4F806B; opacity: 0.55;"></div>
+                                <div class="bm-mockup-btn" style="background: #10B981;"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div style="height: 18px; border-radius: 6px; display: flex; overflow: hidden; border: 1px solid rgba(0, 240, 255, 0.3);">
-                        <div style="flex: 2; background: #070712;" title="Кибер-ночь"></div>
-                        <div style="flex: 1.5; background: #00F0FF;" title="Неон циан"></div>
-                        <div style="flex: 1; background: #FF0055;" title="Яркий рубин"></div>
+
+                    <div class="bm-swatches-row">
+                        <div class="bm-swatch-dots">
+                            <span class="bm-swatch-dot" style="background: #071410;" title="Фон: #071410"></span>
+                            <span class="bm-swatch-dot" style="background: #0E241C;" title="Карточка: #0E241C"></span>
+                            <span class="bm-swatch-dot" style="background: #10B981;" title="Акцент: #10B981"></span>
+                            <span class="bm-swatch-dot" style="background: #D4B36A;" title="Детали: #D4B36A"></span>
+                        </div>
+                        <span class="theme-active-indicator" style="display: {% if store.theme_style == 'emerald_dark' %}inline-flex{% else %}none{% endif %};">
+                            ✓ {% trans "Активен" %}
+                        </span>
                     </div>
-                    <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Дерзкий неон для зумеров — худи, оверсайз, кроссовки, мерч</span>
+
+                    <span style="font-size: 11px; color: #94A3B8; line-height: 1.35;">Благородный малахитовый оникс — для изделий из кожи, ювелирных домов и эксклюзива</span>
                 </div>
+                <!-- 🟣 Uzum Market -->
+                <div class="theme-quick-card {% if store.theme_style == 'uzum_violet' or not store.theme_style %}active{% endif %}" onclick="applyFastTheme('uzum_violet', this)" data-theme="uzum_violet" data-category="dark" style="border-color: {% if store.theme_style == 'uzum_violet' or not store.theme_style %}#7000FF{% else %}rgba(255,255,255,0.09){% endif %};">
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                        <strong style="font-size: 13.5px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.01em;">🟣 Uzum Market</strong>
+                        <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #7000FF; background: rgba(255,255,255,0.06); border: 1px solid rgba(112,0,255,0.28); padding: 2px 7px; border-radius: 6px;">TOP-1 UZB</span>
+                    </div>
 
-                <!-- 12. Sunset Orange Global -->
-                <div class="theme-quick-card {% if store.theme_style == 'alibaba_orange' %}active{% endif %}" onclick="applyFastTheme('alibaba_orange', this)" data-theme="alibaba_orange" data-category="dark" style="background: rgba(255,255,255,0.03); border: 1.5px solid {% if store.theme_style == 'alibaba_orange' %}#FF5000{% else %}var(--border){% endif %}; border-radius: 14px; padding: 12px; cursor: pointer; transition: all 0.18s ease; display: flex; flex-direction: column; gap: 8px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <strong style="font-size: 13px; color: #FFFFFF;">🍊 Alibaba Sunset</strong>
-                        <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #FF5000; background: rgba(255, 80, 0, 0.15); padding: 2px 6px; border-radius: 4px;">GLOBAL</span>
+                    <!-- Realistic Miniature Storefront Mockup -->
+                    <div class="bm-mockup-window" style="background: #0C0D12; border: 1px solid rgba(112,0,255,0.28);">
+                        <div class="bm-mockup-top" style="background: #161822; border: 1px solid rgba(112,0,255,0.28);">
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                                <span style="width: 8px; height: 8px; border-radius: 3px; background: #7000FF; display: inline-block;"></span>
+                                <span style="width: 30px; height: 3.5px; border-radius: 2px; background: #525870; display: inline-block; opacity: 0.7;"></span>
+                            </div>
+                            <span style="width: 10px; height: 5px; border-radius: 99px; background: #00C853; display: inline-block;"></span>
+                        </div>
+                        <div class="bm-mockup-hero" style="background: linear-gradient(135deg, #7000FF 0%, #A855F7 100%);">
+                            <div style="display: flex; flex-direction: column; gap: 2.5px;">
+                                <span style="width: 44px; height: 4px; border-radius: 2px; background: #FFFFFF; display: inline-block;"></span>
+                                <span style="width: 26px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.7); display: inline-block;"></span>
+                            </div>
+                            <span style="padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.28); color: #FFFFFF; font-size: 6.5px; font-weight: 800; letter-spacing: 0.3px;">STORE</span>
+                        </div>
+                        <div class="bm-mockup-grid">
+                            <div class="bm-mockup-prod" style="background: #161822; border: 1px solid rgba(112,0,255,0.28);">
+                                <div class="bm-mockup-thumb" style="background: #1F2230;"></div>
+                                <div class="bm-mockup-line" style="background: #525870; opacity: 0.55;"></div>
+                                <div class="bm-mockup-btn" style="background: #7000FF;"></div>
+                            </div>
+                            <div class="bm-mockup-prod" style="background: #161822; border: 1px solid rgba(112,0,255,0.28);">
+                                <div class="bm-mockup-thumb" style="background: #1F2230;"></div>
+                                <div class="bm-mockup-line" style="background: #525870; opacity: 0.55;"></div>
+                                <div class="bm-mockup-btn" style="background: #7000FF;"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div style="height: 18px; border-radius: 6px; display: flex; overflow: hidden; border: 1px solid rgba(255, 80, 0, 0.3);">
-                        <div style="flex: 2; background: #0D0C0B;" title="Оникс"></div>
-                        <div style="flex: 1.5; background: #FF5000;" title="Огненный оранж"></div>
-                        <div style="flex: 1; background: #FF8C00;" title="Янтарь"></div>
+
+                    <div class="bm-swatches-row">
+                        <div class="bm-swatch-dots">
+                            <span class="bm-swatch-dot" style="background: #0C0D12;" title="Фон: #0C0D12"></span>
+                            <span class="bm-swatch-dot" style="background: #161822;" title="Карточка: #161822"></span>
+                            <span class="bm-swatch-dot" style="background: #7000FF;" title="Акцент: #7000FF"></span>
+                            <span class="bm-swatch-dot" style="background: #00C853;" title="Детали: #00C853"></span>
+                        </div>
+                        <span class="theme-active-indicator" style="display: {% if store.theme_style == 'uzum_violet' or not store.theme_style %}inline-flex{% else %}none{% endif %};">
+                            ✓ {% trans "Активен" %}
+                        </span>
                     </div>
-                    <span style="font-size: 11px; color: var(--text-muted); line-height: 1.3;">Энергичный закат мировых маркетплейсов</span>
+
+                    <span style="font-size: 11px; color: #94A3B8; line-height: 1.35;">Фирменный стиль главного маркетплейса страны с максимальной привычной конверсией</span>
+                </div>
+                <!-- ⚡ Apple Titanium -->
+                <div class="theme-quick-card {% if store.theme_style == 'apple_hightech' %}active{% endif %}" onclick="applyFastTheme('apple_hightech', this)" data-theme="apple_hightech" data-category="dark" style="border-color: {% if store.theme_style == 'apple_hightech' %}#2997FF{% else %}rgba(255,255,255,0.09){% endif %};">
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                        <strong style="font-size: 13.5px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.01em;">⚡ Apple Titanium</strong>
+                        <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #2997FF; background: rgba(255,255,255,0.06); border: 1px solid rgba(41,151,255,0.25); padding: 2px 7px; border-radius: 6px;">PRO OLED</span>
+                    </div>
+
+                    <!-- Realistic Miniature Storefront Mockup -->
+                    <div class="bm-mockup-window" style="background: #000000; border: 1px solid rgba(41,151,255,0.25);">
+                        <div class="bm-mockup-top" style="background: #141417; border: 1px solid rgba(41,151,255,0.25);">
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                                <span style="width: 8px; height: 8px; border-radius: 3px; background: #2997FF; display: inline-block;"></span>
+                                <span style="width: 30px; height: 3.5px; border-radius: 2px; background: #52525B; display: inline-block; opacity: 0.7;"></span>
+                            </div>
+                            <span style="width: 10px; height: 5px; border-radius: 99px; background: #30D158; display: inline-block;"></span>
+                        </div>
+                        <div class="bm-mockup-hero" style="background: linear-gradient(135deg, #0071E3 0%, #2997FF 100%);">
+                            <div style="display: flex; flex-direction: column; gap: 2.5px;">
+                                <span style="width: 44px; height: 4px; border-radius: 2px; background: #FFFFFF; display: inline-block;"></span>
+                                <span style="width: 26px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.7); display: inline-block;"></span>
+                            </div>
+                            <span style="padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.28); color: #FFFFFF; font-size: 6.5px; font-weight: 800; letter-spacing: 0.3px;">STORE</span>
+                        </div>
+                        <div class="bm-mockup-grid">
+                            <div class="bm-mockup-prod" style="background: #141417; border: 1px solid rgba(41,151,255,0.25);">
+                                <div class="bm-mockup-thumb" style="background: #1E1E24;"></div>
+                                <div class="bm-mockup-line" style="background: #52525B; opacity: 0.55;"></div>
+                                <div class="bm-mockup-btn" style="background: #2997FF;"></div>
+                            </div>
+                            <div class="bm-mockup-prod" style="background: #141417; border: 1px solid rgba(41,151,255,0.25);">
+                                <div class="bm-mockup-thumb" style="background: #1E1E24;"></div>
+                                <div class="bm-mockup-line" style="background: #52525B; opacity: 0.55;"></div>
+                                <div class="bm-mockup-btn" style="background: #2997FF;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bm-swatches-row">
+                        <div class="bm-swatch-dots">
+                            <span class="bm-swatch-dot" style="background: #000000;" title="Фон: #000000"></span>
+                            <span class="bm-swatch-dot" style="background: #141417;" title="Карточка: #141417"></span>
+                            <span class="bm-swatch-dot" style="background: #2997FF;" title="Акцент: #2997FF"></span>
+                            <span class="bm-swatch-dot" style="background: #30D158;" title="Детали: #30D158"></span>
+                        </div>
+                        <span class="theme-active-indicator" style="display: {% if store.theme_style == 'apple_hightech' %}inline-flex{% else %}none{% endif %};">
+                            ✓ {% trans "Активен" %}
+                        </span>
+                    </div>
+
+                    <span style="font-size: 11px; color: #94A3B8; line-height: 1.35;">Настоящий глубокий OLED и титановый синий — эталон для электроники и смартфонов</span>
+                </div>
+                <!-- 🔥 Street Cyber -->
+                <div class="theme-quick-card {% if store.theme_style == 'fashion_genz' %}active{% endif %}" onclick="applyFastTheme('fashion_genz', this)" data-theme="fashion_genz" data-category="dark" style="border-color: {% if store.theme_style == 'fashion_genz' %}#00F0FF{% else %}rgba(255,255,255,0.09){% endif %};">
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                        <strong style="font-size: 13.5px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.01em;">🔥 Street Cyber</strong>
+                        <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #00F0FF; background: rgba(255,255,255,0.06); border: 1px solid rgba(0,240,255,0.26); padding: 2px 7px; border-radius: 6px;">CYBER NEON</span>
+                    </div>
+
+                    <!-- Realistic Miniature Storefront Mockup -->
+                    <div class="bm-mockup-window" style="background: #080811; border: 1px solid rgba(0,240,255,0.26);">
+                        <div class="bm-mockup-top" style="background: #131322; border: 1px solid rgba(0,240,255,0.26);">
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                                <span style="width: 8px; height: 8px; border-radius: 3px; background: #00F0FF; display: inline-block;"></span>
+                                <span style="width: 30px; height: 3.5px; border-radius: 2px; background: #56567A; display: inline-block; opacity: 0.7;"></span>
+                            </div>
+                            <span style="width: 10px; height: 5px; border-radius: 99px; background: #FF0055; display: inline-block;"></span>
+                        </div>
+                        <div class="bm-mockup-hero" style="background: linear-gradient(135deg, #00F0FF 0%, #FF0055 100%);">
+                            <div style="display: flex; flex-direction: column; gap: 2.5px;">
+                                <span style="width: 44px; height: 4px; border-radius: 2px; background: #FFFFFF; display: inline-block;"></span>
+                                <span style="width: 26px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.7); display: inline-block;"></span>
+                            </div>
+                            <span style="padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.28); color: #FFFFFF; font-size: 6.5px; font-weight: 800; letter-spacing: 0.3px;">STORE</span>
+                        </div>
+                        <div class="bm-mockup-grid">
+                            <div class="bm-mockup-prod" style="background: #131322; border: 1px solid rgba(0,240,255,0.26);">
+                                <div class="bm-mockup-thumb" style="background: #1C1C32;"></div>
+                                <div class="bm-mockup-line" style="background: #56567A; opacity: 0.55;"></div>
+                                <div class="bm-mockup-btn" style="background: #00F0FF;"></div>
+                            </div>
+                            <div class="bm-mockup-prod" style="background: #131322; border: 1px solid rgba(0,240,255,0.26);">
+                                <div class="bm-mockup-thumb" style="background: #1C1C32;"></div>
+                                <div class="bm-mockup-line" style="background: #56567A; opacity: 0.55;"></div>
+                                <div class="bm-mockup-btn" style="background: #00F0FF;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bm-swatches-row">
+                        <div class="bm-swatch-dots">
+                            <span class="bm-swatch-dot" style="background: #080811;" title="Фон: #080811"></span>
+                            <span class="bm-swatch-dot" style="background: #131322;" title="Карточка: #131322"></span>
+                            <span class="bm-swatch-dot" style="background: #00F0FF;" title="Акцент: #00F0FF"></span>
+                            <span class="bm-swatch-dot" style="background: #FF0055;" title="Детали: #FF0055"></span>
+                        </div>
+                        <span class="theme-active-indicator" style="display: {% if store.theme_style == 'fashion_genz' %}inline-flex{% else %}none{% endif %};">
+                            ✓ {% trans "Активен" %}
+                        </span>
+                    </div>
+
+                    <span style="font-size: 11px; color: #94A3B8; line-height: 1.35;">Дерзкий неоновый стритвир — для молодежных брендов, кроссовок, худи и гейминга</span>
+                </div>
+                <!-- 🍊 Alibaba Sunset -->
+                <div class="theme-quick-card {% if store.theme_style == 'alibaba_orange' %}active{% endif %}" onclick="applyFastTheme('alibaba_orange', this)" data-theme="alibaba_orange" data-category="dark" style="border-color: {% if store.theme_style == 'alibaba_orange' %}#FF5000{% else %}rgba(255,255,255,0.09){% endif %};">
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                        <strong style="font-size: 13.5px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.01em;">🍊 Alibaba Sunset</strong>
+                        <span class="theme-status-tag" style="font-size: 9px; font-weight: 800; color: #FF5000; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,80,0,0.26); padding: 2px 7px; border-radius: 6px;">GLOBAL PRO</span>
+                    </div>
+
+                    <!-- Realistic Miniature Storefront Mockup -->
+                    <div class="bm-mockup-window" style="background: #0D0C0B; border: 1px solid rgba(255,80,0,0.26);">
+                        <div class="bm-mockup-top" style="background: #1A1715; border: 1px solid rgba(255,80,0,0.26);">
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                                <span style="width: 8px; height: 8px; border-radius: 3px; background: #FF5000; display: inline-block;"></span>
+                                <span style="width: 30px; height: 3.5px; border-radius: 2px; background: #6E6259; display: inline-block; opacity: 0.7;"></span>
+                            </div>
+                            <span style="width: 10px; height: 5px; border-radius: 99px; background: #FF8C00; display: inline-block;"></span>
+                        </div>
+                        <div class="bm-mockup-hero" style="background: linear-gradient(135deg, #FF5000 0%, #FF8C00 100%);">
+                            <div style="display: flex; flex-direction: column; gap: 2.5px;">
+                                <span style="width: 44px; height: 4px; border-radius: 2px; background: #FFFFFF; display: inline-block;"></span>
+                                <span style="width: 26px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.7); display: inline-block;"></span>
+                            </div>
+                            <span style="padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.28); color: #FFFFFF; font-size: 6.5px; font-weight: 800; letter-spacing: 0.3px;">STORE</span>
+                        </div>
+                        <div class="bm-mockup-grid">
+                            <div class="bm-mockup-prod" style="background: #1A1715; border: 1px solid rgba(255,80,0,0.26);">
+                                <div class="bm-mockup-thumb" style="background: #26211D;"></div>
+                                <div class="bm-mockup-line" style="background: #6E6259; opacity: 0.55;"></div>
+                                <div class="bm-mockup-btn" style="background: #FF5000;"></div>
+                            </div>
+                            <div class="bm-mockup-prod" style="background: #1A1715; border: 1px solid rgba(255,80,0,0.26);">
+                                <div class="bm-mockup-thumb" style="background: #26211D;"></div>
+                                <div class="bm-mockup-line" style="background: #6E6259; opacity: 0.55;"></div>
+                                <div class="bm-mockup-btn" style="background: #FF5000;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bm-swatches-row">
+                        <div class="bm-swatch-dots">
+                            <span class="bm-swatch-dot" style="background: #0D0C0B;" title="Фон: #0D0C0B"></span>
+                            <span class="bm-swatch-dot" style="background: #1A1715;" title="Карточка: #1A1715"></span>
+                            <span class="bm-swatch-dot" style="background: #FF5000;" title="Акцент: #FF5000"></span>
+                            <span class="bm-swatch-dot" style="background: #FF8C00;" title="Детали: #FF8C00"></span>
+                        </div>
+                        <span class="theme-active-indicator" style="display: {% if store.theme_style == 'alibaba_orange' %}inline-flex{% else %}none{% endif %};">
+                            ✓ {% trans "Активен" %}
+                        </span>
+                    </div>
+
+                    <span style="font-size: 11px; color: #94A3B8; line-height: 1.35;">Энергичный огненный закат мировых оптовых и розничных гигантов для быстрых продаж</span>
                 </div>
             </div>
         </div>
 
         <!-- Footer (Sticky) -->
-        <div style="padding: 12px 20px; border-top: 1px solid var(--border); background: rgba(14, 18, 27, 0.98); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; gap: 10px;">
-            <div style="font-size: 11.5px; color: var(--text-muted); display: flex; align-items: center; gap: 5px;">
-                <span>💡</span> <span>{% trans "Кликните на любой стиль — витрина мгновенно применит его" %}</span>
+        <div style="padding: 13px 22px; border-top: 1px solid rgba(255,255,255,0.08); background: rgba(13, 16, 24, 0.98); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; gap: 10px;">
+            <div style="font-size: 12px; color: #94A3B8; display: flex; align-items: center; gap: 6px;">
+                <span>💡</span> <span>{% trans "Нажмите на любую карточку — дизайн вашей витрины обновится мгновенно" %}</span>
             </div>
-            <button type="button" onclick="closeThemeModal()" class="btn" style="width: auto; margin: 0; padding: 9px 22px; font-size: 13px; font-weight: 800; border-radius: 10px; background: linear-gradient(135deg, #7000FF 0%, #2563EB 100%); color: #FFFFFF; border: none; box-shadow: 0 4px 14px rgba(112,0,255,0.4); cursor: pointer;">
+            <button type="button" onclick="closeThemeModal()" class="btn" style="width: auto; margin: 0; padding: 9px 24px; font-size: 13px; font-weight: 800; border-radius: 11px; background: linear-gradient(135deg, #7000FF 0%, #2563EB 100%); color: #FFFFFF; border: none; box-shadow: 0 4px 14px rgba(112,0,255,0.4); cursor: pointer;">
                 {% trans "Готово" %} ✓
             </button>
         </div>

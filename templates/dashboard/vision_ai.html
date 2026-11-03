@@ -6,38 +6,38 @@
 {% block content %}
 <div class="vision-container" style="display: flex; flex-direction: column; gap: 24px;">
 
-    <!-- TOP HEADER HERO BANNER -->
-    <div style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.35) 0%, rgba(15, 23, 42, 0.75) 60%, rgba(6, 78, 59, 0.25) 100%); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 20px; padding: 24px 28px; position: relative; overflow: hidden; backdrop-filter: blur(16px); box-shadow: 0 12px 36px rgba(0,0,0,0.4);">
-        <div style="position: absolute; top: -40px; right: -20px; font-size: 150px; opacity: 0.04; user-select: none; pointer-events: none;">📹</div>
+    <!-- TOP HEADER HERO BANNER (LUXURY OBSIDIAN NEURAL DESIGN) -->
+    <div style="background: radial-gradient(ellipse 80% 100% at 10% 0%, rgba(59, 130, 246, 0.22), transparent 60%), radial-gradient(ellipse 70% 90% at 95% 100%, rgba(16, 185, 129, 0.16), transparent 60%), linear-gradient(165deg, rgba(17, 22, 34, 0.94) 0%, rgba(10, 13, 21, 0.98) 100%); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 24px; position: relative; overflow: hidden; backdrop-filter: blur(24px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 18px 44px -10px rgba(0,0,0,0.65);">
+        <div style="position: absolute; top: 0; left: 10%; right: 10%; height: 2px; background: linear-gradient(90deg, transparent, #3B82F6, #10B981, transparent); opacity: 0.85;"></div>
         
-        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 18px; position: relative; z-index: 2;">
-            <div>
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
-                    <span style="background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.5); color: #93C5FD; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.8px;">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px; position: relative; z-index: 2;">
+            <div style="flex: 1 1 320px;">
+                <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+                    <span style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.22), rgba(99, 102, 241, 0.18)); border: 1px solid rgba(96, 165, 250, 0.4); color: #BFDBFE; font-size: 10.5px; font-weight: 800; padding: 4px 11px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.06em; box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);">
                         ✨ Neural Retail Intelligence
                     </span>
-                    <span style="display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: #34D399; font-weight: 700;">
-                        <span style="width: 7px; height: 7px; border-radius: 50%; background: #10B981; box-shadow: 0 0 10px #10B981; display: inline-block;"></span>
+                    <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: #34D399; font-weight: 700; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); padding: 3px 10px; border-radius: 999px;">
+                        <span style="width: 6px; height: 6px; border-radius: 50%; background: #10B981; box-shadow: 0 0 8px #10B981; display: inline-block;"></span>
                         Live Edge Stream
                     </span>
                 </div>
-                <h1 class="vision-hero-title" style="margin: 0; font-size: clamp(19px, 4.8vw, 26px); font-weight: 900; color: #FFFFFF; letter-spacing: -0.02em; line-height: 1.25; word-break: break-word;">
+                <h1 class="vision-hero-title" style="margin: 0; font-size: clamp(19px, 4.5vw, 25px); font-weight: 900; color: #FFFFFF; letter-spacing: -0.025em; line-height: 1.25; word-break: break-word;">
                     📹 BrainMart Vision AI: {% trans "Офлайн-аналитика магазина" %}
                 </h1>
-                <p style="margin: 6px 0 0; color: #94A3B8; font-size: 14px; max-width: 680px; line-height: 1.5;">
+                <p style="margin: 8px 0 0; color: #94A3B8; font-size: 13.5px; max-width: 680px; line-height: 1.55;">
                     {% trans "Автономный директор по продажам на базе Gemini 2.5 Flash-Lite. Подсчет воронки посетителей с обычных камер, анализ возражений покупателей через микрофон и вечерний отчет в Telegram." %}
                 </p>
             </div>
 
             <!-- ACTION BUTTONS -->
-            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
-                <button type="button" onclick="openAddCameraModal()" style="display: inline-flex; align-items: center; gap: 8px; background: #2563EB; color: white; border: none; padding: 11px 18px; border-radius: 12px; font-size: 13.5px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35); transition: all 0.2s ease;">
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; width: 100%; max-width: 480px;">
+                <button type="button" onclick="openAddCameraModal()" style="flex: 1 1 auto; justify-content: center; display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); color: white; border: 1px solid rgba(255,255,255,0.18); padding: 11px 18px; border-radius: 13px; font-size: 13px; font-weight: 800; cursor: pointer; box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 6px 20px -4px rgba(37, 99, 235, 0.5); transition: all 0.2s ease;">
                     <span>➕</span> {% trans "Подключить камеру" %}
                 </button>
-                <a href="{% url 'seller-vision-bridge-download' %}" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); color: #E2E8F0; border: 1px solid rgba(255,255,255,0.14); padding: 11px 16px; border-radius: 12px; font-size: 13px; font-weight: 700; text-decoration: none; transition: all 0.2s ease;">
+                <a href="{% url 'seller-vision-bridge-download' %}" style="flex: 1 1 auto; justify-content: center; display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); color: #F1F5F9; border: 1px solid rgba(255,255,255,0.12); padding: 11px 16px; border-radius: 13px; font-size: 13px; font-weight: 700; text-decoration: none; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); transition: all 0.2s ease;">
                     <span>⚙️</span> {% trans "Скачать Bridge" %}
                 </a>
-                <button type="button" onclick="triggerAiReportGeneration()" id="btnGenerateReport" style="display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; padding: 11px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3); transition: all 0.2s ease;">
+                <button type="button" onclick="triggerAiReportGeneration()" id="btnGenerateReport" style="flex: 1 1 100%; justify-content: center; display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: 1px solid rgba(255,255,255,0.18); padding: 11px 18px; border-radius: 13px; font-size: 13px; font-weight: 800; cursor: pointer; box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 6px 20px -4px rgba(16, 185, 129, 0.4); transition: all 0.2s ease;">
                     <span>🤖</span> {% trans "Сгенерировать отчет AI" %}
                 </button>
             </div>
