@@ -34,6 +34,9 @@ msgstr "450 000 so'm/oy"
 msgid "APPLE & PRO ГАДЖЕТЫ"
 msgstr "APPLE VA PRO GADJETLAR"
 
+msgid "Autumn & Winter Trends"
+msgstr "Kuz va qish trendlari"
+
 msgid "BrainMart работает по фиксированной подписке. 0% комиссии с продаж. Никаких скрытых платежей."
 msgstr "BrainMart qat'iy obuna asosida ishlaydi. Savdolardan 0% komissiya. Hech qanday yashirin to'lovlarsiz."
 
@@ -45,6 +48,15 @@ msgstr "Mijozlar CRM Bazasi"
 
 msgid "CRM по себестоимости / месяц"
 msgstr "Tannarxi bo'yicha CRM / oyiga"
+
+msgid "Comfort • Elegance • Quality"
+msgstr "Qulaylik • Nafislik • Sifat"
+
+msgid "EXCLUSIVE 2026"
+msgstr "EKSKLYUZIV 2026"
+
+msgid "Footwear & Accessories"
+msgstr "Poyabzallar va aksessuarlar"
 
 msgid "Gemini AI моментально отвечает на комментарии в Instagram, переводит клиентов в Direct и Telegram, подбирает одежду и товары по фото и доводит до оплаты."
 msgstr "Gemini AI Instagramdagi izohlarga darhol javob beradi, mijozlarni Direct va Telegramga yo'naltiradi, rasm bo'yicha kiyim va tovarlarni tanlaydi va to'lovgacha olib boradi."
@@ -61,14 +73,26 @@ msgstr "Tapo kamerasining Wi-Fi tarmog'idagi IP-manzili"
 msgid "Instagram аккаунт (без @)"
 msgstr "Instagram akkaunt (@ siz)"
 
+msgid "Luxury Style for Kids"
+msgstr "Bolalar uchun hashamatli uslub"
+
+msgid "NEW COLLECTION"
+msgstr "YANGI TO'PLAM"
+
 msgid "Old Money"
 msgstr "Old Money"
+
+msgid "SPECIAL OFFER"
+msgstr "MAXSUS TAKLIF"
 
 msgid "SaaS Подписка CRM & ИИ"
 msgstr "SaaS CRM & AI obunasi"
 
 msgid "SaaS-подписка"
 msgstr "SaaS-obuna"
+
+msgid "Shop Now"
+msgstr "Xarid qilish"
 
 msgid "Telegram CRM + ИИ-продавец 24/7 + витрина для вашего бизнеса. Запуск за 2 минуты!"
 msgstr "Telegram CRM + 24/7 AI-sotuvchi + biznesingiz uchun vitrina. 2 daqiqada ishga tushirish!"
@@ -118,6 +142,9 @@ msgstr "Manzil aniqlanmoqda"
 msgid "Айтишник"
 msgstr "Dasturchi / IT"
 
+msgid "Аксессуары"
+msgstr "Aksessuarlar"
+
 msgid "Активен"
 msgstr "Faol"
 
@@ -142,6 +169,12 @@ msgstr "Asosiy tarif (1 nuqta): 450 000 so'm + filiallar:"
 msgid "Без фото чека заказ не может быть отправлен"
 msgstr "Chek rasmi bo'lmasa buyurtma yuborilmaydi"
 
+msgid "Безопасная"
+msgstr "Xavfsiz"
+
+msgid "Бейдж акции"
+msgstr "Aksiya belgisi"
+
 msgid "Бизнес и клиенты"
 msgstr "Biznes va mijozlar"
 
@@ -150,6 +183,9 @@ msgstr "100 dan ortiq buyurtmalar"
 
 msgid "Будьте первым, кто оставит отзыв об этом товаре!"
 msgstr "Ushbu mahsulot haqida birinchi bo'lib fikr bildiring!"
+
+msgid "Быстрая"
+msgstr "Tezkor"
 
 msgid "Быстрая доставка"
 msgstr "Tez yetkazib berish"
@@ -258,6 +294,9 @@ msgstr "Oldinga"
 
 msgid "Временно на доработке (Скоро)"
 msgstr "Vaqtinchalik yangilanmoqda (Tez orada)"
+
+msgid "Все"
+msgstr "Barchasi"
 
 msgid "Все категории"
 msgstr "Barcha toifalar"
@@ -442,6 +481,9 @@ msgstr "Mijozlar bilan muloqot:"
 msgid "Дизайн витрины"
 msgstr "Vitrina dizayni"
 
+msgid "Для девочек"
+msgstr "Qizlar"
+
 msgid "Для завершения оформления откройте бота в Telegram или отправьте локацию и контакт боту!"
 msgstr "Rasmiylashtirishni yakunlash uchun Telegram botini oching yoki botga lokatsiya va kontakt yuboring!"
 
@@ -454,11 +496,17 @@ msgstr "Har bir rang uchun 2 tadan 10 tagacha rasm yuklang. Ombordagi umumiy tov
 msgid "Для магазинов Ташкента: подключите камеру Hikvision, HiWatch или Dahua за 1 минуту по QR-коду без компьютеров и белых IP."
 msgstr "Toshkent do'konlari uchun: Hikvision, HiWatch yoki Dahua kamerasini kompyutersiz va oq IP-siz 1 daqiqada QR-kod orqali ulang."
 
+msgid "Для мальчиков"
+msgstr "O'g'il bolalar"
+
 msgid "Добавить в корзину"
 msgstr "Savatga qo'shish"
 
 msgid "Добавить ещё один цвет"
 msgstr "Yana bitta rang qo'shish"
+
+msgid "Добавить новый слайд в карусель:"
+msgstr "Karuselga yangi slayd qo'shish:"
 
 msgid "Добавить новый товар"
 msgstr "Yangi tovar qo'shish"
@@ -471,6 +519,9 @@ msgstr "Tovar qo'shish"
 
 msgid "Добавить филиал"
 msgstr "Filial qo'shish"
+
+msgid "Добавлено"
+msgstr "Qo'shildi"
 
 msgid "Добавьте номер карты ниже, чтобы клиенты знали, куда переводить деньги за заказы."
 msgstr "Mijozlar buyurtmalar uchun pul o'tkaza olishi uchun pastda karta raqamini kiriting."
@@ -489,6 +540,9 @@ msgstr "Uzunlik (Lon)"
 
 msgid "Доля продавца (90%)"
 msgstr "Sotuvchi ulushi (90%)"
+
+msgid "Доставка"
+msgstr "Yetkazib berish"
 
 msgid "Доставка:"
 msgstr "Yetkazib berish:"
@@ -517,8 +571,14 @@ msgstr "G'amxo'rlik / Yangiliklar"
 msgid "Завершить заказ через Telegram"
 msgstr "Buyurtmani Telegram orqali yakunlash"
 
+msgid "Заголовок"
+msgstr "Sarlavha"
+
 msgid "Загружаем фото, создаем товар..."
 msgstr "Rasmlar yuklanmoqda, tovar yaratilmoqda..."
+
+msgid "Загрузите несколько баннеров: покупатели смогут листать их свайпом на мобильном"
+msgstr "Bir nechta banner yuklang: xaridorlar ularni surib ko'rishlari mumkin"
 
 msgid "Загрузите фото, укажите доступные цвета, размеры и цены за пару минут."
 msgstr "Rasmlarni yuklang, mavjud ranglar, o'lchamlar va narxlarni bir necha daqiqada ko'rsating."
@@ -588,6 +648,9 @@ msgstr "AI-Sotuvchi 24/7"
 
 msgid "ИИ-Советник по росту продаж (Gemini AI)"
 msgstr "Savdoni oshirish bo'yicha AI-Maslahatchi (Gemini AI)"
+
+msgid "Избранное"
+msgstr "Sevimlilar"
 
 msgid "Изменить"
 msgstr "O'zgartirish"
@@ -667,6 +730,12 @@ msgstr "Xaridorlardan to'lov qabul qilish uchun karta (Uzcard / Humo)"
 msgid "Карта не привязана!"
 msgstr "Karta ulanmagan!"
 
+msgid "Картинка баннера"
+msgstr "Banner rasmi"
+
+msgid "Категории"
+msgstr "Kategoriyalar"
+
 msgid "Категории не созданы"
 msgstr "Kategoriyalar yaratilmagan"
 
@@ -675,6 +744,9 @@ msgstr "Tovar toifasi"
 
 msgid "Качественный товар с быстрой доставкой от проверенного продавца."
 msgstr "Ishonchli sotuvchidan sifatli mahsulot va tez yetkazish."
+
+msgid "Качество"
+msgstr "Sifat"
 
 msgid "Клиент"
 msgstr "Mijoz"
@@ -799,6 +871,9 @@ msgstr "Do'kon menejeri:"
 msgid "Меню"
 msgstr "Menyu"
 
+msgid "Меню магазина"
+msgstr "Do'kon menyusi"
+
 msgid "Меню управления"
 msgstr "Boshqaruv menyusi"
 
@@ -910,6 +985,9 @@ msgstr "Xudi, krossovka qidirish..."
 msgid "Наличными или переводом курьеру"
 msgstr "Naqd yoki kuryerga o'tkazma orqali"
 
+msgid "Написать в Telegram"
+msgstr "Telegramda yozish"
+
 msgid "Написать в Telegram-поддержку"
 msgstr "Telegram qo'llab-quvvatlash xizmatiga yozish"
 
@@ -933,6 +1011,9 @@ msgstr "Masalan: Aziz Karimov"
 
 msgid "Настройки"
 msgstr "Sozlamalar"
+
+msgid "Настройки магазина"
+msgstr "Do'kon sozlamalari"
 
 msgid "Не выбран"
 msgstr "Tanlanmagan"
@@ -997,6 +1078,9 @@ msgstr "Mahsulot haqida"
 msgid "ОТКРОЙ СВОЙ МАГАЗИН В BRAINMART"
 msgstr "BRAINMART'DA O'Z DO'KONINGIZNI OCHING"
 
+msgid "Обувь"
+msgstr "Poyabzallar"
+
 msgid "Общий LTV (Выручка)"
 msgstr "Umumiy LTV (Daromad)"
 
@@ -1035,6 +1119,9 @@ msgstr "Tovar tavsifi"
 
 msgid "Опишите товар: материал, особенности, комплектацию... или нажмите Написать через ИИ"
 msgstr "Tovarni tasvirlang: material, xususiyatlar, to'plam... yoki 'AI orqali yozish'ni bosing"
+
+msgid "Оплата"
+msgstr "To'lov"
 
 msgid "Оплата картой Uzcard / Humo онлайн"
 msgstr "Uzcard / Humo kartasi orqali onlayn to'lov"
@@ -1219,6 +1306,9 @@ msgstr "Django Admin paneli"
 msgid "Панель продавца"
 msgstr "Sotuvchi paneli"
 
+msgid "Панель управления"
+msgstr "Boshqaruv paneli"
+
 msgid "Панель управления SuperAdmin"
 msgstr "SuperAdmin boshqaruv paneli"
 
@@ -1269,6 +1359,12 @@ msgstr "Qayta buyurtmalar"
 
 msgid "Подарок"
 msgstr "Sovg'a"
+
+msgid "Поддержка"
+msgstr "Qo'llab-quvvatlash"
+
+msgid "Подзаголовок"
+msgstr "Quyi sarlavha"
 
 msgid "Подключение камеры наблюдения"
 msgstr "Kuzatuv kamerasini ulash"
@@ -1339,6 +1435,9 @@ msgstr "Iltimos, bog'lanish uchun telefon raqamingizni kiriting!"
 msgid "Пожалуйста, укажите номер телефона для связи."
 msgstr "Iltimos, bog'lanish uchun telefon raqamini kiriting."
 
+msgid "Поиск"
+msgstr "Qidiruv"
+
 msgid "Поиск по товарам или стилю (напр: айтишник, на свидание)..."
 msgstr "Mahsulotlar yoki uslub bo'yicha qidirish (masalan: dasturchi, uchrashuv)..."
 
@@ -1372,6 +1471,9 @@ msgstr "Sotuvchi kartasini olish va chekni biriktirish"
 msgid "Попробуйте выбрать другой сегмент или дождитесь новых заказов через каталог."
 msgstr "Boshqa segmentni tanlab ko'ring yoki katalog orqali yangi buyurtmalarni kuting."
 
+msgid "Популярные товары"
+msgstr "Ommabop mahsulotlar"
+
 msgid "После отправки чек мгновенно поступает администратору. Подписка продлевается сразу после подтверждения."
 msgstr "Yuborilgandan so'ng chek darhol administratorga boradi. Obuna tasdiqlangach darhol uzaytiriladi."
 
@@ -1383,6 +1485,9 @@ msgstr "Nega sotuvchilar brainmartni tanlaydi?"
 
 msgid "Предзаказы отсутствующих товаров"
 msgstr "Mavjud bo'lmagan tovarlarga buyurtma"
+
+msgid "Премиум"
+msgstr "Premium"
 
 msgid "Премиум / Old Money"
 msgstr "Premium / Old Money"
@@ -1513,6 +1618,9 @@ msgstr "Yashirilgan"
 msgid "Скрыть"
 msgstr "Yashirish"
 
+msgid "Слайдер баннеров витрины (Карусель)"
+msgstr "Vitrina bannerlar slayderi (Karusel)"
+
 msgid "Следующая дата списания:"
 msgstr "Keyingi to'lov sanasi:"
 
@@ -1533,6 +1641,9 @@ msgstr "Xabar yuborish"
 
 msgid "Состав заказа:"
 msgstr "Buyurtma tarkibi:"
+
+msgid "Сохранить и добавить баннер"
+msgstr "Saqlash va banner qo'shish"
 
 msgid "Сохранить карту"
 msgstr "Kartani saqlash"
@@ -1578,6 +1689,9 @@ msgstr "Tugma havolasi"
 
 msgid "Ссылка на доставку (Яндекс...)"
 msgstr "Yetkazib berish havolasi (Yandex...)"
+
+msgid "Ссылка при клике"
+msgstr "Havola (URL)"
 
 msgid "Статус"
 msgstr "Holat"
@@ -1696,6 +1810,9 @@ msgstr "O'chirish"
 msgid "Удалить товар"
 msgstr "Tovarni o'chirish"
 
+msgid "Удалить этот баннер?"
+msgstr "Ushbu bannerni o'chirmoqchimisiz?"
+
 msgid "Удалить этот цвет"
 msgstr "Ushbu rangni o'chirish"
 
@@ -1812,6 +1929,9 @@ msgstr "O'tkazdim, faollashtirish"
 
 msgid "Я перевёл, отправить чек"
 msgstr "O'tkazdim, chekni yuborish"
+
+msgid "Язык интерфейса"
+msgstr "Interfeys tili"
 
 msgid "Язык уведомлений в Telegram"
 msgstr "Telegram bildirishnomalari tili"

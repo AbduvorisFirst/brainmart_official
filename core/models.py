@@ -751,15 +751,43 @@ class SubscriptionPayment(models.Model):
 
 
 class Category(models.Model):
-    """Категория товара: худи, футболки, джинсы и т.д."""
-    name = models.CharField(max_length=100, unique=True)
+    """Категория товара: Для мальчиков, Для девочек, Обувь, Аксессуары и т.д."""
+    name = models.CharField(max_length=100, unique=True, verbose_name="Название (RU)")
+    name_uz = models.CharField(max_length=100, blank=True, default="", verbose_name="Название (UZ)")
+    name_en = models.CharField(max_length=100, blank=True, default="", verbose_name="Название (EN)")
+    image = models.ImageField(upload_to="categories/", null=True, blank=True, verbose_name="Изображение категории")
+    image_url_fallback = models.CharField(max_length=500, blank=True, default="", verbose_name="URL изображения по умолчанию")
+    icon = models.CharField(max_length=50, blank=True, default="", verbose_name="Иконка / символ")
+    order = models.PositiveIntegerField(default=0, verbose_name="Порядок сортировки")
 
     class Meta:
         verbose_name = "Категория"
         verbose_name_plural = "Категории"
+        ordering = ["order", "id"]
 
     def __str__(self):
         return self.name
+
+    @property
+    def display_name(self):
+        from django.utils import translation
+        lang = (translation.get_language() or "ru")[:2].lower()
+        if lang == "uz" and self.name_uz:
+            return self.name_uz
+        if lang == "en" and self.name_en:
+            return self.name_en
+        return self.name
+
+    @property
+    def effective_image_url(self):
+        if self.image:
+            try:
+                return self.image.url
+            except Exception:
+                pass
+        if self.image_url_fallback:
+            return self.image_url_fallback
+        return ""
 
 
 class Product(models.Model):
@@ -1527,10 +1555,13 @@ class ProductWaitlist(models.Model):
 
 class PromoBanner(models.Model):
     """
-    Рекламные баннеры для глобального маркетплейса (в стиле Wildberries).
-    Отображаются в слайдере на главной странице brainmart.uz.
-    Управляются суперпользователем через платформенную панель управления.
+    Рекламные баннеры для магазинов и глобального маркетплейса.
+    Отображаются в слайдере на витрине магазина и главной странице brainmart.uz.
     """
+    store = models.ForeignKey(
+        Store, on_delete=models.CASCADE, null=True, blank=True,
+        related_name="promo_banners", verbose_name="Магазин (пусто = общий маркетплейс)"
+    )
     title = models.CharField(max_length=255, verbose_name="Заголовок баннера")
     subtitle = models.CharField(max_length=255, blank=True, default="", verbose_name="Подзаголовок / Описание акции")
     badge = models.CharField(max_length=60, blank=True, default="", verbose_name="Бейдж акции (напр. 'СКИДКИ ДО -70%', '0% ОФИЦИАЛЬНАЯ ГАРАНТИЯ')")
@@ -1553,6 +1584,13 @@ class PromoBanner(models.Model):
 
     def __str__(self):
         return f"{self.title} [{'Активен' if self.is_active else 'Выключен'}]"
+
+    @classmethod
+    def get_banners_for_store(cls, store=None):
+        """Возвращает активные баннеры магазина или глобального маркетплейса."""
+        if store:
+            return list(cls.objects.filter(store=store, is_active=True).order_by("order", "-id"))
+        return cls.get_active_banners()
 
     @classmethod
     def get_active_banners(cls):

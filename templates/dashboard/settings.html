@@ -1547,6 +1547,87 @@
                         </div>
                     </div>
 
+                    <!-- ─── СЛАЙДЕР РЕКЛАМНЫХ БАННЕРОВ МАГАЗИНА (МУЛЬТИ-СЛАЙДЫ) ─── -->
+                    <div style="background: rgba(255,255,255,0.03); border: 1.5px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                            <div>
+                                <h4 style="margin: 0 0 4px; font-size: 13.5px; font-weight: 800; color: white;">
+                                    🎠 {% trans "Слайдер баннеров витрины (Карусель)" %}
+                                </h4>
+                                <p style="margin: 0; font-size: 11px; color: var(--text-muted);">
+                                    {% trans "Загрузите несколько баннеров: покупатели смогут листать их свайпом на мобильном" %}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Список уже загруженных баннеров магазина -->
+                        {% if store_banners %}
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-bottom: 14px;">
+                                {% for b in store_banners %}
+                                    <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden; position: relative;">
+                                        {% if b.image %}
+                                            <img src="{{ b.image.url }}" style="width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block;">
+                                        {% else %}
+                                            <div style="width: 100%; aspect-ratio: 16/9; background: {{ b.bg_gradient }};"></div>
+                                        {% endif %}
+                                        <div style="padding: 8px 10px;">
+                                            <div style="font-size: 10px; font-weight: 700; color: var(--primary);">{{ b.badge|default:"СЛАЙД" }}</div>
+                                            <div style="font-size: 12px; font-weight: 800; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ b.title }}</div>
+                                            <div style="font-size: 10px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ b.subtitle }}</div>
+                                            <div style="margin-top: 6px;">
+                                                <button type="submit" name="action" value="delete_banner" onclick="if(!confirm('{% trans "Удалить этот баннер?" %}')) return false; document.getElementById('deleteBannerIdInput').value='{{ b.id }}';" style="background: rgba(239, 68, 68, 0.15); border: 1px solid #EF4444; color: #EF4444; font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 6px; cursor: pointer; width: 100%;">
+                                                    🗑️ {% trans "Удалить" %}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div style="background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.12); border-radius: 10px; padding: 14px; text-align: center; margin-bottom: 14px;">
+                                <span style="font-size: 11px; color: var(--text-muted);">
+                                    ✨ {% trans "Сейчас на витрине показывается стильный автоматический слайдер. Вы можете добавить свои персональные баннеры ниже:" %}
+                                </span>
+                            </div>
+                        {% endif %}
+
+                        <!-- Форма добавления нового баннера -->
+                        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 12px;">
+                            <span style="font-size: 11px; font-weight: 800; color: white; display: block; margin-bottom: 8px;">
+                                ➕ {% trans "Добавить новый слайд в карусель:" %}
+                            </span>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; margin-bottom: 8px;">
+                                <div>
+                                    <label style="font-size: 10px; color: var(--text-muted);">{% trans "Картинка баннера" %} *</label>
+                                    <input type="file" name="banner_image" accept="image/*" style="font-size: 11px; color: var(--text-muted); width: 100%;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 10px; color: var(--text-muted);">{% trans "Бейдж акции" %}</label>
+                                    <input type="text" name="banner_badge" placeholder="NEW COLLECTION" style="width: 100%; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 11px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 10px; color: var(--text-muted);">{% trans "Заголовок" %} *</label>
+                                    <input type="text" name="banner_title" placeholder="Luxury Style for Kids" style="width: 100%; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 11px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 10px; color: var(--text-muted);">{% trans "Подзаголовок" %}</label>
+                                    <input type="text" name="banner_subtitle" placeholder="Comfort • Elegance • Quality" style="width: 100%; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 11px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 10px; color: var(--text-muted);">{% trans "Текст кнопки" %}</label>
+                                    <input type="text" name="banner_button_text" placeholder="Shop Now" style="width: 100%; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 11px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 10px; color: var(--text-muted);">{% trans "Ссылка при клике" %}</label>
+                                    <input type="text" name="banner_link_url" placeholder="#products-section" style="width: 100%; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 11px;">
+                                </div>
+                            </div>
+                            <button type="submit" name="action" value="add_banner" style="background: var(--btn-gradient, linear-gradient(135deg, #10B981 0%, #059669 100%)); color: white; border: none; padding: 7px 16px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer;">
+                                ➕ {% trans "Сохранить и добавить баннер" %}
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- ─── ИНТЕРАКТИВНЫЙ МАКЕТ СМАРТФОНА (LIVE DEVICE MOCKUP) ─── -->
                     <div style="margin-top: 14px;">
                         <span style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 8px;">

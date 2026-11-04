@@ -259,8 +259,12 @@ def dashboard_home(request):
     if ai_conversations_count > 0:
         ai_conversion = round((tg_orders_count / ai_conversations_count) * 100, 1)
 
+    from core.models import PromoBanner
+    store_banners = PromoBanner.objects.filter(store=store).order_by("order", "-id")
+
     context = {
         "store": store,
+        "store_banners": store_banners,
         "total_revenue": revenue_stats["total"] or 0,
         "paid_orders_count": paid_orders.count(),
         "pending_orders_count": orders.filter(status=Order.Status.PENDING_PAYMENT).count(),
@@ -469,7 +473,7 @@ def product_add_view(request):
         return redirect("seller-products")
 
     from core.models import Category
-    categories = Category.objects.all().order_by('id')
+    categories = Category.objects.all().order_by('order', 'id')
     default_category = store.effective_category
     default_category_id = default_category.id if default_category else None
     return render(request, "dashboard/product_add.html", {
@@ -755,7 +759,7 @@ def product_edit_view(request, product_id):
             return redirect("seller-product-edit", product_id=product.id)
 
     from core.models import Category
-    categories = Category.objects.all().order_by("name")
+    categories = Category.objects.all().order_by('order', 'id')
     gallery_images = product.images.all().order_by("id")
     all_variants = product.variants.all().order_by("id")
     variants_with_images = product.variants.filter(image__isnull=False).exclude(image="").order_by("id")
@@ -1928,6 +1932,42 @@ def store_settings_view(request):
             messages.success(request, "Менеджер удален.")
             return redirect("seller-settings")
 
+        elif action == "add_banner":
+            image = request.FILES.get("banner_image")
+            title = request.POST.get("banner_title", "").strip() or store.name
+            subtitle = request.POST.get("banner_subtitle", "").strip()
+            badge = request.POST.get("banner_badge", "").strip() or "NEW COLLECTION"
+            button_text = request.POST.get("banner_button_text", "").strip() or "Shop Now"
+            link_url = request.POST.get("banner_link_url", "").strip() or "#products-section"
+            try:
+                order = int(request.POST.get("banner_order", 0) or 0)
+            except ValueError:
+                order = 0
+            if image:
+                from core.models import PromoBanner
+                PromoBanner.objects.create(
+                    store=store,
+                    image=image,
+                    title=title,
+                    subtitle=subtitle,
+                    badge=badge,
+                    button_text=button_text,
+                    link_url=link_url,
+                    order=order,
+                    is_active=True
+                )
+                messages.success(request, "Рекламный баннер успешно добавлен на витрину!")
+            else:
+                messages.error(request, "Пожалуйста, выберите изображение баннера.")
+            return redirect("seller-settings")
+
+        elif action == "delete_banner":
+            banner_id = request.POST.get("banner_id")
+            from core.models import PromoBanner
+            PromoBanner.objects.filter(id=banner_id, store=store).delete()
+            messages.success(request, "Баннер удален.")
+            return redirect("seller-settings")
+
         elif action == "connect_custom_bot":
             bot_token = request.POST.get("telegram_bot_token", "").strip()
             if not bot_token:
@@ -2717,6 +2757,54 @@ THEME_PALETTES = {
         "name_ru": "Смарт Кэжуал", "name_uz": "Smart Kejul", "name_en": "Smart Casual"
     },
 }
+
+
+@login_required
+def store_banner_add_view(request):
+    """Добавление баннера магазина через Dashboard."""
+    store = _get_store_or_none(request)
+    if not store:
+        return redirect("seller-login")
+    if request.method == "POST":
+        image = request.FILES.get("banner_image") or request.FILES.get("image")
+        title = request.POST.get("banner_title", "").strip() or store.name
+        subtitle = request.POST.get("banner_subtitle", "").strip()
+        badge = request.POST.get("banner_badge", "").strip() or "NEW COLLECTION"
+        button_text = request.POST.get("banner_button_text", "").strip() or "Shop Now"
+        link_url = request.POST.get("banner_link_url", "").strip() or "#products-section"
+        try:
+            order = int(request.POST.get("banner_order", 0) or 0)
+        except ValueError:
+            order = 0
+        if image:
+            from core.models import PromoBanner
+            PromoBanner.objects.create(
+                store=store,
+                image=image,
+                title=title,
+                subtitle=subtitle,
+                badge=badge,
+                button_text=button_text,
+                link_url=link_url,
+                order=order,
+                is_active=True
+            )
+            messages.success(request, "Рекламный баннер успешно добавлен на витрину!")
+        else:
+            messages.error(request, "Пожалуйста, выберите изображение баннера.")
+    return redirect("seller-settings")
+
+
+@login_required
+def store_banner_delete_view(request, banner_id):
+    """Удаление баннера магазина."""
+    store = _get_store_or_none(request)
+    if not store:
+        return redirect("seller-login")
+    from core.models import PromoBanner
+    PromoBanner.objects.filter(id=banner_id, store=store).delete()
+    messages.success(request, "Баннер удален.")
+    return redirect("seller-settings")
 
 
 @login_required

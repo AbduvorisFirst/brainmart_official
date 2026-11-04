@@ -386,12 +386,20 @@
                         </span>
                     {% endif %}
                 </div>
+                <!-- Quick Category Pick Buttons -->
+                <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;">
+                    {% for cat in categories|slice:":4" %}
+                        <button type="button" onclick="selectQuickCategory('{{ cat.id }}')" style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: #F5F1EA; cursor: pointer; transition: all 0.2s ease;">
+                            <span>{{ cat.icon|default:"🏷️" }}</span>
+                            <span>{{ cat.display_name }}</span>
+                        </button>
+                    {% endfor %}
+                </div>
+
                 <select name="category_id" id="categorySelect" onchange="onCategoryChange(this)" required style="background: rgba(255,255,255,0.05); border: 1.5px solid var(--border); color: white; padding: 12px; border-radius: 10px; width: 100%; margin-bottom: 6px; font-weight: 700; font-size: 14px; box-sizing: border-box;">
-                    {% if not default_category_id %}
-                        <option value="" disabled selected>{% trans "Выберите категорию..." %}</option>
-                    {% endif %}
+                    <option value="" disabled {% if not default_category_id %}selected{% endif %}>{% trans "Выберите категорию..." %}</option>
                     {% for cat in categories %}
-                        <option value="{{ cat.id }}" {% if cat.id == default_category_id %}selected{% endif %}>{{ cat.name }}</option>
+                        <option value="{{ cat.id }}" {% if cat.id == default_category_id %}selected{% endif %}>{{ cat.icon|default:"🏷️" }} {{ cat.display_name }}</option>
                     {% empty %}
                         <option value="" disabled>{% trans "Категории не созданы" %}</option>
                     {% endfor %}
@@ -1078,22 +1086,34 @@
         });
     }
 
+    function selectQuickCategory(catId) {
+        var sel = document.getElementById('categorySelect');
+        if (sel) {
+            sel.value = catId;
+            onCategoryChange(sel);
+        }
+    }
+
     function onCategoryChange(sel) {
         if (!sel || sel.selectedIndex < 0) return;
         const text = sel.options[sel.selectedIndex].text.toLowerCase();
         const typeSelect = document.getElementById('productType');
         if (!typeSelect) return;
 
-        if (text.includes('авто') || text.includes('шин')) {
+        if (text.includes('обув') || text.includes('shoes') || text.includes('poyabzal')) {
+            typeSelect.value = 'shoes';
+        } else if (text.includes('одежд') || text.includes('мальчик') || text.includes('девоч') || text.includes('boys') || text.includes('girls') || text.includes("o'g'il") || text.includes('qizlar')) {
+            typeSelect.value = 'clothes';
+        } else if (text.includes('авто') || text.includes('шин') || text.includes('shina') || text.includes('tires')) {
             typeSelect.value = 'tires';
-        } else if (text.includes('продукт')) {
+        } else if (text.includes('продукт') || text.includes('food') || text.includes('oziq')) {
             typeSelect.value = 'food_groceries';
-        } else if (text.includes('электрон') || text.includes('техник')) {
+        } else if (text.includes('электрон') || text.includes('техник') || text.includes('phone') || text.includes('gadget')) {
             typeSelect.value = 'electronics_variants';
-        } else if (text.includes('одежд') || text.includes('обув')) {
+        } else if (text.includes('аксессуар') || text.includes('accessori') || text.includes('aksessuar')) {
             typeSelect.value = 'clothes';
         } else {
-            typeSelect.value = 'electronics';
+            typeSelect.value = 'clothes';
         }
         toggleProductType();
     }

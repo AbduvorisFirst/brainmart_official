@@ -34,6 +34,9 @@ msgstr "450,000 UZS/mo"
 msgid "APPLE & PRO ГАДЖЕТЫ"
 msgstr "APPLE & PRO GADGETS"
 
+msgid "Autumn & Winter Trends"
+msgstr "Autumn & Winter Trends"
+
 msgid "BrainMart работает по фиксированной подписке. 0% комиссии с продаж. Никаких скрытых платежей."
 msgstr "BrainMart works on a fixed subscription. 0% commission on sales. No hidden fees."
 
@@ -45,6 +48,15 @@ msgstr "Customer CRM Base"
 
 msgid "CRM по себестоимости / месяц"
 msgstr "CRM at cost price / month"
+
+msgid "Comfort • Elegance • Quality"
+msgstr "Comfort • Elegance • Quality"
+
+msgid "EXCLUSIVE 2026"
+msgstr "EXCLUSIVE 2026"
+
+msgid "Footwear & Accessories"
+msgstr "Footwear & Accessories"
 
 msgid "Gemini AI моментально отвечает на комментарии в Instagram, переводит клиентов в Direct и Telegram, подбирает одежду и товары по фото и доводит до оплаты."
 msgstr "Gemini AI instantly replies to Instagram comments, guides customers to Direct and Telegram, matches products by photo, and closes sales."
@@ -61,14 +73,26 @@ msgstr "Tapo Camera Wi-Fi IP Address"
 msgid "Instagram аккаунт (без @)"
 msgstr "Instagram account (without @)"
 
+msgid "Luxury Style for Kids"
+msgstr "Luxury Style for Kids"
+
+msgid "NEW COLLECTION"
+msgstr "NEW COLLECTION"
+
 msgid "Old Money"
 msgstr "Old Money"
+
+msgid "SPECIAL OFFER"
+msgstr "SPECIAL OFFER"
 
 msgid "SaaS Подписка CRM & ИИ"
 msgstr "SaaS CRM & AI Subscription"
 
 msgid "SaaS-подписка"
 msgstr "SaaS Subscription"
+
+msgid "Shop Now"
+msgstr "Shop Now"
 
 msgid "Telegram CRM + ИИ-продавец 24/7 + витрина для вашего бизнеса. Запуск за 2 минуты!"
 msgstr "Telegram CRM + 24/7 AI Seller + storefront for your business. Launch in 2 minutes!"
@@ -118,6 +142,9 @@ msgstr "Address being clarified"
 msgid "Айтишник"
 msgstr "Tech / IT"
 
+msgid "Аксессуары"
+msgstr "Accessories"
+
 msgid "Активен"
 msgstr "Active"
 
@@ -142,6 +169,12 @@ msgstr "Base plan (1 point): 450,000 UZS + branches:"
 msgid "Без фото чека заказ не может быть отправлен"
 msgstr "Order cannot be dispatched without a receipt photo"
 
+msgid "Безопасная"
+msgstr "Secure"
+
+msgid "Бейдж акции"
+msgstr "Promo Badge"
+
 msgid "Бизнес и клиенты"
 msgstr "Business & Customers"
 
@@ -150,6 +183,9 @@ msgstr "Over 100+ orders"
 
 msgid "Будьте первым, кто оставит отзыв об этом товаре!"
 msgstr "Be the first to review this product!"
+
+msgid "Быстрая"
+msgstr "Fast"
 
 msgid "Быстрая доставка"
 msgstr "Fast Delivery"
@@ -258,6 +294,9 @@ msgstr "Next"
 
 msgid "Временно на доработке (Скоро)"
 msgstr "Temporarily under maintenance (Soon)"
+
+msgid "Все"
+msgstr "See All"
 
 msgid "Все категории"
 msgstr "All categories"
@@ -442,6 +481,9 @@ msgstr "Customer chats:"
 msgid "Дизайн витрины"
 msgstr "Showcase Design"
 
+msgid "Для девочек"
+msgstr "Girls"
+
 msgid "Для завершения оформления откройте бота в Telegram или отправьте локацию и контакт боту!"
 msgstr "To complete checkout, open bot in Telegram or send location and contact to the bot!"
 
@@ -454,11 +496,17 @@ msgstr "Upload 2 to 10 photos for each color. Specify total quantity in stock."
 msgid "Для магазинов Ташкента: подключите камеру Hikvision, HiWatch или Dahua за 1 минуту по QR-коду без компьютеров и белых IP."
 msgstr "For Tashkent retail: connect your Hikvision, HiWatch, or Dahua CCTV in 1 minute via QR code with zero PC required."
 
+msgid "Для мальчиков"
+msgstr "Boys"
+
 msgid "Добавить в корзину"
 msgstr "Add to cart"
 
 msgid "Добавить ещё один цвет"
 msgstr "Add another color"
+
+msgid "Добавить новый слайд в карусель:"
+msgstr "Add new slide to carousel:"
 
 msgid "Добавить новый товар"
 msgstr "Add New Product"
@@ -471,6 +519,9 @@ msgstr "Add Product"
 
 msgid "Добавить филиал"
 msgstr "Add Branch"
+
+msgid "Добавлено"
+msgstr "Added"
 
 msgid "Добавьте номер карты ниже, чтобы клиенты знали, куда переводить деньги за заказы."
 msgstr "Add your card number below so customers know where to transfer money for orders."
@@ -489,6 +540,9 @@ msgstr "Longitude (Lon)"
 
 msgid "Доля продавца (90%)"
 msgstr "Seller share (90%)"
+
+msgid "Доставка"
+msgstr "Delivery"
 
 msgid "Доставка:"
 msgstr "Delivery:"
@@ -517,8 +571,14 @@ msgstr "Care / Drops"
 msgid "Завершить заказ через Telegram"
 msgstr "Complete order via Telegram"
 
+msgid "Заголовок"
+msgstr "Title"
+
 msgid "Загружаем фото, создаем товар..."
 msgstr "Uploading photos, creating product..."
+
+msgid "Загрузите несколько баннеров: покупатели смогут листать их свайпом на мобильном"
+msgstr "Upload multiple banners: customers can swipe through them on mobile"
 
 msgid "Загрузите фото, укажите доступные цвета, размеры и цены за пару минут."
 msgstr "Upload photos, specify colors, sizes, and prices in a few minutes."
@@ -588,6 +648,9 @@ msgstr "24/7 AI Sales Agent"
 
 msgid "ИИ-Советник по росту продаж (Gemini AI)"
 msgstr "AI Sales Growth Advisor (Gemini AI)"
+
+msgid "Избранное"
+msgstr "Favorites"
 
 msgid "Изменить"
 msgstr "Change"
@@ -667,6 +730,12 @@ msgstr "Card for receiving customer payments (Uzcard / Humo)"
 msgid "Карта не привязана!"
 msgstr "Card not linked!"
 
+msgid "Картинка баннера"
+msgstr "Banner Image"
+
+msgid "Категории"
+msgstr "Categories"
+
 msgid "Категории не созданы"
 msgstr "No categories created"
 
@@ -675,6 +744,9 @@ msgstr "Product Category"
 
 msgid "Качественный товар с быстрой доставкой от проверенного продавца."
 msgstr "High-quality product with fast delivery from a verified seller."
+
+msgid "Качество"
+msgstr "Quality"
 
 msgid "Клиент"
 msgstr "Customer"
@@ -799,6 +871,9 @@ msgstr "Store manager:"
 msgid "Меню"
 msgstr "Menu"
 
+msgid "Меню магазина"
+msgstr "Store Menu"
+
 msgid "Меню управления"
 msgstr "Control Menu"
 
@@ -910,6 +985,9 @@ msgstr "Search for hoodies, sneakers..."
 msgid "Наличными или переводом курьеру"
 msgstr "Cash or transfer to courier"
 
+msgid "Написать в Telegram"
+msgstr "Chat on Telegram"
+
 msgid "Написать в Telegram-поддержку"
 msgstr "Write to Telegram Support"
 
@@ -933,6 +1011,9 @@ msgstr "E.g.: Aziz Karimov"
 
 msgid "Настройки"
 msgstr "Settings"
+
+msgid "Настройки магазина"
+msgstr "Store Settings"
 
 msgid "Не выбран"
 msgstr "Not selected"
@@ -997,6 +1078,9 @@ msgstr "About product"
 msgid "ОТКРОЙ СВОЙ МАГАЗИН В BRAINMART"
 msgstr "OPEN YOUR STORE ON BRAINMART"
 
+msgid "Обувь"
+msgstr "Shoes"
+
 msgid "Общий LTV (Выручка)"
 msgstr "Total LTV (Revenue)"
 
@@ -1035,6 +1119,9 @@ msgstr "Product Description"
 
 msgid "Опишите товар: материал, особенности, комплектацию... или нажмите Написать через ИИ"
 msgstr "Describe the product: material, features, contents... or click Write with AI"
+
+msgid "Оплата"
+msgstr "Payment"
 
 msgid "Оплата картой Uzcard / Humo онлайн"
 msgstr "Online payment via Uzcard / Humo card"
@@ -1219,6 +1306,9 @@ msgstr "Django Admin Panel"
 msgid "Панель продавца"
 msgstr "Seller Dashboard"
 
+msgid "Панель управления"
+msgstr "Dashboard"
+
 msgid "Панель управления SuperAdmin"
 msgstr "SuperAdmin Dashboard"
 
@@ -1269,6 +1359,12 @@ msgstr "Repeat Orders"
 
 msgid "Подарок"
 msgstr "Gift"
+
+msgid "Поддержка"
+msgstr "Support"
+
+msgid "Подзаголовок"
+msgstr "Subtitle"
 
 msgid "Подключение камеры наблюдения"
 msgstr "Connect CCTV Camera"
@@ -1339,6 +1435,9 @@ msgstr "Please provide your phone number for contact!"
 msgid "Пожалуйста, укажите номер телефона для связи."
 msgstr "Please provide a contact phone number."
 
+msgid "Поиск"
+msgstr "Search"
+
 msgid "Поиск по товарам или стилю (напр: айтишник, на свидание)..."
 msgstr "Search products or style (e.g. tech/IT, date night)..."
 
@@ -1372,6 +1471,9 @@ msgstr "Get seller card & attach receipt"
 msgid "Попробуйте выбрать другой сегмент или дождитесь новых заказов через каталог."
 msgstr "Try selecting another segment or wait for new orders from the catalog."
 
+msgid "Популярные товары"
+msgstr "Popular Products"
+
 msgid "После отправки чек мгновенно поступает администратору. Подписка продлевается сразу после подтверждения."
 msgstr "After sending, the receipt is instantly delivered to the administrator. The subscription is renewed once approved."
 
@@ -1383,6 +1485,9 @@ msgstr "Why do sellers choose brainmart?"
 
 msgid "Предзаказы отсутствующих товаров"
 msgstr "Pre-orders for out of stock items"
+
+msgid "Премиум"
+msgstr "Premium"
 
 msgid "Премиум / Old Money"
 msgstr "Premium / Old Money"
@@ -1510,6 +1615,9 @@ msgstr "Hidden"
 msgid "Скрыть"
 msgstr "Hide"
 
+msgid "Слайдер баннеров витрины (Карусель)"
+msgstr "Storefront Banner Slider (Carousel)"
+
 msgid "Следующая дата списания:"
 msgstr "Next billing date:"
 
@@ -1530,6 +1638,9 @@ msgstr "Create broadcast"
 
 msgid "Состав заказа:"
 msgstr "Order items:"
+
+msgid "Сохранить и добавить баннер"
+msgstr "Save & Add Banner"
 
 msgid "Сохранить карту"
 msgstr "Save Card"
@@ -1575,6 +1686,9 @@ msgstr "Button link"
 
 msgid "Ссылка на доставку (Яндекс...)"
 msgstr "Delivery link (Yandex...)"
+
+msgid "Ссылка при клике"
+msgstr "Link URL"
 
 msgid "Статус"
 msgstr "Status"
@@ -1693,6 +1807,9 @@ msgstr "Delete"
 msgid "Удалить товар"
 msgstr "Delete product"
 
+msgid "Удалить этот баннер?"
+msgstr "Delete this banner?"
+
 msgid "Удалить этот цвет"
 msgstr "Delete this color"
 
@@ -1809,6 +1926,9 @@ msgstr "I transferred, activate"
 
 msgid "Я перевёл, отправить чек"
 msgstr "I transferred, send receipt"
+
+msgid "Язык интерфейса"
+msgstr "Language"
 
 msgid "Язык уведомлений в Telegram"
 msgstr "Telegram notification language"

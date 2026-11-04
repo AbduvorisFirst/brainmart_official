@@ -147,7 +147,46 @@ body {
     box-shadow: 0 2px 6px rgba(225, 29, 72, 0.4);
 }
 
-/* 3. Hero Banner (JM Kids Store style) */
+/* 3. Hero Banner Carousel (JM Kids Store style - Touch Swipeable) */
+.bm-hero-carousel-wrap {
+    position: relative;
+    border-radius: var(--radius-lg, 20px);
+    overflow: hidden;
+    margin: 14px 0 18px;
+    background: #141416;
+    box-shadow: var(--card-shadow, 0 10px 30px rgba(0, 0, 0, 0.45));
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+}
+
+.bm-hero-track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+    margin: 0;
+    padding: 0;
+}
+
+.bm-hero-track::-webkit-scrollbar {
+    display: none;
+}
+
+.bm-hero-slide {
+    flex: 0 0 100%;
+    min-width: 100%;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    position: relative;
+    aspect-ratio: 16 / 10;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/* Fallback single banner */
 .bm-hero-banner {
     position: relative;
     border-radius: var(--radius-lg, 20px);
@@ -256,6 +295,35 @@ body {
     border-radius: 4px;
     background: var(--primary, #C9A27A);
 }
+.bm-hero-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #FFFFFF;
+    font-size: 20px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 5;
+    transition: all 0.2s ease;
+    opacity: 0.75;
+}
+.bm-hero-arrow:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.75);
+    transform: translateY(-50%) scale(1.08);
+}
+.bm-hero-arrow.prev { left: 10px; }
+.bm-hero-arrow.next { right: 10px; }
+
 
 /* 4. Trust Strip (4 items: Quality, Delivery, Payment, Support) */
 .bm-trust-strip {

@@ -5,7 +5,8 @@
 <div class="catalog-container">
 
     <!-- ======================================================================
-         1. LUXURY STOREFRONT HEADER (JM KIDS STYLE: ☰ · LOGO / TITLE · 🔍 · 🛒)
+         1. LUXURY STOREFRONT HEADER (JM KIDS STYLE: ☰ · TITLE / TAGLINE · 🔍 · 🛒)
+         NO CLUNKY LOGO IN HEADER — ONLY ELEGANT SERIF TITLE & SUBTITLE!
          ====================================================================== -->
     <header class="bm-store-header">
         <div class="bm-header-col-left">
@@ -16,9 +17,6 @@
 
         <div class="bm-header-center">
             {% if current_store %}
-                {% if current_store.logo %}
-                    <img src="{{ current_store.logo.url }}" alt="{{ current_store.name }}" class="bm-header-logo-img" onerror="this.style.display='none';">
-                {% endif %}
                 <h1 class="bm-brand-title">{{ current_store.name }}</h1>
                 <span class="bm-brand-tagline">
                     {{ current_store.tagline|default:current_store.get_theme_signature.text }}
@@ -52,7 +50,7 @@
             {% endif %}
             <div class="bm-search-input-wrap">
                 <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <input type="text" id="catalogSearchInput" name="q" class="bm-search-field" value="{{ search_query }}" placeholder="{% if current_store %}{% trans 'Искать в' %} {{ current_store.name }}...{% else %}{% trans 'Поиск товаров...' %}{% endif %}" autocomplete="off">
+                <input type="text" id="catalogSearchInput" name="q" class="bm-search-field" value="{{ search_query }}" placeholder="{% if current_store %}{% trans 'Искать в магазине' %} {{ current_store.name }}...{% else %}{% trans 'Поиск товаров...' %}{% endif %}" autocomplete="off">
             </div>
             {% if search_query %}
                 <button type="button" class="bm-search-close-btn" onclick="clearCatalogSearch()">✕</button>
@@ -62,99 +60,90 @@
     </div>
 
     <!-- ======================================================================
-         2. HERO BANNER (JM KIDS STORE STYLE: LUXURY PHOTO + COLLECTION TEXT)
+         2. INTERACTIVE HERO CAROUSEL / SLIDER (SWIPEABLE TOUCH + DOTS + AUTOPLAY)
          ====================================================================== -->
-    {% if current_store %}
-        <div class="bm-hero-banner" id="bmStoreHero">
-            {% if current_store.hero_image %}
-                <img src="{{ current_store.hero_image.url }}" alt="{{ current_store.name }}" class="bm-hero-bg">
-            {% else %}
-                <img src="https://images.unsplash.com/photo-1503919545889-aef636e10ad4?auto=format&fit=crop&w=1200&q=80" alt="{{ current_store.name }}" class="bm-hero-bg">
+    {% if promo_banners %}
+        <div class="bm-hero-carousel-wrap" id="bmHeroSliderWrap">
+            {% if promo_banners|length > 1 %}
+                <button type="button" class="bm-hero-arrow prev" onclick="prevHeroSlide()" aria-label="Previous">‹</button>
+                <button type="button" class="bm-hero-arrow next" onclick="nextHeroSlide()" aria-label="Next">›</button>
             {% endif %}
-            <div class="bm-hero-overlay"></div>
-            <div class="bm-hero-content">
-                <span class="bm-hero-label">
-                    {{ current_store.hero_label|default:"NEW COLLECTION" }}
-                </span>
-                <h2 class="bm-hero-title">
-                    {{ current_store.hero_title|default:"Luxury Style for Kids" }}
-                </h2>
-                <p class="bm-hero-subtitle">
-                    {{ current_store.hero_subtitle|default:"Comfort • Elegance • Quality" }}
-                </p>
-                <a href="#products-section" class="bm-hero-btn" onclick="event.preventDefault(); document.getElementById('products-section').scrollIntoView({behavior: 'smooth'});">
-                    {% trans "Shop Now" %} ›
-                </a>
+            <div class="bm-hero-track" id="bmHeroSliderTrack">
+                {% for b in promo_banners %}
+                    <div class="bm-hero-slide" data-slide-index="{{ forloop.counter0 }}">
+                        {% if b.image %}
+                            <img src="{{ b.image.url }}" alt="{{ b.title }}" class="bm-hero-bg">
+                        {% elif b.image_url %}
+                            <img src="{{ b.image_url }}" alt="{{ b.title }}" class="bm-hero-bg">
+                        {% else %}
+                            <div class="bm-hero-bg" style="background: {{ b.bg_gradient|default:'linear-gradient(135deg, #151517 0%, #201D19 100%)' }};"></div>
+                        {% endif %}
+                        <div class="bm-hero-overlay"></div>
+                        <div class="bm-hero-content">
+                            {% if b.badge %}
+                                <span class="bm-hero-label">{{ b.badge }}</span>
+                            {% endif %}
+                            <h2 class="bm-hero-title">{{ b.title }}</h2>
+                            {% if b.subtitle %}
+                                <p class="bm-hero-subtitle">{{ b.subtitle }}</p>
+                            {% endif %}
+                            <a href="{{ b.link_url|default:'#products-section' }}" class="bm-hero-btn">
+                                {{ b.button_text|default:_("Shop Now") }} ›
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-            <div class="bm-hero-dots">
-                <span class="bm-hero-dot active"></span>
-                <span class="bm-hero-dot"></span>
-                <span class="bm-hero-dot"></span>
-            </div>
-        </div>
-    {% elif promo_banners %}
-        <!-- Global Marketplace Promo Slider -->
-        <div class="bm-hero-banner" id="bmGlobalHero">
-            {% with b=promo_banners.0 %}
-                {% if b.image %}
-                    <img src="{{ b.image.url }}" alt="{{ b.title }}" class="bm-hero-bg">
-                {% endif %}
-                <div class="bm-hero-overlay"></div>
-                <div class="bm-hero-content">
-                    {% if b.badge %}
-                        <span class="bm-hero-label">{{ b.badge }}</span>
-                    {% endif %}
-                    <h2 class="bm-hero-title">{{ b.title }}</h2>
-                    {% if b.subtitle %}
-                        <p class="bm-hero-subtitle">{{ b.subtitle }}</p>
-                    {% endif %}
-                    <a href="{{ b.link_url|default:'#products-section' }}" class="bm-hero-btn">
-                        {{ b.button_text|default:"Shop Now" }} ›
-                    </a>
+
+            {% if promo_banners|length > 1 %}
+                <div class="bm-hero-dots" id="bmHeroDots">
+                    {% for b in promo_banners %}
+                        <span class="bm-hero-dot {% if forloop.first %}active{% endif %}" onclick="goToHeroSlide({{ forloop.counter0 }})"></span>
+                    {% endfor %}
                 </div>
-            {% endwith %}
+            {% endif %}
         </div>
     {% endif %}
 
     <!-- ======================================================================
-         3. TRUST STRIP (4 PILLARS UNDER BANNER)
+         3. TRUST STRIP (4 PILLARS: PREMIUM QUALITY · FAST DELIVERY · PAYMENT · 24/7)
          ====================================================================== -->
     <section class="bm-trust-strip">
         <div class="bm-trust-item">
             <div class="bm-trust-icon">
                 <svg viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 12L2 9z"></path></svg>
             </div>
-            <div class="bm-trust-title">{% trans "Premium" %}</div>
-            <div class="bm-trust-sub">{% trans "Quality" %}</div>
+            <div class="bm-trust-title">{% trans "Премиум" %}</div>
+            <div class="bm-trust-sub">{% trans "Качество" %}</div>
         </div>
 
         <div class="bm-trust-item">
             <div class="bm-trust-icon">
                 <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
             </div>
-            <div class="bm-trust-title">{% trans "Fast Delivery" %}</div>
-            <div class="bm-trust-sub">{% if current_store.address %}{{ current_store.address|truncatechars:10 }}{% else %}Tashkent{% endif %}</div>
+            <div class="bm-trust-title">{% trans "Быстрая" %}</div>
+            <div class="bm-trust-sub">{% if current_store.address %}{{ current_store.address|truncatechars:10 }}{% else %}{% trans "Доставка" %}{% endif %}</div>
         </div>
 
         <div class="bm-trust-item">
             <div class="bm-trust-icon">
                 <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
             </div>
-            <div class="bm-trust-title">{% trans "Secure" %}</div>
-            <div class="bm-trust-sub">{% trans "Payment" %}</div>
+            <div class="bm-trust-title">{% trans "Безопасная" %}</div>
+            <div class="bm-trust-sub">{% trans "Оплата" %}</div>
         </div>
 
         <div class="bm-trust-item">
             <div class="bm-trust-icon">
                 <svg viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>
             </div>
-            <div class="bm-trust-title">{% trans "24/7" %}</div>
-            <div class="bm-trust-sub">{% trans "Support" %}</div>
+            <div class="bm-trust-title">24/7</div>
+            <div class="bm-trust-sub">{% trans "Поддержка" %}</div>
         </div>
     </section>
 
     <!-- ======================================================================
-         4. CATEGORY TILES (IMAGE CARDS WITH ARROW ›)
+         4. CATEGORY TILES (IMAGE CARDS: BOYS, GIRLS, SHOES, ACCESSORIES + ARROW ›)
          ====================================================================== -->
     {% if categories %}
         <section class="bm-categories-section">
@@ -164,7 +153,7 @@
                         <span class="bm-cat-thumb-placeholder">✦</span>
                     </div>
                     <div class="bm-cat-meta">
-                        <span class="bm-cat-name">{% trans "All" %}</span>
+                        <span class="bm-cat-name">{% trans "Все" %}</span>
                         <span class="bm-cat-arrow">›</span>
                     </div>
                 </a>
@@ -173,14 +162,17 @@
                     <a href="?{% if current_store_id %}store_id={{ current_store_id }}&{% endif %}category={{ cat.id }}{% if search_query %}&q={{ search_query }}{% endif %}" class="bm-cat-card {% if selected_category_id == cat.id %}active{% endif %}">
                         <div class="bm-cat-thumb">
                             {% if cat.sample_image %}
-                                <img src="{{ cat.sample_image }}" alt="{{ cat.name }}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                <span class="bm-cat-thumb-placeholder" style="display: none;">{{ cat.name|slice:":1"|upper }}</span>
+                                <img src="{{ cat.sample_image }}" alt="{{ cat.display_name }}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <span class="bm-cat-thumb-placeholder" style="display: none;">{{ cat.icon|default:'✦' }}</span>
+                            {% elif cat.effective_image_url %}
+                                <img src="{{ cat.effective_image_url }}" alt="{{ cat.display_name }}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <span class="bm-cat-thumb-placeholder" style="display: none;">{{ cat.icon|default:'✦' }}</span>
                             {% else %}
-                                <span class="bm-cat-thumb-placeholder">{{ cat.name|slice:":1"|upper }}</span>
+                                <span class="bm-cat-thumb-placeholder">{{ cat.icon|default:'✦' }}</span>
                             {% endif %}
                         </div>
                         <div class="bm-cat-meta">
-                            <span class="bm-cat-name">{{ cat.name }}</span>
+                            <span class="bm-cat-name">{{ cat.display_name }}</span>
                             <span class="bm-cat-arrow">›</span>
                         </div>
                     </a>
@@ -203,13 +195,13 @@
     <div class="bm-section-head" id="products-section">
         <h2 class="bm-section-title">
             {% if selected_category_id %}
-                {% for cat in categories %}{% if cat.id == selected_category_id %}{{ cat.name }}{% endif %}{% endfor %}
+                {% for cat in categories %}{% if cat.id == selected_category_id %}{{ cat.display_name }}{% endif %}{% endfor %}
             {% else %}
-                {% trans "Popular Products" %}
+                {% trans "Популярные товары" %}
             {% endif %}
         </h2>
         <a href="?{% if current_store_id %}store_id={{ current_store_id }}{% endif %}" class="bm-section-link">
-            {% trans "See All" %} ›
+            {% trans "Все" %} ›
         </a>
     </div>
 
@@ -223,8 +215,14 @@
                     <div class="bm-card-media">
                         <!-- Badges: Bestseller / New / Discount -->
                         {% if product.badge_text %}
-                            <span class="bm-card-badge {% if 'Best' in product.badge_text %}is-bestseller{% elif 'New' in product.badge_text %}is-new{% endif %}">
-                                🔥 {{ product.badge_text }}
+                            <span class="bm-card-badge {% if 'Best' in product.badge_text or 'Хит' in product.badge_text %}is-bestseller{% elif 'New' in product.badge_text or 'Нов' in product.badge_text %}is-new{% endif %}">
+                                {% if 'Best' in product.badge_text or 'Хит' in product.badge_text %}
+                                    🔥 {% trans "Хит продаж" %}
+                                {% elif 'New' in product.badge_text or 'Нов' in product.badge_text %}
+                                    🔥 {% trans "Новинка" %}
+                                {% else %}
+                                    🔥 {{ product.badge_text }}
+                                {% endif %}
                             </span>
                         {% endif %}
 
@@ -271,7 +269,7 @@
                                 onclick="event.preventDefault(); event.stopPropagation(); quickAddToCart(this);" 
                                 title="{% trans 'Добавить в корзину' %}">
                             <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-                            <span class="btn-caption">{% trans "Add to Cart" %}</span>
+                            <span class="btn-caption">{% trans "В корзину" %}</span>
                         </button>
                     </div>
                 </article>
@@ -290,47 +288,47 @@
 
 <!-- ==========================================================================
      7. BOTTOM NAVIGATION BAR (JM KIDS STYLE: HOME, SEARCH, CATS, FAVS, SETTINGS)
-     ========================================================================== -->
+     ====================================================================== -->
 <nav class="bm-bottom-nav" id="mobileBottomBar">
     <a href="javascript:void(0)" onclick="resetProductFilters(); window.scrollTo({top: 0, behavior: 'smooth'});" class="bm-nav-item active" id="btn-bottom-home">
         <div class="bm-nav-icon">
             <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
         </div>
-        <span class="bm-nav-label">{% trans "Home" %}</span>
+        <span class="bm-nav-label">{% trans "Главная" %}</span>
     </a>
 
     <a href="javascript:void(0)" onclick="toggleSearchOverlay();" class="bm-nav-item" id="btn-bottom-search">
         <div class="bm-nav-icon">
             <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
         </div>
-        <span class="bm-nav-label">{% trans "Search" %}</span>
+        <span class="bm-nav-label">{% trans "Поиск" %}</span>
     </a>
 
     <a href="javascript:void(0)" onclick="document.querySelector('.bm-categories-section')?.scrollIntoView({behavior: 'smooth'});" class="bm-nav-item" id="btn-bottom-cats">
         <div class="bm-nav-icon">
             <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
         </div>
-        <span class="bm-nav-label">{% trans "Categories" %}</span>
+        <span class="bm-nav-label">{% trans "Категории" %}</span>
     </a>
 
     <a href="javascript:void(0)" onclick="toggleFavoritesFilter();" class="bm-nav-item" id="btn-bottom-fav">
         <div class="bm-nav-icon">
             <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
         </div>
-        <span class="bm-nav-label">{% trans "Favorites" %}</span>
+        <span class="bm-nav-label">{% trans "Избранное" %}</span>
     </a>
 
     <a href="javascript:void(0)" onclick="openStoreDrawer();" class="bm-nav-item" id="btn-bottom-settings">
         <div class="bm-nav-icon">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
         </div>
-        <span class="bm-nav-label">{% trans "Settings" %}</span>
+        <span class="bm-nav-label">{% trans "Настройки" %}</span>
     </a>
 </nav>
 
 <!-- ==========================================================================
-     8. SIDE DRAWER (☰ STORE PROFILE, LANGUAGES, TELEGRAM, SELLER SHORTCUTS)
-     ========================================================================== -->
+     8. SIDE DRAWER (☰ STORE PROFILE, LOGO, LANGUAGES, TELEGRAM, SELLER SHORTCUTS)
+     ====================================================================== -->
 <div class="bm-drawer-backdrop" id="bmDrawerBackdrop" onclick="closeStoreDrawer()"></div>
 <aside class="bm-drawer" id="bmStoreDrawer">
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
@@ -340,17 +338,27 @@
         <button type="button" onclick="closeStoreDrawer()" style="background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer;">✕</button>
     </div>
 
-    <!-- Store Info Card -->
+    <!-- Store Profile Card (Logo is displayed here inside profile/drawer, not on storefront header!) -->
     {% if current_store %}
-        <div style="background: var(--surface-card, #1A1A1D); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px;">
-            <div style="font-size: 11px; color: var(--primary); font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">
-                {{ current_store.get_theme_signature.icon }} {{ current_store.get_theme_signature.text }}
-            </div>
-            <div style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">{{ current_store.name }}</div>
-            {% if current_store.address %}
-                <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">📍 {{ current_store.address }}</div>
+        <div style="background: var(--surface-card, #1A1A1D); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px; display: flex; gap: 12px; align-items: center;">
+            {% if current_store.logo %}
+                <img src="{{ current_store.logo.url }}" alt="{{ current_store.name }}" style="width: 44px; height: 44px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border);">
+            {% else %}
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--primary);">✦</div>
             {% endif %}
-            <div style="font-size: 11px; color: var(--text-muted);">⚡ {% trans "Доставка за 1 день по Узбекистану" %}</div>
+            <div style="flex: 1; min-width: 0;">
+                <div style="font-size: 10px; color: var(--primary); font-weight: 700; text-transform: uppercase;">
+                    {{ current_store.get_theme_signature.icon }} {{ current_store.get_theme_signature.text }}
+                </div>
+                <div style="font-size: 13px; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    {{ current_store.name }}
+                </div>
+                {% if current_store.address %}
+                    <div style="font-size: 10.5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        📍 {{ current_store.address }}
+                    </div>
+                {% endif %}
+            </div>
         </div>
 
         {% if current_store.telegram_bot_username and current_store.telegram_bot_active %}
@@ -364,7 +372,7 @@
         {% endif %}
     {% endif %}
 
-    <!-- Language Selector -->
+    <!-- Language Selector (RU, UZ, EN) -->
     <div style="margin-bottom: 20px;">
         <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">{% trans "Язык интерфейса" %}</div>
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
@@ -416,9 +424,140 @@
 <div id="bmToastContainer" style="position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none;"></div>
 
 <!-- ==========================================================================
-     9. INTERACTIVE JAVASCRIPT ENGINE (CART, FAVORITES, SEARCH, TOASTS)
-     ========================================================================== -->
+     9. INTERACTIVE JAVASCRIPT ENGINE (CAROUSEL SWIPE, CART, FAVORITES, SEARCH)
+     ====================================================================== -->
 <script>
+// --- HERO CAROUSEL SWIPE & AUTOPLAY ---
+var currentHeroIndex = 0;
+var heroTimer = null;
+var isHeroDragging = false;
+var heroStartX = 0;
+var heroScrollStart = 0;
+
+function updateHeroDots(index) {
+    currentHeroIndex = index;
+    var dots = document.querySelectorAll('.bm-hero-dot');
+    dots.forEach(function(dot, i) {
+        dot.classList.toggle('active', i === index);
+    });
+}
+
+function goToHeroSlide(index) {
+    var track = document.getElementById('bmHeroSliderTrack');
+    if (!track) return;
+    var slides = track.querySelectorAll('.bm-hero-slide');
+    if (!slides.length) return;
+    if (index < 0) index = slides.length - 1;
+    if (index >= slides.length) index = 0;
+    currentHeroIndex = index;
+    if (slides[index]) {
+        track.scrollTo({
+            left: slides[index].offsetLeft,
+            behavior: 'smooth'
+        });
+        updateHeroDots(index);
+    }
+}
+
+function prevHeroSlide() {
+    var track = document.getElementById('bmHeroSliderTrack');
+    if (!track) return;
+    var slides = track.querySelectorAll('.bm-hero-slide');
+    var prev = (currentHeroIndex - 1 + slides.length) % slides.length;
+    goToHeroSlide(prev);
+}
+
+function nextHeroSlide() {
+    var track = document.getElementById('bmHeroSliderTrack');
+    if (!track) return;
+    var slides = track.querySelectorAll('.bm-hero-slide');
+    var next = (currentHeroIndex + 1) % slides.length;
+    goToHeroSlide(next);
+}
+
+function initHeroSlider() {
+    var track = document.getElementById('bmHeroSliderTrack');
+    if (!track) return;
+    var slides = track.querySelectorAll('.bm-hero-slide');
+    if (slides.length <= 1) return;
+
+    var scrollTimeout;
+    track.addEventListener('scroll', function() {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(function() {
+            var scrollLeft = track.scrollLeft;
+            var width = track.clientWidth || 1;
+            var index = Math.round(scrollLeft / width);
+            updateHeroDots(index);
+        }, 50);
+    }, { passive: true });
+
+    function startAuto() {
+        clearInterval(heroTimer);
+        heroTimer = setInterval(function() {
+            var next = (currentHeroIndex + 1) % slides.length;
+            goToHeroSlide(next);
+        }, 4000);
+    }
+
+    startAuto();
+
+    track.addEventListener('mouseenter', function() { clearInterval(heroTimer); });
+    track.addEventListener('mouseleave', function() { startAuto(); });
+    track.addEventListener('touchstart', function() { clearInterval(heroTimer); }, { passive: true });
+    track.addEventListener('touchend', function() { startAuto(); }, { passive: true });
+
+    // Desktop Mouse Drag Support
+    track.addEventListener('mousedown', function(e) {
+        isHeroDragging = true;
+        heroStartX = e.pageX - track.offsetLeft;
+        heroScrollStart = track.scrollLeft;
+        track.style.cursor = 'grabbing';
+        clearInterval(heroTimer);
+    });
+
+    window.addEventListener('mousemove', function(e) {
+        if (!isHeroDragging) return;
+        e.preventDefault();
+        var x = e.pageX - track.offsetLeft;
+        var walk = (x - heroStartX) * 1.5;
+        track.scrollLeft = heroScrollStart - walk;
+    });
+
+    window.addEventListener('mouseup', function(e) {
+        if (!isHeroDragging) return;
+        isHeroDragging = false;
+        track.style.cursor = 'grab';
+        var width = track.clientWidth || 1;
+        var index = Math.round(track.scrollLeft / width);
+        goToHeroSlide(index);
+        startAuto();
+    });
+}
+
+// --- LANGUAGE SWITCHER ENGINE ---
+function changeLang(langCode) {
+    var url = new URL(window.location.href);
+    url.searchParams.set('lang', langCode);
+    var path = url.pathname;
+    var prefixes = ['/ru/', '/uz/', '/en/'];
+    for (var i = 0; i < prefixes.length; i++) {
+        if (path.indexOf(prefixes[i]) === 0) {
+            url.pathname = '/' + langCode + '/' + path.substring(prefixes[i].length);
+            break;
+        }
+    }
+    var form = document.getElementById('hidden-lang-form');
+    var input = document.getElementById('hidden-lang-input');
+    if (form && input) {
+        input.value = langCode;
+        form.submit();
+        return;
+    }
+    window.location.href = url.toString();
+}
+
+// --- TOAST NOTIFICATIONS ---
 function showBmToast(message, icon) {
     var c = document.getElementById('bmToastContainer');
     if (!c) return;
@@ -444,6 +583,7 @@ function showBmToast(message, icon) {
     }, 2200);
 }
 
+// --- SEARCH OVERLAY ---
 function toggleSearchOverlay() {
     var o = document.getElementById('bmSearchOverlay');
     if (!o) return;
@@ -467,6 +607,7 @@ function clearCatalogSearch() {
     if (form) form.submit();
 }
 
+// --- DRAWER MENU ---
 function openStoreDrawer() {
     var drawer = document.getElementById('bmStoreDrawer');
     var backdrop = document.getElementById('bmDrawerBackdrop');
@@ -485,17 +626,7 @@ function closeStoreDrawer() {
     }
 }
 
-function openFavsModal() {
-    try {
-        var favs = JSON.parse(localStorage.getItem('bm_favs') || '[]');
-        if (favs.length === 0) {
-            showBmToast('{% trans "В избранном пока пусто" %}', '🤍');
-        } else {
-            showBmToast('{% trans "Товаров в избранном:" %} ' + favs.length, '❤️');
-        }
-    } catch(e) {}
-}
-
+// --- FAVORITES ---
 function toggleFav(btn, productId) {
     btn.classList.toggle('active');
     var isFav = btn.classList.contains('active');
@@ -512,6 +643,29 @@ function toggleFav(btn, productId) {
     } catch(e) {}
 }
 
+function toggleFavoritesFilter() {
+    try {
+        var favs = JSON.parse(localStorage.getItem('bm_favs') || '[]');
+        if (favs.length === 0) {
+            showBmToast('{% trans "В избранном пока нет товаров" %}', '🤍');
+            return;
+        }
+        var cards = document.querySelectorAll('.bm-product-card');
+        var visibleCount = 0;
+        cards.forEach(function(card) {
+            var pid = card.getAttribute('data-product-id');
+            if (favs.indexOf(pid) !== -1 || favs.indexOf(parseInt(pid, 10)) !== -1) {
+                card.style.display = 'flex';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        showBmToast('{% trans "Показано избранных товаров:" %} ' + visibleCount, '❤️');
+    } catch(e) {}
+}
+
+// --- ADD TO CART ---
 function quickAddToCart(btn, optionalPid) {
     var productId = btn.getAttribute('data-id') || optionalPid;
     var variantId = btn.getAttribute('data-variant-id') || productId;
@@ -563,7 +717,7 @@ function quickAddToCart(btn, optionalPid) {
     var caption = btn.querySelector('.btn-caption');
     var origText = caption ? caption.textContent : btn.innerHTML;
     btn.classList.add('added');
-    if (caption) caption.textContent = '{% trans "Added" %} ✓';
+    if (caption) caption.textContent = '{% trans "Добавлено" %} ✓';
     showBmToast('{% trans "Товар добавлен в корзину" %}', '🛍️');
 
     setTimeout(function() {
@@ -610,30 +764,9 @@ function resetProductFilters() {
     window.location.href = url.toString();
 }
 
-function toggleFavoritesFilter() {
-    try {
-        var favs = JSON.parse(localStorage.getItem('bm_favs') || '[]');
-        if (favs.length === 0) {
-            showBmToast('{% trans "В избранном пока нет товаров" %}', '🤍');
-            return;
-        }
-        var cards = document.querySelectorAll('.bm-product-card');
-        var visibleCount = 0;
-        cards.forEach(function(card) {
-            var pid = card.getAttribute('data-product-id');
-            if (favs.indexOf(pid) !== -1 || favs.indexOf(parseInt(pid, 10)) !== -1) {
-                card.style.display = 'flex';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-        showBmToast('{% trans "Показано избранных товаров:" %} ' + visibleCount, '❤️');
-    } catch(e) {}
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     updateCartBadges();
+    initHeroSlider();
     try {
         var favs = JSON.parse(localStorage.getItem('bm_favs') || '[]');
         favs.forEach(function(pid) {

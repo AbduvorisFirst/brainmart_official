@@ -142,7 +142,13 @@ def catalog_view(request):
     base_domain = getattr(settings, "SITE_DOMAIN", "brainmart.uz").lower()
     host = request.get_host().split(":")[0].lower()
     is_subdomain = host.endswith(f".{base_domain}") and host != base_domain and host != f"www.{base_domain}"
-    current_lang = translation.get_language() or "ru"
+    req_lang = request.GET.get("lang")
+    if req_lang in ["ru", "uz", "en"]:
+        translation.activate(req_lang)
+        request.session["_language"] = req_lang
+        current_lang = req_lang
+    else:
+        current_lang = translation.get_language() or "ru"
 
     # Если на поддомене нажат 🌍 "Глобальный рынок" (?global=1) — перенаправляем на brainmart.uz
     if is_subdomain and request.GET.get("global") == "1":
@@ -159,12 +165,16 @@ def catalog_view(request):
     is_ai_search = request.GET.get("ai") == "1"
     ai_advice = None
 
-    # Категории: в витрине магазина - только его категории, в глобальном маркете - все
+    # Категории: популярные подкатегории (Для мальчиков, Для девочек, Обувь, Аксессуары) всегда впереди
+    needed_names = ["Для мальчиков", "Для девочек", "Обувь", "Аксессуары"]
+    base_subcats = list(Category.objects.filter(name__in=needed_names).order_by("order", "id"))
     if current_store:
-        store_cat_ids = Product.objects.filter(store=current_store, is_active=True).values_list("category_id", flat=True).distinct()
-        categories = Category.objects.filter(id__in=store_cat_ids).order_by("id")
+        store_cat_ids = list(Product.objects.filter(store=current_store, is_active=True).values_list("category_id", flat=True).distinct())
+        other_cats = list(Category.objects.filter(id__in=store_cat_ids).exclude(name__in=needed_names).order_by("order", "id"))
+        categories = base_subcats + other_cats
     else:
-        categories = Category.objects.all().order_by("id")
+        other_cats = list(Category.objects.exclude(name__in=needed_names).order_by("order", "id"))
+        categories = base_subcats + other_cats
 
     # Интеллектуальный поиск: многословный, по названию, цвету, описанию и ИИ
     # 1. Быстрый и оптимизированный запрос по Product (1 карточка на 1 товар)
@@ -360,10 +370,18 @@ def catalog_view(request):
                 "reviews_count": 140,
             })
 
-    # Обогащаем категории превью-картинками первого товара для красивых плиток категорий
+    # Обогащаем категории превью-картинками (из товара магазина либо качественный fallback)
     category_list = []
+    cat_fallbacks = {
+        "Для мальчиков": "https://images.unsplash.com/photo-1509551388413-e18d0ac5d495?auto=format&fit=crop&w=400&q=80",
+        "Для девочек": "https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?auto=format&fit=crop&w=400&q=80",
+        "Обувь": "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=400&q=80",
+        "Аксессуары": "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=400&q=80",
+    }
     for cat in categories:
-        img_url = ""
+        img_url = getattr(cat, "effective_image_url", "")
+        if not img_url and cat.name in cat_fallbacks:
+            img_url = cat_fallbacks[cat.name]
         cat_prod = Product.objects.filter(category=cat, is_active=True)
         if current_store:
             cat_prod = cat_prod.filter(store=current_store)
@@ -372,13 +390,46 @@ def catalog_view(request):
             try:
                 img_url = sample.main_image.url
             except Exception:
-                img_url = ""
-        cat.sample_image = img_url
+                pass
+        cat.sample_image = img_url or cat_fallbacks.get(cat.name, "https://images.unsplash.com/photo-1519457431-44ccd64a579b?auto=format&fit=crop&w=400&q=80")
         category_list.append(cat)
 
     effective_bot = current_store.telegram_bot_username if (current_store and current_store.telegram_bot_username and current_store.telegram_bot_active) else settings.TELEGRAM_BOT_USERNAME
     from core.models import PromoBanner
-    promo_banners = PromoBanner.get_active_banners() if not current_store else []
+    from django.utils.translation import gettext as _
+    if current_store:
+        store_banners = list(PromoBanner.objects.filter(store=current_store, is_active=True).order_by("order", "-id"))
+        if not store_banners:
+            # Если продавец еще не загрузил баннеры, даем 3 премиальных интерактивных слайда
+            store_banners = [
+                {
+                    "image_url": current_store.hero_image.url if current_store.hero_image else "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?auto=format&fit=crop&w=1200&q=80",
+                    "badge": current_store.hero_label or _("NEW COLLECTION"),
+                    "title": current_store.hero_title or _("Luxury Style for Kids"),
+                    "subtitle": current_store.hero_subtitle or (current_store.tagline or _("Comfort • Elegance • Quality")),
+                    "button_text": _("Shop Now"),
+                    "link_url": "#products-section",
+                },
+                {
+                    "image_url": "https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=1200&q=80",
+                    "badge": _("EXCLUSIVE 2026"),
+                    "title": _("Autumn & Winter Trends"),
+                    "subtitle": _("Premium Fabrics & Perfect Fit"),
+                    "button_text": _("Explore Collection"),
+                    "link_url": "#products-section",
+                },
+                {
+                    "image_url": "https://images.unsplash.com/photo-1471286174890-9c112ffca56a?auto=format&fit=crop&w=1200&q=80",
+                    "badge": _("SPECIAL OFFER"),
+                    "title": _("Footwear & Accessories"),
+                    "subtitle": _("Complete the Look with Style"),
+                    "button_text": _("Shop Accessories"),
+                    "link_url": "#products-section",
+                }
+            ]
+        promo_banners = store_banners
+    else:
+        promo_banners = PromoBanner.get_active_banners()
     context = {
         "products": cards,
         "promo_banners": promo_banners,
@@ -401,7 +452,13 @@ def product_detail_view(request, product_id):
     """Страница товара с вариантами и отзывами."""
     from django.utils import translation
     base_domain = getattr(settings, "SITE_DOMAIN", "brainmart.uz").lower()
-    current_lang = translation.get_language() or "ru"
+    req_lang = request.GET.get("lang")
+    if req_lang in ["ru", "uz", "en"]:
+        translation.activate(req_lang)
+        request.session["_language"] = req_lang
+        current_lang = req_lang
+    else:
+        current_lang = translation.get_language() or "ru"
 
     product = get_object_or_404(
         Product,
