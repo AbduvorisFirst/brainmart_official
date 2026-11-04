@@ -2068,6 +2068,13 @@ def store_settings_view(request):
             store.theme_mode = theme_mode
             store.telegram_notification_language = telegram_notification_language
 
+            store.layout_style = request.POST.get("layout_style", "").strip()
+            store.font_style = request.POST.get("font_style", "").strip()
+            store.tagline = request.POST.get("tagline", "").strip()
+            store.hero_label = request.POST.get("hero_label", "").strip()
+            store.hero_title = request.POST.get("hero_title", "").strip()
+            store.hero_subtitle = request.POST.get("hero_subtitle", "").strip()
+
             brand_signature_text = request.POST.get("brand_signature_text", "").strip()
             brand_signature_icon = request.POST.get("brand_signature_icon", "").strip()
             store.brand_signature_text = brand_signature_text
@@ -2083,6 +2090,7 @@ def store_settings_view(request):
                 "payout_card", "payout_card_holder",
                 "category", "niche",
                 "primary_color", "accent_color", "bg_color", "theme_style", "theme_mode",
+                "layout_style", "font_style", "tagline", "hero_label", "hero_title", "hero_subtitle",
                 "brand_signature_text", "brand_signature_icon",
                 "telegram_notification_language",
                 "enable_auto_acquiring", "enable_card_transfer",
@@ -2090,6 +2098,12 @@ def store_settings_view(request):
             ]
             if request.FILES.get("logo") or request.POST.get("clear_logo") == "1":
                 update_fields.append("logo")
+            if request.FILES.get("hero_image"):
+                store.hero_image = request.FILES["hero_image"]
+                update_fields.append("hero_image")
+            elif request.POST.get("clear_hero_image") == "1":
+                store.hero_image = None
+                update_fields.append("hero_image")
             store.save(update_fields=update_fields)
             # Синхронизируем язык текущей сессии
             if hasattr(request, "session") and telegram_notification_language in ("ru", "uz", "en"):
@@ -2703,6 +2717,25 @@ THEME_PALETTES = {
         "name_ru": "Смарт Кэжуал", "name_uz": "Smart Kejul", "name_en": "Smart Casual"
     },
 }
+
+
+@login_required
+def extract_logo_palette_api(request):
+    """Извлекает адаптивную цветовую палитру из загруженного логотипа магазина."""
+    store = _get_store_or_none(request)
+    if not store:
+        return JsonResponse({"success": False, "error": "Store not found"}, status=404)
+
+    from core.themes import extract_palette_from_image
+    logo_file = request.FILES.get("logo") or (store.logo if store.logo else None)
+    if not logo_file:
+        return JsonResponse({"success": False, "error": "Логотип не загружен"}, status=400)
+
+    try:
+        palette = extract_palette_from_image(logo_file)
+        return JsonResponse({"success": True, "palette": palette})
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
 @login_required

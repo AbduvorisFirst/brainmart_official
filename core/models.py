@@ -17,6 +17,9 @@ from django.db import models
 import os
 import uuid
 
+from core.themes import PRESETS as THEME_PRESETS, LAYOUTS as THEME_LAYOUTS, FONT_LABELS as THEME_FONT_LABELS
+from core.themes import resolve_theme, theme_choices
+
 def store_logo_upload_path(instance, filename):
     ext = os.path.splitext(filename)[1].lower()
     if ext not in [".jpg", ".jpeg", ".png", ".webp"]:
@@ -352,85 +355,8 @@ class Store(models.Model):
     )
     theme_style = models.CharField(
         max_length=50, default="default_black",
-        choices=[
-            # Флагманские стили маркетплейсов и брендов
-            # 🌟 12 Готовых стилей BrainMart (Светлые, Цветные, Темные)
-            ("clean_white", "Apple White Minimalist (Чистый белый минимализм)"),
-            ("warm_beige", "Warm Silk Beige (Французский крем и беж)"),
-            ("pastel_sakura", "Sweet Sakura Blush (Нежная сакура и розовый)"),
-            ("fresh_sky", "Fresh Azure Sky (Небесно-голубой и лазурь)"),
-            ("nordic_sage", "Nordic Sage Matcha (Фисташка и эко-мята)"),
-            ("soft_lavender", "Soft Lilac Day (Лавандовый светлый)"),
-            ("royal_navy", "Midnight Royal Sapphire (Королевский сапфир)"),
-            ("emerald_dark", "Malachite Forest (Изумрудный оникс)"),
-            ("apple_hightech", "Apple Cupertino (Space Titanium and Black)"),
-            ("uzum_violet", "Uzum Signature (Royal Violet and Crisp Dark)"),
-            ("shopify_mint", "Shopify Nordic (Clean Tech Mint)"),
-            ("alibaba_orange", "Alibaba Global (Sunset Orange and Slate)"),
-            ("midnight_gold", "Midnight Luxury (Champagne Gold and Onyx)"),
-
-            # 1. Одежда и обувь (Fashion - 5 стилей)
-            ("fashion_genz", "Fashion: Streetwear / Cyber Drip (Для подростков)"),
-            ("fashion_premium", "Fashion: Old Money / Luxury Silk (Для состоятельных)"),
-            ("fashion_casual", "Fashion: Smart Casual / Urban (Для 30-летних)"),
-            ("fashion_vintage", "Fashion: Retro Denim & Classic (Винтаж и ретро)"),
-            ("fashion_minimal", "Fashion: Cupertino Minimal & Monomode (Премиум минимал)"),
-
-            # 2. Автотовары и автосервис (Auto - 5 стилей)
-            ("auto_tuning", "Auto: Tuning & Drift JDM (Для подростков)"),
-            ("auto_premium", "Auto: Executive Motors & Detailing (Для состоятельных)"),
-            ("auto_drive", "Auto: Pro Service & Practical SUV (Для 30-летних)"),
-            ("auto_brutal", "Auto: Brutal Garage & Heavy Duty (Брутал 4x4)"),
-            ("auto_electric", "Auto: EV Next & Clean Mobility (Электрокары)"),
-
-            # 3. Электроника и гаджеты (Tech - 5 стилей)
-            ("tech_gaming", "Tech: RGB Gaming & Cyberpunk (Для подростков)"),
-            ("tech_minimal", "Tech: Space Titanium Pro (Apple-стиль, премиум)"),
-            ("tech_smarthome", "Tech: Smart Home & Clean Living (Для 30-летних)"),
-            ("tech_future", "Tech: AI Matrix & Quantum Grid (Будущее и ИИ)"),
-            ("tech_audio", "Tech: Studio Acoustic & Hi-Fi Gold (Аудио и винил)"),
-
-            # 4. Продукты питания (Food - 5 стилей)
-            ("food_pop", "Food: Snack Pop & Street Food (Для подростков)"),
-            ("food_gourmet", "Food: Gourmet Deli & Truffle Wine (Для состоятельных)"),
-            ("food_organic", "Food: Fresh Farm & Eco Bio (Для 30-летних)"),
-            ("food_bakery", "Food: Artisan Bakery & Coffee (Пекарня и кофе)"),
-            ("food_asian", "Food: Asian Wok & Spice Bazaar (Паназия и вок)"),
-
-            # 5. Мебель и товары для дома (Home - 5 стилей)
-            ("home_loft", "Home: Loft Neon & RGB Bedroom (Для подростков)"),
-            ("home_luxury", "Home: Grand Villa & Italian Marble (Для состоятельных)"),
-            ("home_nordic", "Home: Scandinavian Hygge & Wood (Для 30-летних)"),
-            ("home_boho", "Home: Boho Chic & Warm Terracotta (Уют и бохо)"),
-            ("home_japanese", "Home: Japandi Zen & Modern Wabi-Sabi (Японский дзен)"),
-
-            # 6. Красота и здоровье (Beauty - 5 стилей)
-            ("beauty_korean", "Beauty: K-Beauty Glow & Pastel Trend (Для подростков)"),
-            ("beauty_luxury", "Beauty: Haute Parfumerie & Gold Spa (Для состоятельных)"),
-            ("beauty_wellness", "Beauty: Clean Derma & Botanical Eco (Для 30-летних)"),
-            ("beauty_salon", "Beauty: Glam Studio & Pro Makeup (Салонный мейкап)"),
-            ("beauty_organic", "Beauty: Pure Herbal & Eco Ayurveda (Эко и травы)"),
-
-            # 7. Детские товары (Kids - 5 стилей)
-            ("kids_anime", "Kids: Anime Merch & Gaming Kid (Для подростков)"),
-            ("kids_boutique", "Kids: Royal Baby & Pastel Boutique (Для состоятельных)"),
-            ("kids_playful", "Kids: Montessori Smart & Bright Colors (Для 30-летних)"),
-            ("kids_disney", "Kids: Magic Kingdom & Fairytale (Сказка и магия)"),
-            ("kids_teen", "Kids: Teen Street & Skater Tribe (Скейт и стрит)"),
-
-            # 8. Спорт и отдых (Sport - 5 стилей)
-            ("sport_voltage", "Sport: Extreme Voltage & Skate Energy (Для подростков)"),
-            ("sport_luxury", "Sport: Golf & Yacht Club Prestige (Для состоятельных)"),
-            ("sport_pro", "Sport: Trail Marathon & Active Balance (Для 30-летних)"),
-            ("sport_combat", "Sport: Fight Club & Heavy Iron (Единоборства и зал)"),
-            ("sport_outdoor", "Sport: Alpine Trek & Mountain Camp (Горы и туризм)"),
-
-            # Пользовательский дизайн и обратная совместимость
-            ("custom", "Свой дизайн (Фирменные цвета бренда)"),
-            ("default_black", "Default Black (Классический)"),
-            ("premium_gold", "Premium Gold (Премиум Золото)"),
-            ("genz_neon", "Gen-Z Neon (Подростковый Неон)"),
-        ],
+        # Список тем собирается из единого реестра core/themes/presets.py
+        choices=theme_choices(),
         verbose_name="Стиль темы оформления"
     )
     theme_mode = models.CharField(
@@ -455,6 +381,35 @@ class Store(models.Model):
         verbose_name="Иконка / эмодзи подписи",
         help_text="Эмодзи или символ бейджа (например: 🧸, 👑, ⚡, 🏎️, 🔥, ✦). Оставьте пустым — подставится автоматически."
     )
+    # 🎨 Конструктор дизайна витрины (мульти-темы)
+    layout_style = models.CharField(
+        max_length=20, blank=True, default="",
+        choices=[("", "Авто (по теме)")] + list(THEME_LAYOUTS.items()),
+        verbose_name="Раскладка витрины",
+        help_text="Форма элементов витрины. Пусто — берётся из выбранной темы.",
+    )
+    font_style = models.CharField(
+        max_length=20, blank=True, default="",
+        choices=[("", "Авто (по раскладке)")] + list(THEME_FONT_LABELS.items()),
+        verbose_name="Шрифт заголовков",
+    )
+    theme_overrides = models.JSONField(
+        default=dict, blank=True,
+        verbose_name="Точечные правки темы",
+        help_text="CSS-переменные поверх выбранной темы, например {\"primary\": \"#C9A27A\"}",
+    )
+    tagline = models.CharField(
+        max_length=80, blank=True, default="",
+        verbose_name="Слоган под названием",
+        help_text="Например: Premium Kids Fashion",
+    )
+    hero_image = models.ImageField(
+        upload_to="store_hero/", null=True, blank=True,
+        verbose_name="Главный баннер витрины",
+    )
+    hero_label = models.CharField(max_length=40, blank=True, default="", verbose_name="Надпись над заголовком баннера")
+    hero_title = models.CharField(max_length=80, blank=True, default="", verbose_name="Заголовок баннера")
+    hero_subtitle = models.CharField(max_length=120, blank=True, default="", verbose_name="Подзаголовок баннера")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -471,78 +426,10 @@ class Store(models.Model):
         niche = (self.niche or "").lower()
         sname = (self.name or "").lower()
 
-        # 1. Базовый бейдж, иконка и текст по нише/стилю оформления
-        SIG_LOOKUP = {
-            # Флагманы маркетплейсов
-            # 🌟 Новые стили с богатыми светлыми и цветными фонами
-            "clean_white": ("badge-white-minimal", "☀️", "apple white"),
-            "warm_beige": ("badge-warm-silk", "✨", "french cream"),
-            "pastel_sakura": ("badge-sakura", "🌸", "sakura rose"),
-            "fresh_sky": ("badge-fresh-sky", "🌊", "ocean azure"),
-            "nordic_sage": ("badge-nordic-sage", "🍃", "matcha sage"),
-            "soft_lavender": ("badge-soft-lavender", "💜", "soft lilac"),
-            "royal_navy": ("badge-royal-navy", "💎", "royal sapphire"),
-            "emerald_dark": ("badge-emerald-dark", "🌿", "emerald onyx"),
-            "apple_hightech": ("badge-tech-minimal", "⚡", "titanium pro"),
-            "uzum_violet": ("badge-uzum", "💜", "uzum market"),
-            "shopify_mint": ("badge-shopify", "🌿", "shopify pro"),
-            "alibaba_orange": ("badge-alibaba", "🔥", "alibaba global"),
-            "midnight_gold": ("badge-premium", "👑", "midnight luxury"),
-            # 1. Одежда и обувь (5 стилей)
-            "fashion_genz": ("badge-genz", "⚡", "street drip"),
-            "fashion_premium": ("badge-premium", "👑", "old money"),
-            "fashion_casual": ("badge-casual", "👔", "smart casual"),
-            "fashion_vintage": ("badge-vintage", "🧥", "heritage denim"),
-            "fashion_minimal": ("badge-minimal", "💎", "pure minimal"),
-            "fashion_kids": ("badge-kids", "🧸", "kids fashion"),
-            # 2. Автотовары и шины (5 стилей)
-            "auto_tuning": ("badge-tuning", "🏎️", "drift & tuning"),
-            "auto_premium": ("badge-auto-premium", "🚘", "luxury motors"),
-            "auto_drive": ("badge-drive", "🚙", "pro service"),
-            "auto_brutal": ("badge-garage", "🛠️", "brutal garage"),
-            "auto_electric": ("badge-electric", "⚡", "ev mobility"),
-            # 3. Электроника и гаджеты (5 стилей)
-            "tech_gaming": ("badge-gaming", "🎮", "rgb gaming"),
-            "tech_minimal": ("badge-tech-minimal", "💻", "titanium pro"),
-            "tech_smarthome": ("badge-smarthome", "🏡", "smart living"),
-            "tech_future": ("badge-future", "🤖", "quantum ai"),
-            "tech_audio": ("badge-audio", "🎧", "studio acoustic"),
-            # 4. Продукты питания (5 стилей)
-            "food_pop": ("badge-food-pop", "🍕", "snack attack"),
-            "food_gourmet": ("badge-food-gourmet", "🍷", "haute cuisine"),
-            "food_organic": ("badge-food-organic", "🥑", "eco farm"),
-            "food_bakery": ("badge-bakery", "🥐", "artisan roast"),
-            "food_asian": ("badge-asian", "🍜", "asian wok"),
-            # 5. Мебель и товары для дома (5 стилей)
-            "home_loft": ("badge-home-loft", "🛋️", "aesthetic loft"),
-            "home_luxury": ("badge-home-luxury", "🏛️", "grand interior"),
-            "home_nordic": ("badge-home-nordic", "🌿", "nordic hygge"),
-            "home_boho": ("badge-boho", "🪴", "cozy boho"),
-            "home_japanese": ("badge-japanese", "🎋", "japandi zen"),
-            # 6. Красота и здоровье (5 стилей)
-            "beauty_korean": ("badge-beauty-korean", "✨", "glass skin"),
-            "beauty_luxury": ("badge-beauty-luxury", "💄", "royal beauty"),
-            "beauty_wellness": ("badge-beauty-wellness", "🧴", "clean derma"),
-            "beauty_salon": ("badge-salon", "💅", "glam studio"),
-            "beauty_organic": ("badge-beauty-organic", "🌸", "pure herbal"),
-            # 7. Детские товары (5 стилей)
-            "kids_anime": ("badge-kids-anime", "🎮", "teen gaming"),
-            "kids_boutique": ("badge-kids-boutique", "👑", "baby boutique"),
-            "kids_playful": ("badge-kids", "🧸", "montessori joy"),
-            "kids_disney": ("badge-disney", "🦄", "magic kingdom"),
-            "kids_teen": ("badge-teen", "🛹", "teen skater"),
-            # 8. Спорт и отдых (5 стилей)
-            "sport_voltage": ("badge-sport-voltage", "⚡", "extreme rush"),
-            "sport_luxury": ("badge-sport-luxury", "⛵", "yacht & polo"),
-            "sport_pro": ("badge-sport-pro", "🏃", "trail & pro"),
-            "sport_combat": ("badge-combat", "🥊", "fight club"),
-            "sport_outdoor": ("badge-outdoor", "🏔️", "alpine trek"),
-            # Custom & Legacy
-            "custom": ("badge-custom", "🎨", "custom brand"),
-            "kids_playful": ("badge-kids", "🧸", "kids-joyfull"),
-            "premium_gold": ("badge-premium", "👑", "luxury gold"),
-            "genz_neon": ("badge-genz", "⚡", "gen-z"),
-        }
+        # 1. Базовый бейдж, иконка и текст по стилю оформления (из реестра тем)
+        SIG_LOOKUP = {k: tuple(v["badge"]) for k, v in THEME_PRESETS.items()}
+        SIG_LOOKUP["custom"] = ("badge-custom", "🎨", "custom brand")
+        SIG_LOOKUP.setdefault("fashion_kids", ("badge-kids", "🧸", "kids fashion"))
 
         if theme in SIG_LOOKUP:
             badge_class, def_icon, def_text = SIG_LOOKUP[theme]
@@ -584,25 +471,16 @@ class Store(models.Model):
 
     def get_theme_display_name(self) -> str:
         """Понятное название текущей темы оформления витрины."""
-        THEME_NAMES = {
-            "clean_white": "⚪ Clean White",
-            "warm_beige": "🌾 Warm Cream",
-            "pastel_sakura": "🌸 Sakura Rose",
-            "fresh_sky": "💎 Fresh Sky",
-            "nordic_sage": "🌿 Nordic Sage",
-            "soft_lavender": "💜 Soft Lilac",
-            "royal_navy": "👑 Royal Sapphire",
-            "emerald_dark": "🌲 Dark Emerald",
-            "uzum_violet": "💜 Uzum Market",
-            "apple_hightech": "⚡ Apple Titanium",
-            "fashion_genz": "🔥 Street Cyber",
-            "alibaba_orange": "🍊 Alibaba Sunset",
-            "fashion_premium": "👑 Old Money Silk",
-            "shopify_mint": "🌿 Shopify Mint",
-            "midnight_gold": "👑 Midnight Luxury",
-            "fashion_casual": "✨ Smart Casual",
-        }
-        return THEME_NAMES.get(self.theme_style, self.theme_style or "Uzum Market")
+        preset = THEME_PRESETS.get(self.theme_style)
+        if self.theme_style == "custom":
+            return "🎨 Свой дизайн"
+        if preset:
+            return preset.get("short") or preset["name"]
+        return self.theme_style or "Default"
+
+    def get_theme(self) -> dict:
+        """Итоговая тема витрины (CSS-переменные, раскладка, шрифт)."""
+        return resolve_theme(self)
 
     @property
     def effective_category(self):

@@ -316,6 +316,9 @@ def catalog_view(request):
                     "colors": unique_colors[:5],
                     "store": p.store,
                     "category": p.category,
+                    "brand_name": p.store.name if p.store else "Brand",
+                    "subtitle": p.category.name if p.category else (col or "Premium Edition"),
+                    "badge_text": f"-{int(p.discount_percent)}%" if (p.discount_percent and str(p.discount_percent).isdigit() and int(p.discount_percent) > 10) else ("Bestseller" if p.id % 2 == 0 else "New"),
                     "average_rating": 4.9,
                     "reviews_count": 140,
                 })
@@ -350,9 +353,28 @@ def catalog_view(request):
                 "colors": unique_colors[:5],
                 "store": p.store,
                 "category": p.category,
+                "brand_name": p.store.name if p.store else "Brand",
+                "subtitle": p.category.name if p.category else (single_color or "Premium Edition"),
+                "badge_text": f"-{int(p.discount_percent)}%" if (p.discount_percent and str(p.discount_percent).isdigit() and int(p.discount_percent) > 10) else ("Bestseller" if p.id % 2 == 0 else "New"),
                 "average_rating": 4.9,
                 "reviews_count": 140,
             })
+
+    # Обогащаем категории превью-картинками первого товара для красивых плиток категорий
+    category_list = []
+    for cat in categories:
+        img_url = ""
+        cat_prod = Product.objects.filter(category=cat, is_active=True)
+        if current_store:
+            cat_prod = cat_prod.filter(store=current_store)
+        sample = cat_prod.exclude(main_image="").exclude(main_image__isnull=True).first()
+        if sample and sample.main_image:
+            try:
+                img_url = sample.main_image.url
+            except Exception:
+                img_url = ""
+        cat.sample_image = img_url
+        category_list.append(cat)
 
     effective_bot = current_store.telegram_bot_username if (current_store and current_store.telegram_bot_username and current_store.telegram_bot_active) else settings.TELEGRAM_BOT_USERNAME
     from core.models import PromoBanner
@@ -360,7 +382,7 @@ def catalog_view(request):
     context = {
         "products": cards,
         "promo_banners": promo_banners,
-        "categories": categories,
+        "categories": category_list,
         "selected_category_id": int(category_id) if (category_id and category_id.isdigit()) else None,
         "search_query": search_query,
         "is_ai_search": is_ai_search,

@@ -1474,6 +1474,79 @@
                         </div>
                     </div>
 
+                    <!-- Кнопка автоподбора палитры из логотипа -->
+                    <div style="margin-top: 14px; margin-bottom: 14px; display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button type="button" onclick="autoExtractPaletteFromLogo()" style="background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%); color: white; border: none; padding: 9px 16px; border-radius: 10px; font-weight: 700; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);">
+                            <span>🎨</span> <span>{% trans "Определить цвета по логотипу" %}</span>
+                        </button>
+                    </div>
+
+                    <!-- Выбор Раскладки (Layout) и Шрифта -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 18px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08);">
+                        <div>
+                            <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">
+                                👑 {% trans "Раскладка витрины (Layout)" %}
+                            </label>
+                            <select name="layout_style" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 13px; font-weight: 600;">
+                                <option value="" {% if not store.layout_style %}selected{% endif %}>{% trans "Авто (по теме оформления)" %}</option>
+                                <option value="luxury" {% if store.layout_style == 'luxury' %}selected{% endif %}>👑 Luxury (стиль JM Kids Store)</option>
+                                <option value="minimal" {% if store.layout_style == 'minimal' %}selected{% endif %}>⚪ Minimal (Apple стиль)</option>
+                                <option value="playful" {% if store.layout_style == 'playful' %}selected{% endif %}>🧸 Playful (детский / яркий)</option>
+                                <option value="bold" {% if store.layout_style == 'bold' %}selected{% endif %}>⚡ Bold (Street Cyber / Drip)</option>
+                                <option value="market" {% if store.layout_style == 'market' %}selected{% endif %}>🛍️ Market (Uzum / WB)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">
+                                🔤 {% trans "Шрифт заголовков и бренда" %}
+                            </label>
+                            <select name="font_style" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 13px; font-weight: 600;">
+                                <option value="" {% if not store.font_style %}selected{% endif %}>{% trans "Авто (по раскладке)" %}</option>
+                                <option value="serif" {% if store.font_style == 'serif' %}selected{% endif %}>Serif — Cormorant Garamond (Люкс / Золото)</option>
+                                <option value="sans" {% if store.font_style == 'sans' %}selected{% endif %}>Sans — Inter (Чистый нейтральный)</option>
+                                <option value="rounded" {% if store.font_style == 'rounded' %}selected{% endif %}>Rounded — Nunito (Мягкий)</option>
+                                <option value="grotesk" {% if store.font_style == 'grotesk' %}selected{% endif %}>Grotesk — Space Grotesk (Технологичный)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Слоган и Hero-баннер витрины -->
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 18px;">
+                        <span style="font-size: 12px; font-weight: 800; color: white; display: block; margin-bottom: 10px;">
+                            ✨ {% trans "Слоган и Hero-баннер витрины магазина (JM Kids Style):" %}
+                        </span>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 10px;">
+                            <div>
+                                <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">{% trans "Слоган под названием (Tagline)" %}</label>
+                                <input type="text" name="tagline" value="{{ store.tagline }}" placeholder="Premium Kids Fashion" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 12px;">
+                            </div>
+                            <div>
+                                <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">{% trans "Метка баннера (Label)" %}</label>
+                                <input type="text" name="hero_label" value="{{ store.hero_label }}" placeholder="NEW COLLECTION" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 12px;">
+                            </div>
+                            <div>
+                                <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">{% trans "Главный заголовок баннера" %}</label>
+                                <input type="text" name="hero_title" value="{{ store.hero_title }}" placeholder="Luxury Style for Kids" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 12px;">
+                            </div>
+                            <div>
+                                <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">{% trans "Подзаголовок баннера" %}</label>
+                                <input type="text" name="hero_subtitle" value="{{ store.hero_subtitle }}" placeholder="Comfort • Elegance • Quality" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 12px;">
+                            </div>
+                        </div>
+                        <div>
+                            <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">{% trans "Фоновое изображение баннера (Hero image)" %}</label>
+                            {% if store.hero_image %}
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                                    <img src="{{ store.hero_image.url }}" style="height: 48px; border-radius: 6px; object-fit: cover;">
+                                    <label style="font-size: 11px; color: #EF4444; cursor: pointer;">
+                                        <input type="checkbox" name="clear_hero_image" value="1"> {% trans "Удалить баннер" %}
+                                    </label>
+                                </div>
+                            {% endif %}
+                            <input type="file" name="hero_image" accept="image/*" style="font-size: 11px; color: var(--text-muted);">
+                        </div>
+                    </div>
+
                     <!-- ─── ИНТЕРАКТИВНЫЙ МАКЕТ СМАРТФОНА (LIVE DEVICE MOCKUP) ─── -->
                     <div style="margin-top: 14px;">
                         <span style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 8px;">
@@ -1788,6 +1861,36 @@ function updateSignaturePreview() {
     if (badgePreview) {
         badgePreview.className = 'store-brand-signature ' + defInfo.cls;
     }
+}
+
+function autoExtractPaletteFromLogo() {
+    fetch('/dashboard/api/extract-palette/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success && data.palette) {
+            var rad = document.getElementById('customThemeRadio');
+            if (rad) rad.checked = true;
+            var pri = document.getElementById('primaryColorInput');
+            if (pri) pri.value = data.palette.primary;
+            var acc = document.getElementById('accentColorInput');
+            if (acc) acc.value = data.palette.accent;
+            var bg = document.getElementById('bgColorInput');
+            if (bg) bg.value = data.palette.bg;
+            if (typeof updateLivePreview === 'function') updateLivePreview();
+            alert('🎨 Цветовая палитра успешно извлечена из вашего логотипа!');
+        } else {
+            alert(data.error || 'Логотип не загружен. Пожалуйста, сначала загрузите логотип магазина.');
+        }
+    })
+    .catch(function(e) {
+        alert('Ошибка при извлечении палитры: ' + e);
+    });
 }
 
 function selectThemePreset(presetKey, primColor, accColor, bgColor, mode) {

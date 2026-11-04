@@ -69,6 +69,7 @@ urlpatterns = [
     path('api/ai-generate-broadcast/', views_dashboard.ai_generate_broadcast_view, name='api-ai-generate-broadcast'),
     path('api/ai-generate-description/', views_dashboard.ai_generate_description_view, name='api-ai-generate-description'),
     path('api/set-theme/', views_dashboard.set_store_theme_view, name='api-set-store-theme'),
+    path('api/extract-palette/', views_dashboard.extract_logo_palette_api, name='api-extract-logo-palette'),
 
     # BrainMart Vision AI (Видеоаналитика и акустический аудит)
     path('vision-ai/', views_vision.vision_ai_dashboard_view, name='seller-vision-ai'),

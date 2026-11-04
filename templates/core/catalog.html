@@ -1,1540 +1,267 @@
 {% extends "core/base.html" %}
-{% load i18n %}
+{% load i18n theme_tags %}
 
 {% block content %}
-<style>
-    /* Reset base header to render custom Uzum-style e-commerce layout */
-    header { display: none !important; }
-
-    :root {
-        --uzum-purple: #7000FF;
-        --uzum-purple-hover: #5B00D1;
-        --uzum-yellow: #FFDF00;
-        --uzum-discount: #E60049;
-        --uzum-green: #10B981;
-        --uzum-text-dark: #1F242F;
-        --uzum-text-muted: #8D959E;
-        --uzum-border: rgba(255, 255, 255, 0.08);
-    }
-
-    body {
-        background-color: var(--bg-app, #0B0E14);
-        color: var(--text-main, #FFFFFF);
-        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        -webkit-font-smoothing: antialiased;
-    }
-
-    .catalog-container {
-        padding: 8px 12px calc(85px + env(safe-area-inset-bottom));
-        max-width: 1400px;
-        width: 100%;
-        margin: 0 auto;
-        box-sizing: border-box;
-    }
-    @media (min-width: 768px) {
-        .catalog-container {
-            padding: 16px 24px calc(90px + env(safe-area-inset-bottom));
-        }
-    }
-
-    /* ==========================================================================
-       1. TOP LOCATION / DELIVERY PROMISE BAR (UZUM SIGNATURE)
-       ========================================================================== */
-    /* ==========================================================================
-       1. TOP LOCATION & ROLE ACTION BAR (SUPERADMIN, STAFF, SELLER, SETTINGS)
-       ========================================================================== */
-    .uzum-top-location-bar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 6px 4px 10px;
-        font-size: 13px;
-        color: var(--text-muted, #94A3B8);
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-    .bm-topbar-left {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        min-width: 0;
-    }
-    .bm-topbar-right {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        flex-wrap: wrap;
-        margin-left: auto;
-    }
-    .bm-topbar-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        padding: 5px 10px;
-        border-radius: 10px;
-        font-size: 11.5px;
-        font-weight: 750;
-        text-decoration: none;
-        cursor: pointer;
-        transition: all 0.15s ease;
-        line-height: 1.2;
-        border: 1px solid transparent;
-        white-space: nowrap;
-        background: rgba(255, 255, 255, 0.05);
-        color: #E2E8F0;
-    }
-    .bm-topbar-btn:active {
-        transform: scale(0.96);
-    }
-    .bm-btn-superadmin {
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.25) 0%, rgba(220, 38, 38, 0.18) 100%);
-        border-color: rgba(239, 68, 68, 0.5);
-        color: #FCA5A5;
-    }
-    .bm-btn-superadmin:hover {
-        background: rgba(239, 68, 68, 0.35);
-        color: #FFFFFF;
-    }
-    .bm-btn-admin {
-        background: linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.15) 100%);
-        border-color: rgba(245, 158, 11, 0.45);
-        color: #FCD34D;
-    }
-    .bm-btn-admin:hover {
-        background: rgba(245, 158, 11, 0.32);
-        color: #FFFFFF;
-    }
-    .bm-btn-dashboard {
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.18) 100%);
-        border-color: rgba(16, 185, 129, 0.45);
-        color: #6EE7B7;
-    }
-    .bm-btn-dashboard:hover {
-        background: rgba(16, 185, 129, 0.35);
-        color: #FFFFFF;
-    }
-    .bm-btn-seller {
-        background: linear-gradient(135deg, rgba(112, 0, 255, 0.28) 0%, rgba(79, 70, 229, 0.2) 100%);
-        border-color: rgba(112, 0, 255, 0.5);
-        color: #C4B5FD;
-    }
-    .bm-btn-seller:hover {
-        background: rgba(112, 0, 255, 0.4);
-        color: #FFFFFF;
-    }
-    .bm-topbar-badge {
-        font-size: 9.5px;
-        font-weight: 850;
-        background: linear-gradient(135deg, #FF0055, #7000FF);
-        color: #FFFFFF;
-        padding: 2px 5px;
-        border-radius: 6px;
-        letter-spacing: 0.3px;
-        text-transform: uppercase;
-        margin-left: 2px;
-    }
-    .bm-btn-settings {
-        background: var(--surface-card, rgba(255, 255, 255, 0.06));
-        border-color: var(--border, rgba(255, 255, 255, 0.12));
-        color: var(--text-main, #E2E8F0);
-    }
-    .bm-btn-settings:hover {
-        border-color: var(--primary);
-    }
-    .bm-btn-login {
-        background: var(--surface-card, rgba(255, 255, 255, 0.05));
-        border-color: var(--border, rgba(255, 255, 255, 0.1));
-        color: var(--text-main, #CBD5E1);
-    }
-    @media (max-width: 480px) {
-        .bm-topbar-right {
-            gap: 4px;
-        }
-        .bm-topbar-btn {
-            padding: 4px 7px;
-            font-size: 11px;
-        }
-    }
-    .uzum-location-chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        font-weight: 600;
-        color: var(--text-main, #FFFFFF);
-        cursor: pointer;
-        padding: 2px 6px;
-        border-radius: 8px;
-        transition: background-color 0.15s ease;
-    }
-    .uzum-location-chip:hover {
-        background: rgba(255, 255, 255, 0.06);
-    }
-    .uzum-location-chevron {
-        font-size: 11px;
-        color: var(--text-muted, #94A3B8);
-        margin-left: 2px;
-    }
-    .uzum-delivery-promise {
-        font-size: 12px;
-        color: var(--text-muted, #94A3B8);
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    /* ==========================================================================
-       2. FLAGSHIP SELLER STORE HEADER (ADAPTIVE TO ALL 12 READY-MADE THEMES)
-       ========================================================================== */
-    .uzum-store-card {
-        position: relative;
-        isolation: isolate;
-        overflow: hidden;
-        margin-bottom: 14px;
-        padding: 14px 14px 12px;
-        border-radius: 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        background:
-            radial-gradient(90% 130% at 0% 0%, color-mix(in srgb, var(--primary) 20%, transparent) 0%, transparent 62%),
-            radial-gradient(70% 110% at 100% 100%, color-mix(in srgb, var(--accent) 13%, transparent) 0%, transparent 60%),
-            linear-gradient(180deg, color-mix(in srgb, var(--surface-card, #141824) 93%, #FFFFFF 7%) 0%, var(--surface-card, #141824) 100%);
-        border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--border, rgba(255, 255, 255, 0.1)));
-        box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.09),
-            var(--card-shadow, 0 10px 30px rgba(0, 0, 0, 0.22));
-    }
-    /* Тонкая световая линия сверху */
-    .uzum-store-card::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 12%; right: 12%;
-        height: 2px;
-        border-radius: 0 0 4px 4px;
-        background: var(--btn-gradient, linear-gradient(90deg, var(--primary), var(--accent)));
-        box-shadow: 0 0 14px color-mix(in srgb, var(--primary) 60%, transparent);
-        opacity: 0.95;
-    }
-    /* Текстура: мягкая точечная сетка, угасающая к центру */
-    .uzum-store-card::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        z-index: -1;
-        pointer-events: none;
-        background-image: radial-gradient(color-mix(in srgb, var(--text-main, #FFFFFF) 11%, transparent) 1px, transparent 1.3px);
-        background-size: 13px 13px;
-        -webkit-mask-image: radial-gradient(120% 90% at 100% 0%, #000 0%, transparent 55%);
-        mask-image: radial-gradient(120% 90% at 100% 0%, #000 0%, transparent 55%);
-        opacity: 0.9;
-    }
-
-    /* ── Верхний ряд: логотип + название ── */
-    .uzum-store-left {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        min-width: 0;
-    }
-    .uzum-store-avatar {
-        width: 48px;
-        height: 48px;
-        border-radius: 14px;
-        overflow: hidden;
-        flex-shrink: 0;
-        background: var(--btn-gradient, linear-gradient(135deg, var(--primary, #7000FF) 0%, var(--accent, #4F46E5) 100%));
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 19px;
-        font-weight: 900;
-        color: var(--on-primary, #FFFFFF);
-        border: 1.5px solid rgba(255, 255, 255, 0.22);
-        box-shadow:
-            0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent),
-            0 6px 16px color-mix(in srgb, var(--primary) 26%, rgba(0, 0, 0, 0.25));
-    }
-    .uzum-store-avatar:has(img) { background: #FFFFFF; }
-    .uzum-store-avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    .uzum-store-meta {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        min-width: 0;
-        flex: 1;
-    }
-    .uzum-store-name-row {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        min-width: 0;
-    }
-    .uzum-store-title {
-        margin: 0;
-        min-width: 0;
-        font-size: 17px;
-        line-height: 1.2;
-        font-weight: 900;
-        color: var(--text-main, #FFFFFF);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        letter-spacing: -0.02em;
-    }
-    .uzum-verified-badge {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 17px;
-        height: 17px;
-        border-radius: 50%;
-        background: var(--btn-gradient, linear-gradient(135deg, #0088CC, #38BDF8));
-        color: var(--on-primary, #FFFFFF);
-        font-size: 9.5px;
-        font-weight: 900;
-        flex-shrink: 0;
-        box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent), 0 2px 8px color-mix(in srgb, var(--primary) 35%, transparent);
-    }
-    .uzum-store-sub {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
-    }
-    .uzum-store-sub::-webkit-scrollbar { display: none; }
-    .uzum-store-chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 3px;
-        flex-shrink: 0;
-        white-space: nowrap;
-        font-size: 10.5px;
-        font-weight: 700;
-        line-height: 1;
-        padding: 4px 7px;
-        border-radius: 999px;
-        color: var(--text-muted, #94A3B8);
-        background: color-mix(in srgb, var(--text-main, #FFFFFF) 6%, transparent);
-        border: 1px solid color-mix(in srgb, var(--text-main, #FFFFFF) 9%, transparent);
-    }
-    .uzum-store-chip.is-rating {
-        color: #F59E0B;
-        font-weight: 800;
-        background: rgba(245, 158, 11, 0.12);
-        border-color: rgba(245, 158, 11, 0.28);
-    }
-
-    /* ── Нижний ряд: кнопки ── */
-    .uzum-store-actions {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding-top: 11px;
-        border-top: 1px solid color-mix(in srgb, var(--text-main, #FFFFFF) 8%, transparent);
-    }
-    .uzum-btn-contact {
-        flex: 1;
-        min-width: 0;
-        height: 36px;
-        padding: 0 12px;
-        border-radius: 11px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        font-size: 12.5px;
-        font-weight: 800;
-        text-decoration: none;
-        white-space: nowrap;
-        color: var(--on-primary, #FFFFFF);
-        background: var(--btn-gradient, linear-gradient(135deg, var(--primary), var(--accent)));
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.22),
-            0 4px 14px color-mix(in srgb, var(--primary) 30%, transparent);
-        transition: transform 0.16s ease, filter 0.16s ease;
-    }
-    .uzum-btn-contact:hover { filter: brightness(1.07); transform: translateY(-1px); }
-    .uzum-btn-contact:active { transform: scale(0.97); }
-    .uzum-btn-icon {
-        width: 36px;
-        height: 36px;
-        flex-shrink: 0;
-        border-radius: 11px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 15px;
-        text-decoration: none;
-        background: color-mix(in srgb, var(--text-main, #FFFFFF) 6%, transparent);
-        border: 1px solid color-mix(in srgb, var(--text-main, #FFFFFF) 10%, transparent);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-        transition: transform 0.16s ease, background 0.16s ease;
-    }
-    .uzum-btn-icon:active { transform: scale(0.94); }
-    .uzum-lang-toggle {
-        background: var(--input-bg, rgba(255, 255, 255, 0.06));
-        border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
-        border-radius: 11px;
-        padding: 2.5px;
-        display: inline-flex;
-        gap: 2px;
-        flex-shrink: 0;
-    }
-    .uzum-store-actions .uzum-lang-toggle {
-        height: 36px;
-        margin-left: auto;
-        align-items: stretch;
-    }
-    .uzum-lang-btn {
-        border: none;
-        background: transparent;
-        color: var(--text-muted, #94A3B8);
-        font-size: 10.5px;
-        font-weight: 800;
-        padding: 4px 8px;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.15s ease;
-    }
-    .uzum-lang-btn.active {
-        background: var(--primary, #7000FF);
-        color: var(--on-primary, #FFFFFF);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 2px 6px rgba(0, 0, 0, 0.18);
-    }
-
-    /* На широких экранах — в одну строку */
-    @media (min-width: 760px) {
-        .uzum-store-card {
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 18px;
-        }
-        .uzum-store-left { flex: 1; }
-        .uzum-store-actions {
-            padding-top: 0;
-            border-top: none;
-            flex-shrink: 0;
-        }
-        .uzum-btn-contact { flex: 0 0 auto; padding: 0 16px; }
-    }
-
-    /* Global Market Header */
-    .uzum-global-hero {
-        background: linear-gradient(180deg, #131726 0%, #0D101A 100%);
-        border: 1px solid rgba(112, 0, 255, 0.25);
-        border-radius: 18px;
-        padding: 16px 18px;
-        margin-bottom: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
-    }
-    .uzum-global-top {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 8px;
-    }
-    .uzum-global-badge {
-        font-size: 11px;
-        font-weight: 800;
-        letter-spacing: 0.4px;
-        color: #C084FC;
-        background: rgba(112, 0, 255, 0.15);
-        border: 1px solid rgba(112, 0, 255, 0.3);
-        padding: 3px 10px;
-        border-radius: 20px;
-    }
-    .uzum-global-title {
-        font-size: 26px;
-        font-weight: 900;
-        color: #FFFFFF;
-        margin: 0 0 4px;
-        letter-spacing: -0.02em;
-    }
-    .uzum-global-desc {
-        font-size: 12.5px;
-        color: #94A3B8;
-        margin: 0;
-        line-height: 1.4;
-    }
-
-    /* ==========================================================================
-       3. UZUM SEARCH BAR ROW (WITH CAMERA & FAVORITE HEART)
-       ========================================================================== */
-    .uzum-search-row {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 12px;
-    }
-    .uzum-search-container {
-        position: relative;
-        flex: 1;
-        display: flex;
-        align-items: center;
-    }
-    .uzum-search-input {
-        width: 100%;
-        height: 44px;
-        background: var(--input-bg, #181C28);
-        border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
-        border-radius: 12px;
-        padding: 0 42px 0 40px;
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--text-main, #FFFFFF);
-        outline: none;
-        box-sizing: border-box;
-        transition: all 0.15s ease;
-    }
-    .uzum-search-input:focus {
-        border-color: var(--primary, #7000FF);
-        background: var(--surface-card, #1B2030);
-        box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
-    }
-    .uzum-search-input::placeholder {
-        color: #64748B;
-        font-size: 13.5px;
-    }
-    .uzum-search-left-icon {
-        position: absolute;
-        left: 14px;
-        font-size: 15px;
-        color: #64748B;
-        pointer-events: none;
-    }
-    .uzum-search-right-icon {
-        position: absolute;
-        right: 12px;
-        font-size: 16px;
-        color: #64748B;
-        cursor: pointer;
-        padding: 4px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .uzum-btn-header-fav {
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
-        background: var(--surface-card, #181C28);
-        border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
-        color: var(--text-main, #FFFFFF);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-        cursor: pointer;
-        flex-shrink: 0;
-        transition: all 0.15s ease;
-        text-decoration: none;
-    }
-    .uzum-btn-header-fav:hover {
-        border-color: #7000FF;
-        color: #E60049;
-    }
-
-    /* ==========================================================================
-       4. CATEGORY PILLS (SMOOTH HORIZONTAL SCROLL)
-       ========================================================================== */
-    .uzum-categories-scroll {
-        display: flex;
-        gap: 8px;
-        overflow-x: auto;
-        padding-bottom: 4px;
-        margin-bottom: 12px;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
-    }
-    .uzum-categories-scroll::-webkit-scrollbar { display: none; }
-    .uzum-cat-pill {
-        white-space: nowrap;
-        text-decoration: none;
-        font-size: 12.5px;
-        font-weight: 700;
-        padding: 8px 16px;
-        border-radius: 99px;
-        border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
-        background: var(--surface-card, rgba(255, 255, 255, 0.04));
-        color: var(--text-main, #CBD5E1);
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-        flex-shrink: 0;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-    }
-    .uzum-cat-pill:hover {
-        border-color: var(--primary, #7000FF);
-        transform: translateY(-1px);
-    }
-    .uzum-cat-pill.active {
-        background: var(--btn-gradient, var(--primary, #7000FF)) !important;
-        border-color: transparent !important;
-        color: var(--on-primary, #FFFFFF) !important;
-        font-weight: 800 !important;
-        box-shadow: 0 4px 14px color-mix(in srgb, var(--primary) 35%, transparent) !important;
-    }
-
-    /* ==========================================================================
-       5. UZUM PRODUCT GRID & SIGNATURE PRODUCT CARDS
-       ========================================================================== */
-    .uzum-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-    }
-    @media (min-width: 768px) {
-        .uzum-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; }
-    }
-    @media (min-width: 1024px) {
-        .uzum-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
-    }
-    @media (min-width: 1280px) {
-        .uzum-grid { grid-template-columns: repeat(5, 1fr); gap: 18px; }
-    }
-
-    .uzum-card {
-        background: var(--surface-card, #141824);
-        border: 1px solid var(--border, rgba(255, 255, 255, 0.07));
-        border-radius: 14px;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        box-shadow: var(--card-shadow, 0 4px 16px rgba(0, 0, 0, 0.25));
-        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-        position: relative;
-    }
-    .uzum-card:hover {
-        border-color: rgba(112, 0, 255, 0.35);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    }
-
-    .uzum-card-link {
-        text-decoration: none;
-        color: inherit;
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-    }
-
-    /* Photo Container & Badges */
-    .uzum-img-box {
-        position: relative;
-        width: 100%;
-        aspect-ratio: 1 / 1;
-        background: var(--input-bg, #0B0E14);
-        overflow: hidden;
-        border-radius: 14px 14px 0 0;
-    }
-    .uzum-img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-        transition: transform 0.3s ease;
-    }
-    .uzum-card:hover .uzum-img {
-        transform: scale(1.03);
-    }
-    .uzum-img-empty {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 38px;
-        background: var(--input-bg, #0E121B);
-        color: var(--text-muted, #475569);
-    }
-
-    /* Swipeable Image Gallery for Multi-photo / Multi-color Products (Uzum/Wildberries style) */
-    .uzum-img-gallery {
-        display: flex;
-        width: 100%;
-        height: 100%;
-        overflow-x: auto;
-        overflow-y: hidden;
-        scroll-snap-type: x mandatory;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-        position: relative;
-        z-index: 1;
-    }
-    .uzum-img-gallery::-webkit-scrollbar {
-        display: none;
-    }
-    .uzum-img-slide {
-        flex: 0 0 100%;
-        width: 100%;
-        height: 100%;
-        scroll-snap-align: start;
-        position: relative;
-    }
-    .uzum-colors-badge {
-        position: absolute;
-        top: 8px;
-        right: 46px;
-        background: rgba(15, 23, 42, 0.75);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        color: #FFFFFF;
-        font-size: 9.5px;
-        font-weight: 700;
-        padding: 3px 6px;
-        border-radius: 6px;
-        z-index: 3;
-        pointer-events: none;
-    }
-
-    /* Uzum АКЦИЯ Badge (Signature Purple) */
-    .uzum-badge-promo {
-        position: absolute;
-        top: 8px;
-        left: 8px;
-        background: #7000FF;
-        color: #FFFFFF;
-        font-size: 10px;
-        font-weight: 800;
-        letter-spacing: 0.3px;
-        text-transform: uppercase;
-        padding: 3px 7px;
-        border-radius: 5px;
-        z-index: 3;
-        box-shadow: 0 2px 8px rgba(112, 0, 255, 0.4);
-    }
-
-    /* Favorite Heart Overlay Button */
-    .uzum-btn-fav {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        background: rgba(15, 23, 42, 0.65);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #CBD5E1;
-        cursor: pointer;
-        z-index: 4;
-        transition: all 0.15s ease;
-        padding: 0;
-    }
-    .uzum-btn-fav:hover {
-        transform: scale(1.1);
-        color: #EF4444;
-        background: rgba(15, 23, 42, 0.9);
-    }
-    .uzum-btn-fav.active {
-        color: #EF4444;
-        background: rgba(239, 68, 68, 0.2);
-        border-color: #EF4444;
-    }
-    .uzum-btn-fav.active svg { fill: #EF4444; }
-    .heart-svg { width: 16px; height: 16px; }
-
-    /* Photo bottom-left badges: ОРИГИНАЛ & ГАРАНТИЯ НИЗКОЙ ЦЕНЫ */
-    .uzum-photo-tags {
-        position: absolute;
-        bottom: 8px;
-        left: 8px;
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
-        z-index: 3;
-    }
-    .uzum-tag-original {
-        background: #FFFFFF;
-        color: #059669;
-        font-size: 9px;
-        font-weight: 800;
-        padding: 2px 6px;
-        border-radius: 4px;
-        letter-spacing: 0.2px;
-        display: inline-flex;
-        align-items: center;
-        gap: 3px;
-        width: fit-content;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
-    }
-    .uzum-tag-original .check-mark {
-        font-size: 9px;
-        font-weight: 900;
-    }
-    .uzum-tag-lowprice {
-        background: linear-gradient(90deg, #FF006B 0%, #FF4585 100%);
-        color: #FFFFFF;
-        font-size: 8.5px;
-        font-weight: 800;
-        padding: 2px 6px;
-        border-radius: 4px;
-        letter-spacing: 0.2px;
-        text-transform: uppercase;
-        width: fit-content;
-        box-shadow: 0 2px 6px rgba(255, 0, 107, 0.3);
-    }
-
-    /* Carousel dots on photo */
-    .uzum-color-pill-badge {
-        position: absolute;
-        bottom: 8px;
-        left: 8px;
-        background: rgba(15, 23, 42, 0.88);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        color: #FFFFFF;
-        font-size: 11px;
-        font-weight: 700;
-        padding: 3px 8px;
-        border-radius: 6px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        z-index: 3;
-        pointer-events: none;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-    }
-    .uzum-title-color {
-        color: var(--primary, #38BDF8);
-        font-size: 12px;
-        font-weight: 600;
-    }
-    .uzum-photo-dots {
-        position: absolute;
-        bottom: 8px;
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        gap: 4px;
-        z-index: 2;
-    }
-    .uzum-photo-dots .dot {
-        width: 4px;
-        height: 4px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.4);
-    }
-    .uzum-photo-dots .dot.active {
-        background: #7000FF;
-        width: 6px;
-        border-radius: 3px;
-    }
-
-    /* Card Details Section */
-    .uzum-card-details {
-        padding: 8px 10px 6px;
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
-        flex: 1;
-    }
-
-    /* Price Row with Bold Price & Pink Discount */
-    .uzum-price-row {
-        display: flex;
-        align-items: baseline;
-        gap: 6px;
-        flex-wrap: wrap;
-    }
-    .uzum-price-current {
-        font-size: 16px;
-        font-weight: 800;
-        color: var(--text-main, #FFFFFF);
-        letter-spacing: -0.01em;
-        line-height: 1.1;
-    }
-    .uzum-price-discount {
-        font-size: 12.5px;
-        font-weight: 800;
-        color: #E60049;
-    }
-    .uzum-price-old {
-        font-size: 11px;
-        font-weight: 500;
-        color: #64748B;
-        text-decoration: line-through;
-        line-height: 1;
-    }
-
-    /* "СТАЛО ДЕШЕВЛЕ" Label */
-    .uzum-label-cheaper {
-        font-size: 9px;
-        font-weight: 800;
-        color: #F97316;
-        text-transform: uppercase;
-        letter-spacing: 0.2px;
-        line-height: 1;
-        margin-top: 1px;
-    }
-
-    /* UZUM SIGNATURE YELLOW INSTALLMENT BADGE (РАССРОЧКА) */
-    .uzum-installment-badge {
-        background: #FFDF00;
-        color: #111827;
-        font-size: 11px;
-        font-weight: 800;
-        padding: 3px 8px;
-        border-radius: 6px;
-        width: fit-content;
-        margin: 3px 0 4px;
-        line-height: 1.2;
-        letter-spacing: 0.1px;
-        box-shadow: 0 2px 6px rgba(255, 223, 0, 0.25);
-    }
-
-    /* 2-line Product Title */
-    .uzum-title {
-        font-size: 12.5px;
-        font-weight: 500;
-        line-height: 1.35;
-        color: var(--text-main, #E2E8F0);
-        margin: 0;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        height: 34px;
-    }
-
-    /* Rating Line */
-    .uzum-rating-line {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        font-size: 11px;
-        margin-top: 2px;
-    }
-    .uzum-rating-line .star-icon {
-        color: #F59E0B;
-        font-size: 12px;
-    }
-    .uzum-rating-line .rating-number {
-        font-weight: 700;
-        color: var(--text-main, #FFFFFF);
-    }
-    .uzum-rating-line .reviews-count {
-        color: #64748B;
-        font-size: 10.5px;
-    }
-
-    /* Store badge if global market */
-    .uzum-store-badge-inline {
-        font-size: 10px;
-        font-weight: 600;
-        color: #93C5FD;
-        margin-top: 2px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    /* Signature Delivery Button (🛍️ Сегодня) */
-    .uzum-card-action {
-        padding: 6px 10px 10px;
-    }
-    .uzum-btn-delivery {
-        width: 100%;
-        height: 36px;
-        background: var(--primary, #7000FF);
-        color: #FFFFFF;
-        border: none;
-        border-radius: 10px;
-        font-size: 12.5px;
-        font-weight: 700;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        transition: all 0.15s ease;
-        box-shadow: 0 4px 12px rgba(112, 0, 255, 0.3);
-    }
-    .uzum-btn-delivery:hover {
-        filter: brightness(1.1);
-        transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(112, 0, 255, 0.4);
-    }
-    .uzum-btn-delivery:active {
-        transform: scale(0.97);
-    }
-    .uzum-btn-delivery.added {
-        background: #10B981 !important;
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
-    }
-
-    /* ==========================================================================
-       6. PROMO SLIDER (GLOBAL MARKET ONLY)
-       ========================================================================== */
-    .wb-promo-slider-wrap {
-        position: relative;
-        margin: 4px 0 14px;
-        border-radius: 16px;
-        overflow: hidden;
-        background: #0D111A;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
-        height: 150px;
-        user-select: none;
-    }
-    @media (min-width: 768px) {
-        .wb-promo-slider-wrap {
-            height: 190px;
-            border-radius: 20px;
-            margin-bottom: 18px;
-        }
-    }
-    .wb-slider-track {
-        display: flex;
-        height: 100%;
-        width: 100%;
-        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .wb-slide {
-        min-width: 100%;
-        height: 100%;
-        position: relative;
-        display: flex;
-        align-items: center;
-        text-decoration: none;
-        overflow: hidden;
-        box-sizing: border-box;
-    }
-    .wb-slide-img {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        z-index: 1;
-    }
-    .wb-slide-overlay {
-        position: absolute;
-        inset: 0;
-        z-index: 2;
-        background: linear-gradient(90deg, rgba(11, 14, 20, 0.94) 0%, rgba(11, 14, 20, 0.75) 55%, rgba(11, 14, 20, 0.2) 100%);
-    }
-    .wb-slide-content {
-        position: relative;
-        z-index: 3;
-        padding: 16px 20px;
-        max-width: 580px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        height: 100%;
-        box-sizing: border-box;
-    }
-    .wb-slide-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 0.4px;
-        text-transform: uppercase;
-        padding: 3px 8px;
-        border-radius: 6px;
-        background: rgba(112, 0, 255, 0.25);
-        border: 1px solid rgba(112, 0, 255, 0.4);
-        color: #C084FC;
-        margin-bottom: 4px;
-        width: fit-content;
-    }
-    .wb-slide-title {
-        font-size: 18px;
-        font-weight: 900;
-        color: #FFFFFF;
-        line-height: 1.15;
-        margin: 0 0 4px;
-    }
-    @media (min-width: 768px) {
-        .wb-slide-title { font-size: 24px; }
-    }
-    .wb-slide-sub {
-        font-size: 11.5px;
-        color: #CBD5E1;
-        line-height: 1.35;
-        margin: 0 0 8px;
-    }
-    .wb-slide-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        background: #7000FF;
-        color: #FFFFFF;
-        padding: 5px 12px;
-        border-radius: 8px;
-        font-weight: 700;
-        font-size: 11.5px;
-        text-decoration: none;
-        width: fit-content;
-    }
-    .wb-dots-container {
-        position: absolute;
-        bottom: 8px;
-        right: 12px;
-        display: flex;
-        gap: 5px;
-        z-index: 10;
-    }
-    .wb-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 99px;
-        background: rgba(255, 255, 255, 0.35);
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-    .wb-dot.active {
-        width: 18px;
-        background: #FFFFFF;
-    }
-
-    /* ==========================================================================
-       7. MOBILE BOTTOM BAR (UZUM STYLE NAVIGATION)
-       ========================================================================== */
-    .uzum-bottom-bar {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: rgba(15, 18, 28, 0.96);
-        backdrop-filter: blur(20px) saturate(180%);
-        -webkit-backdrop-filter: blur(20px) saturate(180%);
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        padding: 7px 4px calc(7px + env(safe-area-inset-bottom));
-        z-index: 998;
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.45);
-    }
-    @media (min-width: 900px) {
-        .uzum-bottom-bar { display: none !important; }
-    }
-    .uzum-bottom-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 2px;
-        color: #8D959E;
-        text-decoration: none;
-        font-size: 10px;
-        font-weight: 700;
-        padding: 3px 6px;
-        border-radius: 10px;
-        transition: all 0.15s ease;
-        min-width: 52px;
-        cursor: pointer;
-    }
-    .uzum-bottom-item:active { transform: scale(0.92); }
-    .uzum-bottom-item.active {
-        color: #FFFFFF;
-    }
-    .uzum-bottom-item.active .uzum-bottom-icon {
-        color: #7000FF;
-    }
-    .uzum-bottom-icon {
-        font-size: 19px;
-        line-height: 1;
-        position: relative;
-    }
-    .uzum-cart-badge {
-        position: absolute;
-        top: -6px;
-        right: -10px;
-        background: #E60049;
-        color: #FFFFFF;
-        font-size: 9.5px;
-        font-weight: 800;
-        padding: 1px 5px;
-        border-radius: 10px;
-        line-height: 1.2;
-        box-shadow: 0 2px 6px rgba(230, 0, 73, 0.5);
-    }
-
-    /* Trust assurance footer */
-    .uzum-trust-footer {
-        margin-top: 32px;
-        padding: 20px 16px;
-        background: var(--surface-card, #111520);
-        border: 1px solid var(--border, rgba(255, 255, 255, 0.07));
-        border-radius: 20px;
-        box-shadow: var(--card-shadow);
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 16px;
-    }
-    @media (min-width: 640px) {
-        .uzum-trust-footer {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 18px;
-        }
-    }
-    @media (min-width: 1024px) {
-        .uzum-trust-footer {
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            padding: 22px 24px;
-        }
-    }
-    .trust-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-    }
-    .trust-icon {
-        font-size: 22px;
-        flex-shrink: 0;
-        padding-top: 2px;
-    }
-    .trust-text h4 {
-        margin: 0 0 3px;
-        font-size: 13.5px;
-        font-weight: 800;
-        color: var(--text-main, #FFFFFF);
-    }
-    .trust-text p {
-        margin: 0;
-        font-size: 11.5px;
-        line-height: 1.4;
-        color: var(--text-muted, #94A3B8);
-    }
-
-    .empty-state { text-align: center; margin-top: 40px; padding: 0 16px; }
-    .empty-icon { font-size: 46px; margin-bottom: 10px; }
-    .empty-title { font-size: 17px; font-weight: 800; color: #FFFFFF; margin: 0 0 6px; }
-    .empty-desc { font-size: 12.5px; color: #94A3B8; line-height: 1.4; }
-
-    @keyframes toastSlideUp {
-        from { opacity: 0; transform: translateY(14px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-</style>
-
 <div class="catalog-container">
 
-    <!-- 1. Uzum Top Location & Role Navigation Bar (SuperAdmin, Staff, Seller Dashboard, Settings) -->
-    <div class="uzum-top-location-bar">
-        <div class="bm-topbar-left">
-            <div class="uzum-location-chip" onclick="showBmToast('{% trans "Доставка работает по всему Узбекистану" %}', '📍')">
-                <span>📍</span>
-                <span class="location-city">{% if current_store and current_store.address %}{{ current_store.address }}{% else %}Ташкент{% endif %}</span>
-                <span class="uzum-location-chevron">▾</span>
-            </div>
-            <div class="uzum-delivery-promise" style="margin-left: 2px;">
-                <span>• {% trans "Доставка за 1 день" %}</span>
-            </div>
-        </div>
-
-        <div class="bm-topbar-right">
-            {% if request.user.is_authenticated %}
-                {% if request.user.is_superuser %}
-                    <a href="/platform-admin/" class="bm-topbar-btn bm-btn-superadmin" title="{% trans 'Панель управления SuperAdmin' %}">
-                        <span>🛡️</span>
-                        <span>SuperAdmin</span>
-                    </a>
-                    <a href="/brainmart-secure-admin-panel/" class="bm-topbar-btn bm-btn-admin" title="{% trans 'Панель Django Admin' %}">
-                        <span>⚙️</span>
-                        <span>Django</span>
-                    </a>
-                {% elif request.user.is_staff %}
-                    <a href="/brainmart-secure-admin-panel/" class="bm-topbar-btn bm-btn-admin" title="{% trans 'Админ-панель' %}">
-                        <span>🛡️</span>
-                        <span>{% trans "Админка" %}</span>
-                    </a>
-                {% endif %}
-
-                {% if request.user.store %}
-                    <a href="{% url 'seller-dashboard' %}" class="bm-topbar-btn bm-btn-dashboard" title="{% trans 'Перейти в личный кабинет продавца' %}">
-                        <span>💼</span>
-                        <span>{% trans "В Dashboard" %}</span>
-                    </a>
-                {% else %}
-                    <a href="{% url 'become-seller' %}" class="bm-topbar-btn bm-btn-seller" title="{% trans 'Открыть свой магазин на BrainMart' %}">
-                        <span>🚀</span>
-                        <span>{% trans "Стать продавцом" %}</span>
-                        <span class="bm-topbar-badge">Vision AI</span>
-                    </a>
-                {% endif %}
-            {% else %}
-                <a href="{% url 'become-seller' %}" class="bm-topbar-btn bm-btn-seller" title="{% trans 'Открыть свой магазин на BrainMart' %}">
-                    <span>🚀</span>
-                    <span>{% trans "Стать продавцом" %}</span>
-                    <span class="bm-topbar-badge">Vision AI</span>
-                </a>
-                <a href="{% url 'seller-login' %}" class="bm-topbar-btn bm-btn-login" title="{% trans 'Вход для продавцов' %}">
-                    <span>🔑</span>
-                    <span>{% trans "Вход" %}</span>
-                </a>
-            {% endif %}
-
-            <!-- Settings Button (Открывает меню настроек и сервисов) -->
-            <button type="button" onclick="openSettingsSheet()" class="bm-topbar-btn bm-btn-settings" title="{% trans 'Настройки маркетплейса' %}">
-                <span>⚙️</span>
-                <span>{% trans "Настройки" %}</span>
+    <!-- ======================================================================
+         1. LUXURY STOREFRONT HEADER (JM KIDS STYLE: ☰ · LOGO / TITLE · 🔍 · 🛒)
+         ====================================================================== -->
+    <header class="bm-store-header">
+        <div class="bm-header-col-left">
+            <button type="button" class="bm-header-btn" onclick="openStoreDrawer()" aria-label="Menu" title="{% trans 'Меню магазина' %}">
+                <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
             </button>
         </div>
-    </div>
 
-    {% if current_store %}
-        <!-- 2. Clean Uzum-Grade Seller Header (No Robotic Neon, Zero BrainMart Branding on Seller) -->
-        <div class="uzum-store-card">
-            <div class="uzum-store-left">
-                <div class="uzum-store-avatar">
-                    {% if current_store.logo %}
-                        <img src="{{ current_store.logo.url }}" alt="{{ current_store.name }}" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
-                        <span style="display: none;">{{ current_store.name|slice:':1'|upper|default:'M' }}</span>
-                    {% else %}
-                        <span>{{ current_store.name|slice:':1'|upper|default:'M' }}</span>
-                    {% endif %}
-                </div>
-                <div class="uzum-store-meta">
-                    <div class="uzum-store-name-row">
-                        <h1 class="uzum-store-title">{{ current_store.name }}</h1>
-                        <span class="uzum-verified-badge" title="{% trans 'Проверенный магазин' %}">✓</span>
-                    </div>
-                    <div class="uzum-store-sub">
-                        <span class="uzum-store-chip is-rating">★ 4.9</span>
-                        <span class="uzum-store-chip">🛡️ {% trans "100% Оригинал" %}</span>
-                        <span class="uzum-store-chip">⚡ {% trans "Отправка 24ч" %}</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="uzum-store-actions">
-                {% if current_store.telegram_bot_username and current_store.telegram_bot_active %}
-                    <a href="https://t.me/{{ current_store.telegram_bot_username }}" target="_blank" class="uzum-btn-contact">
-                        <span>💬</span> <span>Telegram</span>
-                    </a>
-                {% elif current_store.phone_number %}
-                    <a href="tel:{{ current_store.phone_number }}" class="uzum-btn-contact">
-                        <span>📞</span> <span>{% trans "Связь" %}</span>
-                    </a>
+        <div class="bm-header-center">
+            {% if current_store %}
+                {% if current_store.logo %}
+                    <img src="{{ current_store.logo.url }}" alt="{{ current_store.name }}" class="bm-header-logo-img" onerror="this.style.display='none';">
                 {% endif %}
-
-                {% if request.user.is_authenticated and request.user.store and request.user.store == current_store %}
-                    <a href="{% url 'seller-dashboard' %}" class="uzum-btn-icon" title="{% trans 'Панель продавца' %}">
-                        <span>⚙️</span>
-                    </a>
-                {% endif %}
-
-                <!-- Compact Language Switcher -->
-                <div class="uzum-lang-toggle">
-                    {% get_current_language as CURRENT_LANG %}
-                    {% get_available_languages as LANGUAGES %}
-                    {% for lang_code, lang_name in LANGUAGES %}
-                        <button type="button" onclick="changeLang('{{ lang_code }}')" class="uzum-lang-btn {% if lang_code == CURRENT_LANG %}active{% endif %}">
-                            {{ lang_code|upper }}
-                        </button>
-                    {% endfor %}
-                </div>
-            </div>
+                <h1 class="bm-brand-title">{{ current_store.name }}</h1>
+                <span class="bm-brand-tagline">
+                    {{ current_store.tagline|default:current_store.get_theme_signature.text }}
+                </span>
+            {% else %}
+                <h1 class="bm-brand-title">BRAINMART</h1>
+                <span class="bm-brand-tagline">{% trans "Официальный маркетплейс брендов" %}</span>
+            {% endif %}
         </div>
-    {% else %}
-        <!-- Global Marketplace Hero -->
-        <div class="uzum-global-hero">
-            <div class="uzum-global-top">
-                <span class="uzum-global-badge">⚡ BRAINMART MARKET</span>
-                <div class="uzum-lang-toggle">
-                    {% get_current_language as CURRENT_LANG %}
-                    {% get_available_languages as LANGUAGES %}
-                    {% for lang_code, lang_name in LANGUAGES %}
-                        <button type="button" onclick="changeLang('{{ lang_code }}')" class="uzum-lang-btn {% if lang_code == CURRENT_LANG %}active{% endif %}">
-                            {{ lang_code|upper }}
-                        </button>
-                    {% endfor %}
-                </div>
-            </div>
-            <h1 class="uzum-global-title">BRAINMART</h1>
-            <p class="uzum-global-desc">{% trans "Маркетплейс ведущих магазинов Узбекистана: экспресс-доставка, 100% гарантия качества и проверенные продавцы" %}</p>
-        </div>
-    {% endif %}
 
-    <!-- 3. Uzum Search Bar Row (Input + Camera + Favorite Heart) -->
-    <div class="uzum-search-row">
-        <form method="get" class="uzum-search-container" id="catalogSearchForm">
+        <div class="bm-header-col-right">
+            <button type="button" class="bm-header-btn" onclick="toggleSearchOverlay()" aria-label="Search" title="{% trans 'Поиск' %}">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </button>
+
+            <button type="button" class="bm-header-btn bm-cart-btn" onclick="openCartModal()" aria-label="Cart" title="{% trans 'Корзина' %}">
+                <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                <span class="bm-cart-badge" id="mobTopCartBadge" style="display: none;">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Search Overlay -->
+    <div class="bm-search-overlay" id="bmSearchOverlay">
+        <form method="get" class="bm-search-row" id="catalogSearchForm">
             {% if current_store_id %}
                 <input type="hidden" name="store_id" value="{{ current_store_id }}">
             {% endif %}
             {% if selected_category_id %}
                 <input type="hidden" name="category" value="{{ selected_category_id }}">
             {% endif %}
-            <span class="uzum-search-left-icon">🔍</span>
-            <input type="text" id="catalogSearchInput" name="q" class="uzum-search-input" value="{{ search_query }}" placeholder="{% if current_store %}{% trans 'Искать в магазине' %} {{ current_store.name }}...{% else %}{% trans 'Искать товары' %}...{% endif %}" autocomplete="off">
+            <div class="bm-search-input-wrap">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="catalogSearchInput" name="q" class="bm-search-field" value="{{ search_query }}" placeholder="{% if current_store %}{% trans 'Искать в' %} {{ current_store.name }}...{% else %}{% trans 'Поиск товаров...' %}{% endif %}" autocomplete="off">
+            </div>
             {% if search_query %}
-                <span class="uzum-search-right-icon" onclick="clearCatalogSearch()" title="{% trans 'Очистить' %}">✕</span>
-            {% else %}
-                <span class="uzum-search-right-icon" onclick="focusSearch()" title="{% trans 'Поиск' %}">📷</span>
+                <button type="button" class="bm-search-close-btn" onclick="clearCatalogSearch()">✕</button>
             {% endif %}
+            <button type="button" class="bm-search-close-btn" onclick="toggleSearchOverlay()">{% trans "Закрыть" %}</button>
         </form>
+    </div>
 
-        <a href="javascript:void(0)" onclick="openFavsModal()" class="uzum-btn-header-fav" title="{% trans 'Избранное' %}">
-            🤍
+    <!-- ======================================================================
+         2. HERO BANNER (JM KIDS STORE STYLE: LUXURY PHOTO + COLLECTION TEXT)
+         ====================================================================== -->
+    {% if current_store %}
+        <div class="bm-hero-banner" id="bmStoreHero">
+            {% if current_store.hero_image %}
+                <img src="{{ current_store.hero_image.url }}" alt="{{ current_store.name }}" class="bm-hero-bg">
+            {% else %}
+                <img src="https://images.unsplash.com/photo-1503919545889-aef636e10ad4?auto=format&fit=crop&w=1200&q=80" alt="{{ current_store.name }}" class="bm-hero-bg">
+            {% endif %}
+            <div class="bm-hero-overlay"></div>
+            <div class="bm-hero-content">
+                <span class="bm-hero-label">
+                    {{ current_store.hero_label|default:"NEW COLLECTION" }}
+                </span>
+                <h2 class="bm-hero-title">
+                    {{ current_store.hero_title|default:"Luxury Style for Kids" }}
+                </h2>
+                <p class="bm-hero-subtitle">
+                    {{ current_store.hero_subtitle|default:"Comfort • Elegance • Quality" }}
+                </p>
+                <a href="#products-section" class="bm-hero-btn" onclick="event.preventDefault(); document.getElementById('products-section').scrollIntoView({behavior: 'smooth'});">
+                    {% trans "Shop Now" %} ›
+                </a>
+            </div>
+            <div class="bm-hero-dots">
+                <span class="bm-hero-dot active"></span>
+                <span class="bm-hero-dot"></span>
+                <span class="bm-hero-dot"></span>
+            </div>
+        </div>
+    {% elif promo_banners %}
+        <!-- Global Marketplace Promo Slider -->
+        <div class="bm-hero-banner" id="bmGlobalHero">
+            {% with b=promo_banners.0 %}
+                {% if b.image %}
+                    <img src="{{ b.image.url }}" alt="{{ b.title }}" class="bm-hero-bg">
+                {% endif %}
+                <div class="bm-hero-overlay"></div>
+                <div class="bm-hero-content">
+                    {% if b.badge %}
+                        <span class="bm-hero-label">{{ b.badge }}</span>
+                    {% endif %}
+                    <h2 class="bm-hero-title">{{ b.title }}</h2>
+                    {% if b.subtitle %}
+                        <p class="bm-hero-subtitle">{{ b.subtitle }}</p>
+                    {% endif %}
+                    <a href="{{ b.link_url|default:'#products-section' }}" class="bm-hero-btn">
+                        {{ b.button_text|default:"Shop Now" }} ›
+                    </a>
+                </div>
+            {% endwith %}
+        </div>
+    {% endif %}
+
+    <!-- ======================================================================
+         3. TRUST STRIP (4 PILLARS UNDER BANNER)
+         ====================================================================== -->
+    <section class="bm-trust-strip">
+        <div class="bm-trust-item">
+            <div class="bm-trust-icon">
+                <svg viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 12L2 9z"></path></svg>
+            </div>
+            <div class="bm-trust-title">{% trans "Premium" %}</div>
+            <div class="bm-trust-sub">{% trans "Quality" %}</div>
+        </div>
+
+        <div class="bm-trust-item">
+            <div class="bm-trust-icon">
+                <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+            </div>
+            <div class="bm-trust-title">{% trans "Fast Delivery" %}</div>
+            <div class="bm-trust-sub">{% if current_store.address %}{{ current_store.address|truncatechars:10 }}{% else %}Tashkent{% endif %}</div>
+        </div>
+
+        <div class="bm-trust-item">
+            <div class="bm-trust-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </div>
+            <div class="bm-trust-title">{% trans "Secure" %}</div>
+            <div class="bm-trust-sub">{% trans "Payment" %}</div>
+        </div>
+
+        <div class="bm-trust-item">
+            <div class="bm-trust-icon">
+                <svg viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>
+            </div>
+            <div class="bm-trust-title">{% trans "24/7" %}</div>
+            <div class="bm-trust-sub">{% trans "Support" %}</div>
+        </div>
+    </section>
+
+    <!-- ======================================================================
+         4. CATEGORY TILES (IMAGE CARDS WITH ARROW ›)
+         ====================================================================== -->
+    {% if categories %}
+        <section class="bm-categories-section">
+            <div class="bm-cat-scroll">
+                <a href="?{% if current_store_id %}store_id={{ current_store_id }}&{% endif %}{% if search_query %}q={{ search_query }}&{% endif %}" class="bm-cat-card {% if not selected_category_id %}active{% endif %}">
+                    <div class="bm-cat-thumb">
+                        <span class="bm-cat-thumb-placeholder">✦</span>
+                    </div>
+                    <div class="bm-cat-meta">
+                        <span class="bm-cat-name">{% trans "All" %}</span>
+                        <span class="bm-cat-arrow">›</span>
+                    </div>
+                </a>
+
+                {% for cat in categories %}
+                    <a href="?{% if current_store_id %}store_id={{ current_store_id }}&{% endif %}category={{ cat.id }}{% if search_query %}&q={{ search_query }}{% endif %}" class="bm-cat-card {% if selected_category_id == cat.id %}active{% endif %}">
+                        <div class="bm-cat-thumb">
+                            {% if cat.sample_image %}
+                                <img src="{{ cat.sample_image }}" alt="{{ cat.name }}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <span class="bm-cat-thumb-placeholder" style="display: none;">{{ cat.name|slice:":1"|upper }}</span>
+                            {% else %}
+                                <span class="bm-cat-thumb-placeholder">{{ cat.name|slice:":1"|upper }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="bm-cat-meta">
+                            <span class="bm-cat-name">{{ cat.name }}</span>
+                            <span class="bm-cat-arrow">›</span>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    <!-- AI Advice Box if semantic search was used -->
+    {% if ai_advice %}
+        <div style="background: rgba(201, 162, 122, 0.12); border: 1px solid var(--primary, #C9A27A); border-radius: 12px; padding: 10px 14px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px;">
+            <div style="font-size: 18px; color: var(--primary, #C9A27A);">✦</div>
+            <div style="font-size: 13px; color: var(--text-main, #FFFFFF); font-weight: 500;">{{ ai_advice }}</div>
+        </div>
+    {% endif %}
+
+    <!-- ======================================================================
+         5. SECTION TITLE: POPULAR PRODUCTS · SEE ALL ›
+         ====================================================================== -->
+    <div class="bm-section-head" id="products-section">
+        <h2 class="bm-section-title">
+            {% if selected_category_id %}
+                {% for cat in categories %}{% if cat.id == selected_category_id %}{{ cat.name }}{% endif %}{% endfor %}
+            {% else %}
+                {% trans "Popular Products" %}
+            {% endif %}
+        </h2>
+        <a href="?{% if current_store_id %}store_id={{ current_store_id }}{% endif %}" class="bm-section-link">
+            {% trans "See All" %} ›
         </a>
     </div>
 
-    <!-- 4. Promo Banner Slider (Global Market) -->
-    {% if not current_store and promo_banners %}
-        <div class="wb-promo-slider-wrap" id="wbPromoSlider">
-            <div class="wb-slider-track" id="wbSliderTrack">
-                {% for b in promo_banners %}
-                    <a href="{{ b.link_url|default:'javascript:void(0)' }}" class="wb-slide" style="background: {{ b.bg_gradient }};">
-                        {% if b.image %}
-                            <img src="{{ b.image.url }}" alt="{{ b.title }}" class="wb-slide-img">
-                            <div class="wb-slide-overlay"></div>
-                        {% endif %}
-                        <div class="wb-slide-content">
-                            {% if b.badge %}
-                                <div class="wb-slide-badge">{{ b.badge }}</div>
-                            {% endif %}
-                            <h2 class="wb-slide-title">{{ b.title }}</h2>
-                            {% if b.subtitle %}
-                                <p class="wb-slide-sub">{{ b.subtitle }}</p>
-                            {% endif %}
-                            <span class="wb-slide-btn">{% if b.button_text %}{{ b.button_text }}{% else %}{% trans "Купить" %}{% endif %} →</span>
-                        </div>
-                    </a>
-                {% endfor %}
-            </div>
-            <div class="wb-dots-container" id="wbDotsContainer">
-                {% for b in promo_banners %}
-                    <div class="wb-dot {% if forloop.first %}active{% endif %}" onclick="event.preventDefault(); wbSliderGoTo({{ forloop.counter0 }});"></div>
-                {% endfor %}
-            </div>
-        </div>
-    {% endif %}
-
-    <!-- 5. Categories Horizontal Scroll -->
-    {% if categories %}
-        <div class="uzum-categories-scroll">
-            <a href="?{% if current_store_id %}store_id={{ current_store_id }}&{% endif %}{% if search_query %}q={{ search_query }}&{% endif %}" class="uzum-cat-pill {% if not selected_category_id %}active{% endif %}">
-                ⭐ {% trans "Все категории" %}
-            </a>
-            {% for cat in categories %}
-                <a href="?{% if current_store_id %}store_id={{ current_store_id }}&{% endif %}category={{ cat.id }}{% if search_query %}&q={{ search_query }}{% endif %}" class="uzum-cat-pill {% if selected_category_id == cat.id %}active{% endif %}">
-                    {{ cat.name }}
-                </a>
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    <!-- AI Advice Box (If Semantic Search) -->
-    {% if ai_advice %}
-        <div style="background: rgba(112, 0, 255, 0.12); border: 1px solid rgba(112, 0, 255, 0.3); border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
-            <div style="font-size: 20px;">⚡</div>
-            <div style="font-size: 13px; color: #E2E8F0; font-weight: 500;">{{ ai_advice }}</div>
-        </div>
-    {% endif %}
-
-    <!-- 6. Uzum Signature Product Grid -->
+    <!-- ======================================================================
+         6. PRODUCT GRID (JM KIDS STORE LUXURY CARDS)
+         ====================================================================== -->
     {% if products %}
-        <div class="uzum-grid">
+        <div class="bm-product-grid">
             {% for product in products %}
-                <div class="uzum-card" data-product-id="{{ product.id }}">
-                    <a href="{% url 'product-detail' product.id %}{% if product.color %}?color={{ product.color }}{% endif %}" class="uzum-card-link">
-                        <div class="uzum-img-box">
-                            <!-- Swipeable Photo Gallery (Left/Right swipe on mobile & desktop) -->
-                            <div class="uzum-img-gallery" id="gallery-{{ product.id }}-{{ forloop.counter }}" onscroll="updateCardGalleryDots(this, '{{ product.id }}-{{ forloop.counter }}')">
-                                {% if product.images_list %}
-                                    {% for img_url in product.images_list %}
-                                        <div class="uzum-img-slide">
-                                            <img src="{{ img_url }}" alt="{{ product.name }}" loading="lazy" class="uzum-img">
-                                        </div>
-                                    {% endfor %}
-                                {% elif product.main_image_url %}
-                                    <div class="uzum-img-slide">
-                                        <img src="{{ product.main_image_url }}" alt="{{ product.name }}" loading="lazy" class="uzum-img">
-                                    </div>
-                                {% else %}
-                                    <div class="uzum-img-slide uzum-img-empty">📦</div>
-                                {% endif %}
-                            </div>
+                <article class="bm-product-card" data-product-id="{{ product.id }}">
+                    <div class="bm-card-media">
+                        <!-- Badges: Bestseller / New / Discount -->
+                        {% if product.badge_text %}
+                            <span class="bm-card-badge {% if 'Best' in product.badge_text %}is-bestseller{% elif 'New' in product.badge_text %}is-new{% endif %}">
+                                🔥 {{ product.badge_text }}
+                            </span>
+                        {% endif %}
 
-                            <!-- Uzum АКЦИЯ Signature Purple Badge -->
-                            <span class="uzum-badge-promo">{% trans "АКЦИЯ" %}</span>
+                        <!-- Favorite Heart Button -->
+                        <button type="button" class="bm-card-fav" onclick="event.preventDefault(); event.stopPropagation(); toggleFav(this, '{{ product.id }}');" aria-label="Favorite" title="{% trans 'В избранное' %}">
+                            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                        </button>
 
-
-
-                            <!-- Favorite Heart Button -->
-                            <button type="button" class="uzum-btn-fav btn-favorite-icon" onclick="event.preventDefault(); event.stopPropagation(); toggleFav(this, '{{ product.id }}');" aria-label="Favorite" title="{% trans 'В избранное' %}">
-                                <svg class="heart-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                                </svg>
-                            </button>
-
-                            <!-- Badges on photo: ОРИГИНАЛ & ГАРАНТИЯ НИЗКОЙ ЦЕНЫ -->
-                            <div class="uzum-photo-tags">
-                                <span class="uzum-tag-original"><span class="check-mark">✓</span> {% trans "ОРИГИНАЛ" %}</span>
-                                <span class="uzum-tag-lowprice">{% trans "ГАРАНТИЯ НИЗКОЙ ЦЕНЫ" %}</span>
-                            </div>
-
-                            <!-- Dynamic carousel dots indicator -->
-                            {% if product.images_list|length > 1 %}
-                                <div class="uzum-photo-dots" id="dots-{{ product.id }}-{{ forloop.counter }}">
-                                    {% for img in product.images_list %}
-                                        <span class="dot {% if forloop.first %}active{% endif %}"></span>
-                                    {% endfor %}
-                                </div>
+                        <a href="{% url 'product-detail' product.id %}{% if product.color %}?color={{ product.color }}{% endif %}" style="display:block; width:100%; height:100%;">
+                            {% if product.main_image_url %}
+                                <img src="{{ product.main_image_url }}" alt="{{ product.name }}" loading="lazy" class="bm-card-img" onerror="this.src='/static/img/brainmart_icon.png';">
+                            {% else %}
+                                <div style="display:flex; align-items:center; justify-content:center; width:100%; height:100%; font-size:32px; color:var(--text-muted);">✦</div>
                             {% endif %}
+                        </a>
+                    </div>
 
+                    <div class="bm-card-body">
+                        <h3 class="bm-card-brand" title="{{ product.brand_name }}">
+                            {{ product.brand_name }}
+                        </h3>
+                        <div class="bm-card-sub" title="{{ product.name }}">
+                            {{ product.name|truncatechars:28 }}
                         </div>
 
-                        <div class="uzum-card-details">
-                            <!-- Price & Discount Tag -->
-                            <div class="uzum-price-row">
-                                <span class="uzum-price-current">{{ product.formatted_base_price|default:product.formatted_price }} {% trans "сум" %}</span>
-                                <span class="uzum-price-discount">↓{{ product.discount_percent|default:"17" }}%</span>
-                            </div>
-
+                        <div class="bm-card-price-row">
+                            <span class="bm-card-price">{{ product.formatted_base_price|default:product.formatted_price }} {% trans "сум" %}</span>
                             {% if product.old_price %}
-                                <div class="uzum-price-old">{{ product.formatted_old_price }} {% trans "сум" %}</div>
+                                <span class="bm-card-old-price">{{ product.formatted_old_price }}</span>
                             {% endif %}
-
-                            <!-- "СТАЛО ДЕШЕВЛЕ" text -->
-                            <div class="uzum-label-cheaper">{% trans "СТАЛО ДЕШЕВЛЕ" %}</div>
-
-                            <!-- Uzum Nasiya Yellow Installment Badge (РАССРОЧКА) -->
-                            <div class="uzum-installment-badge">
-                                {{ product.formatted_installment|default:product.installment_price|default:"12 500" }} {% trans "сум/мес" %}
-                            </div>
-
-                            <!-- Product Title (2-line clamp) -->
-                            <div class="uzum-title" title="{{ product.name }}{% if product.color_label %} ({{ product.color_label }}){% endif %}">{{ product.name }}{% if product.color_label %} <span class="uzum-title-color">· {{ product.color_label }}</span>{% endif %}</div>
-
-                            <!-- Rating & Reviews -->
-                            <div class="uzum-rating-line">
-                                <span class="star-icon">★</span>
-                                <span class="rating-number">{{ product.average_rating|default:"4.9" }}</span>
-                                <span class="reviews-count">({{ product.reviews_count|default:"140" }} {% trans "отзывов" %})</span>
-                            </div>
-
-                            {% if not current_store and product.store %}
-                                <div class="uzum-store-badge-inline">🏪 {{ product.store.name }}</div>
+                            {% if product.discount_percent %}
+                                <span class="bm-card-discount">-{{ product.discount_percent }}%</span>
                             {% endif %}
                         </div>
-                    </a>
 
-                    <!-- Uzum Signature Delivery / Cart Button (🛍️ Сегодня) -->
-                    <div class="uzum-card-action">
                         <button type="button" 
-                                class="uzum-btn-delivery" 
+                                class="bm-btn-cart" 
                                 data-id="{{ product.id }}"
                                 data-variant-id="{{ product.variant_id|default:product.id }}"
                                 data-name="{{ product.name|escape }}"
@@ -1543,272 +270,172 @@
                                 data-store-id="{{ product.store.id|default:current_store_id|default:'' }}"
                                 onclick="event.preventDefault(); event.stopPropagation(); quickAddToCart(this);" 
                                 title="{% trans 'Добавить в корзину' %}">
-                            <span class="btn-icon">🛍️</span>
-                            <span class="btn-caption">{% trans "Сегодня" %}</span>
+                            <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                            <span class="btn-caption">{% trans "Add to Cart" %}</span>
                         </button>
                     </div>
-                </div>
+                </article>
             {% endfor %}
         </div>
     {% else %}
-        <div class="empty-state">
-            <div class="empty-icon">🛍️</div>
-            <h3 class="empty-title">{% trans "Ничего не найдено" %}</h3>
-            <p class="empty-desc">{% trans "Попробуйте изменить запрос или выберите другую категорию." %}</p>
+        <div style="text-align: center; padding: 48px 20px; background: var(--surface); border-radius: var(--radius-lg); margin-top: 16px;">
+            <div style="font-size: 32px; color: var(--primary); margin-bottom: 8px;">✦</div>
+            <h3 style="margin: 0 0 6px; font-size: 16px;">{% trans "Товары не найдены" %}</h3>
+            <p style="color: var(--text-muted); font-size: 12px; margin: 0 0 14px;">{% trans "Попробуйте выбрать другую категорию или сбросить поиск" %}</p>
+            <a href="?{% if current_store_id %}store_id={{ current_store_id }}{% endif %}" class="bm-hero-btn" style="display: inline-block;">{% trans "Показать все товары" %}</a>
         </div>
     {% endif %}
 
-    <!-- 7. Customer Assurance & Trust Section -->
-    <div class="uzum-trust-footer">
-        <div class="trust-item">
-            <div class="trust-icon">🚚</div>
-            <div class="trust-text">
-                <h4>{% trans "Быстрая доставка" %}</h4>
-                <p>{% trans "Отправка заказов со склада в день оформления прямо до двери курьером." %}</p>
-            </div>
-        </div>
-        <div class="trust-item">
-            <div class="trust-icon">🛡️</div>
-            <div class="trust-text">
-                <h4>{% trans "100% Оригинал" %}</h4>
-                <p>{% trans "Вся продукция напрямую от официальных производителей и брендов." %}</p>
-            </div>
-        </div>
-        <div class="trust-item">
-            <div class="trust-icon">🔄</div>
-            <div class="trust-text">
-                <h4>{% trans "Легкий возврат" %}</h4>
-                <p>{% trans "14 дней на примерку и проверку товара без лишней бюрократии." %}</p>
-            </div>
-        </div>
-        <div class="trust-item">
-            <div class="trust-icon">🔒</div>
-            <div class="trust-text">
-                <h4>{% trans "Безопасная оплата" %}</h4>
-                <p>{% trans "Оплата через Payme, Click или наличными при получении посылки." %}</p>
-            </div>
-        </div>
-    </div>
 </div>
 
 <!-- ==========================================================================
-     8. MOBILE BOTTOM BAR (UZUM APP STYLE NAVIGATION)
+     7. BOTTOM NAVIGATION BAR (JM KIDS STYLE: HOME, SEARCH, CATS, FAVS, SETTINGS)
      ========================================================================== -->
-<nav class="uzum-bottom-bar" id="mobileBottomBar">
-    <a href="javascript:void(0)" onclick="resetProductFilters(); window.scrollTo({top: 0, behavior: 'smooth'});" class="uzum-bottom-item active" id="btn-bottom-home">
-        <span class="uzum-bottom-icon">{% if current_store %}🏪{% else %}🏠{% endif %}</span>
-        <span>{% if current_store %}{% trans "Витрина" %}{% else %}{% trans "Главная" %}{% endif %}</span>
+<nav class="bm-bottom-nav" id="mobileBottomBar">
+    <a href="javascript:void(0)" onclick="resetProductFilters(); window.scrollTo({top: 0, behavior: 'smooth'});" class="bm-nav-item active" id="btn-bottom-home">
+        <div class="bm-nav-icon">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        </div>
+        <span class="bm-nav-label">{% trans "Home" %}</span>
     </a>
-    <a href="javascript:void(0)" onclick="focusSearch();" class="uzum-bottom-item" id="btn-bottom-search">
-        <span class="uzum-bottom-icon">🔍</span>
-        <span>{% trans "Поиск" %}</span>
+
+    <a href="javascript:void(0)" onclick="toggleSearchOverlay();" class="bm-nav-item" id="btn-bottom-search">
+        <div class="bm-nav-icon">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </div>
+        <span class="bm-nav-label">{% trans "Search" %}</span>
     </a>
-    <a href="javascript:void(0)" onclick="openCartModal();" class="uzum-bottom-item" id="btn-bottom-cart">
-        <span class="uzum-bottom-icon">
-            🛍️
-            <span class="uzum-cart-badge" id="mobBottomCartBadge" style="display: none;">0</span>
-        </span>
-        <span>{% trans "Корзина" %}</span>
+
+    <a href="javascript:void(0)" onclick="document.querySelector('.bm-categories-section')?.scrollIntoView({behavior: 'smooth'});" class="bm-nav-item" id="btn-bottom-cats">
+        <div class="bm-nav-icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        </div>
+        <span class="bm-nav-label">{% trans "Categories" %}</span>
     </a>
-    <a href="javascript:void(0)" onclick="toggleFavoritesFilter();" class="uzum-bottom-item" id="btn-bottom-fav">
-        <span class="uzum-bottom-icon">🤍</span>
-        <span>{% trans "Избранное" %}</span>
+
+    <a href="javascript:void(0)" onclick="toggleFavoritesFilter();" class="bm-nav-item" id="btn-bottom-fav">
+        <div class="bm-nav-icon">
+            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+        </div>
+        <span class="bm-nav-label">{% trans "Favorites" %}</span>
     </a>
-    <a href="javascript:void(0)" onclick="openSettingsSheet();" class="uzum-bottom-item" id="btn-bottom-settings">
-        <span class="uzum-bottom-icon">⚙️</span>
-        <span>{% trans "Настройки" %}</span>
+
+    <a href="javascript:void(0)" onclick="openStoreDrawer();" class="bm-nav-item" id="btn-bottom-settings">
+        <div class="bm-nav-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </div>
+        <span class="bm-nav-label">{% trans "Settings" %}</span>
     </a>
 </nav>
 
-<!-- Settings & Menu Bottom Sheet Modal (Стать продавцом спрятано внутри настроек) -->
-<div id="settings-sheet-overlay" onclick="closeSettingsSheetOnOverlay(event)" style="position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); z-index: 10001; display: none; align-items: flex-end; justify-content: center; opacity: 0; transition: opacity 0.25s ease;">
-    <div id="settings-sheet" style="background: #111520; color: #FFFFFF; width: 100%; max-width: 520px; max-height: 85vh; border-radius: 28px 28px 0 0; padding: 22px 20px 36px; box-sizing: border-box; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);">
-        
-        <!-- Sheet Handle -->
-        <div style="width: 40px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin: 0 auto 16px;"></div>
+<!-- ==========================================================================
+     8. SIDE DRAWER (☰ STORE PROFILE, LANGUAGES, TELEGRAM, SELLER SHORTCUTS)
+     ========================================================================== -->
+<div class="bm-drawer-backdrop" id="bmDrawerBackdrop" onclick="closeStoreDrawer()"></div>
+<aside class="bm-drawer" id="bmStoreDrawer">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+        <h3 style="margin: 0; font-family: var(--font-display, serif); font-size: 20px; color: var(--text-main);">
+            {% if current_store %}{{ current_store.name }}{% else %}BrainMart{% endif %}
+        </h3>
+        <button type="button" onclick="closeStoreDrawer()" style="background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer;">✕</button>
+    </div>
 
-        <!-- Header -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08);">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 22px;">⚙️</span>
-                <div>
-                    <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: #FFFFFF;">{% trans "Меню и настройки" %}</h3>
-                    <p style="margin: 0; font-size: 12px; color: #94A3B8;">{% trans "Управление витриной и сервисы" %}</p>
-                </div>
+    <!-- Store Info Card -->
+    {% if current_store %}
+        <div style="background: var(--surface-card, #1A1A1D); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px;">
+            <div style="font-size: 11px; color: var(--primary); font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">
+                {{ current_store.get_theme_signature.icon }} {{ current_store.get_theme_signature.text }}
             </div>
-            <button type="button" onclick="closeSettingsSheet()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); width: 34px; height: 34px; border-radius: 50%; font-size: 14px; font-weight: 700; color: #94A3B8; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>
-        </div>
-
-        {% if request.user.is_staff or request.user.is_superuser %}
-        <!-- ADMINISTRATOR PORTAL LINKS -->
-        <div style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.14) 0%, rgba(245, 158, 11, 0.1) 100%); border: 1.5px solid rgba(239, 68, 68, 0.35); border-radius: 18px; padding: 14px 16px; margin-bottom: 14px;">
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-                <span style="font-size: 18px;">🛡️</span>
-                <div style="font-size: 13.5px; font-weight: 800; color: #FCA5A5;">{% trans "Инструменты администратора" %}</div>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                {% if request.user.is_superuser %}
-                    <a href="/platform-admin/" style="background: #DC2626; color: #FFFFFF; padding: 10px 12px; border-radius: 12px; text-decoration: none; font-size: 12.5px; font-weight: 750; text-align: center; display: block; box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3);">
-                        🛡️ SuperAdmin
-                    </a>
-                {% endif %}
-                <a href="/brainmart-secure-admin-panel/" style="background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.5); color: #FCD34D; padding: 10px 12px; border-radius: 12px; text-decoration: none; font-size: 12.5px; font-weight: 750; text-align: center; display: block;">
-                    ⚙️ Django Admin
-                </a>
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- SELLER ONBOARDING / DASHBOARD SECTION (СПРЯТАНО В НАСТРОЙКАХ) -->
-        <div style="margin-bottom: 20px;">
-            {% if request.user.is_authenticated and request.user.store %}
-                <!-- Seller is logged in -->
-                <div style="background: linear-gradient(135deg, rgba(112, 0, 255, 0.18) 0%, rgba(59, 130, 246, 0.12) 100%); border: 1.5px solid rgba(112, 0, 255, 0.35); border-radius: 18px; padding: 16px; margin-bottom: 12px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 40px; height: 40px; border-radius: 12px; background: #7000FF; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800;">🏪</div>
-                            <div>
-                                <div style="font-size: 15px; font-weight: 800; color: #FFFFFF;">{{ request.user.store.name }}</div>
-                                <div style="font-size: 12px; color: #A78BFA;">{% trans "Вы вошли как продавец" %}</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                        <a href="{% url 'seller-dashboard' %}" style="background: #7000FF; color: #FFFFFF; padding: 11px 12px; border-radius: 12px; text-decoration: none; font-size: 13px; font-weight: 700; text-align: center; display: block; box-shadow: 0 4px 12px rgba(112, 0, 255, 0.3);">
-                            📊 {% trans "В кабинет" %}
-                        </a>
-                        <a href="{% url 'seller-product-add' %}" style="background: rgba(255,255,255,0.08); color: #FFFFFF; padding: 11px 12px; border-radius: 12px; text-decoration: none; font-size: 13px; font-weight: 700; text-align: center; display: block; border: 1px solid rgba(255,255,255,0.12);">
-                            ➕ {% trans "Добавить товар" %}
-                        </a>
-                    </div>
-                </div>
-            {% else %}
-                <!-- GUEST / BUYER: BECOME A SELLER PROMO (СПРЯТАНО В НАСТРОЙКАХ) -->
-                <div style="background: linear-gradient(135deg, rgba(112, 0, 255, 0.18) 0%, rgba(245, 158, 11, 0.12) 100%); border: 1.5px solid rgba(112, 0, 255, 0.35); border-radius: 18px; padding: 16px; margin-bottom: 12px;">
-                    <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px;">
-                        <div style="width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #7000FF 0%, #E60049 100%); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">🚀</div>
-                        <div>
-                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-                                <span style="font-size: 15px; font-weight: 800; color: #FFFFFF;">{% trans "Стать продавцом на BrainMart" %}</span>
-                                <span style="font-size: 9px; font-weight: 800; background: #E60049; color: #fff; padding: 2px 6px; border-radius: 6px;">AI VISION</span>
-                            </div>
-                            <div style="font-size: 12px; color: #CBD5E1; line-height: 1.45;">{% trans "Откройте магазин с витриной, ботом продаж и подключите камеры филиалов к BrainMart Vision AI!" %}</div>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 8px;">
-                        <a href="{% url 'become-seller' %}" style="flex: 1; background: #7000FF; color: #FFFFFF; padding: 12px 14px; border-radius: 12px; text-decoration: none; font-size: 13.5px; font-weight: 800; text-align: center; display: block; box-shadow: 0 4px 14px rgba(112, 0, 255, 0.35);">
-                            ✨ {% trans "Открыть магазин и Vision AI" %}
-                        </a>
-                        <a href="{% url 'seller-login' %}" style="background: rgba(255,255,255,0.06); color: #E2E8F0; padding: 12px 14px; border-radius: 12px; text-decoration: none; font-size: 13.5px; font-weight: 700; text-align: center; display: block; border: 1px solid rgba(255,255,255,0.12);">
-                            🔑 {% trans "Вход" %}
-                        </a>
-                    </div>
-                </div>
+            <div style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">{{ current_store.name }}</div>
+            {% if current_store.address %}
+                <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">📍 {{ current_store.address }}</div>
             {% endif %}
+            <div style="font-size: 11px; color: var(--text-muted);">⚡ {% trans "Доставка за 1 день по Узбекистану" %}</div>
         </div>
 
-        <!-- BUYER TOOLS -->
-        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 6px; margin-bottom: 16px;">
-            <div onclick="closeSettingsSheet(); toggleFavoritesFilter();" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-radius: 12px; cursor: pointer; transition: background 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <span style="font-size: 18px;">🤍</span>
-                    <span style="font-size: 14px; font-weight: 700; color: #FFFFFF;">{% trans "Избранные товары" %}</span>
-                </div>
-                <span style="font-size: 13px; color: #64748B;">➔</span>
-            </div>
-            
-            <div onclick="closeSettingsSheet(); openCartModal();" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-radius: 12px; cursor: pointer; transition: background 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <span style="font-size: 18px;">🛍️</span>
-                    <span style="font-size: 14px; font-weight: 700; color: #FFFFFF;">{% trans "Корзина покупок" %}</span>
-                </div>
-                <span style="font-size: 13px; color: #64748B;">➔</span>
-            </div>
-        </div>
-
-        <!-- LANGUAGE SELECTOR -->
-        <div style="margin-bottom: 16px;">
-            <div style="font-size: 12px; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; padding-left: 4px;">
-                🌐 {% trans "Язык интерфейса" %}
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
-                <a href="/ru/{% if current_store %}?store_id={{ current_store.id }}{% endif %}" style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 700; text-decoration: none; {% if LANGUAGE_CODE == 'ru' %}background: #7000FF; color: #FFFFFF; border: 1.5px solid #7000FF;{% else %}background: rgba(255,255,255,0.05); color: #CBD5E1; border: 1px solid rgba(255,255,255,0.08);{% endif %}">
-                    <span>🇷🇺</span> Русский
-                </a>
-                <a href="/uz/{% if current_store %}?store_id={{ current_store.id }}{% endif %}" style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 700; text-decoration: none; {% if LANGUAGE_CODE == 'uz' %}background: #7000FF; color: #FFFFFF; border: 1.5px solid #7000FF;{% else %}background: rgba(255,255,255,0.05); color: #CBD5E1; border: 1px solid rgba(255,255,255,0.08);{% endif %}">
-                    <span>🇺🇿</span> O'zbek
-                </a>
-                <a href="/en/{% if current_store %}?store_id={{ current_store.id }}{% endif %}" style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 700; text-decoration: none; {% if LANGUAGE_CODE == 'en' %}background: #7000FF; color: #FFFFFF; border: 1.5px solid #7000FF;{% else %}background: rgba(255,255,255,0.05); color: #CBD5E1; border: 1px solid rgba(255,255,255,0.08);{% endif %}">
-                    <span>🇬🇧</span> English
-                </a>
-            </div>
-        </div>
-
-        <!-- SUPPORT AND CONTACT -->
-        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 20px;">💬</span>
-                <div>
-                    <div style="font-size: 13.5px; font-weight: 700; color: #FFFFFF;">{% trans "Служба поддержки" %}</div>
-                    <div style="font-size: 11.5px; color: #94A3B8;">@abdvoris07 • {% trans "Ответим на любые вопросы в Telegram" %}</div>
-                </div>
-            </div>
-            <a href="https://t.me/abdvoris07" target="_blank" style="background: #2563EB; color: #FFFFFF; text-decoration: none; padding: 8px 14px; border-radius: 10px; font-size: 12.5px; font-weight: 700;">
-                @abdvoris07 ➔
+        {% if current_store.telegram_bot_username and current_store.telegram_bot_active %}
+            <a href="https://t.me/{{ current_store.telegram_bot_username }}" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: #229ED9; color: #FFFFFF; text-decoration: none; padding: 10px; border-radius: var(--radius-md); font-size: 13px; font-weight: 700; margin-bottom: 12px;">
+                <span>✈️</span> <span>Telegram Bot</span>
             </a>
+        {% elif current_store.phone_number %}
+            <a href="tel:{{ current_store.phone_number }}" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(255,255,255,0.08); color: var(--text-main); text-decoration: none; padding: 10px; border-radius: var(--radius-md); font-size: 13px; font-weight: 700; margin-bottom: 12px; border: 1px solid var(--border);">
+                <span>📞</span> <span>{{ current_store.phone_number }}</span>
+            </a>
+        {% endif %}
+    {% endif %}
+
+    <!-- Language Selector -->
+    <div style="margin-bottom: 20px;">
+        <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">{% trans "Язык интерфейса" %}</div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
+            {% get_current_language as CURRENT_LANG %}
+            {% get_available_languages as LANGUAGES %}
+            {% for lang_code, lang_name in LANGUAGES %}
+                <button type="button" onclick="changeLang('{{ lang_code }}')" style="padding: 8px 4px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; border: 1px solid {% if lang_code == CURRENT_LANG %}var(--primary){% else %}var(--border){% endif %}; background: {% if lang_code == CURRENT_LANG %}var(--primary){% else %}transparent{% endif %}; color: {% if lang_code == CURRENT_LANG %}var(--on-primary, #FFFFFF){% else %}var(--text-main){% endif %};">
+                    {{ lang_code|upper }}
+                </button>
+            {% endfor %}
         </div>
     </div>
-</div>
 
-<!-- Floating Toast Container -->
+    <!-- Navigation Links -->
+    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto;">
+        {% if request.user.is_authenticated %}
+            {% if request.user.store %}
+                <a href="{% url 'seller-dashboard' %}" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(201, 162, 122, 0.15); border: 1px solid var(--primary); color: var(--text-main); text-decoration: none; border-radius: var(--radius-md); font-size: 13px; font-weight: 700;">
+                    <span>💼</span> <span>{% trans "Личный кабинет продавца" %}</span>
+                </a>
+            {% else %}
+                <a href="{% url 'become-seller' %}" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--text-main); text-decoration: none; border-radius: var(--radius-md); font-size: 13px; font-weight: 600;">
+                    <span>🚀</span> <span>{% trans "Открыть свой магазин" %}</span>
+                </a>
+            {% endif %}
+            {% if request.user.is_superuser %}
+                <a href="/platform-admin/" style="display: flex; align-items: center; gap: 10px; padding: 8px 14px; color: #EF4444; text-decoration: none; font-size: 12px; font-weight: 600;">
+                    <span>🛡️</span> <span>Platform SuperAdmin</span>
+                </a>
+            {% endif %}
+        {% else %}
+            <a href="{% url 'seller-login' %}" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--text-main); text-decoration: none; border-radius: var(--radius-md); font-size: 13px; font-weight: 600;">
+                <span>🔑</span> <span>{% trans "Вход для продавцов" %}</span>
+            </a>
+            <a href="{% url 'become-seller' %}" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--btn-gradient); color: var(--on-primary); text-decoration: none; border-radius: var(--radius-md); font-size: 13px; font-weight: 700; text-align: center; justify-content: center;">
+                <span>🚀</span> <span>{% trans "Стать продавцом на BrainMart" %}</span>
+            </a>
+        {% endif %}
+
+        {% if current_store and current_store.show_global_market_button %}
+            <a href="{{ global_market_url }}" style="display: flex; align-items: center; gap: 10px; padding: 8px 14px; color: var(--text-muted); text-decoration: none; font-size: 12px;">
+                <span>🌍</span> <span>{% trans "Выйти на главный маркет" %}</span>
+            </a>
+        {% endif %}
+    </div>
+</aside>
+
+<!-- Toast Container -->
 <div id="bmToastContainer" style="position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none;"></div>
 
-{% if not current_store and promo_banners %}
+<!-- ==========================================================================
+     9. INTERACTIVE JAVASCRIPT ENGINE (CART, FAVORITES, SEARCH, TOASTS)
+     ========================================================================== -->
 <script>
-var wbCurrentSlide = 0;
-var wbTotalSlides = {{ promo_banners|length|default:0 }};
-var wbSliderTimer = null;
-
-function updateWbSlider() {
-    var track = document.getElementById('wbSliderTrack');
-    var dots = document.querySelectorAll('.wb-dot');
-    if (!track) return;
-    track.style.transform = 'translateX(-' + (wbCurrentSlide * 100) + '%)';
-    dots.forEach(function(dot, idx) {
-        if (idx === wbCurrentSlide) {
-            dot.classList.add('active');
-        } else {
-            dot.classList.remove('active');
-        }
-    });
-}
-
-function wbSliderNext() {
-    if (wbTotalSlides <= 1) return;
-    wbCurrentSlide = (wbCurrentSlide + 1) % wbTotalSlides;
-    updateWbSlider();
-}
-
-function wbSliderGoTo(idx) {
-    wbCurrentSlide = idx;
-    updateWbSlider();
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    if (wbTotalSlides > 1) {
-        wbSliderTimer = setInterval(wbSliderNext, 4500);
-    }
-});
-</script>
-{% endif %}
-
-<script>
-function showBmToast(msg, icon) {
+function showBmToast(message, icon) {
     var c = document.getElementById('bmToastContainer');
     if (!c) return;
     var t = document.createElement('div');
-    t.style.cssText = 'background: rgba(17, 24, 39, 0.95); color: #FFFFFF; font-size: 13px; font-weight: 700; padding: 10px 18px; border-radius: 30px; border: 1px solid rgba(112, 0, 255, 0.35); backdrop-filter: blur(12px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 8px; pointer-events: auto; animation: toastSlideUp 0.25s ease;';
-    t.innerHTML = '<span>' + (icon || '✓') + '</span><span>' + msg + '</span>';
+    t.style.background = 'var(--surface, #1A1A1D)';
+    t.style.color = 'var(--text-main, #FFFFFF)';
+    t.style.border = '1px solid var(--primary, #C9A27A)';
+    t.style.padding = '10px 18px';
+    t.style.borderRadius = '30px';
+    t.style.fontSize = '12px';
+    t.style.fontWeight = '700';
+    t.style.boxShadow = '0 8px 24px rgba(0,0,0,0.5)';
+    t.style.display = 'flex';
+    t.style.alignItems = 'center';
+    t.style.gap = '8px';
+    t.style.animation = 'bmSlideDown 0.2s ease';
+    t.innerHTML = '<span>' + (icon || '✦') + '</span><span>' + message + '</span>';
     c.appendChild(t);
     setTimeout(function() {
         t.style.opacity = '0';
@@ -1817,12 +444,20 @@ function showBmToast(msg, icon) {
     }, 2200);
 }
 
-function focusSearch() {
-    var input = document.getElementById('catalogSearchInput');
-    if (input) {
-        input.focus();
-        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+function toggleSearchOverlay() {
+    var o = document.getElementById('bmSearchOverlay');
+    if (!o) return;
+    if (o.style.display === 'block') {
+        o.style.display = 'none';
+    } else {
+        o.style.display = 'block';
+        var input = document.getElementById('catalogSearchInput');
+        if (input) input.focus();
     }
+}
+
+function focusSearch() {
+    toggleSearchOverlay();
 }
 
 function clearCatalogSearch() {
@@ -1830,6 +465,24 @@ function clearCatalogSearch() {
     if (input) input.value = '';
     var form = document.getElementById('catalogSearchForm');
     if (form) form.submit();
+}
+
+function openStoreDrawer() {
+    var drawer = document.getElementById('bmStoreDrawer');
+    var backdrop = document.getElementById('bmDrawerBackdrop');
+    if (drawer && backdrop) {
+        drawer.classList.add('open');
+        backdrop.classList.add('open');
+    }
+}
+
+function closeStoreDrawer() {
+    var drawer = document.getElementById('bmStoreDrawer');
+    var backdrop = document.getElementById('bmDrawerBackdrop');
+    if (drawer && backdrop) {
+        drawer.classList.remove('open');
+        backdrop.classList.remove('open');
+    }
 }
 
 function openFavsModal() {
@@ -1910,7 +563,7 @@ function quickAddToCart(btn, optionalPid) {
     var caption = btn.querySelector('.btn-caption');
     var origText = caption ? caption.textContent : btn.innerHTML;
     btn.classList.add('added');
-    if (caption) caption.textContent = '{% trans "В корзине" %} ✓';
+    if (caption) caption.textContent = '{% trans "Added" %} ✓';
     showBmToast('{% trans "Товар добавлен в корзину" %}', '🛍️');
 
     setTimeout(function() {
@@ -1929,162 +582,65 @@ function updateCartBadges() {
                 total += parseInt(item.quantity || item.qty || 1, 10);
             });
         }
-        var badge = document.getElementById('mobBottomCartBadge');
-        if (badge) {
+        var topBadge = document.getElementById('mobTopCartBadge');
+        if (topBadge) {
             if (total > 0) {
-                badge.textContent = total;
-                badge.style.display = 'block';
+                topBadge.textContent = total;
+                topBadge.style.display = 'block';
             } else {
-                badge.style.display = 'none';
+                topBadge.style.display = 'none';
             }
         }
-        var fcBadge = document.getElementById('fc-badge-count');
-        if (fcBadge) fcBadge.innerText = total;
+        var mobBadge = document.getElementById('mobBottomCartBadge');
+        if (mobBadge) {
+            if (total > 0) {
+                mobBadge.textContent = total;
+                mobBadge.style.display = 'block';
+            } else {
+                mobBadge.style.display = 'none';
+            }
+        }
     } catch(e) {}
 }
 
-window.addEventListener('cartUpdated', updateCartBadges);
-window.addEventListener('cart-updated', updateCartBadges);
+function resetProductFilters() {
+    var url = new URL(window.location.href);
+    url.searchParams.delete('category');
+    url.searchParams.delete('q');
+    window.location.href = url.toString();
+}
+
+function toggleFavoritesFilter() {
+    try {
+        var favs = JSON.parse(localStorage.getItem('bm_favs') || '[]');
+        if (favs.length === 0) {
+            showBmToast('{% trans "В избранном пока нет товаров" %}', '🤍');
+            return;
+        }
+        var cards = document.querySelectorAll('.bm-product-card');
+        var visibleCount = 0;
+        cards.forEach(function(card) {
+            var pid = card.getAttribute('data-product-id');
+            if (favs.indexOf(pid) !== -1 || favs.indexOf(parseInt(pid, 10)) !== -1) {
+                card.style.display = 'flex';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        showBmToast('{% trans "Показано избранных товаров:" %} ' + visibleCount, '❤️');
+    } catch(e) {}
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     updateCartBadges();
     try {
         var favs = JSON.parse(localStorage.getItem('bm_favs') || '[]');
         favs.forEach(function(pid) {
-            var card = document.querySelector('[data-product-id="' + pid + '"]');
-            if (card) {
-                var heartBtn = card.querySelector('.btn-favorite-icon');
-                if (heartBtn) heartBtn.classList.add('active');
-            }
+            var btn = document.querySelector('.bm-product-card[data-product-id="' + pid + '"] .bm-card-fav');
+            if (btn) btn.classList.add('active');
         });
     } catch(e) {}
 });
-
-/* ─── CARD GALLERY DOTS & DRAG HANDLING ─── */
-function updateCardGalleryDots(galleryEl, productId) {
-    var dotsContainer = document.getElementById('dots-' + productId);
-    if (!dotsContainer) return;
-    var scrollLeft = galleryEl.scrollLeft;
-    var width = galleryEl.clientWidth || 1;
-    var index = Math.round(scrollLeft / width);
-    var dots = dotsContainer.querySelectorAll('.dot');
-    dots.forEach(function(dot, idx) {
-        if (idx === index) {
-            dot.classList.add('active');
-        } else {
-            dot.classList.remove('active');
-        }
-    });
-}
-
-/* ─── SETTINGS BOTTOM SHEET CONTROLS ─── */
-function openSettingsSheet() {
-    var overlay = document.getElementById('settings-sheet-overlay');
-    var sheet = document.getElementById('settings-sheet');
-    if (!overlay || !sheet) return;
-    overlay.style.display = 'flex';
-    setTimeout(function() {
-        overlay.style.opacity = '1';
-        sheet.style.transform = 'translateY(0)';
-    }, 10);
-    document.body.style.overflow = 'hidden';
-}
-
-function closeSettingsSheet() {
-    var overlay = document.getElementById('settings-sheet-overlay');
-    var sheet = document.getElementById('settings-sheet');
-    if (!overlay || !sheet) return;
-    sheet.style.transform = 'translateY(100%)';
-    overlay.style.opacity = '0';
-    setTimeout(function() {
-        overlay.style.display = 'none';
-        document.body.style.overflow = '';
-    }, 250);
-}
-
-function closeSettingsSheetOnOverlay(e) {
-    if (e.target.id === 'settings-sheet-overlay') {
-        closeSettingsSheet();
-    }
-}
-
-/* ─── FAVORITES FILTER TOGGLE ─── */
-var isFavoritesFilterActive = false;
-function toggleFavoritesFilter() {
-    var cards = document.querySelectorAll('.uzum-card');
-    var favBtn = document.getElementById('btn-bottom-fav');
-    var homeBtn = document.getElementById('btn-bottom-home');
-    var favs = [];
-    try {
-        favs = JSON.parse(localStorage.getItem('bm_favs') || '[]');
-    } catch(e) { favs = []; }
-
-    if (!isFavoritesFilterActive) {
-        if (favs.length === 0) {
-            showBmToast('{% trans "В избранном пока нет товаров" %}', '🤍');
-            return;
-        }
-        var count = 0;
-        cards.forEach(function(card) {
-            var pid = card.getAttribute('data-product-id');
-            if (favs.indexOf(pid) !== -1 || favs.indexOf(parseInt(pid, 10)) !== -1) {
-                card.style.display = '';
-                count++;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-        isFavoritesFilterActive = true;
-        if (favBtn) favBtn.classList.add('active');
-        if (homeBtn) homeBtn.classList.remove('active');
-        showBmToast('{% trans "Показано избранное" %} (' + count + ')', '🤍');
-    } else {
-        resetProductFilters();
-    }
-}
-
-function resetProductFilters() {
-    var cards = document.querySelectorAll('.uzum-card');
-    var favBtn = document.getElementById('btn-bottom-fav');
-    var homeBtn = document.getElementById('btn-bottom-home');
-    cards.forEach(function(card) {
-        card.style.display = '';
-    });
-    isFavoritesFilterActive = false;
-    if (favBtn) favBtn.classList.remove('active');
-    if (homeBtn) homeBtn.classList.add('active');
-}
-
-/* ─── PREVENT CARD LINK NAVIGATION DURING HORIZONTAL SWIPE ─── */
-document.addEventListener('DOMContentLoaded', function() {
-    var galleries = document.querySelectorAll('.uzum-img-gallery');
-    galleries.forEach(function(gallery) {
-        var startX = 0;
-        var startY = 0;
-        var isHorizontalSwipe = false;
-
-        gallery.addEventListener('touchstart', function(e) {
-            startX = e.touches[0].clientX;
-            startY = e.touches[0].clientY;
-            isHorizontalSwipe = false;
-        }, { passive: true });
-
-        gallery.addEventListener('touchmove', function(e) {
-            var diffX = Math.abs(e.touches[0].clientX - startX);
-            var diffY = Math.abs(e.touches[0].clientY - startY);
-            if (diffX > 10 && diffX > diffY) {
-                isHorizontalSwipe = true;
-            }
-        }, { passive: true });
-
-        gallery.addEventListener('click', function(e) {
-            if (isHorizontalSwipe) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-        });
-    });
-});
-
 </script>
 {% endblock %}
