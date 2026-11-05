@@ -20,8 +20,9 @@ from django.views.generic import RedirectView
 urlpatterns = [
     # Favicon для браузеров
     path('favicon.ico', RedirectView.as_view(url='/static/favicon.ico', permanent=True)),
-    # Защищенная панель администратора Django (скрытый URL, защита от сканеров)
-    path('brainmart-secure-admin-panel/', admin.site.urls),
+    # Панель администратора Django (доступна по /admin/)
+    path('admin/', admin.site.urls),
+    path('brainmart-secure-admin-panel/', RedirectView.as_view(url='/admin/', permanent=False)),
     path('api/', include('core.urls.urls')),
     # Панель продавца — без языкового префикса, на русском
     path('dashboard/', include('core.urls.urls_dashboard')),

@@ -7,15 +7,17 @@
 <style>
     /* Critical inline Storefront CSS (Zero-cache guarantee for Telegram WebView & Mobile) */
     .catalog-container {
-        max-width: 540px;
+        width: 100%;
+        max-width: 580px;
         margin: 0 auto;
         padding: 0 14px 96px;
         box-sizing: border-box;
+        position: relative;
     }
-    @media (min-width: 900px) {
+    @media (min-width: 992px) {
         .catalog-container {
-            max-width: 1240px;
-            padding: 0 24px 80px;
+            max-width: 1360px !important;
+            padding: 0 32px 48px !important;
         }
     }
     .bm-store-header {
@@ -32,6 +34,18 @@
         -webkit-backdrop-filter: blur(20px) saturate(180%);
         border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.07)) !important;
         box-shadow: none !important;
+    }
+    @media (min-width: 992px) {
+        .bm-store-header {
+            display: flex !important;
+            grid-template-columns: none !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            padding: 16px 32px !important;
+            margin: 0 -32px 18px !important;
+            background: var(--header-bg, rgba(11, 11, 12, 0.95)) !important;
+            border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.08)) !important;
+        }
     }
     .bm-header-center {
         text-align: center;
@@ -246,10 +260,10 @@ body {
 }
 
 .catalog-container {
-    max-width: 600px;
+    width: 100%;
     margin: 0 auto;
-    padding: 0 16px 24px;
     position: relative;
+    box-sizing: border-box;
 }
 
 /* 2. Luxury Header (☰ · BRAND / SLOGAN · 🔍 · 🛒) */
@@ -680,12 +694,12 @@ body {
 }
 
 .bm-cat-name {
-    font-size: 11px;
+    font-size: 11.5px;
     font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 80px;
+    max-width: 96px;
 }
 
 .bm-cat-arrow {
@@ -724,11 +738,31 @@ body {
     color: var(--primary, #C9A27A);
 }
 
-/* 7. Product Grid & Cards (JM Kids Store style) */
+/* 7. Product Grid & Cards (JM Kids Store style - Responsive Multi-Column) */
 .bm-product-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
+}
+
+@media (min-width: 640px) {
+    .bm-product-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 16px !important;
+    }
+}
+@media (min-width: 992px) {
+    .bm-product-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 20px !important;
+    }
+}
+@media (min-width: 1320px) {
+    .bm-product-grid {
+        grid-template-columns: repeat(5, 1fr) !important;
+        gap: 22px !important;
+    }
+}
 }
 
 .bm-product-card {
@@ -952,6 +986,12 @@ body {
     padding: 0 10px;
 }
 
+@media (min-width: 992px) {
+    .bm-bottom-nav {
+        display: none !important;
+    }
+}
+
 .bm-nav-item {
     display: flex;
     flex-direction: column;
@@ -1143,6 +1183,272 @@ body {
     letter-spacing: 0.05em;
 }
 
+/* 11. Desktop Layout Enhancements (>= 992px) */
+.bm-desktop-brand { display: none; }
+.bm-desktop-search-form { display: none; }
+.bm-header-desktop-actions { display: none; }
+
+@media (min-width: 992px) {
+    .bm-desktop-brand {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .bm-brand-link {
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+    }
+    .bm-mobile-brand {
+        display: none !important;
+    }
+    .bm-header-center {
+        flex: 1 1 auto !important;
+        max-width: 520px !important;
+        margin: 0 24px !important;
+        display: block !important;
+    }
+    .bm-desktop-search-form {
+        display: flex !important;
+        position: relative !important;
+        width: 100% !important;
+    }
+    .bm-desktop-search-input {
+        width: 100% !important;
+        background: rgba(255, 255, 255, 0.06) !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        border-radius: 999px !important;
+        padding: 11px 46px 11px 18px !important;
+        color: #FFFFFF !important;
+        font-size: 13.5px !important;
+        outline: none !important;
+        box-sizing: border-box !important;
+        transition: all 0.2s ease !important;
+    }
+    .bm-desktop-search-input:focus {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-color: var(--primary, #C9A27A) !important;
+        box-shadow: 0 0 0 3px rgba(201, 162, 122, 0.25) !important;
+    }
+    .bm-desktop-search-submit {
+        position: absolute !important;
+        right: 6px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        width: 32px !important;
+        height: 32px !important;
+        border-radius: 50% !important;
+        border: none !important;
+        background: var(--primary, #C9A27A) !important;
+        color: var(--on-primary, #111) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        transition: transform 0.2s ease !important;
+    }
+    .bm-desktop-search-submit:hover {
+        transform: translateY(-50%) scale(1.08) !important;
+    }
+    .bm-mobile-search-btn {
+        display: none !important;
+    }
+    .bm-header-desktop-actions {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+    .bm-header-pill {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        padding: 7px 12px !important;
+        border-radius: 999px !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        text-decoration: none !important;
+        color: #CBD5E1 !important;
+        background: rgba(255, 255, 255, 0.06) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        transition: all 0.2s ease !important;
+        white-space: nowrap !important;
+    }
+    .bm-header-pill:hover {
+        background: rgba(255, 255, 255, 0.14) !important;
+        color: #FFFFFF !important;
+        transform: translateY(-1px) !important;
+    }
+    .bm-header-pill.bm-pill-django {
+        color: #93C5FD !important;
+        border-color: rgba(96, 165, 250, 0.35) !important;
+        background: rgba(37, 99, 235, 0.12) !important;
+    }
+    .bm-header-pill.bm-pill-super {
+        color: #FCD34D !important;
+        border-color: rgba(251, 191, 36, 0.35) !important;
+        background: rgba(245, 158, 11, 0.12) !important;
+    }
+    .bm-header-pill.bm-pill-seller {
+        color: #6EE7B7 !important;
+        border-color: rgba(52, 211, 153, 0.35) !important;
+        background: rgba(16, 185, 129, 0.12) !important;
+    }
+    .bm-header-lang-group {
+        display: inline-flex !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        padding: 3px !important;
+        border-radius: 9px !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    }
+    .bm-lang-btn {
+        padding: 4px 7px !important;
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        border: none !important;
+        border-radius: 6px !important;
+        cursor: pointer !important;
+        color: #94A3B8 !important;
+        background: transparent !important;
+        transition: all 0.2s !important;
+    }
+    .bm-lang-btn.active {
+        background: var(--primary, #C9A27A) !important;
+        color: var(--on-primary, #111) !important;
+    }
+    /* Hero Carousel on Desktop */
+    .bm-hero-carousel-wrap,
+    .bm-hero-banner {
+        aspect-ratio: 24 / 9 !important;
+        min-height: 380px !important;
+        max-height: 440px !important;
+        border-radius: 24px !important;
+        margin: 18px 0 28px !important;
+    }
+    .bm-hero-slide {
+        aspect-ratio: 24 / 9 !important;
+        min-height: 380px !important;
+        max-height: 440px !important;
+    }
+    .bm-hero-content {
+        padding: 44px 48px !important;
+        max-width: 58% !important;
+    }
+    .bm-hero-title {
+        font-size: 38px !important;
+        line-height: 1.15 !important;
+        margin-bottom: 10px !important;
+    }
+    .bm-hero-subtitle {
+        font-size: 14.5px !important;
+        margin-bottom: 22px !important;
+    }
+    .bm-hero-btn {
+        font-size: 14px !important;
+        padding: 12px 26px !important;
+    }
+    .bm-hero-arrow {
+        width: 44px !important;
+        height: 44px !important;
+        font-size: 26px !important;
+    }
+    .bm-hero-arrow.prev { left: 20px !important; }
+    .bm-hero-arrow.next { right: 20px !important; }
+    .bm-hero-dots {
+        bottom: 20px !important;
+        left: 48px !important;
+    }
+    /* Category scroll on Desktop */
+    .bm-categories-section {
+        margin-bottom: 34px !important;
+    }
+    .bm-cat-scroll {
+        gap: 16px !important;
+        padding-bottom: 6px !important;
+    }
+    .bm-cat-card {
+        flex: 0 0 156px !important;
+        padding: 12px 10px 14px !important;
+        border-radius: 18px !important;
+    }
+    .bm-cat-thumb {
+        height: 104px !important;
+        border-radius: 14px !important;
+    }
+    .bm-cat-name {
+        font-size: 13.5px !important;
+        max-width: 124px !important;
+        font-weight: 700 !important;
+    }
+    .bm-cat-arrow {
+        font-size: 14px !important;
+    }
+}
+
+/* 12. Desktop Footer */
+.bm-desktop-footer {
+    display: none;
+}
+@media (min-width: 992px) {
+    .bm-desktop-footer {
+        display: block;
+        margin-top: 48px;
+        padding-top: 40px;
+        border-top: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+        background: transparent;
+    }
+    .bm-footer-inner {
+        display: grid;
+        grid-template-columns: 2fr 1.2fr 1.4fr 1.4fr;
+        gap: 36px;
+        margin-bottom: 32px;
+    }
+    .bm-footer-logo {
+        font-family: var(--font-display, 'Cormorant Garamond', serif);
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: var(--text-main, #FFFFFF);
+        margin-bottom: 12px;
+    }
+    .bm-footer-text {
+        font-size: 13px;
+        color: var(--text-muted, #94A3B8);
+        line-height: 1.55;
+        margin: 0;
+        max-width: 320px;
+    }
+    .bm-footer-col h4 {
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-main, #FFFFFF);
+        margin: 0 0 14px 0;
+    }
+    .bm-footer-col a {
+        display: block;
+        font-size: 13px;
+        color: var(--text-muted, #94A3B8);
+        text-decoration: none;
+        margin-bottom: 10px;
+        transition: color 0.2s ease, transform 0.2s ease;
+    }
+    .bm-footer-col a:hover {
+        color: var(--primary, #C9A27A);
+        transform: translateX(2px);
+    }
+    .bm-footer-bottom {
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 12.5px;
+        color: var(--text-muted, #64748B);
+    }
+}
+
 </style>
 <div class="catalog-container">
 
@@ -1155,25 +1461,86 @@ body {
             <button type="button" class="bm-header-btn" onclick="openStoreDrawer()" aria-label="Menu" title="{% trans 'Меню магазина' %}">
                 <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
             </button>
+            <div class="bm-desktop-brand">
+                {% if current_store %}
+                    <a href="?store_id={{ current_store.id }}" class="bm-brand-link">
+                        <span class="bm-brand-title">{{ current_store.name }}</span>
+                        <span class="bm-brand-tagline">
+                            {% if current_store.brand_signature_icon %}{{ current_store.brand_signature_icon }} {% endif %}{{ current_store.brand_signature_text|default:current_store.tagline|default:current_store.get_theme_signature.text }}
+                        </span>
+                    </a>
+                {% else %}
+                    <a href="?" class="bm-brand-link">
+                        <span class="bm-brand-title">BRAINMART</span>
+                        <span class="bm-brand-tagline">{% trans "Официальный маркетплейс брендов" %}</span>
+                    </a>
+                {% endif %}
+            </div>
         </div>
 
         <div class="bm-header-center">
-            {% if current_store %}
-                <h1 class="bm-brand-title">{{ current_store.name }}</h1>
-                <span class="bm-brand-tagline">
-                    {% if current_store.brand_signature_icon %}{{ current_store.brand_signature_icon }} {% endif %}{{ current_store.brand_signature_text|default:current_store.tagline|default:current_store.get_theme_signature.text }}
-                </span>
-            {% else %}
-                <h1 class="bm-brand-title">BRAINMART</h1>
-                <span class="bm-brand-tagline">{% trans "Официальный маркетплейс брендов" %}</span>
-            {% endif %}
+            <!-- Mobile Brand (Header Title on Mobile) -->
+            <div class="bm-mobile-brand">
+                {% if current_store %}
+                    <h1 class="bm-brand-title">{{ current_store.name }}</h1>
+                    <span class="bm-brand-tagline">
+                        {% if current_store.brand_signature_icon %}{{ current_store.brand_signature_icon }} {% endif %}{{ current_store.brand_signature_text|default:current_store.tagline|default:current_store.get_theme_signature.text }}
+                    </span>
+                {% else %}
+                    <h1 class="bm-brand-title">BRAINMART</h1>
+                    <span class="bm-brand-tagline">{% trans "Официальный маркетплейс брендов" %}</span>
+                {% endif %}
+            </div>
+
+            <!-- Desktop Search Bar -->
+            <form method="get" class="bm-desktop-search-form" action="">
+                {% if current_store_id %}
+                    <input type="hidden" name="store_id" value="{{ current_store_id }}">
+                {% endif %}
+                {% if selected_category_id %}
+                    <input type="hidden" name="category" value="{{ selected_category_id }}">
+                {% endif %}
+                <input type="text" name="q" value="{{ search_query }}" class="bm-desktop-search-input" placeholder="{% if current_store %}{% trans 'Искать в магазине' %} {{ current_store.name }}...{% else %}{% trans 'Поиск по каталогу BrainMart...' %}{% endif %}" autocomplete="off">
+                <button type="submit" class="bm-desktop-search-submit" title="{% trans 'Найти' %}">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </button>
+            </form>
         </div>
 
         <div class="bm-header-col-right">
-            <button type="button" class="bm-header-btn" onclick="toggleSearchOverlay()" aria-label="Search" title="{% trans 'Поиск' %}">
+            <!-- Desktop Quick Actions & Admin Shortcuts -->
+            <div class="bm-header-desktop-actions">
+                <a href="/admin/" class="bm-header-pill bm-pill-django" title="Django Admin (Django Superuser)">
+                    <span>⚙️</span> <span>Django Admin</span>
+                </a>
+                <a href="/platform-admin/" class="bm-header-pill bm-pill-super" title="Platform SuperAdmin">
+                    <span>🛡️</span> <span>SuperAdmin</span>
+                </a>
+                {% if request.user.is_authenticated %}
+                    <a href="{% url 'seller-dashboard' %}" class="bm-header-pill bm-pill-seller" title="{% trans 'Панель управления магазином' %}">
+                        <span>🏪</span> <span>{% trans "Кабинет" %}</span>
+                    </a>
+                {% else %}
+                    <a href="{% url 'seller-login' %}" class="bm-header-pill bm-pill-seller" title="{% trans 'Вход для продавцов' %}">
+                        <span>🔑</span> <span>{% trans "Вход" %}</span>
+                    </a>
+                {% endif %}
+
+                <!-- Inline Language Switcher -->
+                <div class="bm-header-lang-group">
+                    {% get_current_language as CURRENT_LANG %}
+                    <button type="button" class="bm-lang-btn {% if CURRENT_LANG == 'ru' %}active{% endif %}" onclick="changeLang('ru')">RU</button>
+                    <button type="button" class="bm-lang-btn {% if CURRENT_LANG == 'uz' %}active{% endif %}" onclick="changeLang('uz')">UZ</button>
+                    <button type="button" class="bm-lang-btn {% if CURRENT_LANG == 'en' %}active{% endif %}" onclick="changeLang('en')">EN</button>
+                </div>
+            </div>
+
+            <!-- Mobile Search Toggle Button -->
+            <button type="button" class="bm-header-btn bm-mobile-search-btn" onclick="toggleSearchOverlay()" aria-label="Search" title="{% trans 'Поиск' %}">
                 <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             </button>
 
+            <!-- Cart Button -->
             <button type="button" class="bm-header-btn bm-cart-btn" onclick="openCartModal()" aria-label="Cart" title="{% trans 'Корзина' %}">
                 <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
                 <span class="bm-cart-badge" id="mobTopCartBadge" style="display: none;">0</span>
@@ -1425,6 +1792,42 @@ body {
         </div>
     {% endif %}
 
+    <!-- ======================================================================
+         7. DESKTOP MODERN FOOTER (BRAINMART ECOSYSTEM & ADMIN LINKS)
+         ====================================================================== -->
+    <footer class="bm-desktop-footer">
+        <div class="bm-footer-inner">
+            <div class="bm-footer-col">
+                <div class="bm-footer-logo">BRAINMART</div>
+                <p class="bm-footer-text">
+                    {% trans "Официальный маркетплейс брендов и персональных магазинов в Узбекистане. Платформа для современной e-commerce торговли." %}
+                </p>
+            </div>
+            <div class="bm-footer-col">
+                <h4>{% trans "Витрина" %}</h4>
+                <a href="?">{% trans "Главный каталог" %}</a>
+                <a href="javascript:void(0)" onclick="openCartModal()">{% trans "Корзина покупок" %}</a>
+                <a href="javascript:void(0)" onclick="toggleFavoritesFilter()">{% trans "Избранные товары" %}</a>
+            </div>
+            <div class="bm-footer-col">
+                <h4>{% trans "Для продавцов" %}</h4>
+                <a href="{% url 'seller-login' %}">🔑 {% trans "Вход в кабинет продавца" %}</a>
+                <a href="{% url 'become-seller' %}">🚀 {% trans "Открыть магазин бесплатно" %}</a>
+                <a href="{% url 'seller-dashboard' %}">📊 {% trans "Панель управления магазином" %}</a>
+            </div>
+            <div class="bm-footer-col">
+                <h4>{% trans "Администраторам" %}</h4>
+                <a href="/admin/" style="color: #60A5FA; font-weight: 700;">⚙️ Django Admin (/admin/)</a>
+                <a href="/platform-admin/" style="color: #FBBF24; font-weight: 700;">🛡️ Platform SuperAdmin</a>
+                <a href="https://t.me/BrainMart_bot" target="_blank" style="color: #38BDF8;">✈️ @BrainMart_bot</a>
+            </div>
+        </div>
+        <div class="bm-footer-bottom">
+            <div>© 2026 BrainMart. {% trans "Все права защищены." %}</div>
+            <div>🔒 {% trans "Двухфакторная защита 2FA Telegram OTP" %}</div>
+        </div>
+    </footer>
+
 </div>
 
 <!-- ==========================================================================
@@ -1527,6 +1930,19 @@ body {
         </div>
     </div>
 
+    <!-- Administration & Superuser Links -->
+    <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-size: 11px; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.05em;">
+            🛠️ {% trans "Администрирование" %}
+        </div>
+        <a href="/admin/" style="display: flex; align-items: center; gap: 8px; color: #60A5FA; text-decoration: none; font-size: 13px; font-weight: 700;">
+            <span>⚙️</span> <span>Django Admin (/admin/)</span>
+        </a>
+        <a href="/platform-admin/" style="display: flex; align-items: center; gap: 8px; color: #FBBF24; text-decoration: none; font-size: 13px; font-weight: 700;">
+            <span>🛡️</span> <span>Platform SuperAdmin</span>
+        </a>
+    </div>
+
     <!-- Navigation Links -->
     <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto;">
         {% if request.user.is_authenticated %}
@@ -1537,11 +1953,6 @@ body {
             {% else %}
                 <a href="{% url 'become-seller' %}" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--text-main); text-decoration: none; border-radius: var(--radius-md); font-size: 13px; font-weight: 600;">
                     <span>🚀</span> <span>{% trans "Открыть свой магазин" %}</span>
-                </a>
-            {% endif %}
-            {% if request.user.is_superuser %}
-                <a href="/platform-admin/" style="display: flex; align-items: center; gap: 10px; padding: 8px 14px; color: #EF4444; text-decoration: none; font-size: 12px; font-weight: 600;">
-                    <span>🛡️</span> <span>Platform SuperAdmin</span>
                 </a>
             {% endif %}
         {% else %}
