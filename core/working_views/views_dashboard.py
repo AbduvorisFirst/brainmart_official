@@ -473,7 +473,7 @@ def product_add_view(request):
         return redirect("seller-products")
 
     from core.models import Category
-    categories = Category.objects.all().order_by('order', 'id')
+    categories = Category.objects.filter(Q(store__isnull=True) | Q(store=store)).order_by('order', 'id')
     default_category = store.effective_category
     default_category_id = default_category.id if default_category else None
     return render(request, "dashboard/product_add.html", {
@@ -759,7 +759,7 @@ def product_edit_view(request, product_id):
             return redirect("seller-product-edit", product_id=product.id)
 
     from core.models import Category
-    categories = Category.objects.all().order_by('order', 'id')
+    categories = Category.objects.filter(Q(store__isnull=True) | Q(store=store)).order_by('order', 'id')
     gallery_images = product.images.all().order_by("id")
     all_variants = product.variants.all().order_by("id")
     variants_with_images = product.variants.filter(image__isnull=False).exclude(image="").order_by("id")
@@ -2167,8 +2167,13 @@ def store_settings_view(request):
             "link": build_manager_link_deep_link(mgr) if settings.TELEGRAM_BOT_USERNAME else None,
         })
 
-    from core.models import Category
-    categories = Category.objects.all().order_by("id")
+    from core.models import Category, PromoBanner
+    store_banners = PromoBanner.objects.filter(store=store).order_by("order", "-id")
+    needed_names = ["Для мальчиков", "Для девочек", "Обувь", "Аксессуары"]
+    base_cats = list(Category.objects.filter(name__in=needed_names, store__isnull=True).order_by("order", "id"))
+    store_cats = list(Category.objects.filter(store=store).order_by("order", "id"))
+    other_cats = list(Category.objects.filter(store__isnull=True).exclude(name__in=needed_names).order_by("order", "id"))
+    categories = base_cats + store_cats + other_cats
     site_url = getattr(settings, "SITE_URL", "") or "https://brainmart.uz"
     store_catalog_url = store.get_subdomain_url(request)
     global_market_url = f"{site_url.rstrip('/')}/ru/?global=1"
@@ -2177,6 +2182,10 @@ def store_settings_view(request):
     context = {
         "store": store,
         "categories": categories,
+        "store_banners": store_banners,
+        "store_banners_count": store_banners.count(),
+        "store_custom_categories": store_cats,
+        "base_categories": base_cats,
         "niche_choices": Store.Niche.choices,
         "managers": managers,
         "telegram_connected": bool(store.telegram_chat_id),
@@ -2761,23 +2770,39 @@ THEME_PALETTES = {
 
 @login_required
 def store_banner_add_view(request):
-    """Добавление баннера магазина через Dashboard."""
+    """Добавление баннера магазина через Dashboard (лимит до 7 баннеров, привязка к категории)."""
     store = _get_store_or_none(request)
     if not store:
         return redirect("seller-login")
     if request.method == "POST":
+        from core.models import PromoBanner, Category
+        current_count = PromoBanner.objects.filter(store=store).count()
+        if current_count >= 7:
+            messages.warning(request, "⚠️ Достигнут лимит: максимум 7 баннеров на витрине. Рекомендуем 3–4 баннера для идеальной скорости. Удалите старый перед добавлением нового.")
+            return redirect("seller-settings")
+
         image = request.FILES.get("banner_image") or request.FILES.get("image")
         title = request.POST.get("banner_title", "").strip() or store.name
         subtitle = request.POST.get("banner_subtitle", "").strip()
         badge = request.POST.get("banner_badge", "").strip() or "NEW COLLECTION"
         button_text = request.POST.get("banner_button_text", "").strip() or "Shop Now"
-        link_url = request.POST.get("banner_link_url", "").strip() or "#products-section"
+        target_cat_id = request.POST.get("target_category_id")
+        
+        target_cat = None
+        if target_cat_id and str(target_cat_id).isdigit():
+            target_cat = Category.objects.filter(id=int(target_cat_id)).first()
+
+        if target_cat:
+            link_url = f"?category={target_cat.id}"
+        else:
+            link_url = request.POST.get("banner_link_url", "").strip() or "#products-section"
+
         try:
             order = int(request.POST.get("banner_order", 0) or 0)
         except ValueError:
-            order = 0
+            order = current_count + 1
+
         if image:
-            from core.models import PromoBanner
             PromoBanner.objects.create(
                 store=store,
                 image=image,
@@ -2785,13 +2810,82 @@ def store_banner_add_view(request):
                 subtitle=subtitle,
                 badge=badge,
                 button_text=button_text,
+                target_category=target_cat,
                 link_url=link_url,
                 order=order,
                 is_active=True
             )
-            messages.success(request, "Рекламный баннер успешно добавлен на витрину!")
+            messages.success(request, f"🎉 Баннер '{title}' успешно добавлен на витрину!")
         else:
-            messages.error(request, "Пожалуйста, выберите изображение баннера.")
+            messages.error(request, "Ошибка: пожалуйста, выберите файл изображения баннера.")
+    return redirect("seller-settings")
+
+
+@login_required
+def store_category_add_view(request):
+    """Создание новой категории магазина с собственной картинкой."""
+    store = _get_store_or_none(request)
+    if not store:
+        return redirect("seller-login")
+    if request.method == "POST":
+        from core.models import Category
+        name = request.POST.get("category_name", "").strip()
+        icon = request.POST.get("category_icon", "🏷️").strip() or "🏷️"
+        image = request.FILES.get("category_image")
+        name_uz = request.POST.get("category_name_uz", "").strip()
+        name_en = request.POST.get("category_name_en", "").strip()
+
+        if not name:
+            messages.error(request, "Ошибка: укажите название новой категории.")
+            return redirect("seller-settings")
+
+        order_num = 10 + Category.objects.filter(store=store).count()
+        cat = Category.objects.create(
+            store=store,
+            name=name,
+            icon=icon,
+            image=image,
+            name_uz=name_uz,
+            name_en=name_en,
+            order=order_num
+        )
+        messages.success(request, f"🎉 Новая категория '{name}' успешно создана и отображается на витрине!")
+    return redirect("seller-settings")
+
+
+@login_required
+def store_category_update_image_view(request, category_id):
+    """Обновление картинки любой категории продавцом."""
+    store = _get_store_or_none(request)
+    if not store:
+        return redirect("seller-login")
+    if request.method == "POST":
+        from core.models import Category
+        cat = Category.objects.filter(id=category_id).first()
+        image = request.FILES.get("category_image")
+        if cat and image:
+            cat.image = image
+            cat.save(update_fields=["image"])
+            messages.success(request, f"✅ Фото категории '{cat.name}' успешно обновлено!")
+        else:
+            messages.error(request, "Ошибка: выберите изображение для категории.")
+    return redirect("seller-settings")
+
+
+@login_required
+def store_category_delete_view(request, category_id):
+    """Удаление пользовательской категории магазина."""
+    store = _get_store_or_none(request)
+    if not store:
+        return redirect("seller-login")
+    from core.models import Category
+    cat = Category.objects.filter(id=category_id, store=store).first()
+    if cat:
+        name = cat.name
+        cat.delete()
+        messages.success(request, f"Категория '{name}' удалена.")
+    else:
+        messages.error(request, "Нельзя удалить системную категорию платформы.")
     return redirect("seller-settings")
 
 

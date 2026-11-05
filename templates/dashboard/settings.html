@@ -1547,36 +1547,47 @@
                         </div>
                     </div>
 
-                    <!-- ─── СЛАЙДЕР РЕКЛАМНЫХ БАННЕРОВ МАГАЗИНА (МУЛЬТИ-СЛАЙДЫ) ─── -->
-                    <div style="background: rgba(255,255,255,0.03); border: 1.5px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 20px;">
+                    <!-- ─── СЛАЙДЕР РЕКЛАМНЫХ БАННЕРОВ МАГАЗИНА (ОТ 1 ДО 7 БАННЕРОВ) ─── -->
+                    <div style="background: rgba(255,255,255,0.03); border: 1.5px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 22px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
                             <div>
-                                <h4 style="margin: 0 0 4px; font-size: 13.5px; font-weight: 800; color: white;">
-                                    🎠 {% trans "Слайдер баннеров витрины (Карусель)" %}
+                                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 800; color: white; display: flex; align-items: center; gap: 8px;">
+                                    <span>🎠</span> <span>{% trans "Рекламные баннеры витрины" %}</span>
+                                    <span style="font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 6px; background: rgba(201, 162, 122, 0.18); color: var(--primary, #C9A27A); border: 1px solid rgba(201, 162, 122, 0.35);">
+                                        {{ store_banners|length }} / 7
+                                    </span>
                                 </h4>
-                                <p style="margin: 0; font-size: 11px; color: var(--text-muted);">
-                                    {% trans "Загрузите несколько баннеров: покупатели смогут листать их свайпом на мобильном" %}
+                                <p style="margin: 0; font-size: 12px; color: var(--text-muted); line-height: 1.4;">
+                                    💡 <strong>{% trans "Рекомендуем 3–4 баннера" %}</strong>: {% trans "покупатели смогут листать их свайпом на мобильном, а витрина будет открываться мгновенно." %}
                                 </p>
                             </div>
                         </div>
 
                         <!-- Список уже загруженных баннеров магазина -->
                         {% if store_banners %}
-                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-bottom: 14px;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin-bottom: 16px;">
                                 {% for b in store_banners %}
-                                    <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden; position: relative;">
+                                    <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; overflow: hidden; position: relative;">
                                         {% if b.image %}
                                             <img src="{{ b.image.url }}" style="width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block;">
                                         {% else %}
                                             <div style="width: 100%; aspect-ratio: 16/9; background: {{ b.bg_gradient }};"></div>
                                         {% endif %}
-                                        <div style="padding: 8px 10px;">
-                                            <div style="font-size: 10px; font-weight: 700; color: var(--primary);">{{ b.badge|default:"СЛАЙД" }}</div>
-                                            <div style="font-size: 12px; font-weight: 800; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ b.title }}</div>
-                                            <div style="font-size: 10px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ b.subtitle }}</div>
+                                        <div style="padding: 10px;">
+                                            <div style="font-size: 10px; font-weight: 800; color: var(--primary, #C9A27A); text-transform: uppercase;">{{ b.badge|default:"СЛАЙД" }}</div>
+                                            <div style="font-size: 13px; font-weight: 800; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 2px 0;">{{ b.title }}</div>
+                                            {% if b.target_category %}
+                                                <div style="font-size: 11px; color: #34D399; font-weight: 700; margin-bottom: 6px;">
+                                                    🎯 {% trans "Кнопка ведёт в" %}: {{ b.target_category.display_name }}
+                                                </div>
+                                            {% elif b.link_url %}
+                                                <div style="font-size: 10px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 6px;">
+                                                    🔗 {{ b.link_url }}
+                                                </div>
+                                            {% endif %}
                                             <div style="margin-top: 6px;">
-                                                <button type="submit" name="action" value="delete_banner" onclick="if(!confirm('{% trans "Удалить этот баннер?" %}')) return false; document.getElementById('deleteBannerIdInput').value='{{ b.id }}';" style="background: rgba(239, 68, 68, 0.15); border: 1px solid #EF4444; color: #EF4444; font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 6px; cursor: pointer; width: 100%;">
-                                                    🗑️ {% trans "Удалить" %}
+                                                <button type="submit" formaction="{% url 'seller-banner-delete' b.id %}" onclick="return confirm('{% trans "Удалить этот баннер?" %}');" style="background: rgba(239, 68, 68, 0.15); border: 1px solid #EF4444; color: #EF4444; font-size: 11px; font-weight: 700; padding: 5px 10px; border-radius: 8px; cursor: pointer; width: 100%;">
+                                                    🗑️ {% trans "Удалить баннер" %}
                                                 </button>
                                             </div>
                                         </div>
@@ -1584,46 +1595,144 @@
                                 {% endfor %}
                             </div>
                         {% else %}
-                            <div style="background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.12); border-radius: 10px; padding: 14px; text-align: center; margin-bottom: 14px;">
-                                <span style="font-size: 11px; color: var(--text-muted);">
-                                    ✨ {% trans "Сейчас на витрине показывается стильный автоматический слайдер. Вы можете добавить свои персональные баннеры ниже:" %}
+                            <div style="background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.14); border-radius: 12px; padding: 14px; text-align: center; margin-bottom: 16px;">
+                                <span style="font-size: 12px; color: var(--text-muted);">
+                                    ✨ {% trans "Сейчас на витрине показываются 3 стильных системных баннера. Загрузите свои персональные баннеры ниже:" %}
                                 </span>
                             </div>
                         {% endif %}
 
                         <!-- Форма добавления нового баннера -->
-                        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 12px;">
-                            <span style="font-size: 11px; font-weight: 800; color: white; display: block; margin-bottom: 8px;">
-                                ➕ {% trans "Добавить новый слайд в карусель:" %}
+                        {% if store_banners|length < 7 %}
+                            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px;">
+                                <span style="font-size: 13px; font-weight: 800; color: white; display: flex; align-items: center; gap: 6px; margin-bottom: 10px;">
+                                    <span>➕</span> <span>{% trans "Загрузить новый баннер (Слайд в карусель)" %}:</span>
+                                </span>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 10px;">
+                                    <div>
+                                        <label style="font-size: 11px; font-weight: 700; color: var(--text-muted);">{% trans "Картинка баннера" %} *</label>
+                                        <input type="file" name="banner_image" accept="image/*" style="font-size: 12px; color: var(--text-muted); width: 100%; margin-top: 4px;">
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 11px; font-weight: 700; color: var(--text-muted);">{% trans "Бейдж акции" %}</label>
+                                        <input type="text" name="banner_badge" placeholder="NEW COLLECTION" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 12px; margin-top: 4px;">
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 11px; font-weight: 700; color: var(--text-muted);">{% trans "Заголовок" %} *</label>
+                                        <input type="text" name="banner_title" placeholder="Luxury Style for Kids" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 12px; margin-top: 4px;">
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 11px; font-weight: 700; color: var(--text-muted);">{% trans "Подзаголовок" %}</label>
+                                        <input type="text" name="banner_subtitle" placeholder="Comfort • Elegance • Quality" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 12px; margin-top: 4px;">
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 11px; font-weight: 700; color: var(--text-muted);">{% trans "Текст кнопки" %}</label>
+                                        <input type="text" name="banner_button_text" placeholder="Shop Now" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 12px; margin-top: 4px;">
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 11px; font-weight: 700; color: #34D399;">🎯 {% trans "Куда ведёт кнопка? (Категория)" %}</label>
+                                        <select name="target_category_id" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 12px; margin-top: 4px;">
+                                            <option value="">-- {% trans "Произвольная ссылка или каталог" %} --</option>
+                                            {% for cat in categories %}
+                                                <option value="{{ cat.id }}">{{ cat.icon|default:'🏷️' }} {{ cat.display_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div style="margin-bottom: 10px;">
+                                    <label style="font-size: 10.5px; color: var(--text-muted);">{% trans "Произвольная ссылка (если не выбрана категория)" %}:</label>
+                                    <input type="text" name="banner_link_url" placeholder="#products-section" style="width: 100%; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 11.5px; margin-top: 3px;">
+                                </div>
+                                <button type="submit" formaction="{% url 'seller-banner-add' %}" style="background: var(--btn-gradient, linear-gradient(135deg, #10B981 0%, #059669 100%)); color: white; border: none; padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                                    ➕ {% trans "Загрузить и опубликовать баннер" %}
+                                </button>
+                            </div>
+                        {% else %}
+                            <div style="background: rgba(245, 158, 11, 0.12); border: 1px solid #F59E0B; border-radius: 10px; padding: 12px; color: #FBBF24; font-size: 12px; font-weight: 600;">
+                                ⚠️ {% trans "Вы достигли максимального лимита в 7 баннеров. Чтобы добавить новый баннер, удалите один из старых выше." %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- ─── УПРАВЛЕНИЕ КАТЕГОРИЯМИ ВИТРИНЫ (ФОТО + СОЗДАНИЕ НОВЫХ) ─── -->
+                    <div style="background: rgba(255,255,255,0.03); border: 1.5px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 22px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+                            <div>
+                                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 800; color: white; display: flex; align-items: center; gap: 8px;">
+                                    <span>🏷️</span> <span>{% trans "Категории витрины магазина" %}</span>
+                                </h4>
+                                <p style="margin: 0; font-size: 12px; color: var(--text-muted); line-height: 1.4;">
+                                    {% trans "4 базовые категории активны по умолчанию. Вы можете сменить им фото или создать новые категории для вашего магазина." %}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 4 Базовые категории по умолчанию с фото -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 16px;">
+                            {% for cat in base_categories %}
+                                <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; overflow: hidden; text-align: center; padding-bottom: 10px;">
+                                    <div style="width: 100%; aspect-ratio: 1; overflow: hidden; background: #141416; position: relative;">
+                                        {% if cat.effective_image_url %}
+                                            <img src="{{ cat.effective_image_url }}" alt="{{ cat.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                        {% else %}
+                                            <span style="font-size: 32px; display: flex; align-items: center; justify-content: center; height: 100%;">{{ cat.icon|default:'🏷️' }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <div style="padding: 8px 6px 0;">
+                                        <div style="font-size: 12px; font-weight: 800; color: white;">{{ cat.icon }} {{ cat.display_name }}</div>
+                                        <label style="display: block; font-size: 10px; color: var(--primary, #C9A27A); margin-top: 6px; cursor: pointer; text-decoration: underline;">
+                                            📷 {% trans "Сменить фото" %}
+                                            <input type="file" name="category_image" accept="image/*" onchange="if(this.files[0]){ document.getElementById('updateCatId').value='{{ cat.id }}'; document.getElementById('updateCatBtn').click(); }" style="display: none;">
+                                        </label>
+                                    </div>
+                                </div>
+                            {% endfor %}
+
+                            {% for cat in store_custom_categories %}
+                                <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; overflow: hidden; text-align: center; padding-bottom: 10px; position: relative;">
+                                    <span style="position: absolute; top: 6px; left: 6px; background: #10B981; color: white; font-size: 8px; font-weight: 800; padding: 2px 6px; border-radius: 4px; z-index: 2;">СВОЯ</span>
+                                    <div style="width: 100%; aspect-ratio: 1; overflow: hidden; background: #141416; position: relative;">
+                                        {% if cat.effective_image_url %}
+                                            <img src="{{ cat.effective_image_url }}" alt="{{ cat.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                        {% else %}
+                                            <span style="font-size: 32px; display: flex; align-items: center; justify-content: center; height: 100%;">{{ cat.icon|default:'🏷️' }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <div style="padding: 8px 6px 0;">
+                                        <div style="font-size: 12px; font-weight: 800; color: white;">{{ cat.icon }} {{ cat.display_name }}</div>
+                                        <button type="submit" formaction="{% url 'seller-category-delete' cat.id %}" onclick="return confirm('{% trans "Удалить эту категорию?" %}');" style="background: none; border: none; color: #EF4444; font-size: 10px; cursor: pointer; margin-top: 4px; text-decoration: underline;">
+                                            🗑️ {% trans "Удалить" %}
+                                        </button>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Скрытая кнопка для моментальной смены фото категории -->
+                        <input type="hidden" name="update_category_id" id="updateCatId" value="">
+                        <button type="submit" id="updateCatBtn" formaction="{% url 'seller-category-update-image' 0 %}" onclick="this.formAction='{% url 'seller-category-update-image' 0 %}'.replace('0', document.getElementById('updateCatId').value);" style="display: none;"></button>
+
+                        <!-- Форма создания новой категории продавцом -->
+                        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px;">
+                            <span style="font-size: 13px; font-weight: 800; color: white; display: flex; align-items: center; gap: 6px; margin-bottom: 10px;">
+                                <span>➕</span> <span>{% trans "Создать новую категорию для витрины" %}:</span>
                             </span>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; margin-bottom: 8px;">
+                            <div style="display: grid; grid-template-columns: 2fr 1fr 2fr; gap: 10px; margin-bottom: 10px;">
                                 <div>
-                                    <label style="font-size: 10px; color: var(--text-muted);">{% trans "Картинка баннера" %} *</label>
-                                    <input type="file" name="banner_image" accept="image/*" style="font-size: 11px; color: var(--text-muted); width: 100%;">
+                                    <label style="font-size: 11px; font-weight: 700; color: var(--text-muted);">{% trans "Название категории" %} *</label>
+                                    <input type="text" name="category_name" placeholder="{% trans 'Например: Осенняя одежда' %}" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 12px; margin-top: 4px;">
                                 </div>
                                 <div>
-                                    <label style="font-size: 10px; color: var(--text-muted);">{% trans "Бейдж акции" %}</label>
-                                    <input type="text" name="banner_badge" placeholder="NEW COLLECTION" style="width: 100%; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 11px;">
+                                    <label style="font-size: 11px; font-weight: 700; color: var(--text-muted);">{% trans "Иконка" %}</label>
+                                    <input type="text" name="category_icon" placeholder="🧥 / 👗 / 🧸" value="🏷️" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 12px; margin-top: 4px; text-align: center;">
                                 </div>
                                 <div>
-                                    <label style="font-size: 10px; color: var(--text-muted);">{% trans "Заголовок" %} *</label>
-                                    <input type="text" name="banner_title" placeholder="Luxury Style for Kids" style="width: 100%; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 11px;">
-                                </div>
-                                <div>
-                                    <label style="font-size: 10px; color: var(--text-muted);">{% trans "Подзаголовок" %}</label>
-                                    <input type="text" name="banner_subtitle" placeholder="Comfort • Elegance • Quality" style="width: 100%; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 11px;">
-                                </div>
-                                <div>
-                                    <label style="font-size: 10px; color: var(--text-muted);">{% trans "Текст кнопки" %}</label>
-                                    <input type="text" name="banner_button_text" placeholder="Shop Now" style="width: 100%; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 11px;">
-                                </div>
-                                <div>
-                                    <label style="font-size: 10px; color: var(--text-muted);">{% trans "Ссылка при клике" %}</label>
-                                    <input type="text" name="banner_link_url" placeholder="#products-section" style="width: 100%; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 11px;">
+                                    <label style="font-size: 11px; font-weight: 700; color: var(--text-muted);">{% trans "Картинка категории" %}</label>
+                                    <input type="file" name="category_image" accept="image/*" style="font-size: 12px; color: var(--text-muted); width: 100%; margin-top: 4px;">
                                 </div>
                             </div>
-                            <button type="submit" name="action" value="add_banner" style="background: var(--btn-gradient, linear-gradient(135deg, #10B981 0%, #059669 100%)); color: white; border: none; padding: 7px 16px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer;">
-                                ➕ {% trans "Сохранить и добавить баннер" %}
+                            <button type="submit" formaction="{% url 'seller-category-add' %}" style="background: rgba(99, 102, 241, 0.2); border: 1px solid #818CF8; color: #C7D2FE; padding: 9px 18px; border-radius: 10px; font-size: 12.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                                ➕ {% trans "Сохранить и создать категорию" %}
                             </button>
                         </div>
                     </div>

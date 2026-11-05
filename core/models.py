@@ -751,8 +751,12 @@ class SubscriptionPayment(models.Model):
 
 
 class Category(models.Model):
-    """Категория товара: Для мальчиков, Для девочек, Обувь, Аксессуары и т.д."""
-    name = models.CharField(max_length=100, unique=True, verbose_name="Название (RU)")
+    """Категория товара: Для мальчиков, Для девочек, Обувь, Аксессуары и пользовательские категории."""
+    store = models.ForeignKey(
+        'Store', on_delete=models.CASCADE, null=True, blank=True,
+        related_name="custom_categories", verbose_name="Магазин (пусто = общая категория)"
+    )
+    name = models.CharField(max_length=100, verbose_name="Название (RU)")
     name_uz = models.CharField(max_length=100, blank=True, default="", verbose_name="Название (UZ)")
     name_en = models.CharField(max_length=100, blank=True, default="", verbose_name="Название (EN)")
     image = models.ImageField(upload_to="categories/", null=True, blank=True, verbose_name="Изображение категории")
@@ -1566,6 +1570,10 @@ class PromoBanner(models.Model):
     subtitle = models.CharField(max_length=255, blank=True, default="", verbose_name="Подзаголовок / Описание акции")
     badge = models.CharField(max_length=60, blank=True, default="", verbose_name="Бейдж акции (напр. 'СКИДКИ ДО -70%', '0% ОФИЦИАЛЬНАЯ ГАРАНТИЯ')")
     image = models.ImageField(upload_to="banners/", null=True, blank=True, verbose_name="Изображение баннера")
+    target_category = models.ForeignKey(
+        'Category', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="promo_banners", verbose_name="Целевая категория"
+    )
     link_url = models.CharField(max_length=500, blank=True, default="", verbose_name="Ссылка при клике (URL)")
     button_text = models.CharField(max_length=60, blank=True, default="Перейти к покупкам", verbose_name="Текст кнопки")
     bg_gradient = models.CharField(
@@ -1584,6 +1592,14 @@ class PromoBanner(models.Model):
 
     def __str__(self):
         return f"{self.title} [{'Активен' if self.is_active else 'Выключен'}]"
+
+    @property
+    def effective_link_url(self):
+        if self.target_category_id:
+            return f"?category={self.target_category_id}"
+        if self.link_url:
+            return self.link_url
+        return "#products-section"
 
     @classmethod
     def get_banners_for_store(cls, store=None):

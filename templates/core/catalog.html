@@ -1229,7 +1229,7 @@ body {
                             {% if b.subtitle %}
                                 <p class="bm-hero-subtitle">{{ b.subtitle }}</p>
                             {% endif %}
-                            <a href="{{ b.link_url|default:'#products-section' }}" class="bm-hero-btn">
+                            <a href="{{ b.effective_link_url|default:b.link_url|default:'#products-section' }}" class="bm-hero-btn">
                                 {{ b.button_text|default:_("Shop Now") }} ›
                             </a>
                         </div>
@@ -1291,8 +1291,8 @@ body {
         <section class="bm-categories-section">
             <div class="bm-cat-scroll">
                 <a href="?{% if current_store_id %}store_id={{ current_store_id }}&{% endif %}{% if search_query %}q={{ search_query }}&{% endif %}" class="bm-cat-card {% if not selected_category_id %}active{% endif %}">
-                    <div class="bm-cat-thumb">
-                        <span class="bm-cat-thumb-placeholder">✦</span>
+                    <div class="bm-cat-thumb" style="background: linear-gradient(135deg, rgba(201, 162, 122, 0.22) 0%, rgba(18, 18, 20, 0.95) 100%); display: flex; align-items: center; justify-content: center;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--primary, #C9A27A);"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
                     </div>
                     <div class="bm-cat-meta">
                         <span class="bm-cat-name">{% trans "Все" %}</span>

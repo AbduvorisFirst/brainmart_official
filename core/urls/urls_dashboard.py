@@ -72,6 +72,9 @@ urlpatterns = [
     path('api/extract-palette/', views_dashboard.extract_logo_palette_api, name='api-extract-logo-palette'),
     path('banners/add/', views_dashboard.store_banner_add_view, name='seller-banner-add'),
     path('banners/<int:banner_id>/delete/', views_dashboard.store_banner_delete_view, name='seller-banner-delete'),
+    path('categories/add/', views_dashboard.store_category_add_view, name='seller-category-add'),
+    path('categories/<int:category_id>/update-image/', views_dashboard.store_category_update_image_view, name='seller-category-update-image'),
+    path('categories/<int:category_id>/delete/', views_dashboard.store_category_delete_view, name='seller-category-delete'),
 
     # BrainMart Vision AI (Видеоаналитика и акустический аудит)
     path('vision-ai/', views_vision.vision_ai_dashboard_view, name='seller-vision-ai'),

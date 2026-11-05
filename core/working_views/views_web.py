@@ -167,13 +167,14 @@ def catalog_view(request):
 
     # Категории: популярные подкатегории (Для мальчиков, Для девочек, Обувь, Аксессуары) всегда впереди
     needed_names = ["Для мальчиков", "Для девочек", "Обувь", "Аксессуары"]
-    base_subcats = list(Category.objects.filter(name__in=needed_names).order_by("order", "id"))
+    base_subcats = list(Category.objects.filter(name__in=needed_names, store__isnull=True).order_by("order", "id"))
     if current_store:
+        store_custom_cats = list(Category.objects.filter(store=current_store).order_by("order", "id"))
         store_cat_ids = list(Product.objects.filter(store=current_store, is_active=True).values_list("category_id", flat=True).distinct())
-        other_cats = list(Category.objects.filter(id__in=store_cat_ids).exclude(name__in=needed_names).order_by("order", "id"))
-        categories = base_subcats + other_cats
+        other_cats = list(Category.objects.filter(id__in=store_cat_ids).exclude(name__in=needed_names).exclude(store=current_store).order_by("order", "id"))
+        categories = base_subcats + store_custom_cats + other_cats
     else:
-        other_cats = list(Category.objects.exclude(name__in=needed_names).order_by("order", "id"))
+        other_cats = list(Category.objects.filter(store__isnull=True).exclude(name__in=needed_names).order_by("order", "id"))
         categories = base_subcats + other_cats
 
     # Интеллектуальный поиск: многословный, по названию, цвету, описанию и ИИ
@@ -370,28 +371,29 @@ def catalog_view(request):
                 "reviews_count": 140,
             })
 
-    # Обогащаем категории превью-картинками (из товара магазина либо качественный fallback)
+    # Обогащаем категории превью-картинками (из категории, fallback или товара магазина)
     category_list = []
     cat_fallbacks = {
-        "Для мальчиков": "https://images.unsplash.com/photo-1509551388413-e18d0ac5d495?auto=format&fit=crop&w=400&q=80",
-        "Для девочек": "https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?auto=format&fit=crop&w=400&q=80",
-        "Обувь": "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=400&q=80",
-        "Аксессуары": "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=400&q=80",
+        "Для мальчиков": "/static/img/categories/boys.jpg",
+        "Для девочек": "/static/img/categories/girls.jpg",
+        "Обувь": "/static/img/categories/shoes.jpg",
+        "Аксессуары": "/static/img/categories/accessories.jpg",
     }
     for cat in categories:
         img_url = getattr(cat, "effective_image_url", "")
         if not img_url and cat.name in cat_fallbacks:
             img_url = cat_fallbacks[cat.name]
-        cat_prod = Product.objects.filter(category=cat, is_active=True)
-        if current_store:
-            cat_prod = cat_prod.filter(store=current_store)
-        sample = cat_prod.exclude(main_image="").exclude(main_image__isnull=True).first()
-        if sample and sample.main_image:
-            try:
-                img_url = sample.main_image.url
-            except Exception:
-                pass
-        cat.sample_image = img_url or cat_fallbacks.get(cat.name, "https://images.unsplash.com/photo-1519457431-44ccd64a579b?auto=format&fit=crop&w=400&q=80")
+        if not img_url:
+            cat_prod = Product.objects.filter(category=cat, is_active=True)
+            if current_store:
+                cat_prod = cat_prod.filter(store=current_store)
+            sample = cat_prod.exclude(main_image="").exclude(main_image__isnull=True).first()
+            if sample and sample.main_image:
+                try:
+                    img_url = sample.main_image.url
+                except Exception:
+                    pass
+        cat.sample_image = img_url or cat_fallbacks.get(cat.name, "/static/img/categories/boys.jpg")
         category_list.append(cat)
 
     effective_bot = current_store.telegram_bot_username if (current_store and current_store.telegram_bot_username and current_store.telegram_bot_active) else settings.TELEGRAM_BOT_USERNAME
