@@ -835,10 +835,10 @@
      ====================================================================== -->
 <div id="studioTabCustom" style="display: none;">
 
-    <form method="POST" action="{% url 'seller-design' %}" enctype="multipart/form-data" id="customDesignForm">
+    <form method="POST" action="{% url 'seller-design' %}?tab=custom" enctype="multipart/form-data" id="customDesignForm">
         {% csrf_token %}
         <input type="hidden" name="action" value="save_custom_design">
-        <input type="hidden" name="next" value="{% url 'seller-design' %}">
+        <input type="hidden" name="next" value="{% url 'seller-design' %}?tab=custom">
 
         <!-- ─── БЛОК 1: ЦВЕТОВАЯ ПАЛИТРА И ТЕМА ─── -->
         <div class="bm-studio-card">
@@ -912,18 +912,44 @@
                     </select>
                 </div>
             </div>
+
+            <!-- Прямая кнопка сохранения цветов -->
+            <div style="margin-top: 18px;">
+                <button type="submit" class="btn" style="width: 100%; padding: 12px 20px; font-size: 13.5px; font-weight: 800; border-radius: 10px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(16,185,129,0.3); display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <span>💾</span> <span>{% trans "Сохранить цвета витрины" %}</span>
+                </button>
+            </div>
         </div>
 
         <!-- ─── БЛОК 2: СЛОГАН И HERO-БАННЕР ВИТРИНЫ (JM KIDS STYLE) ─── -->
         <div class="bm-studio-card">
             <h3 class="bm-card-title">
-                <span>✨</span> <span>{% trans "Слоган и Hero-баннер витрины (JM Kids Style)" %}</span>
+                <span>✨</span> <span>{% trans "Слоган, фирменная подпись и Hero-баннер витрины" %}</span>
             </h3>
             <p class="bm-card-desc">
                 {% trans "Настройте верхнюю надпись, слоган и главный экран магазина, как на брендовом эталоне JM Kids Store." %}
             </p>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 14px;">
+                <!-- Фирменная надпись под названием магазина (Бейдж в шапке) -->
+                <div style="grid-column: 1 / -1; background: rgba(201, 162, 122, 0.07); border: 1px solid rgba(201, 162, 122, 0.28); border-radius: 12px; padding: 14px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 8px;">
+                        <label style="font-size: 12.5px; font-weight: 800; color: #FFFFFF; margin: 0;">
+                            👑 {% trans "Фирменная надпись бренда (Бейдж под названием магазина в шапке)" %}
+                        </label>
+                        <span style="font-size: 10px; color: var(--primary, #C9A27A); font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; background: rgba(201,162,122,0.15); padding: 3px 8px; border-radius: 6px;">
+                            {% trans "В шапке витрины" %}
+                        </span>
+                    </div>
+                    <p style="font-size: 11px; color: #94A3B8; margin-top: 0; margin-bottom: 10px;">
+                        {% trans "Отображается крупным фирменным стилем прямо под названием магазина (как TITANIUM PRO, VIP BRAND, LUXURY KIDS в готовых стилях). Вы можете написать сюда любой свой текст!" %}
+                    </p>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="text" name="brand_signature_icon" value="{{ store.brand_signature_icon|default:'' }}" placeholder="✦" maxlength="10" title="{% trans 'Иконка или символ' %}" style="width: 52px; text-align: center; font-size: 16px; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--card-bg); color: white;">
+                        <input type="text" name="brand_signature_text" value="{{ store.brand_signature_text|default:'' }}" placeholder="{{ store.get_brand_signature.default_text }}" maxlength="60" style="flex: 1; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 13.5px; font-weight: 800; letter-spacing: 0.05em;" placeholder="{% trans 'Например: TITANIUM PRO, LUXURY KIDS, VIP STORE' %}">
+                    </div>
+                </div>
+
                 <div>
                     <label style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">
                         {% trans "Слоган под названием (Tagline)" %}
@@ -1013,7 +1039,7 @@
                                 </div>
                             {% endif %}
                         </div>
-                        <a href="{% url 'seller-banner-delete' b.id %}?next={% url 'seller-design' %}" onclick="return confirm('{% trans "Удалить этот баннер с витрины?" %}');" style="position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.65); border: 1px solid rgba(239, 68, 68, 0.5); color: #EF4444; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; text-decoration: none;" title="{% trans 'Удалить баннер' %}">
+                        <a href="{% url 'seller-banner-delete' b.id %}?next={% url 'seller-design' %}?tab=custom" onclick="return confirm('{% trans "Удалить этот баннер с витрины?" %}');" style="position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.65); border: 1px solid rgba(239, 68, 68, 0.5); color: #EF4444; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; text-decoration: none;" title="{% trans 'Удалить баннер' %}">
                             ✕
                         </a>
                     </div>
@@ -1029,7 +1055,7 @@
         {% if store_banners_count < 7 %}
             <form method="POST" action="{% url 'seller-banner-add' %}" enctype="multipart/form-data" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px;">
                 {% csrf_token %}
-                <input type="hidden" name="next" value="{% url 'seller-design' %}">
+                <input type="hidden" name="next" value="{% url 'seller-design' %}?tab=custom">
                 <span style="font-size: 13px; font-weight: 800; color: white; display: block; margin-bottom: 12px;">
                     ➕ {% trans "Добавить новый слайд в карусель (от 1 до 7):" %}
                 </span>
@@ -1077,69 +1103,70 @@
 
     <!-- ─── БЛОК 4: КАТЕГОРИИ ВИТРИНЫ ─── -->
     <div class="bm-studio-card">
-        <h3 class="bm-card-title">
-            <span>🏷️</span> <span>{% trans "Категории витрины магазина" %}</span>
-        </h3>
-        <p class="bm-card-desc">
-            {% trans "4 базовые категории с фирменными фото активны по умолчанию. Вы можете сменить фото любой категории или создать новую категорию магазина." %}
-        </p>
-
-        <!-- 4 базовые категории витрины -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin-bottom: 20px;">
-            {% for cat in base_categories %}
-                <div style="background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px; display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 50px; height: 50px; border-radius: 10px; overflow: hidden; background: #222; flex-shrink: 0;">
-                        {% if cat.effective_image_url %}
-                            <img src="{{ cat.effective_image_url }}" style="width: 100%; height: 100%; object-fit: cover;">
-                        {% else %}
-                            <div style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 18px;">{{ cat.icon|default:'🏷️' }}</div>
-                        {% endif %}
-                    </div>
-                    <div style="flex: 1; min-width: 0;">
-                        <div style="font-size: 12px; font-weight: 800; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ cat.display_name }}</div>
-                        <div style="font-size: 10px; color: #10B981; font-weight: 700;">{% trans "Базовая (Системная)" %}</div>
-                        <button type="button" onclick="triggerCatImageUpdate('{{ cat.id }}')" style="background: transparent; border: none; color: #60A5FA; font-size: 11px; padding: 0; margin-top: 4px; cursor: pointer; text-decoration: underline;">
-                            📷 {% trans "Сменить фото" %}
-                        </button>
-                    </div>
-                </div>
-            {% endfor %}
-
-            <!-- Дополнительные пользовательские категории магазина -->
-            {% for cat in store_custom_categories %}
-                <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 12px; padding: 10px; display: flex; align-items: center; gap: 10px; position: relative;">
-                    <div style="width: 50px; height: 50px; border-radius: 10px; overflow: hidden; background: #222; flex-shrink: 0;">
-                        {% if cat.effective_image_url %}
-                            <img src="{{ cat.effective_image_url }}" style="width: 100%; height: 100%; object-fit: cover;">
-                        {% else %}
-                            <div style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 18px;">{{ cat.icon|default:'🏷️' }}</div>
-                        {% endif %}
-                    </div>
-                    <div style="flex: 1; min-width: 0;">
-                        <div style="font-size: 12px; font-weight: 800; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ cat.display_name }}</div>
-                        <div style="font-size: 10px; color: #A5B4FC; font-weight: 700;">{% trans "Категория магазина" %}</div>
-                        <button type="button" onclick="triggerCatImageUpdate('{{ cat.id }}')" style="background: transparent; border: none; color: #60A5FA; font-size: 11px; padding: 0; margin-top: 4px; cursor: pointer; text-decoration: underline;">
-                            📷 {% trans "Сменить фото" %}
-                        </button>
-                    </div>
-                    <a href="{% url 'seller-category-delete' cat.id %}?next={% url 'seller-design' %}" onclick="return confirm('{% trans "Удалить эту категорию?" %}');" style="position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.6); color: #EF4444; border: 1px solid rgba(239,68,68,0.4); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; text-decoration: none;">
-                        ✕
-                    </a>
-                </div>
-            {% endfor %}
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <div>
+                <h3 class="bm-card-title">
+                    <span>🏷️</span> <span>{% trans "Персональные категории витрины магазина" %}</span>
+                </h3>
+                <p class="bm-card-desc" style="margin-bottom: 0;">
+                    {% trans "Категории принадлежат исключительно вашему магазину. Покупатели видят их на витрине с фото и стрелочками." %}
+                </p>
+            </div>
+            {% if not store_custom_categories %}
+                <form method="POST" action="{% url 'seller-design' %}?tab=custom" style="margin: 0;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="init_default_categories">
+                    <input type="hidden" name="next" value="{% url 'seller-design' %}?tab=custom">
+                    <button type="submit" style="background: rgba(201, 162, 122, 0.15); border: 1px solid rgba(201, 162, 122, 0.35); color: var(--primary, #C9A27A); padding: 6px 14px; border-radius: 8px; font-size: 11.5px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                        <span>✨</span> <span>{% trans "Добавить 4 базовые категории" %}</span>
+                    </button>
+                </form>
+            {% endif %}
         </div>
+
+        <!-- Список категорий магазина -->
+        {% if store_custom_categories %}
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin-bottom: 20px;">
+                {% for cat in store_custom_categories %}
+                    <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.09); border-radius: 12px; padding: 10px; display: flex; align-items: center; gap: 10px; position: relative;">
+                        <div style="width: 50px; height: 50px; border-radius: 10px; overflow: hidden; background: #222; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                            {% if cat.effective_image_url %}
+                                <img src="{{ cat.effective_image_url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% else %}
+                                <span style="font-size: 20px;">{{ cat.icon|default:'🏷️' }}</span>
+                            {% endif %}
+                        </div>
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-size: 13px; font-weight: 800; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ cat.display_name }}</div>
+                            <div style="font-size: 10px; color: #10B981; font-weight: 700;">{% trans "Категория витрины" %}</div>
+                            <button type="button" onclick="triggerCatImageUpdate('{{ cat.id }}')" style="background: transparent; border: none; color: #60A5FA; font-size: 11px; padding: 0; margin-top: 4px; cursor: pointer; text-decoration: underline;">
+                                📷 {% trans "Сменить фото" %}
+                            </button>
+                        </div>
+                        <a href="{% url 'seller-category-delete' cat.id %}?next={% url 'seller-design' %}?tab=custom" onclick="return confirm('{% trans "Удалить эту категорию с витрины?" %}');" style="position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.6); color: #EF4444; border: 1px solid rgba(239,68,68,0.4); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; text-decoration: none;" title="{% trans 'Удалить категорию' %}">
+                            ✕
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="padding: 18px; background: rgba(255,255,255,0.02); border: 1px dashed var(--border); border-radius: 12px; text-align: center; color: var(--text-muted); font-size: 12.5px; margin-bottom: 18px;">
+                {% trans "У вашего магазина пока нет категорий для витрины." %}<br>
+                {% trans "Создайте первую категорию ниже (например: Для мальчиков, Для девочек, Обувь, Аксессуары или другие)!" %}
+            </div>
+        {% endif %}
 
         <!-- Скрытая форма для обновления фото категории -->
         <form id="catUpdateForm" method="POST" action="" enctype="multipart/form-data" style="display: none;">
             {% csrf_token %}
-            <input type="hidden" name="next" value="{% url 'seller-design' %}">
+            <input type="hidden" name="next" value="{% url 'seller-design' %}?tab=custom">
             <input type="file" name="category_image" id="catImageInput" onchange="submitCatImageUpdate()">
         </form>
 
         <!-- Форма создания новой категории продавцом -->
         <form method="POST" action="{% url 'seller-category-add' %}" enctype="multipart/form-data" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px;">
             {% csrf_token %}
-            <input type="hidden" name="next" value="{% url 'seller-design' %}">
+            <input type="hidden" name="next" value="{% url 'seller-design' %}?tab=custom">
             <span style="font-size: 13px; font-weight: 800; color: white; display: flex; align-items: center; gap: 6px; margin-bottom: 12px;">
                 <span>➕</span> <span>{% trans "Создать новую категорию для витрины" %}:</span>
             </span>
@@ -1329,5 +1356,13 @@ function submitCatImageUpdate() {
         form.submit();
     }
 }
+
+// ─── TAB RESTORATION FROM URL PARAMETER (?tab=custom) ───
+document.addEventListener('DOMContentLoaded', function() {
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('tab') === 'custom') {
+        switchStudioTab('custom');
+    }
+});
 </script>
 {% endblock %}

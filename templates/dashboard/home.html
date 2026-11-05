@@ -199,10 +199,19 @@
         display: block;
     }
     .insta-stats-container {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        flex: 1;
+        display: flex;
+        align-items: stretch;
         gap: 8px;
+        flex: 1;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        padding-bottom: 2px;
+    }
+    .insta-stats-container::-webkit-scrollbar {
+        display: none;
     }
     .insta-stat-item {
         display: flex;
@@ -213,9 +222,17 @@
         background: rgba(255, 255, 255, 0.035);
         border: 1px solid rgba(255, 255, 255, 0.07);
         border-radius: 14px;
-        padding: 10px 8px;
+        padding: 10px 10px;
         box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
         transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        flex: 1 1 auto;
+        min-width: 76px;
+        scroll-snap-align: start;
+        white-space: nowrap;
+    }
+    .insta-stat-item.is-revenue {
+        min-width: 124px;
+        flex: 1.3 1 auto;
     }
     .insta-stat-item:hover {
         background: rgba(255, 255, 255, 0.06);
@@ -851,8 +868,8 @@
                 <input type="file" id="storeLogoFileInput" name="logo" accept="image/jpeg,image/png,image/webp" onchange="submitStoreLogo(this)">
             </form>
 
-            <!-- 3 Stat Columns (Публикации / Заказы / Выручка) -->
-            <div class="insta-stats-container">
+            <!-- 3 Stat Columns (Публикации / Заказы / Выручка) - Свайп-карусель -->
+            <div class="insta-stats-container" role="region" aria-label="{% trans 'Статистика магазина' %}">
                 <div class="insta-stat-item">
                     <span class="insta-stat-number">{{ products_count }}</span>
                     <span class="insta-stat-label">{% trans "товаров" %}</span>
@@ -861,8 +878,8 @@
                     <span class="insta-stat-number">{{ paid_orders_count }}</span>
                     <span class="insta-stat-label">{% trans "заказов" %}</span>
                 </div>
-                <div class="insta-stat-item">
-                    <span class="insta-stat-number">{{ total_revenue|floatformat:0|intcomma }}</span>
+                <div class="insta-stat-item is-revenue" title="{% trans 'Общая выручка' %}: {{ total_revenue|floatformat:0|intcomma }} {% trans 'сум' %}">
+                    <span class="insta-stat-number" style="letter-spacing: -0.02em;">{{ total_revenue|floatformat:0|intcomma }}</span>
                     <span class="insta-stat-label">{% trans "сум" %}</span>
                 </div>
             </div>

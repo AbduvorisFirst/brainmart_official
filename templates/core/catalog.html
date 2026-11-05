@@ -1161,7 +1161,7 @@ body {
             {% if current_store %}
                 <h1 class="bm-brand-title">{{ current_store.name }}</h1>
                 <span class="bm-brand-tagline">
-                    {{ current_store.tagline|default:current_store.get_theme_signature.text }}
+                    {% if current_store.brand_signature_icon %}{{ current_store.brand_signature_icon }} {% endif %}{{ current_store.brand_signature_text|default:current_store.tagline|default:current_store.get_theme_signature.text }}
                 </span>
             {% else %}
                 <h1 class="bm-brand-title">BRAINMART</h1>
@@ -1290,23 +1290,22 @@ body {
     {% if categories %}
         <section class="bm-categories-section">
             <div class="bm-cat-scroll">
-                <a href="?{% if current_store_id %}store_id={{ current_store_id }}&{% endif %}{% if search_query %}q={{ search_query }}&{% endif %}" class="bm-cat-card {% if not selected_category_id %}active{% endif %}">
-                    <div class="bm-cat-thumb" style="background: linear-gradient(135deg, rgba(201, 162, 122, 0.22) 0%, rgba(18, 18, 20, 0.95) 100%); display: flex; align-items: center; justify-content: center;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--primary, #C9A27A);"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-                    </div>
-                    <div class="bm-cat-meta">
-                        <span class="bm-cat-name">{% trans "Все" %}</span>
-                        <span class="bm-cat-arrow">›</span>
-                    </div>
-                </a>
+                {% if categories|length > 1 or selected_category_id %}
+                    <a href="?{% if current_store_id %}store_id={{ current_store_id }}&{% endif %}{% if search_query %}q={{ search_query }}&{% endif %}" class="bm-cat-card {% if not selected_category_id %}active{% endif %}">
+                        <div class="bm-cat-thumb" style="background: rgba(var(--primary-rgb, 201, 162, 122), 0.15); display: flex; align-items: center; justify-content: center;">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color: var(--primary, #C9A27A);"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect></svg>
+                        </div>
+                        <div class="bm-cat-meta">
+                            <span class="bm-cat-name">{% trans "Все" %}</span>
+                            <span class="bm-cat-arrow">›</span>
+                        </div>
+                    </a>
+                {% endif %}
 
                 {% for cat in categories %}
                     <a href="?{% if current_store_id %}store_id={{ current_store_id }}&{% endif %}category={{ cat.id }}{% if search_query %}&q={{ search_query }}{% endif %}" class="bm-cat-card {% if selected_category_id == cat.id %}active{% endif %}">
                         <div class="bm-cat-thumb">
-                            {% if cat.sample_image %}
-                                <img src="{{ cat.sample_image }}" alt="{{ cat.display_name }}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                <span class="bm-cat-thumb-placeholder" style="display: none;">{{ cat.icon|default:'✦' }}</span>
-                            {% elif cat.effective_image_url %}
+                            {% if cat.effective_image_url %}
                                 <img src="{{ cat.effective_image_url }}" alt="{{ cat.display_name }}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                 <span class="bm-cat-thumb-placeholder" style="display: none;">{{ cat.icon|default:'✦' }}</span>
                             {% else %}

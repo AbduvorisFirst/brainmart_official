@@ -165,15 +165,14 @@ def catalog_view(request):
     is_ai_search = request.GET.get("ai") == "1"
     ai_advice = None
 
-    # Категории: популярные подкатегории (Для мальчиков, Для девочек, Обувь, Аксессуары) всегда впереди
-    needed_names = ["Для мальчиков", "Для девочек", "Обувь", "Аксессуары"]
-    base_subcats = list(Category.objects.filter(name__in=needed_names, store__isnull=True).order_by("order", "id"))
     if current_store:
-        store_custom_cats = list(Category.objects.filter(store=current_store).order_by("order", "id"))
-        store_cat_ids = list(Product.objects.filter(store=current_store, is_active=True).values_list("category_id", flat=True).distinct())
-        other_cats = list(Category.objects.filter(id__in=store_cat_ids).exclude(name__in=needed_names).exclude(store=current_store).order_by("order", "id"))
-        categories = base_subcats + store_custom_cats + other_cats
+        # Для витрины конкретного магазина отображаются ТОЛЬКО его персональные категории!
+        # Чужие категории и глобальные общие ниши (Одежда и обувь и т.д.) здесь никогда не выводятся.
+        categories = list(Category.objects.filter(store=current_store).order_by("order", "id"))
     else:
+        # Для общего маркетплейса BrainMart (/?global=1)
+        needed_names = ["Для мальчиков", "Для девочек", "Обувь", "Аксессуары"]
+        base_subcats = list(Category.objects.filter(name__in=needed_names, store__isnull=True).order_by("order", "id"))
         other_cats = list(Category.objects.filter(store__isnull=True).exclude(name__in=needed_names).order_by("order", "id"))
         categories = base_subcats + other_cats
 

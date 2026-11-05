@@ -378,16 +378,14 @@
                     <option value="electronics" {% if store.niche == 'books' or store.niche == 'other' or store.niche == 'cosmetics' %}selected{% endif %}>📦 {% trans "Штучный товар / Косметика / Книги (без сетки размеров — поштучно)" %}</option>
                 </select>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <label style="margin: 0;">{% trans "Категория товара" %}</label>
-                    {% if default_category_id %}
-                        <span style="font-size: 11px; color: #10B981; font-weight: 700; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); padding: 2px 8px; border-radius: 6px;">
-                            📌 {% trans "Ниша магазина (по умолчанию)" %}
-                        </span>
-                    {% endif %}
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+                    <label style="margin: 0; font-weight: 800;">{% trans "Категория товара" %} *</label>
+                    <button type="button" onclick="openQuickCategoryModal()" style="background: rgba(99, 102, 241, 0.18); border: 1px solid rgba(99, 102, 241, 0.4); color: #C7D2FE; padding: 4px 10px; border-radius: 8px; font-size: 11.5px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                        <span>➕</span> <span>{% trans "Создать свою категорию" %}</span>
+                    </button>
                 </div>
                 <!-- Quick Category Pick Buttons -->
-                <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;">
+                <div id="quickCatButtonsContainer" style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;">
                     {% for cat in categories|slice:":4" %}
                         <button type="button" onclick="selectQuickCategory('{{ cat.id }}')" style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: #F5F1EA; cursor: pointer; transition: all 0.2s ease;">
                             <span>{{ cat.icon|default:"🏷️" }}</span>
@@ -401,9 +399,14 @@
                     {% for cat in categories %}
                         <option value="{{ cat.id }}" {% if cat.id == default_category_id %}selected{% endif %}>{{ cat.icon|default:"🏷️" }} {{ cat.display_name }}</option>
                     {% empty %}
-                        <option value="" disabled>{% trans "Категории не созданы" %}</option>
+                        <option value="" disabled selected>{% trans "Категории магазина еще не созданы" %}</option>
                     {% endfor %}
                 </select>
+                {% if not categories %}
+                    <div style="font-size: 11.5px; color: #FBBF24; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                        <span>⚠️</span> <span>{% trans "У вас пока нет категорий. Нажмите «Создать свою категорию» выше, чтобы добавить первую!" %}</span>
+                    </div>
+                {% endif %}
                 <div style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 16px;">
                     💡 {% trans "Категория будет применяться ко всем будущим товарам." %}
                 </div>
@@ -1200,5 +1203,114 @@
         btn.classList.add('loading');
         btn.innerHTML = '<span class="spinner"></span> &#9203; ' + I18N.uploadingBtn;
     });
+
+    // ─── QUICK CATEGORY CREATION MODAL ───
+    function openQuickCategoryModal() {
+        document.getElementById('quickCatModal').style.display = 'flex';
+        setTimeout(() => document.getElementById('quickCatName').focus(), 50);
+    }
+
+    function closeQuickCategoryModal() {
+        document.getElementById('quickCatModal').style.display = 'none';
+    }
+
+    function submitQuickCategory(e) {
+        e.preventDefault();
+        const name = document.getElementById('quickCatName').value.trim();
+        const icon = document.getElementById('quickCatIcon').value.trim() || '🏷️';
+        const imgFile = document.getElementById('quickCatImage').files[0];
+        if (!name) return;
+
+        const btn = document.getElementById('quickCatSubmitBtn');
+        btn.disabled = true;
+        btn.innerText = 'Создание...';
+
+        const fd = new FormData();
+        fd.append('category_name', name);
+        fd.append('category_icon', icon);
+        fd.append('format', 'json');
+        if (imgFile) {
+            fd.append('category_image', imgFile);
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        fetch('{% url "seller-category-add" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: fd
+        })
+        .then(r => r.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerText = '➕ Создать и выбрать';
+            if (data.ok && data.category) {
+                const sel = document.getElementById('categorySelect');
+                // Remove placeholder option if empty
+                for (let i = sel.options.length - 1; i >= 0; i--) {
+                    if (sel.options[i].disabled && !sel.options[i].value) {
+                        sel.remove(i);
+                    }
+                }
+                const opt = new Option((data.category.icon || '🏷️') + ' ' + (data.category.display_name || data.category.name), data.category.id, true, true);
+                sel.add(opt);
+                sel.value = data.category.id;
+                closeQuickCategoryModal();
+                document.getElementById('quickCatForm').reset();
+                if (typeof onCategoryChange === 'function') onCategoryChange(sel);
+                alert('🎉 Категория «' + data.category.name + '» успешно создана и выбрана для товара!');
+            } else {
+                alert(data.error || 'Ошибка создания категории');
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerText = '➕ Создать и выбрать';
+            alert('Ошибка при сохранении категории');
+        });
+    }
 </script>
+
+<!-- Модальное окно быстрого создания категории товара прямо со страницы добавления -->
+<div id="quickCatModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 99999; align-items: center; justify-content: center; padding: 16px;">
+    <div style="background: #18181B; border: 1px solid rgba(255,255,255,0.15); border-radius: 18px; padding: 22px; width: 100%; max-width: 420px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div style="font-size: 16px; font-weight: 800; color: white; display: flex; align-items: center; gap: 6px;">
+                <span>🏷️</span> <span>{% trans "Создать свою категорию" %}</span>
+            </div>
+            <button type="button" onclick="closeQuickCategoryModal()" style="background: rgba(255,255,255,0.08); border: none; color: #94A3B8; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px;">✕</button>
+        </div>
+        <form id="quickCatForm" onsubmit="submitQuickCategory(event)">
+            <label style="font-size: 11.5px; font-weight: 700; color: #94A3B8; display: block; margin-bottom: 5px;">{% trans "Название категории" %} *</label>
+            <input type="text" id="quickCatName" required placeholder="{% trans 'Например: Мальчики, Девочки, Обувь...' %}" style="width: 100%; padding: 11px 13px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.14); background: #27272A; color: white; font-size: 13.5px; margin-bottom: 14px; box-sizing: border-box;">
+
+            <label style="font-size: 11.5px; font-weight: 700; color: #94A3B8; display: block; margin-bottom: 5px;">{% trans "Иконка / Эмодзи" %}</label>
+            <input type="text" id="quickCatIcon" value="🏷️" maxlength="8" style="width: 70px; padding: 9px; text-align: center; border-radius: 10px; border: 1px solid rgba(255,255,255,0.14); background: #27272A; color: white; font-size: 15px; margin-bottom: 14px; box-sizing: border-box;">
+
+            <label style="font-size: 11.5px; font-weight: 700; color: #94A3B8; display: block; margin-bottom: 5px;">{% trans "Картинка категории на витрине" %}</label>
+            <input type="file" id="quickCatImage" accept="image/*" style="font-size: 12px; color: #CBD5E1; margin-bottom: 20px; width: 100%;">
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" onclick="closeQuickCategoryModal()" style="background: rgba(255,255,255,0.08); border: none; color: white; padding: 10px 18px; border-radius: 10px; font-size: 12.5px; font-weight: 700; cursor: pointer;">{% trans "Отмена" %}</button>
+                <button type="submit" id="quickCatSubmitBtn" style="background: linear-gradient(135deg, #4F46E5 0%, #4338CA 100%); border: none; color: white; padding: 10px 22px; border-radius: 10px; font-size: 12.5px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 14px rgba(79,70,229,0.35);">➕ {% trans "Создать и выбрать" %}</button>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}
