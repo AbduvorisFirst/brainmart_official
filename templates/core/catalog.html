@@ -1,7 +1,1149 @@
 {% extends "core/base.html" %}
 {% load i18n theme_tags %}
 
+{% block global_header %}{% endblock %}
+
 {% block content %}
+<style>
+    /* Critical inline Storefront CSS (Zero-cache guarantee for Telegram WebView & Mobile) */
+    .catalog-container {
+        max-width: 540px;
+        margin: 0 auto;
+        padding: 0 14px 96px;
+        box-sizing: border-box;
+    }
+    @media (min-width: 900px) {
+        .catalog-container {
+            max-width: 1240px;
+            padding: 0 24px 80px;
+        }
+    }
+    .bm-store-header {
+        position: sticky;
+        top: 0;
+        z-index: 120;
+        display: grid !important;
+        grid-template-columns: 44px 1fr 84px !important;
+        align-items: center !important;
+        padding: 12px 14px !important;
+        margin: 0 -14px 6px !important;
+        background: var(--header-bg, rgba(11, 11, 12, 0.92)) !important;
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.07)) !important;
+        box-shadow: none !important;
+    }
+    .bm-header-center {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-width: 0;
+    }
+    .bm-brand-title {
+        font-family: var(--font-display, 'Cormorant Garamond', Georgia, serif) !important;
+        font-size: 21px !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.08em !important;
+        text-transform: uppercase !important;
+        color: var(--text-main, #F5F1EA) !important;
+        margin: 0 !important;
+        line-height: 1.15 !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+    .bm-brand-tagline {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        font-family: var(--font-body, 'Inter', sans-serif) !important;
+        font-size: 10px !important;
+        font-weight: 500 !important;
+        letter-spacing: 0.14em !important;
+        text-transform: capitalize !important;
+        color: var(--text-muted, #A39E93) !important;
+        margin-top: 3px !important;
+        width: 100%;
+        max-width: 240px;
+    }
+    .bm-brand-tagline::before,
+    .bm-brand-tagline::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--border-strong, rgba(201, 162, 122, 0.35)), transparent);
+    }
+    /* Hero Carousel - Strict Horizontal Flex Track */
+    .bm-hero-carousel-wrap {
+        position: relative !important;
+        border-radius: var(--radius-lg, 20px) !important;
+        overflow: hidden !important;
+        margin: 10px 0 16px !important;
+        background: #141416 !important;
+        box-shadow: var(--card-shadow, 0 10px 30px rgba(0, 0, 0, 0.45)) !important;
+        border: 1px solid var(--border, rgba(255, 255, 255, 0.08)) !important;
+    }
+    .bm-hero-track {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        scroll-snap-type: x mandatory !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+        scroll-behavior: smooth !important;
+        width: 100% !important;
+    }
+    .bm-hero-track::-webkit-scrollbar {
+        display: none !important;
+    }
+    .bm-hero-slide {
+        flex: 0 0 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        scroll-snap-align: start !important;
+        scroll-snap-stop: always !important;
+        position: relative !important;
+        height: 230px !important;
+        display: flex !important;
+        align-items: center !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
+    }
+    @media (min-width: 600px) {
+        .bm-hero-slide {
+            height: 320px !important;
+        }
+    }
+    .bm-hero-bg {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        object-position: center 20% !important;
+        z-index: 1 !important;
+    }
+    .bm-hero-overlay {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: linear-gradient(90deg, rgba(11, 11, 12, 0.92) 0%, rgba(11, 11, 12, 0.65) 52%, rgba(11, 11, 12, 0.15) 100%),
+                    linear-gradient(180deg, rgba(11, 11, 12, 0.1) 0%, rgba(11, 11, 12, 0.8) 100%) !important;
+        z-index: 2 !important;
+    }
+    .bm-hero-content {
+        position: relative !important;
+        z-index: 3 !important;
+        padding: 20px 20px 28px !important;
+        max-width: 72% !important;
+    }
+    .bm-hero-label {
+        font-size: 9.5px !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.18em !important;
+        text-transform: uppercase !important;
+        color: var(--primary, #C9A27A) !important;
+        margin-bottom: 6px !important;
+        display: block !important;
+    }
+    .bm-hero-title {
+        font-family: var(--font-display, 'Cormorant Garamond', Georgia, serif) !important;
+        font-size: 28px !important;
+        line-height: 1.08 !important;
+        font-weight: 600 !important;
+        color: #FFFFFF !important;
+        margin: 0 0 8px !important;
+    }
+    .bm-hero-subtitle {
+        font-size: 11px !important;
+        color: rgba(255, 255, 255, 0.8) !important;
+        margin: 0 0 14px !important;
+        letter-spacing: 0.03em !important;
+    }
+    .bm-hero-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        background: #F5F1EA !important;
+        color: #111111 !important;
+        font-size: 11.5px !important;
+        font-weight: 700 !important;
+        padding: 8px 18px !important;
+        border-radius: 999px !important;
+        text-decoration: none !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+    }
+    .bm-hero-dots {
+        position: absolute !important;
+        bottom: 12px !important;
+        left: 20px !important;
+        display: flex !important;
+        gap: 6px !important;
+        z-index: 5 !important;
+    }
+    .bm-hero-dot {
+        width: 6px !important;
+        height: 6px !important;
+        border-radius: 50% !important;
+        background: rgba(255, 255, 255, 0.35) !important;
+        cursor: pointer !important;
+        transition: all 0.25s ease !important;
+    }
+    .bm-hero-dot.active {
+        width: 16px !important;
+        border-radius: 4px !important;
+        background: var(--primary, #C9A27A) !important;
+    }
+    .bm-hero-arrow {
+        position: absolute !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        width: 28px !important;
+        height: 28px !important;
+        border-radius: 50% !important;
+        background: rgba(0, 0, 0, 0.45) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        color: #FFFFFF !important;
+        font-size: 16px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        z-index: 5 !important;
+    }
+    .bm-hero-arrow.prev { left: 8px !important; }
+    .bm-hero-arrow.next { right: 8px !important; }
+/* ==========================================================================
+   BRAINMART STOREFRONT — JM KIDS & MULTI-THEME ENGINE
+   ========================================================================== */
+
+/* 1. Global Box Sizing & Layout */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-app, #0B0B0C);
+    color: var(--text-main, #F5F1EA);
+    font-family: var(--font-body, 'Inter', sans-serif);
+    margin: 0;
+    padding: 0 0 88px 0;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+.catalog-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 16px 24px;
+    position: relative;
+}
+
+/* 2. Luxury Header (☰ · BRAND / SLOGAN · 🔍 · 🛒) */
+.bm-store-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--header-bg, rgba(11, 11, 12, 0.92));
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background 0.3s ease;
+}
+
+.bm-header-col-left,
+.bm-header-col-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+}
+
+.bm-header-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-main, #F5F1EA);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    padding: 0;
+    transition: all 0.2s ease;
+}
+
+.bm-header-btn:hover,
+.bm-header-btn:active {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--border, rgba(255, 255, 255, 0.12));
+    transform: scale(0.96);
+}
+
+.bm-header-btn svg {
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.bm-header-center {
+    flex: 1 1 auto;
+    text-align: center;
+    padding: 0 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+}
+
+.bm-header-logo-img {
+    max-height: 28px;
+    max-width: 130px;
+    object-fit: contain;
+    margin-bottom: 2px;
+}
+
+.bm-brand-title {
+    font-family: var(--font-display, 'Cormorant Garamond', serif);
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-main, #F5F1EA);
+    margin: 0;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 240px;
+}
+
+.bm-brand-tagline {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--primary, #C9A27A);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 260px;
+    opacity: 0.95;
+}
+
+/* Badge for Cart icon */
+.bm-cart-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: var(--discount, #E11D48);
+    color: #FFFFFF;
+    font-size: 10px;
+    font-weight: 800;
+    min-width: 17px;
+    height: 17px;
+    line-height: 17px;
+    border-radius: 9px;
+    text-align: center;
+    padding: 0 4px;
+    box-shadow: 0 2px 6px rgba(225, 29, 72, 0.4);
+}
+
+/* 3. Hero Banner Carousel (JM Kids Store style - Touch Swipeable) */
+.bm-hero-carousel-wrap {
+    position: relative;
+    border-radius: var(--radius-lg, 20px);
+    overflow: hidden;
+    margin: 14px 0 18px;
+    background: #141416;
+    box-shadow: var(--card-shadow, 0 10px 30px rgba(0, 0, 0, 0.45));
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+}
+
+.bm-hero-track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+    margin: 0;
+    padding: 0;
+}
+
+.bm-hero-track::-webkit-scrollbar {
+    display: none;
+}
+
+.bm-hero-slide {
+    flex: 0 0 100%;
+    min-width: 100%;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    position: relative;
+    aspect-ratio: 16 / 10;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/* Fallback single banner */
+.bm-hero-banner {
+    position: relative;
+    border-radius: var(--radius-lg, 20px);
+    overflow: hidden;
+    margin: 14px 0 18px;
+    background: #141416;
+    aspect-ratio: 16 / 10;
+    display: flex;
+    align-items: flex-end;
+    box-shadow: var(--card-shadow, 0 10px 30px rgba(0, 0, 0, 0.45));
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+}
+
+.bm-hero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    z-index: 1;
+}
+
+.bm-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(11, 11, 12, 0.1) 0%, rgba(11, 11, 12, 0.75) 55%, rgba(11, 11, 12, 0.96) 100%),
+                linear-gradient(90deg, rgba(11, 11, 12, 0.85) 0%, rgba(11, 11, 12, 0.2) 65%, transparent 100%);
+    z-index: 2;
+}
+
+.bm-hero-content {
+    position: relative;
+    z-index: 3;
+    padding: 22px 20px;
+    max-width: 75%;
+}
+
+.bm-hero-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--primary, #C9A27A);
+    margin-bottom: 6px;
+    display: inline-block;
+}
+
+.bm-hero-title {
+    font-family: var(--font-display, 'Cormorant Garamond', serif);
+    font-size: 26px;
+    line-height: 1.15;
+    font-weight: 600;
+    color: #FFFFFF;
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+}
+
+.bm-hero-subtitle {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.75);
+    margin: 0 0 14px;
+    letter-spacing: 0.04em;
+    line-height: 1.35;
+}
+
+.bm-hero-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #FFFFFF;
+    color: #111111;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 18px;
+    border-radius: 999px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.bm-hero-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.bm-hero-dots {
+    position: absolute;
+    bottom: 12px;
+    left: 20px;
+    display: flex;
+    gap: 6px;
+    z-index: 4;
+}
+
+.bm-hero-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transition: all 0.25s ease;
+}
+
+.bm-hero-dot.active {
+    width: 16px;
+    border-radius: 4px;
+    background: var(--primary, #C9A27A);
+}
+.bm-hero-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #FFFFFF;
+    font-size: 20px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 5;
+    transition: all 0.2s ease;
+    opacity: 0.75;
+}
+.bm-hero-arrow:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.75);
+    transform: translateY(-50%) scale(1.08);
+}
+.bm-hero-arrow.prev { left: 10px; }
+.bm-hero-arrow.next { right: 10px; }
+
+
+/* 4. Trust Strip (4 items: Quality, Delivery, Payment, Support) */
+.bm-trust-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    background: var(--surface, #151517);
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+    border-radius: var(--radius-md, 14px);
+    padding: 12px 10px;
+    margin-bottom: 22px;
+}
+
+.bm-trust-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 5px;
+}
+
+.bm-trust-icon {
+    width: 22px;
+    height: 22px;
+    color: var(--primary, #C9A27A);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bm-trust-icon svg {
+    width: 100%;
+    height: 100%;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.6;
+}
+
+.bm-trust-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-main, #F5F1EA);
+    line-height: 1.15;
+}
+
+.bm-trust-sub {
+    font-size: 9px;
+    color: var(--text-muted, #9A958C);
+    line-height: 1.15;
+}
+
+/* 5. Category Tiles Scroll */
+.bm-categories-section {
+    margin-bottom: 24px;
+}
+
+.bm-cat-scroll {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.bm-cat-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.bm-cat-card {
+    flex: 0 0 116px;
+    background: var(--surface, #151517);
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+    border-radius: var(--radius-md, 14px);
+    padding: 8px 8px 10px;
+    text-decoration: none;
+    color: var(--text-main, #F5F1EA);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    transition: all 0.25s ease;
+}
+
+.bm-cat-card:hover,
+.bm-cat-card.active {
+    border-color: var(--primary, #C9A27A);
+    background: var(--surface-card, #1A1A1D);
+    transform: translateY(-2px);
+}
+
+.bm-cat-thumb {
+    width: 100%;
+    height: 84px;
+    border-radius: calc(var(--radius-md, 14px) - 4px);
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.25);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bm-cat-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.bm-cat-card:hover .bm-cat-thumb img {
+    transform: scale(1.05);
+}
+
+.bm-cat-thumb-placeholder {
+    font-size: 24px;
+    color: var(--primary, #C9A27A);
+    opacity: 0.6;
+}
+
+.bm-cat-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 2px;
+}
+
+.bm-cat-name {
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80px;
+}
+
+.bm-cat-arrow {
+    font-size: 12px;
+    color: var(--primary, #C9A27A);
+    font-weight: 700;
+}
+
+/* 6. Section Header (Popular Products · See All ›) */
+.bm-section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin: 18px 0 14px;
+    padding: 0 2px;
+}
+
+.bm-section-title {
+    font-family: var(--font-display, 'Cormorant Garamond', serif);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-main, #F5F1EA);
+    margin: 0;
+    letter-spacing: 0.02em;
+}
+
+.bm-section-link {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted, #9A958C);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.bm-section-link:hover {
+    color: var(--primary, #C9A27A);
+}
+
+/* 7. Product Grid & Cards (JM Kids Store style) */
+.bm-product-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.bm-product-card {
+    background: var(--surface, #151517);
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+    border-radius: var(--radius-lg, 18px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+}
+
+.bm-product-card:hover {
+    border-color: var(--primary, #C9A27A);
+    transform: translateY(-3px);
+    box-shadow: var(--card-shadow, 0 10px 30px rgba(0, 0, 0, 0.45));
+}
+
+.bm-card-media {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1.08;
+    background: #0E0E10;
+    overflow: hidden;
+}
+
+.bm-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.35s ease;
+}
+
+.bm-product-card:hover .bm-card-img {
+    transform: scale(1.04);
+}
+
+/* Badges on card: 🔥 Bestseller / 🔥 New */
+.bm-card-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 5;
+    background: rgba(18, 18, 20, 0.88);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #FFFFFF;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.bm-card-badge.is-bestseller {
+    color: #FFA500;
+    border-color: rgba(255, 165, 0, 0.35);
+}
+
+.bm-card-badge.is-new {
+    color: #38BDF8;
+    border-color: rgba(56, 189, 248, 0.35);
+}
+
+/* Favorite Heart button */
+.bm-card-fav {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 5;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(18, 18, 20, 0.7);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #FFFFFF;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.bm-card-fav svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    transition: all 0.2s ease;
+}
+
+.bm-card-fav.active svg {
+    fill: #E11D48;
+    stroke: #E11D48;
+}
+
+.bm-card-body {
+    padding: 10px 12px 14px;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+}
+
+.bm-card-brand {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-main, #F5F1EA);
+    margin: 0 0 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bm-card-sub {
+    font-size: 10px;
+    color: var(--text-muted, #9A958C);
+    margin: 0 0 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bm-card-price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.bm-card-price {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text-main, #F5F1EA);
+}
+
+.bm-card-old-price {
+    font-size: 10px;
+    color: var(--text-muted, #9A958C);
+    text-decoration: line-through;
+    opacity: 0.75;
+}
+
+.bm-card-discount {
+    font-size: 9px;
+    font-weight: 800;
+    color: #FFFFFF;
+    background: var(--discount, #E11D48);
+    padding: 1px 5px;
+    border-radius: 4px;
+    margin-left: auto;
+}
+
+/* Add to Cart button (Wide with gradient) */
+.bm-btn-cart {
+    width: 100%;
+    margin-top: auto;
+    padding: 9px 12px;
+    border-radius: var(--radius-md, 12px);
+    background: var(--btn-gradient, linear-gradient(180deg, #E3C8A3 0%, #B8916A 100%));
+    color: var(--on-primary, #1A1410);
+    border: none;
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--primary, #C9A27A) 25%, transparent);
+}
+
+.bm-btn-cart svg {
+    width: 14px;
+    height: 14px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2.2;
+}
+
+.bm-btn-cart:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+}
+
+.bm-btn-cart:active {
+    transform: scale(0.97);
+}
+
+.bm-btn-cart.added {
+    background: #10B981 !important;
+    color: #FFFFFF !important;
+}
+
+/* 8. Bottom Navigation Bar */
+.bm-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: var(--header-bg, rgba(11, 11, 12, 0.94));
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1000;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 10px;
+}
+
+.bm-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--text-muted, #9A958C);
+    position: relative;
+    padding: 6px 12px;
+    transition: color 0.2s ease;
+    cursor: pointer;
+    gap: 3px;
+}
+
+.bm-nav-item.active {
+    color: var(--primary, #C9A27A);
+}
+
+.bm-nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 22px;
+    height: 2px;
+    background: var(--primary, #C9A27A);
+    border-radius: 2px;
+}
+
+.bm-nav-icon {
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.bm-nav-icon svg {
+    width: 100%;
+    height: 100%;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.8;
+}
+
+.bm-nav-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+/* 9. Search Modal & Drawer */
+.bm-search-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1001;
+    background: var(--header-bg, #0B0B0C);
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+    display: none;
+    animation: bmSlideDown 0.2s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes bmSlideDown {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(0); }
+}
+
+.bm-search-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.bm-search-input-wrap {
+    flex: 1 1 auto;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.bm-search-input-wrap svg {
+    position: absolute;
+    left: 12px;
+    width: 18px;
+    height: 18px;
+    stroke: var(--text-muted, #9A958C);
+    fill: none;
+}
+
+.bm-search-field {
+    width: 100%;
+    background: var(--surface, #151517);
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
+    border-radius: 999px;
+    padding: 10px 14px 10px 38px;
+    color: var(--text-main, #FFFFFF);
+    font-size: 13px;
+    outline: none;
+}
+
+.bm-search-field:focus {
+    border-color: var(--primary, #C9A27A);
+}
+
+.bm-search-close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-main, #FFFFFF);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px;
+}
+
+/* Side Drawer (☰ Menu) */
+.bm-drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(6px);
+    z-index: 1002;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.bm-drawer {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 82%;
+    max-width: 340px;
+    background: var(--surface, #151517);
+    border-right: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+    z-index: 1003;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 20px;
+    overflow-y: auto;
+}
+
+.bm-drawer.open {
+    transform: translateX(0);
+}
+
+.bm-drawer-backdrop.open {
+    display: block;
+    opacity: 1;
+}
+
+/* 10. Multi-layout Variations */
+[data-layout="luxury"] .bm-brand-title {
+    font-family: var(--font-display, 'Cormorant Garamond', serif);
+    letter-spacing: 0.1em;
+}
+
+[data-layout="minimal"] .bm-product-card {
+    border-radius: 10px;
+    box-shadow: none;
+}
+
+[data-layout="playful"] .bm-product-card {
+    border-radius: 26px;
+}
+
+[data-layout="playful"] .bm-btn-cart {
+    border-radius: 999px;
+}
+
+[data-layout="bold"] .bm-product-card {
+    border-radius: 4px;
+    border-width: 2px;
+}
+
+[data-layout="bold"] .bm-card-brand {
+    text-transform: uppercase;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+}
+
+</style>
 <div class="catalog-container">
 
     <!-- ======================================================================

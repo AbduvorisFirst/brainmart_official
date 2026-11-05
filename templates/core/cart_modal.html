@@ -8,7 +8,7 @@
         transform: translateX(-50%) translateY(120%);
         width: calc(100% - 32px);
         max-width: 480px;
-        background: #111827;
+        background: var(--surface-elevated, #18181C); border: 1px solid var(--border-strong, rgba(201,162,122,0.28));
         color: white;
         padding: 12px 18px;
         border-radius: 20px;
@@ -38,7 +38,7 @@
     }
     .fc-icon-wrap {
         position: relative;
-        background: var(--primary);
+        background: var(--btn-gradient, var(--primary)); color: var(--on-primary, #111);
         width: 38px;
         height: 38px;
         border-radius: 12px;
@@ -62,8 +62,8 @@
     .fc-info-title { font-size: 11px; color: #9CA3AF; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
     .fc-info-total { font-size: 15px; font-weight: 800; color: white; }
     .fc-btn-action {
-        background: var(--primary);
-        color: white;
+        background: var(--btn-gradient, var(--primary));
+        color: var(--on-primary, #111);
         font-size: 13px;
         font-weight: 700;
         padding: 8px 16px;

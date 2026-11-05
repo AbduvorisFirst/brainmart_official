@@ -26,9 +26,9 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@450;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     {% if theme.font_url %}<link href="{{ theme.font_url }}" rel="stylesheet">{% endif %}
-    <link rel="stylesheet" href="/static/css/storefront.css?v=2">
+    <link rel="stylesheet" href="/static/css/storefront.css?v=12">
     <style>
         :root {
             /* Тема витрины: core/themes (пресет / генератор / правки продавца) */
@@ -89,7 +89,7 @@
         }
 
         /* ─── ШАПКА ─── */
-        header {
+        .bm-legacy-header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 14px 20px; position: sticky; top: 0;
             background: var(--header-bg);
@@ -356,7 +356,7 @@
         /* ─── DESKTOP ≥ 900px (COMPACT BALANCED WIDESCREEN 1360px) ─── */
         @media (min-width: 900px) {
             body { padding-bottom: 0; }
-            header {
+            .bm-legacy-header {
                 padding: 14px 28px;
             }
             #app-main {
@@ -413,7 +413,8 @@
     </style>
 </head>
 <body class="{% if current_store %}theme-{{ current_store.theme_style|default:'uzum_violet' }}{% else %}theme-marketplace{% endif %} theme-mode-{{ theme.mode }} layout-{{ theme.layout }}" data-layout="{{ theme.layout }}" data-mode="{{ theme.mode }}">
-    <header>
+    {% block global_header %}
+    <header class="bm-legacy-header">
         {% if current_store %}<h2 class="header-logo">{{ current_store.name }}</h2>{% else %}<h2 class="header-logo">⚡️ brain<span>mart</span></h2>{% endif %}
 
         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
@@ -450,6 +451,7 @@
             </div>
         </div>
     </header>
+    {% endblock %}
 
     <!-- Скрытая форма Django для сессии и куки -->
     <form id="hidden-lang-form" action="{% url 'set_language' %}" method="post" style="display:none">
