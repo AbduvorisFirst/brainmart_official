@@ -1924,13 +1924,13 @@ def store_settings_view(request):
                 messages.success(request, f"Менеджер '{manager_name}' добавлен! Отправьте ему ссылку для привязки Telegram.")
             else:
                 messages.error(request, "Введите имя менеджера.")
-            return redirect("seller-settings")
+            return redirect(request.POST.get("next") or request.GET.get("next") or "seller-design")
 
         elif action == "delete_manager":
             manager_id = request.POST.get("manager_id")
             StoreManager.objects.filter(id=manager_id, store=store).delete()
             messages.success(request, "Менеджер удален.")
-            return redirect("seller-settings")
+            return redirect(request.POST.get("next") or request.GET.get("next") or "seller-design")
 
         elif action == "add_banner":
             image = request.FILES.get("banner_image")
@@ -1959,33 +1959,33 @@ def store_settings_view(request):
                 messages.success(request, "Рекламный баннер успешно добавлен на витрину!")
             else:
                 messages.error(request, "Пожалуйста, выберите изображение баннера.")
-            return redirect("seller-settings")
+            return redirect(request.POST.get("next") or request.GET.get("next") or "seller-design")
 
         elif action == "delete_banner":
             banner_id = request.POST.get("banner_id")
             from core.models import PromoBanner
             PromoBanner.objects.filter(id=banner_id, store=store).delete()
             messages.success(request, "Баннер удален.")
-            return redirect("seller-settings")
+            return redirect(request.POST.get("next") or request.GET.get("next") or "seller-design")
 
         elif action == "connect_custom_bot":
             bot_token = request.POST.get("telegram_bot_token", "").strip()
             if not bot_token:
                 messages.error(request, "Пожалуйста, введите токен бота от @BotFather.")
-                return redirect("seller-settings")
+                return redirect(request.POST.get("next") or request.GET.get("next") or "seller-design")
             from core.working_views.telegram_bot import setup_store_telegram_bot
             success, msg = setup_store_telegram_bot(store, bot_token)
             if success:
                 messages.success(request, f"🎉 Персональный Telegram-бот {msg} успешно подключен и настроен!")
             else:
                 messages.error(request, f"Не удалось подключить бота: {msg}")
-            return redirect("seller-settings")
+            return redirect(request.POST.get("next") or request.GET.get("next") or "seller-design")
 
         elif action == "disconnect_custom_bot":
             from core.working_views.telegram_bot import setup_store_telegram_bot
             setup_store_telegram_bot(store, "")
             messages.info(request, "Персональный бот отключен. Витрина и уведомления переключены на общий бот платформы.")
-            return redirect("seller-settings")
+            return redirect(request.POST.get("next") or request.GET.get("next") or "seller-design")
 
         elif action == "clear_store_history":
             from core.models import CashShift, StockMovement
@@ -2007,7 +2007,7 @@ def store_settings_view(request):
                 request,
                 f"🧹 История успешно очищена! Удалено заказов: {orders_count}, кассовых смен: {shifts_count}, движений склада: {movements_count}. Баланс обнулен."
             )
-            return redirect("seller-settings")
+            return redirect(request.POST.get("next") or request.GET.get("next") or "seller-design")
 
         else:
             # --- БЛОК ЗАГРУЗКИ / ОБНОВЛЕНИЯ ЛОГОТИПА ИЗ НАСТРОЕК ---
@@ -2015,18 +2015,18 @@ def store_settings_view(request):
                 logo_file = request.FILES.get("logo")
                 if logo_file.size > 5 * 1024 * 1024:
                     messages.error(request, "Файл слишком большой. Максимальный размер логотипа — 5 МБ.")
-                    return redirect("seller-settings")
+                    return redirect(request.POST.get("next") or request.GET.get("next") or "seller-design")
                 try:
                     from PIL import Image
                     img = Image.open(logo_file)
                     img.verify()
                     if img.format not in ['JPEG', 'PNG', 'WEBP']:
                         messages.error(request, "Неподдерживаемый формат. Разрешены только JPG, PNG, WEBP.")
-                        return redirect("seller-settings")
+                        return redirect(request.POST.get("next") or request.GET.get("next") or "seller-design")
                     logo_file.seek(0)
                 except Exception:
                     messages.error(request, "Загруженный файл не является допустимым изображением.")
-                    return redirect("seller-settings")
+                    return redirect(request.POST.get("next") or request.GET.get("next") or "seller-design")
                 store.logo = logo_file
             elif request.POST.get("clear_logo") == "1":
                 if store.logo:
@@ -2045,7 +2045,7 @@ def store_settings_view(request):
                 conflict = Store.objects.filter(slug=new_slug).exclude(id=store.id).exists()
                 if conflict:
                     messages.error(request, f"Адрес (поддомен) '{new_slug}' уже занят другим магазином. Пожалуйста, выберите другой.")
-                    return redirect("seller-settings")
+                    return redirect(request.POST.get("next") or request.GET.get("next") or "seller-design")
                 store.slug = new_slug
             elif not store.slug:
                 store.slug = store.clean_slug(store_name or store.name or "store")
@@ -2088,7 +2088,7 @@ def store_settings_view(request):
                 existing_store = Store.objects.filter(instagram_username__iexact=instagram_username).exclude(id=store.id).first()
                 if existing_store:
                     messages.error(request, f"Этот Instagram @{instagram_username} уже занят другим магазином ('{existing_store.name}'). Пожалуйста, укажите другой аккаунт.")
-                    return redirect("seller-settings")
+                    return redirect(request.POST.get("next") or request.GET.get("next") or "seller-design")
                 else:
                     if store.instagram_username != instagram_username:
                         store.instagram_username = instagram_username
@@ -2153,7 +2153,7 @@ def store_settings_view(request):
                 request.LANGUAGE_CODE = telegram_notification_language
 
             messages.success(request, "Настройки магазина, адрес витрины, ниша, способы оплаты и оформление сохранены!")
-            return redirect("seller-settings")
+            return redirect(request.POST.get("next") or request.GET.get("next") or "seller-design")
 
     # Формируем список менеджеров с готовыми ссылками на привязку
     managers = []
@@ -2723,6 +2723,11 @@ THEME_PALETTES = {
     },
 
     # --- 🌙 Темные & OLED Дизайны (Dark & OLED) ---
+    "jm_kids_luxury": {
+        "primary": "#C9A27A", "accent": "#DFBE99", "bg": "#121214", "mode": "dark",
+        "name": "JM Kids Luxury Black & Gold", "category": "dark",
+        "name_ru": "JM Kids Премиум Золото", "name_uz": "JM Kids Premium Oltin", "name_en": "JM Kids Luxury Black & Gold"
+    },
     "uzum_violet": {
         "primary": "#7000FF", "accent": "#00C853", "bg": "#0B0C10", "mode": "dark",
         "name": "Uzum Market Signature", "category": "dark",
@@ -2769,6 +2774,79 @@ THEME_PALETTES = {
 
 
 @login_required
+def store_design_view(request):
+    """Студия дизайна витрины: готовые multi-design стили и персональный кастом (слоган, hero, баннеры, цвета, категории)."""
+    store = _get_store_or_none(request)
+    if not store:
+        return redirect("seller-login")
+
+    from core.models import PromoBanner, Category
+
+    if request.method == "POST":
+        action = request.POST.get("action", "save_custom_design")
+        if action == "save_custom_design":
+            # 1. Слоган и Hero-баннер
+            store.tagline = request.POST.get("tagline", "").strip()
+            store.hero_label = request.POST.get("hero_label", "").strip()
+            store.hero_title = request.POST.get("hero_title", "").strip()
+            store.hero_subtitle = request.POST.get("hero_subtitle", "").strip()
+
+            # 2. Цветовая палитра
+            primary_color = request.POST.get("primary_color", "").strip()
+            accent_color = request.POST.get("accent_color", "").strip()
+            bg_color_raw = request.POST.get("bg_color", "").strip()
+            theme_mode = request.POST.get("theme_mode", "dark").strip()
+
+            if primary_color and primary_color.startswith("#"):
+                store.primary_color = primary_color
+            if accent_color and accent_color.startswith("#"):
+                store.accent_color = accent_color
+            if bg_color_raw.startswith("#"):
+                store.bg_color = bg_color_raw
+            elif request.POST.get("bg_color_clear") == "1":
+                store.bg_color = ""
+            if theme_mode in ["dark", "light"]:
+                store.theme_mode = theme_mode
+
+            # 3. Фоновое изображение Hero-баннера
+            if request.FILES.get("hero_image"):
+                store.hero_image = request.FILES.get("hero_image")
+            elif request.POST.get("clear_hero_image") == "1":
+                if store.hero_image:
+                    try:
+                        store.hero_image.delete(save=False)
+                    except Exception:
+                        pass
+                store.hero_image = None
+
+            store.save()
+            messages.success(request, "🎉 Персональный дизайн витрины успешно сохранён!")
+            return redirect("seller-design")
+
+    store_banners = PromoBanner.objects.filter(store=store).order_by("order", "-id")
+    needed_names = ["Для мальчиков", "Для девочек", "Обувь", "Аксессуары"]
+    base_cats = list(Category.objects.filter(name__in=needed_names, store__isnull=True).order_by("order", "id"))
+    store_cats = list(Category.objects.filter(store=store).order_by("order", "id"))
+    other_cats = list(Category.objects.filter(store__isnull=True).exclude(name__in=needed_names).order_by("order", "id"))
+    all_categories = base_cats + store_cats + other_cats
+
+    site_url = getattr(settings, "SITE_URL", "") or "https://brainmart.uz"
+    store_catalog_url = store.get_subdomain_url(request)
+
+    context = {
+        "store": store,
+        "store_banners": store_banners,
+        "store_banners_count": store_banners.count(),
+        "base_categories": base_cats,
+        "store_custom_categories": store_cats,
+        "all_categories": all_categories,
+        "store_catalog_url": store_catalog_url,
+        "theme_palettes": THEME_PALETTES,
+    }
+    return render(request, "dashboard/design.html", context)
+
+
+@login_required
 def store_banner_add_view(request):
     """Добавление баннера магазина через Dashboard (лимит до 7 баннеров, привязка к категории)."""
     store = _get_store_or_none(request)
@@ -2779,7 +2857,7 @@ def store_banner_add_view(request):
         current_count = PromoBanner.objects.filter(store=store).count()
         if current_count >= 7:
             messages.warning(request, "⚠️ Достигнут лимит: максимум 7 баннеров на витрине. Рекомендуем 3–4 баннера для идеальной скорости. Удалите старый перед добавлением нового.")
-            return redirect("seller-settings")
+            return redirect(request.POST.get("next") or request.GET.get("next") or "seller-design")
 
         image = request.FILES.get("banner_image") or request.FILES.get("image")
         title = request.POST.get("banner_title", "").strip() or store.name
@@ -2818,7 +2896,7 @@ def store_banner_add_view(request):
             messages.success(request, f"🎉 Баннер '{title}' успешно добавлен на витрину!")
         else:
             messages.error(request, "Ошибка: пожалуйста, выберите файл изображения баннера.")
-    return redirect("seller-settings")
+    return redirect(request.POST.get("next") or request.GET.get("next") or "seller-design")
 
 
 @login_required
@@ -2837,7 +2915,7 @@ def store_category_add_view(request):
 
         if not name:
             messages.error(request, "Ошибка: укажите название новой категории.")
-            return redirect("seller-settings")
+            return redirect(request.POST.get("next") or request.GET.get("next") or "seller-design")
 
         order_num = 10 + Category.objects.filter(store=store).count()
         cat = Category.objects.create(
@@ -2850,7 +2928,7 @@ def store_category_add_view(request):
             order=order_num
         )
         messages.success(request, f"🎉 Новая категория '{name}' успешно создана и отображается на витрине!")
-    return redirect("seller-settings")
+    return redirect(request.POST.get("next") or request.GET.get("next") or "seller-design")
 
 
 @login_required
@@ -2869,7 +2947,7 @@ def store_category_update_image_view(request, category_id):
             messages.success(request, f"✅ Фото категории '{cat.name}' успешно обновлено!")
         else:
             messages.error(request, "Ошибка: выберите изображение для категории.")
-    return redirect("seller-settings")
+    return redirect(request.POST.get("next") or request.GET.get("next") or "seller-design")
 
 
 @login_required
@@ -2886,7 +2964,7 @@ def store_category_delete_view(request, category_id):
         messages.success(request, f"Категория '{name}' удалена.")
     else:
         messages.error(request, "Нельзя удалить системную категорию платформы.")
-    return redirect("seller-settings")
+    return redirect(request.POST.get("next") or request.GET.get("next") or "seller-design")
 
 
 @login_required
@@ -2898,7 +2976,7 @@ def store_banner_delete_view(request, banner_id):
     from core.models import PromoBanner
     PromoBanner.objects.filter(id=banner_id, store=store).delete()
     messages.success(request, "Баннер удален.")
-    return redirect("seller-settings")
+    return redirect(request.POST.get("next") or request.GET.get("next") or "seller-design")
 
 
 @login_required

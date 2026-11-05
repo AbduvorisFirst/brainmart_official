@@ -62,6 +62,7 @@ urlpatterns = [
     path('products/<int:product_id>/edit/', views_dashboard.product_edit_view, name='seller-product-edit'),
     path('products/<int:product_id>/inventory/', views_dashboard.product_inventory_edit_view, name='seller-product-inventory'),
     path('settings/', views_dashboard.store_settings_view, name='seller-settings'),
+    path('design/', views_dashboard.store_design_view, name='seller-design'),
     path('reviews/', views_dashboard.seller_reviews_view, name='seller-reviews'),
     path('customers/', views_dashboard.customers_view, name='seller-customers'),
     path('waitlist/', views_dashboard.seller_waitlist_view, name='seller-waitlist'),

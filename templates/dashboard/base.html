@@ -648,6 +648,9 @@
                     AI VISION
                 </span>
             </a>
+            <a href="{% url 'seller-design' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'seller-design' %}active{% endif %}">
+                <span class="nav-icon">🎨</span> {% trans "Дизайн витрины" %}
+            </a>
             <a href="{% url 'seller-settings' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'seller-settings' %}active{% endif %}">
                 <span class="nav-icon">⚙️</span> {% trans "Настройки" %}
             </a>
@@ -1056,6 +1059,21 @@
                     </div>
                     <div class="apple-drawer-item-right">
                         <span class="apple-tag-pill tag-amber">{% trans "В разработке" %}</span>
+                        <span class="apple-chevron">›</span>
+                    </div>
+                </a>
+
+                <!-- 🎨 Дизайн витрины -->
+                <a href="{% url 'seller-design' %}" class="apple-drawer-item {% if request.resolver_match.url_name == 'seller-design' %}active{% endif %}">
+                    <div class="apple-drawer-item-left">
+                        <div class="apple-drawer-icon-box icon-purple">🎨</div>
+                        <div class="apple-drawer-item-text">
+                            <div class="apple-drawer-item-title">{% trans "Дизайн витрины" %}</div>
+                            <div class="apple-drawer-item-desc">{% trans "13 стилей, hero, баннеры и цвета" %}</div>
+                        </div>
+                    </div>
+                    <div class="apple-drawer-item-right">
+                        {% if request.resolver_match.url_name == 'seller-design' %}<span class="apple-active-dot"></span>{% endif %}
                         <span class="apple-chevron">›</span>
                     </div>
                 </a>

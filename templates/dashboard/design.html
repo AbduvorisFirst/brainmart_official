@@ -1,0 +1,1333 @@
+{% extends "dashboard/base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Студия дизайна витрины" %} — BrainMart Seller{% endblock %}
+
+{% block content %}
+<style>
+/* ─── STYLES FOR DESIGN STUDIO ─── */
+.bm-design-header {
+    background: radial-gradient(100% 120% at 50% 0%, rgba(112, 0, 255, 0.16) 0%, rgba(37, 99, 235, 0.08) 50%, rgba(13, 16, 24, 0.95) 100%), #0D1018;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    padding: 22px 26px;
+    margin-bottom: 22px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.bm-design-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 22px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 12px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.bm-tab-btn {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94A3B8;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.bm-tab-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #FFFFFF;
+}
+
+.bm-tab-btn.active {
+    background: linear-gradient(135deg, rgba(112, 0, 255, 0.25) 0%, rgba(37, 99, 235, 0.25) 100%);
+    border-color: rgba(139, 92, 246, 0.5);
+    color: #FFFFFF;
+    box-shadow: 0 4px 16px rgba(112, 0, 255, 0.25);
+}
+
+.bm-studio-card {
+    background: rgba(255, 255, 255, 0.025);
+    border: 1.5px solid var(--border);
+    border-radius: 18px;
+    padding: 22px;
+    margin-bottom: 22px;
+    transition: border-color 0.2s;
+}
+
+.bm-studio-card:hover {
+    border-color: rgba(255, 255, 255, 0.16);
+}
+
+.bm-card-title {
+    margin: 0 0 6px;
+    font-size: 16px;
+    font-weight: 900;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: -0.015em;
+}
+
+.bm-card-desc {
+    margin: 0 0 18px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    line-height: 1.45;
+}
+
+/* 🎨 THEME QUICK CARDS */
+.theme-quick-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1.5px solid rgba(255, 255, 255, 0.09);
+    border-radius: 16px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    user-select: none;
+}
+
+.theme-quick-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.theme-quick-card.active {
+    border-color: var(--primary, #7000FF) !important;
+    background: rgba(112, 0, 255, 0.07);
+    box-shadow: 0 0 0 1px var(--primary, #7000FF), 0 8px 28px rgba(112, 0, 255, 0.25);
+}
+
+.bm-mockup-window {
+    border-radius: 10px;
+    padding: 7px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    height: 100px;
+    overflow: hidden;
+}
+
+.bm-mockup-top {
+    border-radius: 6px;
+    padding: 3px 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bm-mockup-hero {
+    border-radius: 6px;
+    padding: 7px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bm-mockup-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+}
+
+.bm-mockup-prod {
+    border-radius: 6px;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.bm-mockup-thumb {
+    width: 100%;
+    height: 22px;
+    border-radius: 4px;
+}
+
+.bm-mockup-line {
+    width: 70%;
+    height: 3px;
+    border-radius: 2px;
+}
+
+.bm-mockup-btn {
+    width: 100%;
+    height: 5px;
+    border-radius: 2px;
+    margin-top: 1px;
+}
+
+.bm-swatches-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.bm-swatch-dots {
+    display: flex;
+    gap: 4px;
+}
+
+.bm-swatch-dot {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: inline-block;
+}
+
+.theme-active-indicator {
+    font-size: 10px;
+    font-weight: 800;
+    color: #34D399;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    padding: 2px 7px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Color Presets */
+.bm-color-preset {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    transition: transform 0.15s, border-color 0.15s;
+    display: inline-block;
+}
+
+.bm-color-preset:hover {
+    transform: scale(1.15);
+    border-color: #FFFFFF;
+}
+
+/* Toast */
+#studioToast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #181920;
+    border: 1px solid var(--primary, #7000FF);
+    color: #FFFFFF;
+    padding: 12px 20px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 800;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.7);
+    display: none;
+    align-items: center;
+    gap: 10px;
+    z-index: 999999;
+}
+</style>
+
+<!-- ─── HEADER СТУДИИ ДИЗАЙНА ─── -->
+<div class="bm-design-header">
+    <div style="display: flex; align-items: center; gap: 14px; min-width: 0;">
+        <div style="width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, #7000FF 0%, #EC4899 50%, #2997FF 100%); display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 6px 20px rgba(112, 0, 255, 0.4); flex-shrink: 0;">
+            🎨
+        </div>
+        <div>
+            <h1 style="margin: 0; font-size: 20px; font-weight: 900; color: #FFFFFF; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <span>{% trans "Студия дизайна витрины" %}</span>
+                <span id="activeThemeBadge" style="font-size: 11px; font-weight: 800; color: #E9D5FF; background: rgba(168, 85, 247, 0.22); border: 1px solid rgba(192, 132, 252, 0.45); padding: 2px 10px; border-radius: 99px;">
+                    ✨ {{ store.get_theme_display_name }}
+                </span>
+            </h1>
+            <div style="font-size: 12.5px; color: #94A3B8; margin-top: 3px;">
+                {% trans "Готовые стили оформления в 1 клик и персональная настройка (слоган, баннеры, цвета)" %}
+            </div>
+        </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
+        <a href="{{ store_catalog_url }}" target="_blank" class="btn" style="width: auto; margin: 0; padding: 10px 18px; font-size: 13px; font-weight: 800; border-radius: 12px; background: linear-gradient(135deg, rgba(112, 0, 255, 0.25) 0%, rgba(37, 99, 235, 0.25) 100%); border: 1px solid rgba(139, 92, 246, 0.5); color: #FFFFFF; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+            <span>👁️</span> <span>{% trans "Открыть витрину" %}</span> <span>↗</span>
+        </a>
+    </div>
+</div>
+
+<!-- ─── ВКЛАДКИ РЕЖИМОВ (МУЛЬТИ-ДИЗАЙН / ПЕРСОНАЛЬНЫЙ) ─── -->
+<div class="bm-design-tabs">
+    <button type="button" class="bm-tab-btn active" id="tabBtnThemes" onclick="switchStudioTab('themes')">
+        <span>✨</span> <span>{% trans "Готовые стили оформления" %}</span> <span style="font-size: 11px; opacity: 0.8;">(13 тем)</span>
+    </button>
+    <button type="button" class="bm-tab-btn" id="tabBtnCustom" onclick="switchStudioTab('custom')">
+        <span>🛠️</span> <span>{% trans "Персональный дизайн" %}</span> <span style="font-size: 11px; opacity: 0.8;">(Кастом с нуля)</span>
+    </button>
+</div>
+
+<!-- ======================================================================
+     ВКЛАДКА 1: ГОТОВЫЕ СТИЛИ ОФОРМЛЕНИЯ (MULTI-DESIGN 1-CLICK)
+     ====================================================================== -->
+<div id="studioTabThemes" style="display: block;">
+    <div class="bm-studio-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+            <div>
+                <h3 class="bm-card-title">
+                    <span>✨</span> <span>{% trans "Выберите готовый дизайн витрины" %}</span>
+                </h3>
+                <p class="bm-card-desc" style="margin-bottom: 0;">
+                    {% trans "Нажмите на любую карточку ниже — цветовая палитра и стиль вашей витрины обновятся моментально!" %}
+                </p>
+            </div>
+            <!-- Фильтры категорий тем -->
+            <div style="display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;">
+                <button type="button" class="filter-pill active" onclick="filterStudioThemes('all', this)" style="background: rgba(255,255,255,0.12); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; cursor: pointer;">
+                    {% trans "Все" %} (13)
+                </button>
+                <button type="button" class="filter-pill" onclick="filterStudioThemes('dark', this)" style="background: rgba(255,255,255,0.04); color: #94A3B8; border: 1px solid rgba(255,255,255,0.08); padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer;">
+                    🌙 {% trans "Темные & OLED" %} (5)
+                </button>
+                <button type="button" class="filter-pill" onclick="filterStudioThemes('light', this)" style="background: rgba(255,255,255,0.04); color: #94A3B8; border: 1px solid rgba(255,255,255,0.08); padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer;">
+                    ☀️ {% trans "Светлые" %} (6)
+                </button>
+                <button type="button" class="filter-pill" onclick="filterStudioThemes('colored', this)" style="background: rgba(255,255,255,0.04); color: #94A3B8; border: 1px solid rgba(255,255,255,0.08); padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer;">
+                    💎 {% trans "Цветные" %} (2)
+                </button>
+            </div>
+        </div>
+
+        <div id="studioThemesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px;">
+
+            <!-- 👑 1. JM Kids Luxury Gold -->
+            <div class="theme-quick-card {% if store.theme_style == 'jm_kids_luxury' %}active{% endif %}" onclick="applyStudioTheme('jm_kids_luxury', this)" data-theme="jm_kids_luxury" data-category="dark">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                    <strong style="font-size: 13.5px; font-weight: 800; color: #FFFFFF;">👑 JM Kids Luxury</strong>
+                    <span style="font-size: 9px; font-weight: 800; color: #C9A27A; background: rgba(201,162,122,0.14); border: 1px solid rgba(201,162,122,0.3); padding: 2px 7px; border-radius: 6px;">GOLD PRESTIGE</span>
+                </div>
+                <div class="bm-mockup-window" style="background: #121214; border: 1px solid rgba(201,162,122,0.3);">
+                    <div class="bm-mockup-top" style="background: #1A1A1D; border: 1px solid rgba(201,162,122,0.2);">
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <span style="width: 8px; height: 8px; border-radius: 3px; background: #C9A27A; display: inline-block;"></span>
+                            <span style="width: 30px; height: 3.5px; border-radius: 2px; background: #666; display: inline-block;"></span>
+                        </div>
+                        <span style="width: 10px; height: 5px; border-radius: 99px; background: #C9A27A; display: inline-block;"></span>
+                    </div>
+                    <div class="bm-mockup-hero" style="background: linear-gradient(135deg, #1C1A17 0%, #29241E 100%); border: 1px solid rgba(201,162,122,0.25);">
+                        <div style="display: flex; flex-direction: column; gap: 2.5px;">
+                            <span style="width: 44px; height: 4px; border-radius: 2px; background: #C9A27A; display: inline-block;"></span>
+                            <span style="width: 26px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.6); display: inline-block;"></span>
+                        </div>
+                        <span style="padding: 2px 5px; border-radius: 4px; background: #C9A27A; color: #121214; font-size: 6.5px; font-weight: 900;">SHOP</span>
+                    </div>
+                    <div class="bm-mockup-grid">
+                        <div class="bm-mockup-prod" style="background: #1A1A1D; border: 1px solid rgba(255,255,255,0.06);">
+                            <div class="bm-mockup-thumb" style="background: #252529;"></div>
+                            <div class="bm-mockup-btn" style="background: #C9A27A;"></div>
+                        </div>
+                        <div class="bm-mockup-prod" style="background: #1A1A1D; border: 1px solid rgba(255,255,255,0.06);">
+                            <div class="bm-mockup-thumb" style="background: #252529;"></div>
+                            <div class="bm-mockup-btn" style="background: #C9A27A;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bm-swatches-row">
+                    <div class="bm-swatch-dots">
+                        <span class="bm-swatch-dot" style="background: #121214;" title="Фон: #121214"></span>
+                        <span class="bm-swatch-dot" style="background: #1A1A1D;" title="Карточка: #1A1A1D"></span>
+                        <span class="bm-swatch-dot" style="background: #C9A27A;" title="Акцент: #C9A27A"></span>
+                        <span class="bm-swatch-dot" style="background: #DFBE99;" title="Детали: #DFBE99"></span>
+                    </div>
+                    <span class="theme-active-indicator" style="display: {% if store.theme_style == 'jm_kids_luxury' %}inline-flex{% else %}none{% endif %};">
+                        ✓ {% trans "Активен" %}
+                    </span>
+                </div>
+                <span style="font-size: 11px; color: #94A3B8; line-height: 1.35;">Премиальный графитовый фон и акцент шампань-золото — для брендовой детской и взрослой одежды</span>
+            </div>
+
+            <!-- 🟣 2. Uzum Market -->
+            <div class="theme-quick-card {% if store.theme_style == 'uzum_violet' or not store.theme_style %}active{% endif %}" onclick="applyStudioTheme('uzum_violet', this)" data-theme="uzum_violet" data-category="dark">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                    <strong style="font-size: 13.5px; font-weight: 800; color: #FFFFFF;">🟣 Uzum Market</strong>
+                    <span style="font-size: 9px; font-weight: 800; color: #A855F7; background: rgba(168,85,247,0.14); border: 1px solid rgba(168,85,247,0.3); padding: 2px 7px; border-radius: 6px;">TOP-1 UZB</span>
+                </div>
+                <div class="bm-mockup-window" style="background: #0B0C10; border: 1px solid rgba(112,0,255,0.25);">
+                    <div class="bm-mockup-top" style="background: #161822;">
+                        <span style="width: 8px; height: 8px; border-radius: 3px; background: #7000FF; display: inline-block;"></span>
+                        <span style="width: 10px; height: 5px; border-radius: 99px; background: #00C853; display: inline-block;"></span>
+                    </div>
+                    <div class="bm-mockup-hero" style="background: linear-gradient(135deg, #7000FF 0%, #A855F7 100%);">
+                        <span style="width: 44px; height: 4px; border-radius: 2px; background: #FFFFFF; display: inline-block;"></span>
+                        <span style="padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.3); color: #FFFFFF; font-size: 6.5px; font-weight: 900;">BUY</span>
+                    </div>
+                    <div class="bm-mockup-grid">
+                        <div class="bm-mockup-prod" style="background: #161822;">
+                            <div class="bm-mockup-thumb" style="background: #1F2230;"></div>
+                            <div class="bm-mockup-btn" style="background: #7000FF;"></div>
+                        </div>
+                        <div class="bm-mockup-prod" style="background: #161822;">
+                            <div class="bm-mockup-thumb" style="background: #1F2230;"></div>
+                            <div class="bm-mockup-btn" style="background: #7000FF;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bm-swatches-row">
+                    <div class="bm-swatch-dots">
+                        <span class="bm-swatch-dot" style="background: #0B0C10;"></span>
+                        <span class="bm-swatch-dot" style="background: #7000FF;"></span>
+                        <span class="bm-swatch-dot" style="background: #00C853;"></span>
+                    </div>
+                    <span class="theme-active-indicator" style="display: {% if store.theme_style == 'uzum_violet' or not store.theme_style %}inline-flex{% else %}none{% endif %};">
+                        ✓ {% trans "Активен" %}
+                    </span>
+                </div>
+                <span style="font-size: 11px; color: #94A3B8; line-height: 1.35;">Фирменный фиолетовый Uzum с сочным зеленым акцентом — высокая конверсия в Узбекистане</span>
+            </div>
+
+            <!-- ⚪ 3. Clean White (Apple) -->
+            <div class="theme-quick-card {% if store.theme_style == 'clean_white' %}active{% endif %}" onclick="applyStudioTheme('clean_white', this)" data-theme="clean_white" data-category="light">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                    <strong style="font-size: 13.5px; font-weight: 800; color: #FFFFFF;">⚪ Apple Clean White</strong>
+                    <span style="font-size: 9px; font-weight: 800; color: #0066FF; background: rgba(0,102,255,0.14); border: 1px solid rgba(0,102,255,0.3); padding: 2px 7px; border-radius: 6px;">LIGHT MINIMAL</span>
+                </div>
+                <div class="bm-mockup-window" style="background: #FFFFFF; border: 1px solid #E2E8F0;">
+                    <div class="bm-mockup-top" style="background: #F8FAFC; border: 1px solid #E2E8F0;">
+                        <span style="width: 8px; height: 8px; border-radius: 3px; background: #0066FF; display: inline-block;"></span>
+                        <span style="width: 10px; height: 5px; border-radius: 99px; background: #0F172A; display: inline-block;"></span>
+                    </div>
+                    <div class="bm-mockup-hero" style="background: linear-gradient(135deg, #0066FF 0%, #38BDF8 100%);">
+                        <span style="width: 44px; height: 4px; border-radius: 2px; background: #FFFFFF; display: inline-block;"></span>
+                        <span style="padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.25); color: white; font-size: 6.5px; font-weight: 900;">NEW</span>
+                    </div>
+                    <div class="bm-mockup-grid">
+                        <div class="bm-mockup-prod" style="background: #F8FAFC; border: 1px solid #E2E8F0;">
+                            <div class="bm-mockup-thumb" style="background: #E2E8F0;"></div>
+                            <div class="bm-mockup-btn" style="background: #0066FF;"></div>
+                        </div>
+                        <div class="bm-mockup-prod" style="background: #F8FAFC; border: 1px solid #E2E8F0;">
+                            <div class="bm-mockup-thumb" style="background: #E2E8F0;"></div>
+                            <div class="bm-mockup-btn" style="background: #0066FF;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bm-swatches-row">
+                    <div class="bm-swatch-dots">
+                        <span class="bm-swatch-dot" style="background: #FFFFFF;"></span>
+                        <span class="bm-swatch-dot" style="background: #0066FF;"></span>
+                        <span class="bm-swatch-dot" style="background: #10B981;"></span>
+                    </div>
+                    <span class="theme-active-indicator" style="display: {% if store.theme_style == 'clean_white' %}inline-flex{% else %}none{% endif %};">
+                        ✓ {% trans "Активен" %}
+                    </span>
+                </div>
+                <span style="font-size: 11px; color: #94A3B8; line-height: 1.35;">Белоснежная светлая студия в стиле Apple Store — идеальна для электроники и косметики</span>
+            </div>
+
+            <!-- 👑 4. Midnight Royal Sapphire -->
+            <div class="theme-quick-card {% if store.theme_style == 'royal_navy' %}active{% endif %}" onclick="applyStudioTheme('royal_navy', this)" data-theme="royal_navy" data-category="colored">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                    <strong style="font-size: 13.5px; font-weight: 800; color: #FFFFFF;">👑 Royal Sapphire</strong>
+                    <span style="font-size: 9px; font-weight: 800; color: #38BDF8; background: rgba(56,189,248,0.14); border: 1px solid rgba(56,189,248,0.3); padding: 2px 7px; border-radius: 6px;">VIP BLUE</span>
+                </div>
+                <div class="bm-mockup-window" style="background: #0B132B; border: 1px solid rgba(56,189,248,0.25);">
+                    <div class="bm-mockup-top" style="background: #13203D;">
+                        <span style="width: 8px; height: 8px; border-radius: 3px; background: #48CAE4; display: inline-block;"></span>
+                        <span style="width: 10px; height: 5px; border-radius: 99px; background: #5BC0BE; display: inline-block;"></span>
+                    </div>
+                    <div class="bm-mockup-hero" style="background: linear-gradient(135deg, #0284C7 0%, #38BDF8 100%);">
+                        <span style="width: 44px; height: 4px; border-radius: 2px; background: #FFFFFF; display: inline-block;"></span>
+                        <span style="padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.3); color: white; font-size: 6.5px; font-weight: 900;">BUY</span>
+                    </div>
+                    <div class="bm-mockup-grid">
+                        <div class="bm-mockup-prod" style="background: #13203D;">
+                            <div class="bm-mockup-thumb" style="background: #1C2E52;"></div>
+                            <div class="bm-mockup-btn" style="background: #48CAE4;"></div>
+                        </div>
+                        <div class="bm-mockup-prod" style="background: #13203D;">
+                            <div class="bm-mockup-thumb" style="background: #1C2E52;"></div>
+                            <div class="bm-mockup-btn" style="background: #48CAE4;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bm-swatches-row">
+                    <div class="bm-swatch-dots">
+                        <span class="bm-swatch-dot" style="background: #0B132B;"></span>
+                        <span class="bm-swatch-dot" style="background: #48CAE4;"></span>
+                        <span class="bm-swatch-dot" style="background: #5BC0BE;"></span>
+                    </div>
+                    <span class="theme-active-indicator" style="display: {% if store.theme_style == 'royal_navy' %}inline-flex{% else %}none{% endif %};">
+                        ✓ {% trans "Активен" %}
+                    </span>
+                </div>
+                <span style="font-size: 11px; color: #94A3B8; line-height: 1.35;">Глубокий королевский сапфир — статусное оформление для часов, авто и элитных аксессуаров</span>
+            </div>
+
+            <!-- 🌲 5. Dark Emerald Onyx -->
+            <div class="theme-quick-card {% if store.theme_style == 'emerald_dark' %}active{% endif %}" onclick="applyStudioTheme('emerald_dark', this)" data-theme="emerald_dark" data-category="colored">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                    <strong style="font-size: 13.5px; font-weight: 800; color: #FFFFFF;">🌲 Dark Emerald</strong>
+                    <span style="font-size: 9px; font-weight: 800; color: #10B981; background: rgba(16,185,129,0.14); border: 1px solid rgba(16,185,129,0.3); padding: 2px 7px; border-radius: 6px;">MALACHITE</span>
+                </div>
+                <div class="bm-mockup-window" style="background: #061812; border: 1px solid rgba(16,185,129,0.25);">
+                    <div class="bm-mockup-top" style="background: #0E2E23;">
+                        <span style="width: 8px; height: 8px; border-radius: 3px; background: #10B981; display: inline-block;"></span>
+                        <span style="width: 10px; height: 5px; border-radius: 99px; background: #34D399; display: inline-block;"></span>
+                    </div>
+                    <div class="bm-mockup-hero" style="background: linear-gradient(135deg, #059669 0%, #10B981 100%);">
+                        <span style="width: 44px; height: 4px; border-radius: 2px; background: #FFFFFF; display: inline-block;"></span>
+                        <span style="padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.3); color: white; font-size: 6.5px; font-weight: 900;">BUY</span>
+                    </div>
+                    <div class="bm-mockup-grid">
+                        <div class="bm-mockup-prod" style="background: #0E2E23;">
+                            <div class="bm-mockup-thumb" style="background: #143D30;"></div>
+                            <div class="bm-mockup-btn" style="background: #10B981;"></div>
+                        </div>
+                        <div class="bm-mockup-prod" style="background: #0E2E23;">
+                            <div class="bm-mockup-thumb" style="background: #143D30;"></div>
+                            <div class="bm-mockup-btn" style="background: #10B981;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bm-swatches-row">
+                    <div class="bm-swatch-dots">
+                        <span class="bm-swatch-dot" style="background: #061812;"></span>
+                        <span class="bm-swatch-dot" style="background: #10B981;"></span>
+                        <span class="bm-swatch-dot" style="background: #34D399;"></span>
+                    </div>
+                    <span class="theme-active-indicator" style="display: {% if store.theme_style == 'emerald_dark' %}inline-flex{% else %}none{% endif %};">
+                        ✓ {% trans "Активен" %}
+                    </span>
+                </div>
+                <span style="font-size: 11px; color: #94A3B8; line-height: 1.35;">Благородный изумрудный оникс — для изделий из натуральной кожи, парфюма и ювелирных изделий</span>
+            </div>
+
+            <!-- 🔥 6. Street Cyber Neon -->
+            <div class="theme-quick-card {% if store.theme_style == 'fashion_genz' %}active{% endif %}" onclick="applyStudioTheme('fashion_genz', this)" data-theme="fashion_genz" data-category="dark">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                    <strong style="font-size: 13.5px; font-weight: 800; color: #FFFFFF;">🔥 Street Cyber</strong>
+                    <span style="font-size: 9px; font-weight: 800; color: #00F0FF; background: rgba(0,240,255,0.14); border: 1px solid rgba(0,240,255,0.3); padding: 2px 7px; border-radius: 6px;">CYBER DRIP</span>
+                </div>
+                <div class="bm-mockup-window" style="background: #070712; border: 1px solid rgba(0,240,255,0.25);">
+                    <div class="bm-mockup-top" style="background: #131326;">
+                        <span style="width: 8px; height: 8px; border-radius: 3px; background: #00F0FF; display: inline-block;"></span>
+                        <span style="width: 10px; height: 5px; border-radius: 99px; background: #FF0055; display: inline-block;"></span>
+                    </div>
+                    <div class="bm-mockup-hero" style="background: linear-gradient(135deg, #00F0FF 0%, #FF0055 100%);">
+                        <span style="width: 44px; height: 4px; border-radius: 2px; background: #FFFFFF; display: inline-block;"></span>
+                        <span style="padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.4); color: white; font-size: 6.5px; font-weight: 900;">FIRE</span>
+                    </div>
+                    <div class="bm-mockup-grid">
+                        <div class="bm-mockup-prod" style="background: #131326;">
+                            <div class="bm-mockup-thumb" style="background: #1E1E38;"></div>
+                            <div class="bm-mockup-btn" style="background: #00F0FF;"></div>
+                        </div>
+                        <div class="bm-mockup-prod" style="background: #131326;">
+                            <div class="bm-mockup-thumb" style="background: #1E1E38;"></div>
+                            <div class="bm-mockup-btn" style="background: #FF0055;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bm-swatches-row">
+                    <div class="bm-swatch-dots">
+                        <span class="bm-swatch-dot" style="background: #070712;"></span>
+                        <span class="bm-swatch-dot" style="background: #00F0FF;"></span>
+                        <span class="bm-swatch-dot" style="background: #FF0055;"></span>
+                    </div>
+                    <span class="theme-active-indicator" style="display: {% if store.theme_style == 'fashion_genz' %}inline-flex{% else %}none{% endif %};">
+                        ✓ {% trans "Активен" %}
+                    </span>
+                </div>
+                <span style="font-size: 11px; color: #94A3B8; line-height: 1.35;">Дерзкий неоновый киберпанк — для молодежной моды, кроссовок, худи и уличного стиля</span>
+            </div>
+
+            <!-- 🍎 7. Apple Titanium OLED -->
+            <div class="theme-quick-card {% if store.theme_style == 'apple_hightech' %}active{% endif %}" onclick="applyStudioTheme('apple_hightech', this)" data-theme="apple_hightech" data-category="dark">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                    <strong style="font-size: 13.5px; font-weight: 800; color: #FFFFFF;">🍎 Titanium OLED</strong>
+                    <span style="font-size: 9px; font-weight: 800; color: #2997FF; background: rgba(41,151,255,0.14); border: 1px solid rgba(41,151,255,0.3); padding: 2px 7px; border-radius: 6px;">OLED BLACK</span>
+                </div>
+                <div class="bm-mockup-window" style="background: #000000; border: 1px solid rgba(41,151,255,0.25);">
+                    <div class="bm-mockup-top" style="background: #141416;">
+                        <span style="width: 8px; height: 8px; border-radius: 3px; background: #2997FF; display: inline-block;"></span>
+                        <span style="width: 10px; height: 5px; border-radius: 99px; background: #30D158; display: inline-block;"></span>
+                    </div>
+                    <div class="bm-mockup-hero" style="background: linear-gradient(135deg, #1C1C1E 0%, #2C2C2E 100%);">
+                        <span style="width: 44px; height: 4px; border-radius: 2px; background: #2997FF; display: inline-block;"></span>
+                        <span style="padding: 2px 5px; border-radius: 4px; background: #2997FF; color: white; font-size: 6.5px; font-weight: 900;">PRO</span>
+                    </div>
+                    <div class="bm-mockup-grid">
+                        <div class="bm-mockup-prod" style="background: #141416;">
+                            <div class="bm-mockup-thumb" style="background: #202024;"></div>
+                            <div class="bm-mockup-btn" style="background: #2997FF;"></div>
+                        </div>
+                        <div class="bm-mockup-prod" style="background: #141416;">
+                            <div class="bm-mockup-thumb" style="background: #202024;"></div>
+                            <div class="bm-mockup-btn" style="background: #2997FF;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bm-swatches-row">
+                    <div class="bm-swatch-dots">
+                        <span class="bm-swatch-dot" style="background: #000000;"></span>
+                        <span class="bm-swatch-dot" style="background: #2997FF;"></span>
+                        <span class="bm-swatch-dot" style="background: #30D158;"></span>
+                    </div>
+                    <span class="theme-active-indicator" style="display: {% if store.theme_style == 'apple_hightech' %}inline-flex{% else %}none{% endif %};">
+                        ✓ {% trans "Активен" %}
+                    </span>
+                </div>
+                <span style="font-size: 11px; color: #94A3B8; line-height: 1.35;">Глубокий абсолютно черный OLED с неоново-синим титаном Apple — идеален для смартфонов и гаджетов</span>
+            </div>
+
+            <!-- 🌸 8. Sweet Sakura Rose -->
+            <div class="theme-quick-card {% if store.theme_style == 'pastel_sakura' %}active{% endif %}" onclick="applyStudioTheme('pastel_sakura', this)" data-theme="pastel_sakura" data-category="light">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                    <strong style="font-size: 13.5px; font-weight: 800; color: #FFFFFF;">🌸 Pastel Sakura</strong>
+                    <span style="font-size: 9px; font-weight: 800; color: #FF4B72; background: rgba(255,75,114,0.14); border: 1px solid rgba(255,75,114,0.3); padding: 2px 7px; border-radius: 6px;">SOFT ROSE</span>
+                </div>
+                <div class="bm-mockup-window" style="background: #FFF5F7; border: 1px solid #FFE4E8;">
+                    <div class="bm-mockup-top" style="background: #FFFFFF; border: 1px solid #FFE4E8;">
+                        <span style="width: 8px; height: 8px; border-radius: 3px; background: #FF4B72; display: inline-block;"></span>
+                        <span style="width: 10px; height: 5px; border-radius: 99px; background: #FFAAA6; display: inline-block;"></span>
+                    </div>
+                    <div class="bm-mockup-hero" style="background: linear-gradient(135deg, #FF4B72 0%, #FFAAA6 100%);">
+                        <span style="width: 44px; height: 4px; border-radius: 2px; background: #FFFFFF; display: inline-block;"></span>
+                        <span style="padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.2); color: white; font-size: 6.5px; font-weight: 900;">SALE</span>
+                    </div>
+                    <div class="bm-mockup-grid">
+                        <div class="bm-mockup-prod" style="background: #FFFFFF; border: 1px solid #FFE4E8;">
+                            <div class="bm-mockup-thumb" style="background: #FFF0F2;"></div>
+                            <div class="bm-mockup-btn" style="background: #FF4B72;"></div>
+                        </div>
+                        <div class="bm-mockup-prod" style="background: #FFFFFF; border: 1px solid #FFE4E8;">
+                            <div class="bm-mockup-thumb" style="background: #FFF0F2;"></div>
+                            <div class="bm-mockup-btn" style="background: #FF4B72;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bm-swatches-row">
+                    <div class="bm-swatch-dots">
+                        <span class="bm-swatch-dot" style="background: #FFF5F7;"></span>
+                        <span class="bm-swatch-dot" style="background: #FF4B72;"></span>
+                        <span class="bm-swatch-dot" style="background: #FFAAA6;"></span>
+                    </div>
+                    <span class="theme-active-indicator" style="display: {% if store.theme_style == 'pastel_sakura' %}inline-flex{% else %}none{% endif %};">
+                        ✓ {% trans "Активен" %}
+                    </span>
+                </div>
+                <span style="font-size: 11px; color: #94A3B8; line-height: 1.35;">Нежный пастельный сакура-розовый — для женской одежды, детских платьев и косметики</span>
+            </div>
+
+            <!-- 🥐 9. Warm Silk Cream -->
+            <div class="theme-quick-card {% if store.theme_style == 'warm_beige' %}active{% endif %}" onclick="applyStudioTheme('warm_beige', this)" data-theme="warm_beige" data-category="light">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                    <strong style="font-size: 13.5px; font-weight: 800; color: #FFFFFF;">🥐 French Cream</strong>
+                    <span style="font-size: 9px; font-weight: 800; color: #9A7B56; background: rgba(154,123,86,0.14); border: 1px solid rgba(154,123,86,0.3); padding: 2px 7px; border-radius: 6px;">WARM SILK</span>
+                </div>
+                <div class="bm-mockup-window" style="background: #FAF7F2; border: 1px solid #EFE8DE;">
+                    <div class="bm-mockup-top" style="background: #FFFFFF;">
+                        <span style="width: 8px; height: 8px; border-radius: 3px; background: #9A7B56; display: inline-block;"></span>
+                        <span style="width: 10px; height: 5px; border-radius: 99px; background: #C5A880; display: inline-block;"></span>
+                    </div>
+                    <div class="bm-mockup-hero" style="background: linear-gradient(135deg, #9A7B56 0%, #C5A880 100%);">
+                        <span style="width: 44px; height: 4px; border-radius: 2px; background: #FFFFFF; display: inline-block;"></span>
+                        <span style="padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.2); color: white; font-size: 6.5px; font-weight: 900;">VIEW</span>
+                    </div>
+                    <div class="bm-mockup-grid">
+                        <div class="bm-mockup-prod" style="background: #FFFFFF;">
+                            <div class="bm-mockup-thumb" style="background: #F2ECE1;"></div>
+                            <div class="bm-mockup-btn" style="background: #9A7B56;"></div>
+                        </div>
+                        <div class="bm-mockup-prod" style="background: #FFFFFF;">
+                            <div class="bm-mockup-thumb" style="background: #F2ECE1;"></div>
+                            <div class="bm-mockup-btn" style="background: #9A7B56;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bm-swatches-row">
+                    <div class="bm-swatch-dots">
+                        <span class="bm-swatch-dot" style="background: #FAF7F2;"></span>
+                        <span class="bm-swatch-dot" style="background: #9A7B56;"></span>
+                        <span class="bm-swatch-dot" style="background: #C5A880;"></span>
+                    </div>
+                    <span class="theme-active-indicator" style="display: {% if store.theme_style == 'warm_beige' %}inline-flex{% else %}none{% endif %};">
+                        ✓ {% trans "Активен" %}
+                    </span>
+                </div>
+                <span style="font-size: 11px; color: #94A3B8; line-height: 1.35;">Уютный теплый бежево-кремовый шёлк — для домашнего текстиля, премиум трикотажа и кондитерских</span>
+            </div>
+
+            <!-- 🍊 10. Alibaba Sunset Global -->
+            <div class="theme-quick-card {% if store.theme_style == 'alibaba_orange' %}active{% endif %}" onclick="applyStudioTheme('alibaba_orange', this)" data-theme="alibaba_orange" data-category="dark">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                    <strong style="font-size: 13.5px; font-weight: 800; color: #FFFFFF;">🍊 Alibaba Sunset</strong>
+                    <span style="font-size: 9px; font-weight: 800; color: #FF5000; background: rgba(255,80,0,0.14); border: 1px solid rgba(255,80,0,0.3); padding: 2px 7px; border-radius: 6px;">GLOBAL</span>
+                </div>
+                <div class="bm-mockup-window" style="background: #0D0C0B; border: 1px solid rgba(255,80,0,0.25);">
+                    <div class="bm-mockup-top" style="background: #1A1715;">
+                        <span style="width: 8px; height: 8px; border-radius: 3px; background: #FF5000; display: inline-block;"></span>
+                        <span style="width: 10px; height: 5px; border-radius: 99px; background: #FF8C00; display: inline-block;"></span>
+                    </div>
+                    <div class="bm-mockup-hero" style="background: linear-gradient(135deg, #FF5000 0%, #FF8C00 100%);">
+                        <span style="width: 44px; height: 4px; border-radius: 2px; background: #FFFFFF; display: inline-block;"></span>
+                        <span style="padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.3); color: white; font-size: 6.5px; font-weight: 900;">HOT</span>
+                    </div>
+                    <div class="bm-mockup-grid">
+                        <div class="bm-mockup-prod" style="background: #1A1715;">
+                            <div class="bm-mockup-thumb" style="background: #27211D;"></div>
+                            <div class="bm-mockup-btn" style="background: #FF5000;"></div>
+                        </div>
+                        <div class="bm-mockup-prod" style="background: #1A1715;">
+                            <div class="bm-mockup-thumb" style="background: #27211D;"></div>
+                            <div class="bm-mockup-btn" style="background: #FF5000;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bm-swatches-row">
+                    <div class="bm-swatch-dots">
+                        <span class="bm-swatch-dot" style="background: #0D0C0B;"></span>
+                        <span class="bm-swatch-dot" style="background: #FF5000;"></span>
+                        <span class="bm-swatch-dot" style="background: #FF8C00;"></span>
+                    </div>
+                    <span class="theme-active-indicator" style="display: {% if store.theme_style == 'alibaba_orange' %}inline-flex{% else %}none{% endif %};">
+                        ✓ {% trans "Активен" %}
+                    </span>
+                </div>
+                <span style="font-size: 11px; color: #94A3B8; line-height: 1.35;">Огненный закатный оранж мировых оптовых гигантов — привлекает внимание и стимулирует продажи</span>
+            </div>
+
+            <!-- 🍵 11. Nordic Sage Matcha -->
+            <div class="theme-quick-card {% if store.theme_style == 'nordic_sage' %}active{% endif %}" onclick="applyStudioTheme('nordic_sage', this)" data-theme="nordic_sage" data-category="light">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                    <strong style="font-size: 13.5px; font-weight: 800; color: #FFFFFF;">🍵 Nordic Sage</strong>
+                    <span style="font-size: 9px; font-weight: 800; color: #059669; background: rgba(5,150,105,0.14); border: 1px solid rgba(5,150,105,0.3); padding: 2px 7px; border-radius: 6px;">MATCHA ECO</span>
+                </div>
+                <div class="bm-mockup-window" style="background: #F3FAF6; border: 1px solid #D1EBE0;">
+                    <div class="bm-mockup-top" style="background: #FFFFFF;">
+                        <span style="width: 8px; height: 8px; border-radius: 3px; background: #059669; display: inline-block;"></span>
+                        <span style="width: 10px; height: 5px; border-radius: 99px; background: #10B981; display: inline-block;"></span>
+                    </div>
+                    <div class="bm-mockup-hero" style="background: linear-gradient(135deg, #059669 0%, #10B981 100%);">
+                        <span style="width: 44px; height: 4px; border-radius: 2px; background: #FFFFFF; display: inline-block;"></span>
+                        <span style="padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.2); color: white; font-size: 6.5px; font-weight: 900;">ECO</span>
+                    </div>
+                    <div class="bm-mockup-grid">
+                        <div class="bm-mockup-prod" style="background: #FFFFFF;">
+                            <div class="bm-mockup-thumb" style="background: #E4F4EC;"></div>
+                            <div class="bm-mockup-btn" style="background: #059669;"></div>
+                        </div>
+                        <div class="bm-mockup-prod" style="background: #FFFFFF;">
+                            <div class="bm-mockup-thumb" style="background: #E4F4EC;"></div>
+                            <div class="bm-mockup-btn" style="background: #059669;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bm-swatches-row">
+                    <div class="bm-swatch-dots">
+                        <span class="bm-swatch-dot" style="background: #F3FAF6;"></span>
+                        <span class="bm-swatch-dot" style="background: #059669;"></span>
+                        <span class="bm-swatch-dot" style="background: #10B981;"></span>
+                    </div>
+                    <span class="theme-active-indicator" style="display: {% if store.theme_style == 'nordic_sage' %}inline-flex{% else %}none{% endif %};">
+                        ✓ {% trans "Активен" %}
+                    </span>
+                </div>
+                <span style="font-size: 11px; color: #94A3B8; line-height: 1.35;">Свежий скандинавский матча-шалфей — для натуральной косметики, органики и эко-товаров</span>
+            </div>
+
+            <!-- 💜 12. Soft Lilac Lavender -->
+            <div class="theme-quick-card {% if store.theme_style == 'soft_lavender' %}active{% endif %}" onclick="applyStudioTheme('soft_lavender', this)" data-theme="soft_lavender" data-category="light">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                    <strong style="font-size: 13.5px; font-weight: 800; color: #FFFFFF;">💜 Soft Lavender</strong>
+                    <span style="font-size: 9px; font-weight: 800; color: #7C3AED; background: rgba(124,58,237,0.14); border: 1px solid rgba(124,58,237,0.3); padding: 2px 7px; border-radius: 6px;">LILAC CHIC</span>
+                </div>
+                <div class="bm-mockup-window" style="background: #F8F5FF; border: 1px solid #E9DCFF;">
+                    <div class="bm-mockup-top" style="background: #FFFFFF;">
+                        <span style="width: 8px; height: 8px; border-radius: 3px; background: #7C3AED; display: inline-block;"></span>
+                        <span style="width: 10px; height: 5px; border-radius: 99px; background: #C084FC; display: inline-block;"></span>
+                    </div>
+                    <div class="bm-mockup-hero" style="background: linear-gradient(135deg, #7C3AED 0%, #C084FC 100%);">
+                        <span style="width: 44px; height: 4px; border-radius: 2px; background: #FFFFFF; display: inline-block;"></span>
+                        <span style="padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.2); color: white; font-size: 6.5px; font-weight: 900;">CHIC</span>
+                    </div>
+                    <div class="bm-mockup-grid">
+                        <div class="bm-mockup-prod" style="background: #FFFFFF;">
+                            <div class="bm-mockup-thumb" style="background: #F0E8FF;"></div>
+                            <div class="bm-mockup-btn" style="background: #7C3AED;"></div>
+                        </div>
+                        <div class="bm-mockup-prod" style="background: #FFFFFF;">
+                            <div class="bm-mockup-thumb" style="background: #F0E8FF;"></div>
+                            <div class="bm-mockup-btn" style="background: #7C3AED;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bm-swatches-row">
+                    <div class="bm-swatch-dots">
+                        <span class="bm-swatch-dot" style="background: #F8F5FF;"></span>
+                        <span class="bm-swatch-dot" style="background: #7C3AED;"></span>
+                        <span class="bm-swatch-dot" style="background: #C084FC;"></span>
+                    </div>
+                    <span class="theme-active-indicator" style="display: {% if store.theme_style == 'soft_lavender' %}inline-flex{% else %}none{% endif %};">
+                        ✓ {% trans "Активен" %}
+                    </span>
+                </div>
+                <span style="font-size: 11px; color: #94A3B8; line-height: 1.35;">Утонченная нежная лаванда — для бижутерии, ювелирных украшений и стильных подарков</span>
+            </div>
+
+            <!-- 🌊 13. Fresh Azure Sky -->
+            <div class="theme-quick-card {% if store.theme_style == 'fresh_sky' %}active{% endif %}" onclick="applyStudioTheme('fresh_sky', this)" data-theme="fresh_sky" data-category="light">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                    <strong style="font-size: 13.5px; font-weight: 800; color: #FFFFFF;">🌊 Azure Sky</strong>
+                    <span style="font-size: 9px; font-weight: 800; color: #0284C7; background: rgba(2,132,199,0.14); border: 1px solid rgba(2,132,199,0.3); padding: 2px 7px; border-radius: 6px;">AQUA SKY</span>
+                </div>
+                <div class="bm-mockup-window" style="background: #F0F9FF; border: 1px solid #BAE6FD;">
+                    <div class="bm-mockup-top" style="background: #FFFFFF;">
+                        <span style="width: 8px; height: 8px; border-radius: 3px; background: #0284C7; display: inline-block;"></span>
+                        <span style="width: 10px; height: 5px; border-radius: 99px; background: #38BDF8; display: inline-block;"></span>
+                    </div>
+                    <div class="bm-mockup-hero" style="background: linear-gradient(135deg, #0284C7 0%, #38BDF8 100%);">
+                        <span style="width: 44px; height: 4px; border-radius: 2px; background: #FFFFFF; display: inline-block;"></span>
+                        <span style="padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.2); color: white; font-size: 6.5px; font-weight: 900;">AQUA</span>
+                    </div>
+                    <div class="bm-mockup-grid">
+                        <div class="bm-mockup-prod" style="background: #FFFFFF;">
+                            <div class="bm-mockup-thumb" style="background: #E0F2FE;"></div>
+                            <div class="bm-mockup-btn" style="background: #0284C7;"></div>
+                        </div>
+                        <div class="bm-mockup-prod" style="background: #FFFFFF;">
+                            <div class="bm-mockup-thumb" style="background: #E0F2FE;"></div>
+                            <div class="bm-mockup-btn" style="background: #0284C7;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bm-swatches-row">
+                    <div class="bm-swatch-dots">
+                        <span class="bm-swatch-dot" style="background: #F0F9FF;"></span>
+                        <span class="bm-swatch-dot" style="background: #0284C7;"></span>
+                        <span class="bm-swatch-dot" style="background: #38BDF8;"></span>
+                    </div>
+                    <span class="theme-active-indicator" style="display: {% if store.theme_style == 'fresh_sky' %}inline-flex{% else %}none{% endif %};">
+                        ✓ {% trans "Активен" %}
+                    </span>
+                </div>
+                <span style="font-size: 11px; color: #94A3B8; line-height: 1.35;">Кристально-чистая лазурь — для спортивных товаров, детских игр и обуви</span>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ======================================================================
+     ВКЛАДКА 2: ПЕРСОНАЛЬНЫЙ ДИЗАЙН (КАСТОМ С НУЛЯ)
+     ====================================================================== -->
+<div id="studioTabCustom" style="display: none;">
+
+    <form method="POST" action="{% url 'seller-design' %}" enctype="multipart/form-data" id="customDesignForm">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="save_custom_design">
+        <input type="hidden" name="next" value="{% url 'seller-design' %}">
+
+        <!-- ─── БЛОК 1: ЦВЕТОВАЯ ПАЛИТРА И ТЕМА ─── -->
+        <div class="bm-studio-card">
+            <h3 class="bm-card-title">
+                <span>🎨</span> <span>{% trans "Цветовая палитра и тема витрины" %}</span>
+            </h3>
+            <p class="bm-card-desc">
+                {% trans "Настройте собственные цвета витрины вручную или выберите популярный пресет в 1 клик." %}
+            </p>
+
+            <!-- Быстрые цветовые пресеты -->
+            <div style="margin-bottom: 16px;">
+                <label style="font-size: 12px; font-weight: 700; color: #FFFFFF; display: block; margin-bottom: 8px;">
+                    {% trans "Быстрые пресеты акцентного цвета:" %}
+                </label>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <div class="bm-color-preset" style="background: #C9A27A;" title="JM Kids Gold (#C9A27A)" onclick="pickStudioPreset('#C9A27A', '#DFBE99', '#121214', 'dark')"></div>
+                    <div class="bm-color-preset" style="background: #7000FF;" title="Uzum Violet (#7000FF)" onclick="pickStudioPreset('#7000FF', '#00C853', '#0B0C10', 'dark')"></div>
+                    <div class="bm-color-preset" style="background: #0071E3;" title="Apple Blue (#0071E3)" onclick="pickStudioPreset('#0071E3', '#30D158', '#FFFFFF', 'light')"></div>
+                    <div class="bm-color-preset" style="background: #10B981;" title="Emerald Green (#10B981)" onclick="pickStudioPreset('#10B981', '#34D399', '#061812', 'dark')"></div>
+                    <div class="bm-color-preset" style="background: #FF0055;" title="Cyber Pink (#FF0055)" onclick="pickStudioPreset('#FF0055', '#00F0FF', '#070712', 'dark')"></div>
+                    <div class="bm-color-preset" style="background: #FF5000;" title="Sunset Orange (#FF5000)" onclick="pickStudioPreset('#FF5000', '#FF8C00', '#0D0C0B', 'dark')"></div>
+                    <div class="bm-color-preset" style="background: #7C3AED;" title="Lilac Purple (#7C3AED)" onclick="pickStudioPreset('#7C3AED', '#C084FC', '#F8F5FF', 'light')"></div>
+
+                    <!-- Кнопка авто-извлечения из логотипа -->
+                    <button type="button" onclick="extractLogoPaletteStudio()" style="margin-left: 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.18); color: #FFFFFF; padding: 6px 14px; border-radius: 10px; font-size: 11.5px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                        <span>✨</span> <span>{% trans "Извлечь из логотипа" %}</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Ручной выбор цветов -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+                <div>
+                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">
+                        {% trans "Основной акцентный цвет (Кнопки, цены)" %}
+                    </label>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="color" id="studioColorPickerPrimary" value="{{ store.primary_color|default:'#C9A27A' }}" onchange="document.getElementById('studioPrimaryInput').value=this.value" style="width: 42px; height: 38px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; background: transparent; padding: 0;">
+                        <input type="text" name="primary_color" id="studioPrimaryInput" value="{{ store.primary_color|default:'#C9A27A' }}" oninput="document.getElementById('studioColorPickerPrimary').value=this.value" style="flex: 1; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 13px; font-weight: 700;">
+                    </div>
+                </div>
+
+                <div>
+                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">
+                        {% trans "Дополнительный цвет (Бейджи, декор)" %}
+                    </label>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="color" id="studioColorPickerAccent" value="{{ store.accent_color|default:'#DFBE99' }}" onchange="document.getElementById('studioAccentInput').value=this.value" style="width: 42px; height: 38px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; background: transparent; padding: 0;">
+                        <input type="text" name="accent_color" id="studioAccentInput" value="{{ store.accent_color|default:'#DFBE99' }}" oninput="document.getElementById('studioColorPickerAccent').value=this.value" style="flex: 1; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 13px; font-weight: 700;">
+                    </div>
+                </div>
+
+                <div>
+                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">
+                        {% trans "Цвет фона витрины (Опционально)" %}
+                    </label>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="color" id="studioColorPickerBg" value="{{ store.bg_color|default:'#121214' }}" onchange="document.getElementById('studioBgInput').value=this.value" style="width: 42px; height: 38px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; background: transparent; padding: 0;">
+                        <input type="text" name="bg_color" id="studioBgInput" value="{{ store.bg_color|default:'#121214' }}" oninput="document.getElementById('studioColorPickerBg').value=this.value" style="flex: 1; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 13px; font-weight: 700;">
+                    </div>
+                </div>
+
+                <div>
+                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">
+                        {% trans "Режим витрины" %}
+                    </label>
+                    <select name="theme_mode" id="studioThemeModeSelect" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 13px; font-weight: 700;">
+                        <option value="dark" {% if store.theme_mode == 'dark' or not store.theme_mode %}selected{% endif %}>🌙 {% trans "Тёмная тема (Dark)" %}</option>
+                        <option value="light" {% if store.theme_mode == 'light' %}selected{% endif %}>☀️ {% trans "Светлая тема (Light)" %}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── БЛОК 2: СЛОГАН И HERO-БАННЕР ВИТРИНЫ (JM KIDS STYLE) ─── -->
+        <div class="bm-studio-card">
+            <h3 class="bm-card-title">
+                <span>✨</span> <span>{% trans "Слоган и Hero-баннер витрины (JM Kids Style)" %}</span>
+            </h3>
+            <p class="bm-card-desc">
+                {% trans "Настройте верхнюю надпись, слоган и главный экран магазина, как на брендовом эталоне JM Kids Store." %}
+            </p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 14px;">
+                <div>
+                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">
+                        {% trans "Слоган под названием (Tagline)" %}
+                    </label>
+                    <input type="text" name="tagline" value="{{ store.tagline }}" placeholder="Premium Kids Fashion" style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 13px;">
+                </div>
+
+                <div>
+                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">
+                        {% trans "Метка баннера (Label)" %}
+                    </label>
+                    <input type="text" name="hero_label" value="{{ store.hero_label }}" placeholder="NEW COLLECTION" style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 13px;">
+                </div>
+
+                <div>
+                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">
+                        {% trans "Главный заголовок баннера" %}
+                    </label>
+                    <input type="text" name="hero_title" value="{{ store.hero_title }}" placeholder="Luxury Style for Kids" style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 13px;">
+                </div>
+
+                <div>
+                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">
+                        {% trans "Подзаголовок баннера" %}
+                    </label>
+                    <input type="text" name="hero_subtitle" value="{{ store.hero_subtitle }}" placeholder="Comfort • Elegance • Quality" style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 13px;">
+                </div>
+            </div>
+
+            <div>
+                <label style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">
+                    {% trans "Фоновое изображение баннера (Hero image)" %}
+                </label>
+                {% if store.hero_image %}
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                        <img src="{{ store.hero_image.url }}" style="height: 54px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border);">
+                        <label style="font-size: 12px; color: #EF4444; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                            <input type="checkbox" name="clear_hero_image" value="1"> {% trans "Удалить фото" %}
+                        </label>
+                    </div>
+                {% endif %}
+                <input type="file" name="hero_image" accept="image/*" style="font-size: 12px; color: var(--text-muted);">
+            </div>
+
+            <div style="margin-top: 16px;">
+                <button type="submit" class="btn" style="width: auto; padding: 10px 24px; font-size: 13px; font-weight: 800; border-radius: 10px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(16,185,129,0.3);">
+                    💾 {% trans "Сохранить слоган и цвета" %}
+                </button>
+            </div>
+        </div>
+
+    </form>
+
+    <!-- ─── БЛОК 3: СЛАЙДЕР РЕКЛАМНЫХ БАННЕРОВ (ОТ 1 ДО 7 БАННЕРОВ) ─── -->
+    <div class="bm-studio-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <div>
+                <h3 class="bm-card-title">
+                    <span>🎠</span> <span>{% trans "Слайдер баннеров витрины" %}</span>
+                    <span style="font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 6px; background: rgba(201, 162, 122, 0.18); color: var(--primary, #C9A27A); border: 1px solid rgba(201, 162, 122, 0.35);">
+                        {{ store_banners_count }} / 7
+                    </span>
+                </h3>
+                <p class="bm-card-desc" style="margin-bottom: 0;">
+                    💡 <strong>{% trans "Рекомендуем 3–4 баннера" %}</strong>: {% trans "покупатели смогут листать их свайпом на телефоне, а витрина будет открываться мгновенно." %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Список уже загруженных баннеров магазина -->
+        {% if store_banners %}
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-bottom: 18px;">
+                {% for b in store_banners %}
+                    <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; overflow: hidden; position: relative;">
+                        {% if b.image %}
+                            <img src="{{ b.image.url }}" style="width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block;">
+                        {% else %}
+                            <div style="width: 100%; aspect-ratio: 16/9; background: {{ b.bg_gradient|default:'linear-gradient(135deg, #151517 0%, #201D19 100%)' }};"></div>
+                        {% endif %}
+                        <div style="padding: 10px;">
+                            <div style="font-size: 10px; font-weight: 700; color: var(--primary, #C9A27A);">{{ b.badge|default:"СЛАЙД" }}</div>
+                            <div style="font-size: 12px; font-weight: 800; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ b.title }}</div>
+                            <div style="font-size: 10.5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ b.subtitle }}</div>
+                            {% if b.target_category %}
+                                <div style="font-size: 10px; color: #60A5FA; font-weight: 700; margin-top: 4px;">
+                                    🏷️ {% trans "Переход в" %}: {{ b.target_category.display_name }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <a href="{% url 'seller-banner-delete' b.id %}?next={% url 'seller-design' %}" onclick="return confirm('{% trans "Удалить этот баннер с витрины?" %}');" style="position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.65); border: 1px solid rgba(239, 68, 68, 0.5); color: #EF4444; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; text-decoration: none;" title="{% trans 'Удалить баннер' %}">
+                            ✕
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="padding: 14px; background: rgba(255,255,255,0.02); border: 1px dashed var(--border); border-radius: 12px; text-align: center; color: var(--text-muted); font-size: 12.5px; margin-bottom: 18px;">
+                {% trans "Вы еще не загрузили собственные баннеры. На витрине отображаются 3 премиальных демо-слайда." %}
+            </div>
+        {% endif %}
+
+        <!-- Форма добавления нового баннера в карусель -->
+        {% if store_banners_count < 7 %}
+            <form method="POST" action="{% url 'seller-banner-add' %}" enctype="multipart/form-data" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px;">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{% url 'seller-design' %}">
+                <span style="font-size: 13px; font-weight: 800; color: white; display: block; margin-bottom: 12px;">
+                    ➕ {% trans "Добавить новый слайд в карусель (от 1 до 7):" %}
+                </span>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 14px;">
+                    <div>
+                        <label style="font-size: 11px; font-weight: 700; color: var(--text-muted);">{% trans "Картинка баннера" %} *</label>
+                        <input type="file" name="banner_image" accept="image/*" required style="font-size: 12px; color: var(--text-muted); width: 100%; margin-top: 4px;">
+                    </div>
+                    <div>
+                        <label style="font-size: 11px; font-weight: 700; color: var(--text-muted);">🏷️ {% trans "Кнопка открывает категорию:" %}</label>
+                        <select name="target_category_id" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 12px; margin-top: 4px;">
+                            <option value="">-- {% trans "Все товары (#products-section)" %} --</option>
+                            {% for cat in all_categories %}
+                                <option value="{{ cat.id }}">{{ cat.icon }} {{ cat.display_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 11px; font-weight: 700; color: var(--text-muted);">{% trans "Бейдж акции" %}</label>
+                        <input type="text" name="banner_badge" placeholder="NEW COLLECTION / СКИДКИ 30%" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 12px; margin-top: 4px;">
+                    </div>
+                    <div>
+                        <label style="font-size: 11px; font-weight: 700; color: var(--text-muted);">{% trans "Заголовок" %} *</label>
+                        <input type="text" name="banner_title" placeholder="Luxury Style for Kids" required style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 12px; margin-top: 4px;">
+                    </div>
+                    <div>
+                        <label style="font-size: 11px; font-weight: 700; color: var(--text-muted);">{% trans "Подзаголовок" %}</label>
+                        <input type="text" name="banner_subtitle" placeholder="Comfort • Elegance • Quality" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 12px; margin-top: 4px;">
+                    </div>
+                    <div>
+                        <label style="font-size: 11px; font-weight: 700; color: var(--text-muted);">{% trans "Текст кнопки" %}</label>
+                        <input type="text" name="banner_button_text" placeholder="Shop Now" value="Shop Now" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 12px; margin-top: 4px;">
+                    </div>
+                </div>
+                <button type="submit" style="background: var(--btn-gradient, linear-gradient(135deg, #10B981 0%, #059669 100%)); color: white; border: none; padding: 9px 20px; border-radius: 9px; font-size: 12.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                    ➕ {% trans "Сохранить и добавить баннер в карусель" %}
+                </button>
+            </form>
+        {% else %}
+            <div style="background: rgba(255, 159, 10, 0.1); border: 1px solid rgba(255, 159, 10, 0.3); color: #FFD188; padding: 12px; border-radius: 10px; font-size: 12px; font-weight: 600;">
+                ⚠️ {% trans "Вы достигли максимального лимита (7 баннеров). Чтобы добавить новый слайд, удалите один из текущих." %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- ─── БЛОК 4: КАТЕГОРИИ ВИТРИНЫ ─── -->
+    <div class="bm-studio-card">
+        <h3 class="bm-card-title">
+            <span>🏷️</span> <span>{% trans "Категории витрины магазина" %}</span>
+        </h3>
+        <p class="bm-card-desc">
+            {% trans "4 базовые категории с фирменными фото активны по умолчанию. Вы можете сменить фото любой категории или создать новую категорию магазина." %}
+        </p>
+
+        <!-- 4 базовые категории витрины -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin-bottom: 20px;">
+            {% for cat in base_categories %}
+                <div style="background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px; display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 50px; height: 50px; border-radius: 10px; overflow: hidden; background: #222; flex-shrink: 0;">
+                        {% if cat.effective_image_url %}
+                            <img src="{{ cat.effective_image_url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                            <div style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 18px;">{{ cat.icon|default:'🏷️' }}</div>
+                        {% endif %}
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-size: 12px; font-weight: 800; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ cat.display_name }}</div>
+                        <div style="font-size: 10px; color: #10B981; font-weight: 700;">{% trans "Базовая (Системная)" %}</div>
+                        <button type="button" onclick="triggerCatImageUpdate('{{ cat.id }}')" style="background: transparent; border: none; color: #60A5FA; font-size: 11px; padding: 0; margin-top: 4px; cursor: pointer; text-decoration: underline;">
+                            📷 {% trans "Сменить фото" %}
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <!-- Дополнительные пользовательские категории магазина -->
+            {% for cat in store_custom_categories %}
+                <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 12px; padding: 10px; display: flex; align-items: center; gap: 10px; position: relative;">
+                    <div style="width: 50px; height: 50px; border-radius: 10px; overflow: hidden; background: #222; flex-shrink: 0;">
+                        {% if cat.effective_image_url %}
+                            <img src="{{ cat.effective_image_url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                            <div style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 18px;">{{ cat.icon|default:'🏷️' }}</div>
+                        {% endif %}
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-size: 12px; font-weight: 800; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ cat.display_name }}</div>
+                        <div style="font-size: 10px; color: #A5B4FC; font-weight: 700;">{% trans "Категория магазина" %}</div>
+                        <button type="button" onclick="triggerCatImageUpdate('{{ cat.id }}')" style="background: transparent; border: none; color: #60A5FA; font-size: 11px; padding: 0; margin-top: 4px; cursor: pointer; text-decoration: underline;">
+                            📷 {% trans "Сменить фото" %}
+                        </button>
+                    </div>
+                    <a href="{% url 'seller-category-delete' cat.id %}?next={% url 'seller-design' %}" onclick="return confirm('{% trans "Удалить эту категорию?" %}');" style="position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.6); color: #EF4444; border: 1px solid rgba(239,68,68,0.4); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; text-decoration: none;">
+                        ✕
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Скрытая форма для обновления фото категории -->
+        <form id="catUpdateForm" method="POST" action="" enctype="multipart/form-data" style="display: none;">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{% url 'seller-design' %}">
+            <input type="file" name="category_image" id="catImageInput" onchange="submitCatImageUpdate()">
+        </form>
+
+        <!-- Форма создания новой категории продавцом -->
+        <form method="POST" action="{% url 'seller-category-add' %}" enctype="multipart/form-data" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px;">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{% url 'seller-design' %}">
+            <span style="font-size: 13px; font-weight: 800; color: white; display: flex; align-items: center; gap: 6px; margin-bottom: 12px;">
+                <span>➕</span> <span>{% trans "Создать новую категорию для витрины" %}:</span>
+            </span>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 12px;">
+                <div>
+                    <label style="font-size: 11px; font-weight: 700; color: var(--text-muted);">{% trans "Название категории" %} *</label>
+                    <input type="text" name="category_name" placeholder="{% trans 'Например: Осенняя одежда' %}" required style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 12px; margin-top: 4px;">
+                </div>
+                <div>
+                    <label style="font-size: 11px; font-weight: 700; color: var(--text-muted);">{% trans "Иконка" %}</label>
+                    <input type="text" name="category_icon" placeholder="🧥 / 👗 / 🧸" value="🏷️" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 12px; margin-top: 4px; text-align: center;">
+                </div>
+                <div>
+                    <label style="font-size: 11px; font-weight: 700; color: var(--text-muted);">{% trans "Картинка категории" %}</label>
+                    <input type="file" name="category_image" accept="image/*" style="font-size: 12px; color: var(--text-muted); width: 100%; margin-top: 4px;">
+                </div>
+            </div>
+            <button type="submit" style="background: rgba(99, 102, 241, 0.2); border: 1px solid #818CF8; color: #C7D2FE; padding: 9px 20px; border-radius: 10px; font-size: 12.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                ➕ {% trans "Сохранить и создать категорию" %}
+            </button>
+        </form>
+    </div>
+
+</div>
+
+<!-- Toast оповещение -->
+<div id="studioToast">
+    <span>✨</span> <span id="studioToastText">Дизайн успешно применен!</span>
+</div>
+
+<script>
+// ─── TAB SWITCHER ───
+function switchStudioTab(tab) {
+    var tabThemes = document.getElementById('studioTabThemes');
+    var tabCustom = document.getElementById('studioTabCustom');
+    var btnThemes = document.getElementById('tabBtnThemes');
+    var btnCustom = document.getElementById('tabBtnCustom');
+
+    if (tab === 'themes') {
+        tabThemes.style.display = 'block';
+        tabCustom.style.display = 'none';
+        btnThemes.classList.add('active');
+        btnCustom.classList.remove('active');
+    } else {
+        tabThemes.style.display = 'none';
+        tabCustom.style.display = 'block';
+        btnThemes.classList.remove('active');
+        btnCustom.classList.add('active');
+    }
+}
+
+// ─── THEME FILTER PILLS ───
+function filterStudioThemes(cat, btn) {
+    document.querySelectorAll('.filter-pill').forEach(function(p) {
+        p.classList.remove('active');
+        p.style.background = 'rgba(255,255,255,0.04)';
+        p.style.color = '#94A3B8';
+        p.style.borderColor = 'rgba(255,255,255,0.08)';
+    });
+    if (btn) {
+        btn.classList.add('active');
+        btn.style.background = 'rgba(255,255,255,0.14)';
+        btn.style.color = '#FFFFFF';
+        btn.style.borderColor = 'rgba(255,255,255,0.2)';
+    }
+    document.querySelectorAll('#studioThemesGrid .theme-quick-card').forEach(function(card) {
+        if (cat === 'all' || card.getAttribute('data-category') === cat) {
+            card.style.display = 'flex';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+// ─── APPLY STUDIO THEME VIA AJAX ───
+function applyStudioTheme(themeKey, cardEl) {
+    if (!themeKey) return;
+
+    var allCards = document.querySelectorAll('#studioThemesGrid .theme-quick-card');
+    allCards.forEach(function(c) { c.style.opacity = '0.7'; });
+
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    fetch('{% url "api-set-store-theme" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ theme_style: themeKey })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        allCards.forEach(function(c) {
+            c.style.opacity = '1';
+            c.classList.remove('active');
+            var ind = c.querySelector('.theme-active-indicator');
+            if (ind) ind.style.display = 'none';
+        });
+
+        if (cardEl) {
+            cardEl.classList.add('active');
+            var ind = cardEl.querySelector('.theme-active-indicator');
+            if (ind) ind.style.display = 'inline-flex';
+        }
+
+        var badge = document.getElementById('activeThemeBadge');
+        if (badge && data.theme_name) {
+            badge.innerText = '✨ ' + data.theme_name;
+        }
+
+        showStudioToast(data.message || 'Дизайн витрины успешно обновлен!');
+    })
+    .catch(function(err) {
+        allCards.forEach(function(c) { c.style.opacity = '1'; });
+        showStudioToast('Ошибка переключения стиля');
+    });
+}
+
+function showStudioToast(msg) {
+    var t = document.getElementById('studioToast');
+    var txt = document.getElementById('studioToastText');
+    if (!t || !txt) return;
+    txt.innerText = msg;
+    t.style.display = 'flex';
+    setTimeout(function() { t.style.display = 'none'; }, 3000);
+}
+
+// ─── COLOR PRESETS ───
+function pickStudioPreset(primary, accent, bg, mode) {
+    document.getElementById('studioPrimaryInput').value = primary;
+    document.getElementById('studioColorPickerPrimary').value = primary;
+    document.getElementById('studioAccentInput').value = accent;
+    document.getElementById('studioColorPickerAccent').value = accent;
+    if (bg) {
+        document.getElementById('studioBgInput').value = bg;
+        document.getElementById('studioColorPickerBg').value = bg;
+    }
+    if (mode) {
+        document.getElementById('studioThemeModeSelect').value = mode;
+    }
+    showStudioToast('Пресет применен! Не забудьте нажать «Сохранить»');
+}
+
+// ─── EXTRACT PALETTE FROM LOGO ───
+function extractLogoPaletteStudio() {
+    fetch('{% url "api-extract-logo-palette" %}')
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success && data.palette) {
+            var p = data.palette;
+            if (p.primary) pickStudioPreset(p.primary, p.accent || '#FFFFFF', p.bg || '#121214', p.mode || 'dark');
+            showStudioToast('Палитра успешно извлечена из вашего логотипа!');
+        } else {
+            showStudioToast(data.error || 'Логотип еще не загружен');
+        }
+    })
+    .catch(function() { showStudioToast('Не удалось извлечь палитру'); });
+}
+
+// ─── CATEGORY IMAGE UPDATE ───
+var _updatingCatId = null;
+function triggerCatImageUpdate(catId) {
+    _updatingCatId = catId;
+    var form = document.getElementById('catUpdateForm');
+    var url = "{% url 'seller-category-update-image' 0 %}".replace('0', catId);
+    form.action = url;
+    document.getElementById('catImageInput').click();
+}
+
+function submitCatImageUpdate() {
+    var form = document.getElementById('catUpdateForm');
+    if (form && _updatingCatId) {
+        form.submit();
+    }
+}
+</script>
+{% endblock %}
