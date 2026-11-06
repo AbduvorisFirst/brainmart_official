@@ -303,100 +303,129 @@
 <!-- ─── МОДАЛЬНОЕ ОКНО КОРЗИНЫ ─── -->
 <div id="cart-modal-overlay" onclick="closeCartOnOverlay(event)">
     <div id="cart-modal">
+        <!-- Drag Handle Indicator (Image 2 style) -->
+        <div class="bm-modal-drag-handle" style="width: 38px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.22); margin: 0 auto 16px;"></div>
+
         <!-- Шапка корзины -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
-            <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: var(--text-main);">
+            <h3 style="margin: 0; font-size: 20px; font-weight: 800; color: var(--text-main);">
                 🛒 {% trans "Ваша корзина" %}
             </h3>
-            <button onclick="closeCartModal()" style="background: var(--input-bg); border: 1px solid var(--border); width: 32px; height: 32px; border-radius: 50%; font-size: 14px; font-weight: 800; cursor: pointer; color: var(--text-muted);">✕</button>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span id="cart-header-count" style="font-size: 13px; color: var(--text-muted); font-weight: 600;">0 items</span>
+                <button onclick="closeCartModal()" style="background: rgba(255,255,255,0.08); border: 1px solid var(--border); width: 32px; height: 32px; border-radius: 50%; font-size: 14px; font-weight: 800; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; transition: all 0.15s ease;">✕</button>
+            </div>
         </div>
 
         <!-- Список товаров -->
-        <div id="cart-items-list" style="flex: 0 0 auto; max-height: 35vh; overflow-y: auto; margin-bottom: 16px;">
+        <div id="cart-items-list" style="flex: 0 0 auto; max-height: 38vh; overflow-y: auto; margin-bottom: 14px;">
             <!-- Динамически заполняется через JS -->
         </div>
 
         <div id="cart-checkout-wrapper">
-        <!-- Итоговая плашка -->
-        <div style="background: var(--input-bg); border-radius: 16px; padding: 14px 16px; margin-bottom: 16px; border: 1px solid var(--border);">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px; color: var(--text-muted);">
-                <span>{% trans "Количество товаров:" %}</span>
-                <strong id="cart-summary-qty" style="color: var(--text-main);">0 шт.</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between; font-size: 17px; font-weight: 800; color: var(--text-main); border-top: 1px dashed var(--border); padding-top: 8px;">
-                <span>{% trans "Итого к оплате:" %}</span>
-                <span style="color: var(--primary);" id="cart-summary-total">0 сум</span>
-            </div>
-        </div>
-
-        <!-- БЛОК ДОСТАВКИ -->
-        <div id="checkout-details-section" style="margin-bottom: 16px;">
-            <div style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 12px;">
-                📍 {% trans "Данные для быстрой доставки" %}
-            </div>
-
-            <!-- УСПОКАИВАЮЩИЙ БАННЕР ДОСТАВКИ -->
-            <div class="delivery-reassurance-banner">
-                <span style="font-size: 24px;">🚀</span>
-                <div>
-                    <div class="delivery-reassurance-text">{% trans "Быстрая экспресс-доставка прямо до вашей двери" %}</div>
-                    <div class="delivery-reassurance-sub">{% trans "Курьер доставит ваш заказ бережно и точно в срок" %}</div>
+            <!-- Итоговая плашка (Image 2 Luxury Cart Style) -->
+            <div style="background: transparent; padding: 12px 4px 6px; border-top: 1px solid var(--border); margin-bottom: 14px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: var(--text-muted);">
+                    <span>{% trans "Подытог" %}</span>
+                    <strong id="cart-summary-subtotal" style="color: var(--text-main); font-weight: 700;">0 сум</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: var(--text-muted);">
+                    <span>{% trans "Доставка" %}</span>
+                    <span style="color: #10B981; font-weight: 700;">{% trans "Бесплатно" %}</span>
+                </div>
+                <div id="cart-discount-row" style="display: none; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: #10B981;">
+                    <span>{% trans "Скидка (10%)" %}:</span>
+                    <strong id="cart-summary-discount">-0 сум</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 22px; font-weight: 900; color: var(--text-main); padding-top: 10px; border-top: 1px dashed var(--border);">
+                    <span>{% trans "Итого" %}:</span>
+                    <span style="color: var(--text-main);" id="cart-summary-total">0 сум</span>
                 </div>
             </div>
 
-            <div class="checkout-input-group">
-                <label class="checkout-label">{% trans "Ваше имя и фамилия" %}</label>
-                <input type="text" id="web-order-name" class="checkout-input" placeholder="{% trans 'Например: Азиз Каримов' %}">
-            </div>
+            <!-- БЛОК ДОСТАВКИ (Раскрывается при нажатии Перейти к оформлению) -->
+            <div id="checkout-details-section" style="display: none; margin-bottom: 16px; padding-top: 10px; border-top: 1px solid var(--border);">
+                <div style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 12px;">
+                    📍 {% trans "Данные для быстрой доставки" %}
+                </div>
 
-            <div class="checkout-input-group">
-                <label class="checkout-label">{% trans "Номер телефона для курьера" %}</label>
-                <input type="tel" id="web-order-phone" class="checkout-input" placeholder="+998 90 123 45 67">
-            </div>
-
-            <!-- КНОПКА ГЕОЛОКАЦИИ ПО GPS -->
-            <div style="margin-bottom: 12px;">
-                <button type="button" id="btn-detect-gps" onclick="detectUserLocation()" style="width: 100%; background: rgba(112, 0, 255, 0.12); border: 1.5px solid rgba(112, 0, 255, 0.35); color: #C4B5FD; padding: 11px 14px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    📍 <span id="gps-status-text">{% trans "Определить адрес по GPS (1 нажатие)" %}</span>
-                </button>
-            </div>
-
-            <div class="checkout-input-group">
-                <label class="checkout-label">{% trans "Адрес доставки (город, улица, дом / кв.)" %}</label>
-                <input type="text" id="web-order-address" class="checkout-input" placeholder="{% trans 'Ташкент, ул. Навои, 14, кв. 28' %}">
-            </div>
-
-            <div class="checkout-input-group">
-                <label class="checkout-label">{% trans "Ориентир / комментарий для курьера" %}</label>
-                <input type="text" id="web-order-landmark" class="checkout-input" placeholder="{% trans 'Подъезд 3, этаж 4, домофон 28' %}">
-            </div>
-
-            <div class="checkout-input-group">
-                <label class="checkout-label">{% trans "Способ оплаты" %}</label>
-                <div class="pay-option-card active" style="cursor: default; border-color: rgba(99, 102, 241, 0.4); background: rgba(99, 102, 241, 0.08);">
-                    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 24px;">💳</span>
-                            <div>
-                                <div style="font-size: 14px; font-weight: 800; color: var(--text-main);">{% trans "Перевод на карту (Uzcard / Humo)" %}</div>
-                                <div style="font-size: 12px; color: #94A3B8; margin-top: 2px;">{% trans "С обязательным прикреплением скриншота чека" %}</div>
-                            </div>
-                        </div>
-                        <span style="font-size: 11px; background: rgba(16, 185, 129, 0.15); color: #10B981; padding: 4px 10px; border-radius: 8px; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.3);">✓ {% trans "Только перевод" %}</span>
+                <!-- УСПОКАИВАЮЩИЙ БАННЕР ДОСТАВКИ -->
+                <div class="delivery-reassurance-banner">
+                    <span style="font-size: 24px;">🚀</span>
+                    <div>
+                        <div class="delivery-reassurance-text">{% trans "Быстрая экспресс-доставка прямо до вашей двери" %}</div>
+                        <div class="delivery-reassurance-sub">{% trans "Курьер доставит ваш заказ бережно и точно в срок" %}</div>
                     </div>
                 </div>
-                <input type="hidden" id="web-order-payment" value="card_transfer">
-            </div>
-        </div>
 
-        <!-- Кнопка оформления (единая понятная кнопка) -->
-        <button class="btn-checkout-main" id="btn-submit-order" onclick="submitDirectWebOrder()" style="background: linear-gradient(135deg, #7000FF 0%, #5B00D1 100%); border-radius: 16px; padding: 16px; font-size: 15px; font-weight: 800; box-shadow: 0 4px 18px rgba(112, 0, 255, 0.4); width: 100%; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-            🛍️ {% trans "Оформить заказ и прикрепить чек" %}
-        </button>
-        
-        <p style="text-align: center; margin: 12px 0 0; font-size: 11px; color: var(--text-muted);">
-            {% trans "Заказ мгновенно поступит продавцу для отправки такси" %}
-        </p>
+                <div class="checkout-input-group">
+                    <label class="checkout-label">{% trans "Ваше имя и фамилия" %}</label>
+                    <input type="text" id="web-order-name" class="checkout-input" placeholder="{% trans 'Например: Азиз Каримов' %}">
+                </div>
+
+                <div class="checkout-input-group">
+                    <label class="checkout-label">{% trans "Номер телефона для курьера" %}</label>
+                    <input type="tel" id="web-order-phone" class="checkout-input" placeholder="+998 90 123 45 67">
+                </div>
+
+                <!-- КНОПКА ГЕОЛОКАЦИИ ПО GPS -->
+                <div style="margin-bottom: 12px;">
+                    <button type="button" id="btn-detect-gps" onclick="detectUserLocation()" style="width: 100%; background: color-mix(in srgb, var(--primary, #7000FF) 12%, transparent); border: 1.5px solid color-mix(in srgb, var(--primary, #7000FF) 35%, transparent); color: var(--text-main); padding: 11px 14px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        📍 <span id="gps-status-text">{% trans "Определить адрес по GPS (1 нажатие)" %}</span>
+                    </button>
+                </div>
+
+                <div class="checkout-input-group">
+                    <label class="checkout-label">{% trans "Адрес доставки (город, улица, дом / кв.)" %}</label>
+                    <input type="text" id="web-order-address" class="checkout-input" placeholder="{% trans 'Ташкент, ул. Навои, 14, кв. 28' %}">
+                </div>
+
+                <div class="checkout-input-group">
+                    <label class="checkout-label">{% trans "Ориентир / комментарий для курьера" %}</label>
+                    <input type="text" id="web-order-landmark" class="checkout-input" placeholder="{% trans 'Подъезд 3, этаж 4, домофон 28' %}">
+                </div>
+
+                <div class="checkout-input-group">
+                    <label class="checkout-label">{% trans "Способ оплаты" %}</label>
+                    <div class="pay-option-card active" style="cursor: default; border-color: color-mix(in srgb, var(--primary, #7000FF) 40%, transparent); background: color-mix(in srgb, var(--primary, #7000FF) 8%, transparent);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 24px;">💳</span>
+                                <div>
+                                    <div style="font-size: 14px; font-weight: 800; color: var(--text-main);">{% trans "Перевод на карту (Uzcard / Humo)" %}</div>
+                                    <div style="font-size: 12px; color: #94A3B8; margin-top: 2px;">{% trans "С обязательным прикреплением скриншота чека" %}</div>
+                                </div>
+                            </div>
+                            <span style="font-size: 11px; background: rgba(16, 185, 129, 0.15); color: #10B981; padding: 4px 10px; border-radius: 8px; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.3);">✓ {% trans "Только перевод" %}</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="web-order-payment" value="card_transfer">
+                </div>
+            </div>
+
+            <!-- Главная кнопка оформления (Image 2 style) -->
+            <button class="btn-checkout-main" id="btn-submit-order" onclick="proceedOrSubmitOrder()" style="background: var(--btn-gradient, var(--primary, #7000FF)); border-radius: 18px; padding: 16px; font-size: 15px; font-weight: 800; box-shadow: 0 4px 18px color-mix(in srgb, var(--primary, #7000FF) 35%, transparent); width: 100%; border: none; color: #FFFFFF; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.15s ease;">
+                <span id="btn-submit-order-text">{% trans "Перейти к оформлению" %} ➔</span>
+            </button>
+
+            <!-- Промокод блок (Image 2 Promo / Voucher Style) -->
+            <div class="cart-promo-card" style="background: var(--input-bg, rgba(255,255,255,0.04)); border: 1px solid var(--border, rgba(255,255,255,0.1)); border-radius: 16px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; margin-top: 14px; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 26px;">🎁</span>
+                    <div>
+                        <div style="font-size: 13.5px; font-weight: 800; color: var(--text-main);">{% trans "Скидка 10%" %}</div>
+                        <div style="font-size: 11.5px; color: var(--text-muted);">{% trans "Промокод:" %} <b style="color: var(--primary);">WELCOME10</b></div>
+                    </div>
+                </div>
+                <button type="button" id="btn-apply-promo" onclick="applyPromoCode()" style="background: var(--primary); color: #FFFFFF; border: none; padding: 8px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">
+                    {% trans "Применить" %}
+                </button>
+            </div>
+            
+            <p style="text-align: center; margin: 12px 0 0; font-size: 11px; color: var(--text-muted);">
+                {% trans "Заказ мгновенно поступит продавцу для отправки такси" %}
+            </p>
+        </div>
     </div>
 </div>
 
@@ -559,19 +588,50 @@
         }
     }
 
+    
+    let cartPromoDiscountPercent = 0;
+
+    function applyPromoCode() {
+        if (cartPromoDiscountPercent > 0) return;
+        cartPromoDiscountPercent = 10;
+        const btn = document.getElementById('btn-apply-promo');
+        if (btn) {
+            btn.innerText = '✓ {% filter escapejs %}{% trans "Применен" %}{% endfilter %}';
+            btn.style.background = '#10B981';
+            btn.style.cursor = 'default';
+        }
+        renderCartItemsList();
+    }
+
+    function proceedOrSubmitOrder() {
+        const details = document.getElementById('checkout-details-section');
+        const btnText = document.getElementById('btn-submit-order-text');
+        if (details && details.style.display === 'none') {
+            details.style.display = 'block';
+            details.scrollIntoView({ behavior: 'smooth' });
+            if (btnText) {
+                btnText.innerHTML = `🛍️ {% filter escapejs %}{% trans "Оформить заказ и прикрепить чек" %}{% endfilter %}`;
+            }
+            return;
+        }
+        submitDirectWebOrder();
+    }
+
     function renderCartItemsList() {
         const cart = getCart();
         const container = document.getElementById('cart-items-list');
         const checkoutWrapper = document.getElementById('cart-checkout-wrapper');
+        const headerCount = document.getElementById('cart-header-count');
         if (!container) return;
 
         if (cart.length === 0) {
+            if (headerCount) headerCount.innerText = '0 items';
             container.innerHTML = `
                 <div style="text-align: center; padding: 36px 14px; color: var(--text-muted);">
                     <div style="font-size: 52px; margin-bottom: 12px; line-height: 1;">🛍️</div>
                     <div style="font-size: 17px; font-weight: 800; color: var(--text-main); margin-bottom: 6px;">{% trans "Ваша корзина пуста" %}</div>
                     <div style="font-size: 13px; color: #94A3B8; margin-bottom: 20px; line-height: 1.45;">{% trans "В корзине пока нет товаров. Добавьте понравившиеся вещи из витрины!" %}</div>
-                    <button type="button" onclick="closeCartModal(); window.scrollTo({top: 0, behavior: 'smooth'});" style="background: var(--primary, #7000FF); color: #FFFFFF; border: none; padding: 11px 24px; border-radius: 12px; font-weight: 700; font-size: 13.5px; cursor: pointer; box-shadow: 0 4px 14px rgba(112, 0, 255, 0.35);">
+                    <button type="button" onclick="closeCartModal(); window.scrollTo({top: 0, behavior: 'smooth'});" style="background: var(--primary, #7000FF); color: #FFFFFF; border: none; padding: 11px 24px; border-radius: 12px; font-weight: 700; font-size: 13.5px; cursor: pointer; box-shadow: 0 4px 14px color-mix(in srgb, var(--primary, #7000FF) 35%, transparent);">
                         🛍️ {% trans "Перейти к покупкам" %}
                     </button>
                 </div>
@@ -584,46 +644,69 @@
         if (checkoutWrapper) checkoutWrapper.style.display = 'block';
 
         let html = '';
-        let total = 0;
+        let subtotal = 0;
         let count = 0;
 
         cart.forEach((item, index) => {
             const itemPrice = parseInt(item.price || 0, 10);
             const itemQty = parseInt(item.quantity || item.qty || 1, 10);
-            total += itemPrice * itemQty;
+            subtotal += itemPrice * itemQty;
             count += itemQty;
             const isMax = (item.max_qty !== undefined && itemQty >= item.max_qty);
-            const stockNotice = (item.max_qty !== undefined && item.max_qty <= 5) 
-                ? `<div style="font-size: 11px; color: #F59E0B; margin-top: 2px;">⚠️ {% filter escapejs %}{% trans "В наличии:" %}{% endfilter %} ${item.max_qty} {% filter escapejs %}{% trans "шт." %}{% endfilter %}</div>`
-                : '';
-            
+            const sizeLabel = item.size ? item.size : (item.variant_name ? item.variant_name.replace('Размер:', '').trim() : 'M');
+
             const imgHtml = item.image 
-                ? `<img src="${item.image}" alt="${item.name || 'Товар'}" style="width: 50px; height: 50px; border-radius: 10px; object-fit: cover; flex-shrink: 0; background: #181C28;">`
-                : `<div style="width: 50px; height: 50px; border-radius: 10px; background: #181C28; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">📦</div>`;
+                ? `<img src="${item.image}" alt="${item.name || 'Товар'}" style="width: 100%; height: 100%; object-fit: cover;">`
+                : `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 24px;">📦</div>`;
 
             html += `
-                <div class="cart-item-row" style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border);">
-                    ${imgHtml}
-                    <div style="flex: 1; min-width: 0; padding-right: 4px;">
-                        <div class="cart-item-title" style="font-size: 13px; font-weight: 700; color: var(--text-main); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.name || 'Товар'}</div>
-                        <div class="cart-item-price" style="font-size: 13px; font-weight: 800; color: var(--primary, #7000FF); margin-top: 2px;">${(itemPrice * itemQty).toLocaleString()} ${I18N_CART.sum}</div>
-                        ${stockNotice}
+                <div class="cart-item-row" style="display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border);">
+                    <div style="width: 62px; height: 62px; border-radius: 14px; overflow: hidden; background: #131722; flex-shrink: 0; border: 1px solid var(--border);">
+                        ${imgHtml}
                     </div>
-                    <div class="qty-control" style="display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.06); padding: 3px 6px; border-radius: 9px; border: 1px solid var(--border);">
-                        <button type="button" class="qty-btn" onclick="changeItemQty(${index}, -1)" style="background: none; border: none; color: var(--text-main); font-size: 15px; font-weight: 800; cursor: pointer; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;">—</button>
-                        <span class="qty-val" style="font-size: 13px; font-weight: 800; color: var(--text-main); min-width: 18px; text-align: center;">${itemQty}</span>
-                        <button type="button" class="qty-btn" onclick="changeItemQty(${index}, 1)" style="background: none; border: none; color: var(--text-main); font-size: 15px; font-weight: 800; cursor: pointer; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;" ${isMax ? 'disabled style="opacity: 0.35;"' : ''}>+</button>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-size: 14.5px; font-weight: 800; color: var(--text-main); margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.name || 'Товар'}</div>
+                        <div style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 6px;">Size: ${sizeLabel}</div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                            <div style="font-size: 15px; font-weight: 800; color: var(--text-main);">${(itemPrice * itemQty).toLocaleString()} ${I18N_CART.sum}</div>
+                            <div class="qty-control" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); padding: 3px 8px; border-radius: 20px; border: 1px solid var(--border);">
+                                <button type="button" class="qty-btn" onclick="changeItemQty(${index}, -1)" style="background: none; border: none; color: var(--text-main); font-size: 14px; font-weight: 800; cursor: pointer; padding: 0 4px; line-height: 1;">−</button>
+                                <span class="qty-val" style="font-size: 13px; font-weight: 800; color: var(--text-main); min-width: 16px; text-align: center;">${itemQty}</span>
+                                <button type="button" class="qty-btn" onclick="changeItemQty(${index}, 1)" style="background: none; border: none; color: var(--text-main); font-size: 14px; font-weight: 800; cursor: pointer; padding: 0 4px; line-height: 1;" ${isMax ? 'disabled style="opacity: 0.35;"' : ''}>+</button>
+                            </div>
+                        </div>
                     </div>
-                    <button type="button" class="btn-del-item" onclick="deleteCartItem(${index})" title="${I18N_CART.deleteItem}" style="background: none; border: none; font-size: 17px; cursor: pointer; color: #EF4444; padding: 4px;">🗑</button>
+                    <button type="button" class="btn-del-item" onclick="deleteCartItem(${index})" title="${I18N_CART.deleteItem}" style="background: none; border: none; cursor: pointer; padding: 6px; color: var(--text-muted); display: flex; align-items: center; justify-content: center;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #94A3B8;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    </button>
                 </div>
             `;
         });
 
         container.innerHTML = html;
-        const qtyEl = document.getElementById('cart-summary-qty');
-        if (qtyEl) qtyEl.innerText = `${count} ${I18N_CART.pcs}`;
+        if (headerCount) {
+            headerCount.innerText = `${count} item${count > 1 ? 's' : ''}`;
+        }
+
+        const subtotalEl = document.getElementById('cart-summary-subtotal');
+        if (subtotalEl) subtotalEl.innerText = `${subtotal.toLocaleString()} ${I18N_CART.sum}`;
+
+        let finalTotal = subtotal;
+        const discountRow = document.getElementById('cart-discount-row');
+        const discountValEl = document.getElementById('cart-summary-discount');
+
+        if (cartPromoDiscountPercent > 0) {
+            const discountAmt = Math.round(subtotal * (cartPromoDiscountPercent / 100));
+            finalTotal = Math.max(0, subtotal - discountAmt);
+            if (discountRow) discountRow.style.display = 'flex';
+            if (discountValEl) discountValEl.innerText = `-${discountAmt.toLocaleString()} ${I18N_CART.sum}`;
+        } else {
+            if (discountRow) discountRow.style.display = 'none';
+        }
+
         const totalEl = document.getElementById('cart-summary-total');
-        if (totalEl) totalEl.innerText = `${total.toLocaleString()} ${I18N_CART.sum}`;
+        if (totalEl) totalEl.innerText = `${finalTotal.toLocaleString()} ${I18N_CART.sum}`;
+
         updateBottomCartBadges();
     }
 

@@ -557,8 +557,8 @@ def product_detail_view(request, product_id):
 
     context = {
         "product": product,
-        "active_store": active_store,
-        "current_store": active_store,
+        "active_store": active_store or product.store,
+        "current_store": active_store or product.store,
         "product_store": product.store,
         "variants": product.variants.all(),
         "gallery_images": gallery_images,

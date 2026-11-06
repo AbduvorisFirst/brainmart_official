@@ -635,11 +635,12 @@ body {
 }
 
 .bm-cat-card {
-    flex: 0 0 116px;
-    background: var(--surface, #151517);
+    flex: 0 0 calc(25% - 6px);
+    min-width: 76px;
+    background: var(--surface-card, rgba(255, 255, 255, 0.04));
     border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
-    border-radius: var(--radius-md, 14px);
-    padding: 8px 8px 10px;
+    border-radius: 14px;
+    padding: 6px 6px 8px;
     text-decoration: none;
     color: var(--text-main, #F5F1EA);
     display: flex;
@@ -654,15 +655,17 @@ body {
     border-color: var(--primary, #C9A27A);
     background: var(--surface-card, #1A1A1D);
     transform: translateY(-2px);
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--primary, #C9A27A) 25%, transparent);
 }
 
 .bm-cat-thumb {
     width: 100%;
-    height: 84px;
-    border-radius: calc(var(--radius-md, 14px) - 4px);
+    aspect-ratio: 16 / 9 !important;
+    height: auto !important;
+    border-radius: 10px;
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.25);
-    margin-bottom: 8px;
+    background: rgba(0, 0, 0, 0.35);
+    margin-bottom: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -671,18 +674,19 @@ body {
 .bm-cat-thumb img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    aspect-ratio: 16 / 9 !important;
+    object-fit: cover !important;
     transition: transform 0.3s ease;
 }
 
 .bm-cat-card:hover .bm-cat-thumb img {
-    transform: scale(1.05);
+    transform: scale(1.06);
 }
 
 .bm-cat-thumb-placeholder {
-    font-size: 24px;
+    font-size: 20px;
     color: var(--primary, #C9A27A);
-    opacity: 0.6;
+    opacity: 0.7;
 }
 
 .bm-cat-meta {
@@ -690,22 +694,23 @@ body {
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 0 2px;
+    padding: 0 3px;
 }
 
 .bm-cat-name {
-    font-size: 11.5px;
-    font-weight: 600;
+    font-size: 11px;
+    font-weight: 700;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 96px;
+    max-width: 66px;
 }
 
 .bm-cat-arrow {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--primary, #C9A27A);
     font-weight: 700;
+    opacity: 0.8;
 }
 
 /* 6. Section Header (Popular Products · See All ›) */
@@ -1363,21 +1368,23 @@ body {
         margin-bottom: 34px !important;
     }
     .bm-cat-scroll {
-        gap: 16px !important;
+        gap: 14px !important;
         padding-bottom: 6px !important;
     }
     .bm-cat-card {
-        flex: 0 0 156px !important;
-        padding: 12px 10px 14px !important;
+        flex: 0 0 calc(25% - 11px) !important;
+        max-width: 320px !important;
+        padding: 10px 10px 12px !important;
         border-radius: 18px !important;
     }
     .bm-cat-thumb {
-        height: 104px !important;
+        aspect-ratio: 16 / 9 !important;
+        height: auto !important;
         border-radius: 14px !important;
     }
     .bm-cat-name {
         font-size: 13.5px !important;
-        max-width: 124px !important;
+        max-width: none !important;
         font-weight: 700 !important;
     }
     .bm-cat-arrow {
@@ -1657,18 +1664,6 @@ body {
     {% if categories %}
         <section class="bm-categories-section">
             <div class="bm-cat-scroll">
-                {% if categories|length > 1 or selected_category_id %}
-                    <a href="?{% if current_store_id %}store_id={{ current_store_id }}&{% endif %}{% if search_query %}q={{ search_query }}&{% endif %}" class="bm-cat-card {% if not selected_category_id %}active{% endif %}">
-                        <div class="bm-cat-thumb" style="background: rgba(var(--primary-rgb, 201, 162, 122), 0.15); display: flex; align-items: center; justify-content: center;">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color: var(--primary, #C9A27A);"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect></svg>
-                        </div>
-                        <div class="bm-cat-meta">
-                            <span class="bm-cat-name">{% trans "Все" %}</span>
-                            <span class="bm-cat-arrow">›</span>
-                        </div>
-                    </a>
-                {% endif %}
-
                 {% for cat in categories %}
                     <a href="?{% if current_store_id %}store_id={{ current_store_id }}&{% endif %}category={{ cat.id }}{% if search_query %}&q={{ search_query }}{% endif %}" class="bm-cat-card {% if selected_category_id == cat.id %}active{% endif %}">
                         <div class="bm-cat-thumb">
