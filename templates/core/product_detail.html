@@ -5,159 +5,23 @@
 <style>
     /* Reset default header to render custom e-commerce product header */
     header { display: none !important; }
+    #bmAiFabBtn { display: none !important; } /* Hide floating AI widget so it does not block luxury product view */
+    .mobile-fixed-bottom-bar { display: none !important; } /* Clean inline buy-box like in Image 1 */
 
     body {
         background: var(--bg-app, #0B0E14);
         color: var(--text-main, #FFFFFF);
         margin: 0;
-        padding-bottom: 80px;
+        padding-bottom: 40px;
     }
 
     .product-page-container {
-        max-width: 1200px;
+        max-width: 1080px;
         margin: 0 auto;
-        padding: 12px 14px 60px;
+        padding: 10px 14px 40px;
         box-sizing: border-box;
     }
-    @media (min-width: 768px) {
-        .product-page-container {
-            padding: 18px 24px 80px;
-        }
-    }
 
-    /* ==========================================================================
-       1. NAVIGATION TOP BAR
-       ========================================================================== */
-    .product-nav-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-        padding: 8px 12px;
-        margin-bottom: 16px;
-        border-radius: 16px;
-        background: var(--surface-card, #131722);
-        border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-    }
-
-    .nav-left {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        min-width: 0;
-        flex: 1;
-    }
-    .btn-back {
-        width: 34px;
-        height: 34px;
-        border-radius: 10px;
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--text-main, #FFFFFF);
-        text-decoration: none;
-        font-size: 16px;
-        font-weight: 700;
-        flex-shrink: 0;
-        transition: all 0.15s ease;
-    }
-    .btn-back:hover {
-        background: rgba(255, 255, 255, 0.12);
-        border-color: rgba(255, 255, 255, 0.2);
-    }
-
-    .store-nav-badge {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        text-decoration: none;
-        color: inherit;
-        overflow: hidden;
-        min-width: 0;
-    }
-    .store-nav-avatar {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        background: var(--surface, #181D2A);
-        border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
-        overflow: hidden;
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 13px;
-        font-weight: 800;
-        color: #FFFFFF;
-    }
-    .store-nav-avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-    }
-    .store-nav-name {
-        font-size: 13px;
-        font-weight: 700;
-        color: var(--text-main, #FFFFFF);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 140px;
-    }
-    .store-nav-verified {
-        font-size: 9.5px;
-        font-weight: 700;
-        color: #38BDF8;
-        background: rgba(56, 189, 248, 0.12);
-        border: 1px solid rgba(56, 189, 248, 0.25);
-        padding: 1px 5px;
-        border-radius: 4px;
-        white-space: nowrap;
-    }
-    @media (max-width: 480px) {
-        .store-nav-verified { display: none; }
-        .store-nav-name { max-width: 110px; }
-    }
-
-    .nav-right {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        flex-shrink: 0;
-    }
-    .nav-lang-group {
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
-        padding: 2px;
-        border-radius: 8px;
-        display: inline-flex;
-        gap: 2px;
-    }
-    .nav-lang-btn {
-        border: none;
-        font-size: 10px;
-        font-weight: 700;
-        padding: 3px 7px;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.15s ease;
-    }
-    .nav-lang-btn.active {
-        background: #FFFFFF;
-        color: #0B0E14;
-    }
-    .nav-lang-btn:not(.active) {
-        background: transparent;
-        color: var(--text-muted, #94A3B8);
-    }
-
-    /* ==========================================================================
-       2. RESPONSIVE PRODUCT MAIN LAYOUT (DESKTOP 2-COLUMN, MOBILE ADAPTIVE)
-       ========================================================================== */
     .product-main-grid {
         display: grid;
         grid-template-columns: 1fr;
@@ -171,120 +35,33 @@
         }
     }
 
-    /* Left Column: Uzum / Wildberries Swipeable Gallery */
+    /* ─── LUXURY 9:16 PORTRAIT GALLERY (Image 1 Style) ─── */
     .product-gallery-box {
         position: relative;
+        width: 100%;
     }
     .gallery-slider-viewport {
         position: relative;
         width: 100%;
-        aspect-ratio: 1 / 1;
-        border-radius: 20px;
+        aspect-ratio: 9 / 13; /* Vertical 9:16 portrait feel */
+        max-height: 62vh;
+        border-radius: 24px;
         overflow: hidden;
-        background: var(--input-bg, #0D111A);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        background: #0B0E14;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.55);
         border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
         touch-action: pan-y pinch-zoom;
         user-select: none;
         -webkit-user-select: none;
     }
-
-    /* Mobile responsive gallery & compact Uzum/WB layout */
     @media (max-width: 768px) {
         .gallery-slider-viewport {
-            max-height: 40vh !important;
-            aspect-ratio: 1 / 1;
-            border-radius: 16px;
-            background: var(--input-bg, #0B0E14);
+            aspect-ratio: 9 / 13 !important;
+            max-height: 56vh !important;
+            border-radius: 22px !important;
         }
-        .gallery-slide {
-            height: 100%;
-        }
-        .gallery-slide img {
-            max-height: 40vh !important;
-            object-fit: contain !important;
-            background: var(--input-bg, #0B0E14);
-        }
-        /* Thumbnails visible on mobile matching luxury Moncler preview */
-        
-    .gallery-thumb-item {
-        width: 64px !important;
-        height: 64px !important;
-        border-radius: 14px !important;
-        overflow: hidden !important;
-        border: 2px solid var(--border, rgba(255, 255, 255, 0.12)) !important;
-        cursor: pointer !important;
-        flex-shrink: 0 !important;
-        background: var(--surface-card, #131722) !important;
-        transition: all 0.2s ease !important;
-        position: relative !important;
-    }
-    .gallery-thumb-item:hover, .gallery-thumb-item.active {
-        border-color: var(--primary, #7000FF) !important;
-        box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary, #7000FF) 45%, transparent) !important;
-        transform: translateY(-2px);
-    }
-    .gallery-thumb-item img {
-        width: 100% !important;
-        height: 100% !important;
-        object-fit: cover !important;
-        display: block !important;
     }
 
-    .size-btn {
-        min-width: 48px;
-        height: 44px;
-        padding: 0 14px;
-        border: 1.5px solid var(--border, rgba(255, 255, 255, 0.1));
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 14px;
-        font-weight: 700;
-        color: var(--text-main, #FFFFFF);
-        background: var(--surface-card, #131722);
-        cursor: pointer;
-        transition: all 0.15s ease;
-        position: relative;
-    }
-    .size-btn:hover:not(.disabled) {
-        border-color: rgba(255, 255, 255, 0.3);
-        transform: translateY(-1px);
-    }
-    .size-btn.active {
-        border-color: var(--primary, #7000FF) !important;
-        background: var(--primary, #7000FF) !important;
-        color: #FFFFFF !important;
-        box-shadow: 0 4px 14px color-mix(in srgb, var(--primary, #7000FF) 40%, transparent) !important;
-    }
-
-    .gallery-thumbnails-row {
-            display: flex !important;
-            gap: 10px !important;
-            margin-top: 12px !important;
-            overflow-x: auto !important;
-            scrollbar-width: none !important;
-            padding-bottom: 4px !important;
-            -webkit-overflow-scrolling: touch;
-        }
-        .product-page-container {
-            padding: 8px 12px 140px !important;
-        }
-        .product-info-box {
-            padding-top: 8px;
-        }
-        .price-card-box {
-            padding: 10px 14px;
-            margin-bottom: 12px;
-        }
-        .price-main-display {
-            font-size: 22px;
-        }
-        .variants-section {
-            gap: 10px;
-        }
-    }
     .gallery-slider-track {
         display: flex;
         width: 100%;
@@ -296,9 +73,7 @@
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
     }
-    .gallery-slider-track::-webkit-scrollbar {
-        display: none;
-    }
+    .gallery-slider-track::-webkit-scrollbar { display: none; }
     .gallery-slide {
         flex: 0 0 100%;
         width: 100%;
@@ -313,7 +88,7 @@
     .gallery-slide img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: cover !important;
         display: block;
         pointer-events: none;
     }
@@ -321,131 +96,77 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 54px;
+        font-size: 64px;
         color: var(--text-muted, #475569);
     }
 
-    .gallery-badge-discount {
+    /* Floating navigation inside top of photo */
+    .gallery-top-floating-nav {
         position: absolute;
-        top: 12px;
-        left: 12px;
-        background: #EF4444;
-        color: #FFFFFF;
-        font-size: 11.5px;
-        font-weight: 800;
-        padding: 4px 8px;
-        border-radius: 8px;
-        z-index: 5;
-        letter-spacing: 0.3px;
-        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
-    }
-
-    /* Counter Pill (e.g. 1 / 5) */
-    .gallery-counter-pill {
-        position: absolute;
-        bottom: 12px;
-        right: 12px;
-        background: rgba(10, 14, 23, 0.75);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        color: #FFFFFF;
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 11px;
-        font-weight: 800;
-        letter-spacing: 0.5px;
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        z-index: 5;
-        pointer-events: none;
-    }
-
-    /* Animated Dot Bar (Uzum & WB style) */
-    .gallery-dots-bar {
-        position: absolute;
-        bottom: 12px;
-        left: 50%;
-        transform: translateX(-50%);
+        top: 14px;
+        left: 14px;
+        right: 14px;
         display: flex;
         align-items: center;
-        gap: 5px;
-        z-index: 5;
-        background: rgba(0, 0, 0, 0.4);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        padding: 4px 8px;
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        justify-content: space-between;
+        z-index: 20;
+        pointer-events: none;
     }
-    .gallery-dot {
-        width: 6px;
-        height: 6px;
+    .floating-nav-btn {
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.35);
-        cursor: pointer;
-        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .gallery-dot.active {
-        width: 16px;
-        border-radius: 4px;
-        background: #FFFFFF;
-        box-shadow: 0 0 6px rgba(255, 255, 255, 0.7);
-    }
-
-    /* Navigation Arrows for Laptops & Desktop */
-    .gallery-nav-arrow {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-        background: rgba(15, 20, 30, 0.8);
+        background: rgba(15, 18, 28, 0.72);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.16);
+        border: 1px solid rgba(255, 255, 255, 0.15);
         color: #FFFFFF;
-        font-size: 22px;
-        line-height: 1;
-        cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 5;
-        transition: all 0.18s ease;
-        opacity: 0;
+        font-size: 20px;
+        cursor: pointer;
+        pointer-events: auto;
+        transition: all 0.2s ease;
+        text-decoration: none;
     }
-    .gallery-slider-viewport:hover .gallery-nav-arrow {
-        opacity: 1;
-    }
-    @media (hover: none) {
-        .gallery-nav-arrow { display: none !important; }
-    }
-    .gallery-nav-arrow:hover {
-        background: var(--primary, #2563EB);
+    .floating-nav-btn:hover {
+        transform: scale(1.08);
+        background: rgba(15, 18, 28, 0.95);
         border-color: rgba(255, 255, 255, 0.3);
-        transform: translateY(-50%) scale(1.08);
     }
-    .gallery-nav-arrow.arrow-prev { left: 10px; }
-    .gallery-nav-arrow.arrow-next { right: 10px; }
 
-    /* Thumbnails */
-    
+    /* Thumbnails floating inside bottom of picture */
+    .gallery-thumbnails-overlay {
+        position: absolute;
+        bottom: 14px;
+        left: 12px;
+        right: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        z-index: 20;
+        overflow-x: auto;
+        scrollbar-width: none;
+        padding: 4px 2px;
+        -webkit-overflow-scrolling: touch;
+    }
+    .gallery-thumbnails-overlay::-webkit-scrollbar { display: none; }
     .gallery-thumb-item {
-        width: 64px !important;
-        height: 64px !important;
+        width: 58px !important;
+        height: 58px !important;
         border-radius: 14px !important;
         overflow: hidden !important;
-        border: 2px solid var(--border, rgba(255, 255, 255, 0.12)) !important;
+        border: 2px solid rgba(255, 255, 255, 0.2) !important;
         cursor: pointer !important;
         flex-shrink: 0 !important;
-        background: var(--surface-card, #131722) !important;
+        background: rgba(15, 18, 28, 0.85) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
         transition: all 0.2s ease !important;
         position: relative !important;
-    }
-    .gallery-thumb-item:hover, .gallery-thumb-item.active {
-        border-color: var(--primary, #7000FF) !important;
-        box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary, #7000FF) 45%, transparent) !important;
-        transform: translateY(-2px);
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4) !important;
     }
     .gallery-thumb-item img {
         width: 100% !important;
@@ -453,384 +174,222 @@
         object-fit: cover !important;
         display: block !important;
     }
-
-    .size-btn {
-        min-width: 48px;
-        height: 44px;
-        padding: 0 14px;
-        border: 1.5px solid var(--border, rgba(255, 255, 255, 0.1));
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 14px;
-        font-weight: 700;
-        color: var(--text-main, #FFFFFF);
-        background: var(--surface-card, #131722);
-        cursor: pointer;
-        transition: all 0.15s ease;
-        position: relative;
-    }
-    .size-btn:hover:not(.disabled) {
-        border-color: rgba(255, 255, 255, 0.3);
-        transform: translateY(-1px);
-    }
-    .size-btn.active {
-        border-color: var(--primary, #7000FF) !important;
-        background: var(--primary, #7000FF) !important;
-        color: #FFFFFF !important;
-        box-shadow: 0 4px 14px color-mix(in srgb, var(--primary, #7000FF) 40%, transparent) !important;
-    }
-
-    .gallery-thumbnails-row {
-        display: flex;
-        gap: 8px;
-        margin-top: 10px;
-        overflow-x: auto;
-        scrollbar-width: none;
-        padding-bottom: 4px;
-    }
-    .gallery-thumbnails-row::-webkit-scrollbar { display: none; }
-    .gallery-thumb-item {
-        width: 60px;
-        height: 60px;
-        border-radius: 12px;
-        overflow: hidden;
-        border: 1.5px solid var(--border, rgba(255, 255, 255, 0.1));
-        cursor: pointer;
-        flex-shrink: 0;
-        background: var(--surface-card, #131722);
-        transition: all 0.15s ease;
-        position: relative;
-    }
     .gallery-thumb-item:hover, .gallery-thumb-item.active {
-        border-color: var(--primary, #2563EB);
-        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.4);
-        transform: translateY(-2px);
-    }
-    .gallery-thumb-item img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-    }
-    .thumb-color-tag {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: rgba(10, 14, 23, 0.88);
-        color: #E2E8F0;
-        font-size: 8.5px;
-        font-weight: 700;
-        text-align: center;
-        padding: 1px 2px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 60%, transparent), 0 4px 16px rgba(0, 0, 0, 0.6) !important;
+        transform: translateY(-2px) scale(1.04);
     }
 
-    /* Right Column: Info & Actions */
+    /* Hide dots, 1/4 counter, discount badge on photo (Image 1 style) */
+    .gallery-badge-discount,
+    .gallery-counter-pill,
+    .gallery-dots-bar,
+    .gallery-nav-arrow {
+        display: none !important;
+    }
+
+    /* ─── PRODUCT INFO (Image 1 Luxury Buy Box) ─── */
     .product-info-box {
         display: flex;
         flex-direction: column;
-        gap: 16px;
-    }
-
-    .product-meta-header {
-        border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.08));
-        padding-bottom: 16px;
+        gap: 12px;
+        padding-top: 4px;
     }
     .product-page-title {
-        margin: 0 0 8px;
-        font-size: 21px;
+        margin: 0 0 4px;
+        font-size: 24px;
         font-weight: 800;
-        color: var(--text-main, #FFFFFF);
-        line-height: 1.3;
         letter-spacing: -0.015em;
+        color: var(--text-main, #FFFFFF);
     }
-    @media (min-width: 768px) {
-        .product-page-title {
-            font-size: 25px;
-        }
+    .product-page-subtitle {
+        font-size: 13.5px;
+        color: var(--text-muted, #94A3B8);
+        margin-bottom: 8px;
+        font-weight: 500;
     }
-
     .product-rating-row {
         display: flex;
         align-items: center;
-        gap: 6px;
-        font-size: 12.5px;
-        color: var(--text-muted, #94A3B8);
-        flex-wrap: wrap;
+        gap: 8px;
+        font-size: 13px;
     }
-    .rating-star-val {
-        color: #F59E0B;
-        font-weight: 700;
-    }
-    .meta-bullet {
-        color: rgba(255, 255, 255, 0.2);
-    }
-    .reviews-link {
-        color: var(--primary, #60A5FA);
-        text-decoration: none;
-        font-weight: 600;
-    }
-    .reviews-link:hover { text-decoration: underline; }
 
-    /* Price Block */
+    /* Price Row */
     .price-card-box {
-        background: var(--surface-card, #131722);
-        border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
-        border-radius: 14px;
-        padding: 14px 18px;
         display: flex;
-        align-items: center;
-        justify-content: space-between;
+        align-items: baseline;
         gap: 12px;
+        margin-top: 4px;
+        margin-bottom: 12px;
         flex-wrap: wrap;
     }
     .price-main-display {
-        font-size: 26px;
+        font-size: 28px;
         font-weight: 900;
         color: var(--text-main, #FFFFFF);
-        line-height: 1.1;
         letter-spacing: -0.02em;
     }
     .price-old-display {
-        font-size: 13px;
+        font-size: 16px;
         color: var(--text-muted, #64748B);
         text-decoration: line-through;
-        margin-top: 3px;
     }
-    .stock-pill-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        font-size: 11.5px;
-        font-weight: 700;
+    .price-discount-pill {
+        background: color-mix(in srgb, var(--primary) 18%, transparent);
+        color: var(--primary);
+        border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent);
         padding: 4px 10px;
-        border-radius: 6px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 800;
     }
 
-    /* Variants: Color & Size */
-    .variants-section {
-        display: flex;
-        flex-direction: column;
-        gap: 14px;
-    }
+    /* Sizes: Small, round pills (Image 1 style) */
     .variant-label-title {
         font-size: 13px;
-        font-weight: 700;
+        font-weight: 600;
         color: var(--text-muted, #94A3B8);
-        margin-bottom: 6px;
-        text-transform: uppercase;
-        letter-spacing: 0.4px;
+        margin-bottom: 8px;
     }
-    .variant-label-title span {
-        color: var(--text-main, #FFFFFF);
-        font-weight: 800;
-        text-transform: none;
-    }
-
-    .color-swatches-grid {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-    .color-btn {
-        width: 50px;
-        height: 60px;
-        border-radius: 10px;
-        border: 2px solid var(--border, rgba(255, 255, 255, 0.12));
-        background-size: cover;
-        background-position: center;
-        background-color: var(--surface-card, #131722);
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-        transition: all 0.15s ease;
-    }
-    .color-btn:hover {
-        transform: translateY(-2px);
-        border-color: rgba(255, 255, 255, 0.3);
-    }
-    .color-btn.active {
-        border-color: var(--primary, #2563EB);
-        box-shadow: 0 0 0 2px var(--primary, #2563EB);
-    }
-    .color-btn.text-fallback {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 11px;
-        font-weight: 700;
-        text-align: center;
-        color: var(--text-main, #FFFFFF);
-        padding: 4px;
-    }
-
     .size-swatches-grid {
         display: flex;
         gap: 8px;
         flex-wrap: wrap;
     }
     .size-btn {
-        min-width: 46px;
-        height: 42px;
-        padding: 0 12px;
-        border: 1.5px solid var(--border, rgba(255, 255, 255, 0.1));
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 13.5px;
-        font-weight: 700;
-        color: var(--text-main, #FFFFFF);
-        background: var(--surface-card, #131722);
-        cursor: pointer;
-        transition: all 0.15s ease;
-        position: relative;
+        min-width: 44px !important;
+        height: 42px !important;
+        padding: 0 14px !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 12px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 13.5px !important;
+        font-weight: 700 !important;
+        color: var(--text-main, #FFFFFF) !important;
+        background: #151824 !important;
+        cursor: pointer !important;
+        transition: all 0.18s ease !important;
     }
     .size-btn:hover:not(.disabled) {
-        border-color: rgba(255, 255, 255, 0.3);
-        transform: translateY(-1px);
+        border-color: rgba(255, 255, 255, 0.25) !important;
+        transform: translateY(-1px) !important;
     }
     .size-btn.active {
-        border-color: var(--primary, #2563EB);
-        background: var(--primary, #2563EB);
-        color: #FFFFFF;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    }
-    .size-btn.disabled {
-        color: var(--text-muted, #64748B);
-        border-color: rgba(255, 255, 255, 0.05);
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-    .size-btn.disabled::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 10%;
-        right: 10%;
-        height: 1.5px;
-        background: var(--text-muted, #64748B);
-        transform: rotate(-35deg);
+        background: var(--primary) !important;
+        border-color: var(--primary) !important;
+        color: #FFFFFF !important;
+        box-shadow: 0 4px 14px color-mix(in srgb, var(--primary) 40%, transparent) !important;
     }
 
-    /* Actions: Add to Cart & Counter */
-    .cart-actions-box {
-        margin-top: 6px;
-    }
-    .btn-ask-ai-stylist {
-        width: 100%;
-        margin-top: 10px;
-        background: rgba(124, 58, 237, 0.12);
-        color: #c4b5fd;
-        border: 1px solid rgba(124, 58, 237, 0.4);
-        border-radius: 14px;
-        padding: 12px 16px;
-        font-size: 13.5px;
-        font-weight: 700;
-        cursor: pointer;
+    /* Color Swatches (if color variants exist) */
+    .color-swatches-grid {
         display: flex;
-        align-items: center;
-        justify-content: center;
         gap: 8px;
-        transition: all 0.2s ease;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
     }
-    .btn-ask-ai-stylist:hover {
-        background: rgba(124, 58, 237, 0.28);
-        color: #ffffff;
-        border-color: #8b5cf6;
-        transform: translateY(-1px);
-    }
-    .btn-ask-ai-mobile {
-        width: 44px;
-        height: 44px;
+    .color-btn {
+        width: 48px;
+        height: 56px;
         border-radius: 12px;
-        background: linear-gradient(135deg, #4f46e5, #ec4899);
-        border: none;
-        color: #ffffff;
-        font-size: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        border: 2px solid rgba(255, 255, 255, 0.12);
+        background-size: cover;
+        background-position: center;
+        background-color: #151824;
         cursor: pointer;
-        margin-right: 8px;
-        flex-shrink: 0;
-        box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.18s ease;
     }
-    .btn-add-cart-large {
-        width: 100%;
-        background: var(--btn-gradient, var(--primary, #2563EB));
-        color: #FFFFFF;
-        border: none;
-        border-radius: 14px;
-        padding: 15px 20px;
-        font-size: 15.5px;
-        font-weight: 800;
-        cursor: pointer;
-        transition: all 0.15s ease;
-        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-    }
-    .btn-add-cart-large:hover:not(:disabled) {
-        transform: translateY(-1px);
-        filter: brightness(1.08);
-    }
-    .btn-add-cart-large:disabled {
-        background: #334155 !important;
-        color: #94A3B8 !important;
-        cursor: not-allowed;
-        box-shadow: none;
+    .color-btn.active {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 50%, transparent) !important;
     }
 
+    /* Stepper & Add to Cart Action Row */
+    .cart-actions-box {
+        margin-top: 14px;
+    }
     .qty-counter-box {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        background: var(--surface-card, #131722);
-        border: 2px solid var(--primary, #2563EB);
-        border-radius: 14px;
-        padding: 4px;
-        height: 52px;
+        background: #151824;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        width: 120px;
+        height: 50px;
+        padding: 0 12px;
         box-sizing: border-box;
+        flex-shrink: 0;
     }
     .qty-step-btn {
-        width: 44px;
+        width: 32px;
         height: 100%;
         border: none;
-        background: rgba(255, 255, 255, 0.06);
-        border-radius: 10px;
-        font-weight: 800;
+        background: transparent;
         font-size: 18px;
-        cursor: pointer;
+        font-weight: 800;
         color: var(--text-main, #FFFFFF);
+        cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: background-color 0.15s ease;
     }
-    .qty-step-btn:hover { background: rgba(255, 255, 255, 0.12); }
     .qty-number-val {
-        font-size: 17px;
+        font-size: 15px;
         font-weight: 800;
         color: var(--text-main, #FFFFFF);
     }
+    .btn-add-cart-large {
+        flex: 1;
+        height: 50px;
+        border-radius: 16px;
+        background: var(--btn-gradient, var(--primary));
+        border: none;
+        color: #FFFFFF;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 4px 18px color-mix(in srgb, var(--primary) 35%, transparent);
+        transition: transform 0.15s ease;
+    }
+    .btn-add-cart-large:active {
+        transform: scale(0.98);
+    }
 
-    /* Trust Pillars inside Buy Box */
+    .free-delivery-banner {
+        background: #151824;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        padding: 12px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: #CBD5E1;
+        margin-top: 14px;
+    }
+
+    /* Accordion Details & Trust Pillars */
     .product-trust-pillars {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 10px;
         padding: 14px;
-        background: var(--surface-card, #131722);
-        border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+        background: #151824;
+        border: 1px solid rgba(255, 255, 255, 0.06);
         border-radius: 14px;
+        margin-top: 14px;
     }
     .trust-pillar-item {
         display: flex;
@@ -840,204 +399,100 @@
         font-weight: 600;
         color: var(--text-muted, #94A3B8);
     }
-    .trust-pillar-item span:first-child { font-size: 16px; flex-shrink: 0; }
-
-    /* Accordion Details */
     .product-details-accordion {
         display: flex;
         flex-direction: column;
         gap: 8px;
+        margin-top: 14px;
     }
     .accordion-item {
-        background: var(--surface-card, #131722);
-        border: 1px solid var(--border, rgba(255, 255, 255, 0.07));
+        background: #151824;
+        border: 1px solid rgba(255, 255, 255, 0.06);
         border-radius: 14px;
         overflow: hidden;
     }
     .accordion-item summary {
         padding: 14px 16px;
-        font-size: 14.5px;
+        font-size: 14px;
         font-weight: 700;
         color: var(--text-main, #FFFFFF);
         cursor: pointer;
-        list-style: none;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        user-select: none;
-    }
-    .accordion-item summary::-webkit-details-marker { display: none; }
-    .accordion-item summary::after {
-        content: '+';
-        font-size: 18px;
-        color: var(--text-muted, #94A3B8);
-        transition: transform 0.2s ease;
-    }
-    .accordion-item[open] summary::after {
-        content: '−';
     }
     .accordion-content {
-        padding: 0 16px 16px;
+        padding: 0 16px 14px;
         font-size: 13px;
         color: var(--text-muted, #94A3B8);
-        line-height: 1.55;
+        line-height: 1.5;
     }
 
-    /* ==========================================================================
-       3. REVIEWS & RATINGS SECTION
-       ========================================================================== */
+    /* Reviews section */
     .reviews-container-box {
         margin-top: 36px;
+        border-top: 1px solid var(--border);
         padding-top: 24px;
-        border-top: 1px solid var(--border, rgba(255, 255, 255, 0.08));
     }
     .reviews-header-bar {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 18px;
-        flex-wrap: wrap;
-        gap: 12px;
     }
     .reviews-title {
         margin: 0;
         font-size: 18px;
         font-weight: 800;
-        color: var(--text-main, #FFFFFF);
+        color: var(--text-main);
     }
     .btn-write-review {
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
-        color: var(--text-main, #FFFFFF);
-        font-size: 12px;
-        font-weight: 700;
-        padding: 7px 14px;
+        background: #151824;
+        color: var(--text-main);
+        border: 1px solid var(--border);
+        padding: 8px 14px;
         border-radius: 10px;
-        cursor: pointer;
-        transition: all 0.15s ease;
-    }
-    .btn-write-review:hover {
-        background: rgba(255, 255, 255, 0.12);
-    }
-
-    .review-card-item {
-        background: var(--surface-card, #131722);
-        border: 1px solid var(--border, rgba(255, 255, 255, 0.07));
-        border-radius: 14px;
-        padding: 14px 16px;
-        margin-bottom: 12px;
-    }
-    .review-user-name {
-        font-size: 13.5px;
-        font-weight: 700;
-        color: var(--text-main, #FFFFFF);
-    }
-    .review-date {
-        font-size: 11px;
-        color: var(--text-muted, #64748B);
-        margin: 2px 0 8px;
-    }
-    .review-text-body {
-        font-size: 13px;
-        color: var(--text-main, #FFFFFF);
-        line-height: 1.45;
-    }
-    .review-seller-reply {
-        margin-top: 10px;
-        background: rgba(37, 99, 235, 0.08);
-        border-left: 3px solid var(--primary, #2563EB);
-        padding: 8px 12px;
-        border-radius: 0 10px 10px 0;
         font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
     }
-
-    /* Sticky Mobile Bottom Bar */
-    @media (max-width: 899px) {
-        .mobile-fixed-bottom-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--surface-card, #131722);
-            border-top: 1px solid var(--border, rgba(255, 255, 255, 0.1));
-            padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
-            z-index: 99;
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-        }
-        .mobile-price-stack {
-            display: flex;
-            flex-direction: column;
-        }
+    .review-card-item {
+        background: #151824;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px;
+        margin-bottom: 10px;
     }
-    @media (min-width: 900px) {
-        .mobile-fixed-bottom-bar { display: none; }
-    }
+    .review-user-name { font-size: 13.5px; font-weight: 700; color: var(--text-main); }
+    .review-date { font-size: 11px; color: var(--text-muted); margin: 2px 0 8px; }
+    .review-text-body { font-size: 13px; color: #E2E8F0; line-height: 1.45; }
 </style>
 
 <div class="product-page-container">
 
-    <!-- 1. NAVIGATION TOP BAR (Image 1 Style) -->
-    <div class="product-nav-header" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0 18px; border-bottom: 1px solid var(--border);">
-        <div class="nav-left" style="display: flex; align-items: center; gap: 10px;">
-            <a href="{% if current_store %}{{ current_store.get_subdomain_url }}{% else %}{{ global_market_url|default:'/' }}{% endif %}" class="btn-back" title="{% trans 'Назад' %}" onclick="if (window.history.length > 1) { event.preventDefault(); window.history.back(); }" style="width: 38px; height: 38px; border-radius: 50%; background: var(--surface-card, rgba(255,255,255,0.06)); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--text-main); font-size: 20px; text-decoration: none; font-weight: 700;">
-                ‹
-            </a>
-            <a href="{{ product.store.get_subdomain_url }}" class="store-nav-badge" title="{% trans 'Перейти в магазин' %} {{ product.store.name }}" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--text-main);">
-                <div class="store-nav-avatar" style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; background: var(--surface-card); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px;">
-                    {% if product.store.logo %}
-                        <img src="{{ product.store.logo.url }}" alt="{{ product.store.name }}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
-                        <span style="display: none;">{{ product.store.name|slice:':1'|upper|default:'M' }}</span>
-                    {% else %}
-                        <span>{{ product.store.name|slice:':1'|upper|default:'M' }}</span>
-                    {% endif %}
-                </div>
-                <div style="display: flex; align-items: center; gap: 6px; overflow: hidden;">
-                    <span class="store-nav-name" style="font-size: 13px; font-weight: 700; white-space: nowrap; max-width: 120px; overflow: hidden; text-overflow: ellipsis;">{{ product.store.name }}</span>
-                    <span class="store-nav-verified" style="font-size: 10px; color: #10B981; font-weight: 700;">✓</span>
-                </div>
-            </a>
-        </div>
-
-        <div class="nav-right" style="display: flex; align-items: center; gap: 8px;">
-            <!-- Favorite button -->
-            <button type="button" id="btn-fav-toggle" onclick="toggleProductFavorite({{ product.id }})" title="{% trans 'В избранное' %}" style="width: 38px; height: 38px; border-radius: 50%; background: var(--surface-card, rgba(255,255,255,0.06)); border: 1px solid var(--border); color: var(--text-main); font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
-                <span id="fav-icon-heart">♡</span>
-            </button>
-
-            <!-- Share button -->
-            <button type="button" onclick="shareCurrentProduct()" title="{% trans 'Поделиться' %}" style="width: 38px; height: 38px; border-radius: 50%; background: var(--surface-card, rgba(255,255,255,0.06)); border: 1px solid var(--border); color: var(--text-main); font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
-            </button>
-
-            <!-- Cart button with dynamic badge -->
-            <button type="button" onclick="if(window.openCartModal) openCartModal();" title="{% trans 'Корзина' %}" style="position: relative; width: 38px; height: 38px; border-radius: 50%; background: var(--surface-card, rgba(255,255,255,0.06)); border: 1px solid var(--border); color: var(--text-main); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
-                🛒
-                <span id="top-nav-cart-badge" style="display: none; position: absolute; top: -3px; right: -3px; background: #EF4444; color: white; font-size: 9px; font-weight: 800; border-radius: 10px; padding: 2px 5px; border: 1.5px solid #111;">0</span>
-            </button>
-
-            <!-- Language Switcher -->
-            <div class="nav-lang-group" style="display: flex; gap: 3px; background: var(--surface-card); padding: 3px; border-radius: 10px; border: 1px solid var(--border);">
-                {% get_current_language as CURRENT_LANG %}
-                {% get_available_languages as LANGUAGES %}
-                {% for lang_code, lang_name in LANGUAGES %}
-                    <button type="button" class="nav-lang-btn {% if lang_code == CURRENT_LANG %}active{% endif %}" onclick="changeLang('{{ lang_code }}')" style="border: none; background: {% if lang_code == CURRENT_LANG %}var(--primary){% else %}transparent{% endif %}; color: {% if lang_code == CURRENT_LANG %}#FFFFFF{% else %}var(--text-muted){% endif %}; font-size: 10px; font-weight: 700; padding: 4px 6px; border-radius: 6px; cursor: pointer;">
-                        {{ lang_code|upper }}
-                    </button>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
-    <!-- 2. RESPONSIVE PRODUCT MAIN LAYOUT -->
     <div class="product-main-grid">
 
-        <!-- Left Column: Uzum / Wildberries Swipeable Gallery -->
+        <!-- Left Column: Luxury 9:16 Portrait Image with Floating Overlays (Image 1 Style) -->
         <div class="product-gallery-box">
             <div class="gallery-slider-viewport" id="gallerySliderViewport">
+                
+                <!-- Floating Nav inside top of photo (Image 1 style) -->
+                <div class="gallery-top-floating-nav">
+                    <a href="{% if current_store %}{{ current_store.get_subdomain_url }}{% else %}{{ global_market_url|default:'/' }}{% endif %}" class="floating-nav-btn" title="{% trans 'Назад' %}" onclick="if (window.history.length > 1) { event.preventDefault(); window.history.back(); }">
+                        ‹
+                    </a>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <button type="button" class="floating-nav-btn" id="btn-fav-toggle" onclick="toggleProductFavorite({{ product.id }})" title="{% trans 'В избранное' %}">
+                            <span id="fav-icon-heart">♡</span>
+                        </button>
+                        <button type="button" class="floating-nav-btn" onclick="shareCurrentProduct()" title="{% trans 'Поделиться' %}">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+                        </button>
+                        <button type="button" class="floating-nav-btn" onclick="if(window.openCartModal) openCartModal();" title="{% trans 'Корзина' %}" style="position: relative;">
+                            🛒
+                            <span id="top-nav-cart-badge" style="display: none; position: absolute; top: -3px; right: -3px; background: #EF4444; color: white; font-size: 9px; font-weight: 800; border-radius: 10px; padding: 2px 5px; border: 1.5px solid #111;">0</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Main Image Track (9:16 portrait) -->
                 <div class="gallery-slider-track" id="gallerySliderTrack">
                     {% for img_item in gallery_images %}
                         <div class="gallery-slide" data-index="{{ forloop.counter0 }}" data-color="{{ img_item.color|default:'' }}">
@@ -1049,46 +504,32 @@
                         </div>
                     {% endfor %}
                 </div>
-                <div class="gallery-badge-discount">-{{ product.discount_percent|default:"17" }}%</div>
 
+                <!-- Floating Thumbnails INSIDE the bottom of the photo (Image 1 Style) -->
                 {% if gallery_images|length > 1 %}
-                    <div class="gallery-counter-pill" id="galleryCounterPill">
-                        <span id="galleryCurrentNum">1</span> / <span id="galleryTotalNum">{{ gallery_images|length }}</span>
-                    </div>
-                    <div class="gallery-dots-bar" id="galleryDotsBar">
+                    <div class="gallery-thumbnails-overlay" id="galleryThumbnailsRow">
                         {% for img_item in gallery_images %}
-                            <span class="gallery-dot {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}" onclick="goToGallerySlide({{ forloop.counter0 }})"></span>
+                            <div class="gallery-thumb-item {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}" data-color="{{ img_item.color|default:'' }}" onclick="goToGallerySlide({{ forloop.counter0 }})">
+                                <img src="{{ img_item.url }}" alt="{{ img_item.title }}" loading="lazy" onerror="this.parentElement.style.display='none';">
+                            </div>
                         {% endfor %}
                     </div>
-                    <button type="button" class="gallery-nav-arrow arrow-prev" onclick="navigateGallerySlide(-1)" aria-label="Предыдущее фото">‹</button>
-                    <button type="button" class="gallery-nav-arrow arrow-next" onclick="navigateGallerySlide(1)" aria-label="Следующее фото">›</button>
                 {% endif %}
             </div>
-
-            <!-- Thumbnail Row (Clean Uzum / Wildberries mini photo previews without duplicate color tags) -->
-            {% if gallery_images|length > 1 %}
-                <div class="gallery-thumbnails-row" id="galleryThumbnailsRow">
-                    {% for img_item in gallery_images %}
-                        <div class="gallery-thumb-item {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}" data-color="{{ img_item.color|default:'' }}" onclick="goToGallerySlide({{ forloop.counter0 }})">
-                            <img src="{{ img_item.url }}" alt="{{ img_item.title }}" loading="lazy" onerror="this.parentElement.style.display='none';">
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
         </div>
 
-        <!-- Right Column: Product Buy Box -->
+        <!-- Right Column: Product Buy Box (Image 1 Style) -->
         <div class="product-info-box">
             
-            <div class="product-meta-header" style="border-bottom: 1px solid var(--border); padding-bottom: 14px; margin-bottom: 14px;">
-                <h1 class="product-page-title" style="margin: 0 0 4px; font-size: 24px; font-weight: 800; letter-spacing: -0.015em; color: var(--text-main);">{{ product.name }}</h1>
-                <div class="product-page-subtitle" style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 10px; font-weight: 500;">
+            <div class="product-meta-header">
+                <h1 class="product-page-title">{{ product.name }}</h1>
+                <div class="product-page-subtitle">
                     {{ product.short_description|default:_("Премиальное качество. Безупречный стиль.") }}
                 </div>
-                <div class="product-rating-row" style="display: flex; align-items: center; gap: 8px; font-size: 13px;">
-                    <span class="rating-star-val" style="color: #F59E0B; font-weight: 700;">★ {{ average_rating|default:"4.9" }}</span>
+                <div class="product-rating-row">
+                    <span style="color: #F59E0B; font-weight: 700;">★ {{ average_rating|default:"4.9" }}</span>
                     <span style="color: var(--text-muted);">({{ reviews_count|default:"1.2k" }} {% trans "отзывов" %})</span>
-                    <span class="meta-bullet" style="color: rgba(255,255,255,0.25);">|</span>
+                    <span style="color: rgba(255,255,255,0.25);">|</span>
                     <span style="color: #10B981; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
                         <span style="width: 7px; height: 7px; border-radius: 50%; background: #10B981; display: inline-block;"></span>
                         {% trans "В наличии" %}
@@ -1097,14 +538,14 @@
             </div>
 
             <!-- Price Block (Image 1 Style) -->
-            <div class="price-card-box" style="background: transparent; border: none; padding: 0; margin-bottom: 16px; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;">
-                <div class="price-main-display" id="display-price" style="font-size: 28px; font-weight: 900; color: var(--text-main); letter-spacing: -0.02em;">
+            <div class="price-card-box">
+                <div class="price-main-display" id="display-price">
                     {{ product.formatted_base_price|default:product.base_price }} {% trans "сум" %}
                 </div>
-                <div class="price-old-display" id="display-old-price" style="font-size: 16px; color: var(--text-muted); text-decoration: line-through; margin: 0;">
+                <div class="price-old-display" id="display-old-price">
                     {% if product.old_price %}{{ product.formatted_old_price|default:product.old_price }} {% trans "сум" %}{% endif %}
                 </div>
-                <div class="price-discount-pill" style="background: color-mix(in srgb, var(--primary, #7000FF) 18%, transparent); color: var(--primary, #7000FF); border: 1px solid color-mix(in srgb, var(--primary, #7000FF) 35%, transparent); padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 800;">
+                <div class="price-discount-pill">
                     -{{ product.discount_percent|default:"20" }}%
                 </div>
                 <div id="stock-status-badge" style="display: none;"></div>
@@ -1114,19 +555,19 @@
             {% if variants %}
                 <div class="variants-section">
                     <div id="color-section">
-                        <div class="variant-label-title">{% trans "Цвет:" %} <span id="selected-color-label"></span></div>
+                        <div class="variant-label-title">{% trans "Цвет:" %} <span id="selected-color-label" style="color: #FFFFFF; font-weight: 700;"></span></div>
                         <div class="color-swatches-grid" id="color-container"></div>
                     </div>
 
                     <div id="size-section">
-                        <div class="variant-label-title">{% trans "Размер:" %} <span id="selected-size-label"></span></div>
+                        <div class="variant-label-title">Size</div>
                         <div class="size-swatches-grid" id="size-container"></div>
                     </div>
                 </div>
             {% else %}
                 <div class="variants-section">
                     <div id="size-section">
-                        <div class="variant-label-title">{% trans "Размер:" %} <span id="selected-size-label">L</span></div>
+                        <div class="variant-label-title">Size</div>
                         <div class="size-swatches-grid" id="default-size-container">
                             <div class="size-btn" onclick="selectDefaultSize(this, 'S')">S</div>
                             <div class="size-btn" onclick="selectDefaultSize(this, 'M')">M</div>
@@ -1138,34 +579,28 @@
                 </div>
             {% endif %}
 
-            <!-- Desktop Add-to-Cart Actions (Image 1 Luxury Style) -->
-            <div class="cart-actions-box" style="margin-top: 14px;">
+            <!-- Stepper & Add to Cart Action Row (Image 1 Luxury Style) -->
+            <div class="cart-actions-box">
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <!-- Stepper Pill -->
-                    <div class="qty-counter-box" style="display: flex; align-items: center; justify-content: space-between; background: var(--surface-card, #131722); border: 1.5px solid var(--border); border-radius: 14px; padding: 4px 6px; width: 110px; height: 50px; box-sizing: border-box;">
-                        <button type="button" class="qty-step-btn" id="qty-minus" style="width: 32px; height: 100%; border: none; background: transparent; font-size: 18px; font-weight: 800; color: var(--text-main); cursor: pointer;">−</button>
-                        <span class="qty-number-val" id="qty-value" style="font-size: 16px; font-weight: 800; color: var(--text-main);">1</span>
-                        <button type="button" class="qty-step-btn" id="qty-plus" style="width: 32px; height: 100%; border: none; background: transparent; font-size: 18px; font-weight: 800; color: var(--text-main); cursor: pointer;">+</button>
+                    <!-- Stepper Pill [- 1 +] -->
+                    <div class="qty-counter-box">
+                        <button type="button" class="qty-step-btn" id="qty-minus">−</button>
+                        <span class="qty-number-val" id="qty-value">1</span>
+                        <button type="button" class="qty-step-btn" id="qty-plus">+</button>
                     </div>
 
                     <!-- Add to Cart CTA in store primary color -->
-                    <div style="flex: 1;">
-                        <button type="button" class="btn-add-cart-large" id="add-cart-btn" style="background: var(--btn-gradient, var(--primary, #7000FF)); border-radius: 14px; height: 50px; font-size: 15px; font-weight: 800; box-shadow: 0 4px 18px color-mix(in srgb, var(--primary, #7000FF) 35%, transparent); width: 100%; border: none; color: #FFFFFF; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.15s ease;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-                            <span>{% trans "В корзину" %}</span>
-                        </button>
-                    </div>
+                    <button type="button" class="btn-add-cart-large" id="add-cart-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                        <span>{% trans "В корзину" %}</span>
+                    </button>
                 </div>
 
                 <!-- Free delivery banner (Image 1 style) -->
-                <div class="free-delivery-banner" style="background: var(--surface-card, rgba(255,255,255,0.04)); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--text-main); margin-top: 14px;">
+                <div class="free-delivery-banner">
                     <span style="color: #F59E0B;">⚡</span>
                     <span>{% trans "Бесплатная доставка при заказе от 150 000 сум" %}</span>
                 </div>
-
-                <button type="button" class="btn-ask-ai-stylist" onclick="openAiChatForProduct({{ product.id }}, '{{ product.name|escapejs }}')">
-                    ✨ {% trans "Спросить ИИ-стилиста о товаре" %}
-                </button>
             </div>
 
             <!-- 4 Trust Pillars -->
