@@ -88,41 +88,51 @@ def handle_incoming_telegram_message_task(
                 global_kb = {"inline_keyboard": [[{"text": global_label, "web_app": {"url": f"{site_url}/{cust_lang}/?global=1"}}]]}
 
             if matched_products:
-                for v in matched_products[:3]:
-                    photo = v.image or v.product.main_image
-                    product_url = f"{site_url}/{cust_lang}/product/{v.product.id}/"
-                    if cust_lang == "uz":
-                        caption = (
-                            f"✨ {v.product.name}\n"
-                            f"💰 Narxi: {int(v.final_price):,} so'm\n"
-                            f"🎨 Rangi: {v.color or '—'} | O'lchami: {v.size or 'Standart'}"
-                        )
-                        btn_order_text = f"🛒 Buyurtma berish ({v.product.name[:25]})"
-                    elif cust_lang == "en":
-                        caption = (
-                            f"✨ {v.product.name}\n"
-                            f"💰 Price: {int(v.final_price):,} UZS\n"
-                            f"🎨 Color: {v.color or '—'} | Size: {v.size or 'One Size'}"
-                        )
-                        btn_order_text = f"🛒 Order Now ({v.product.name[:25]})"
-                    else:
-                        caption = (
-                            f"✨ {v.product.name}\n"
-                            f"💰 Цена: {int(v.final_price):,} сум\n"
-                            f"🎨 Цвет: {v.color or '—'} | Размер: {v.size or 'One Size'}"
-                        )
-                        btn_order_text = f"🛒 Оформить заказ ({v.product.name[:25]})"
+                from core.working_views.services import get_best_variant_photo
+                v = matched_products[0]
+                photo = get_best_variant_photo(v, message_text)
+                color_param = f"?color={v.color}" if v.color else ""
+                product_url = f"{site_url}/{cust_lang}/product/{v.product.id}/{color_param}"
+                if cust_lang == "uz":
+                    card_info = (
+                        f"✨ <b>{v.product.name}</b>\n"
+                        f"💰 Narxi: <b>{int(v.final_price):,} so'm</b>\n"
+                        f"🎨 Rangi: {v.color or '—'} | O'lchami: {v.size or 'Standart'} (Omborda: {v.stock_quantity} dona)"
+                    )
+                    btn_1click = "⚡ 1-klikda buyurtma berish"
+                    btn_order_text = f"🛒 Vitrina orqali ({v.product.name[:22]})"
+                elif cust_lang == "en":
+                    card_info = (
+                        f"✨ <b>{v.product.name}</b>\n"
+                        f"💰 Price: <b>{int(v.final_price):,} UZS</b>\n"
+                        f"🎨 Color: {v.color or '—'} | Size: {v.size or 'One Size'} (In stock: {v.stock_quantity})"
+                    )
+                    btn_1click = "⚡ 1-Click Order"
+                    btn_order_text = f"🛒 Open Product ({v.product.name[:22]})"
+                else:
+                    card_info = (
+                        f"✨ <b>{v.product.name}</b>\n"
+                        f"💰 Цена: <b>{int(v.final_price):,} сум</b>\n"
+                        f"🎨 Цвет: {v.color or '—'} | Размер: {v.size or 'One Size'} (В наличии: {v.stock_quantity} шт.)"
+                    )
+                    btn_1click = "⚡ Заказать в 1 клик"
+                    btn_order_text = f"🛒 Открыть товар ({v.product.name[:22]})"
 
-                    kb = {
-                        "inline_keyboard": [
-                            [{"text": btn_order_text, "web_app": {"url": product_url}}],
-                        ]
-                    }
-                    if photo:
-                        _send_telegram_photo(chat_id, photo, caption=caption, reply_markup=kb, bot_token=bot_token)
-                    else:
-                        _send_telegram_message(chat_id, caption, reply_markup=kb, bot_token=bot_token)
-                _send_telegram_message(chat_id, ai_reply, reply_markup=global_kb, bot_token=bot_token)
+                rows = [
+                    [{"text": btn_1click, "callback_data": f"quick_buy_{v.id}"}],
+                    [{"text": btn_order_text, "web_app": {"url": product_url}}],
+                ]
+                if global_kb and global_kb.get("inline_keyboard"):
+                    rows.extend(global_kb["inline_keyboard"])
+                kb = {"inline_keyboard": rows}
+                full_caption = f"{ai_reply}\n\n{card_info}"
+                if photo and len(full_caption) <= 950:
+                    _send_telegram_photo(chat_id, photo, caption=full_caption, reply_markup=kb, bot_token=bot_token)
+                elif photo:
+                    _send_telegram_photo(chat_id, photo, caption=card_info, reply_markup=kb, bot_token=bot_token)
+                    _send_telegram_message(chat_id, ai_reply, reply_markup=global_kb, bot_token=bot_token)
+                else:
+                    _send_telegram_message(chat_id, full_caption, reply_markup=kb, bot_token=bot_token)
             else:
                 _send_telegram_message(chat_id, ai_reply, reply_markup=global_kb, bot_token=bot_token)
     except Exception as e:

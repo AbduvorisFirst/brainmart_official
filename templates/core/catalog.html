@@ -1765,6 +1765,9 @@ body {
                                 class="bm-btn-cart" 
                                 data-id="{{ product.id }}"
                                 data-variant-id="{{ product.variant_id|default:product.id }}"
+                                data-max-qty="{{ product.stock_quantity|default:1 }}"
+                                data-size="{{ product.size|default:'' }}"
+                                data-color="{{ product.color|default:'' }}"
                                 data-name="{{ product.name|escape }}"
                                 data-price="{{ product.base_price }}"
                                 data-image="{{ product.main_image_url|default:'' }}"
@@ -2216,14 +2219,23 @@ function toggleFavoritesFilter() {
 function quickAddToCart(btn, optionalPid) {
     var productId = btn.getAttribute('data-id') || optionalPid;
     var variantId = btn.getAttribute('data-variant-id') || productId;
+    var maxQty = parseInt(btn.getAttribute('data-max-qty') || '10', 10);
+    var size = btn.getAttribute('data-size') || '';
+    var color = btn.getAttribute('data-color') || '';
     var name = btn.getAttribute('data-name') || 'Товар';
     var price = parseInt(btn.getAttribute('data-price') || 0, 10);
     var image = btn.getAttribute('data-image') || '';
     var storeId = btn.getAttribute('data-store-id') || '';
 
+    if (maxQty <= 0) {
+        showBmToast('{% trans "Товар закончился на складе" %}', '❌');
+        return;
+    }
+
+    var storeKey = storeId ? ('bm_cart_store_' + storeId) : 'bm_cart_global';
     var cart = [];
     try {
-        var raw = localStorage.getItem('brainmart_cart') || localStorage.getItem('bm_cart') || localStorage.getItem('tg_cart');
+        var raw = localStorage.getItem(storeKey) || localStorage.getItem('brainmart_cart') || localStorage.getItem('bm_cart') || localStorage.getItem('tg_cart');
         cart = JSON.parse(raw || '[]');
         if (!Array.isArray(cart)) cart = [];
     } catch(e) { cart = []; }
@@ -2233,6 +2245,11 @@ function quickAddToCart(btn, optionalPid) {
         var itemVarId = cart[i].variant_id || cart[i].id;
         if (itemVarId == variantId || (cart[i].id == productId && !cart[i].variant_id)) {
             var curQ = parseInt(cart[i].quantity || cart[i].qty || 1, 10);
+            cart[i].max_qty = maxQty;
+            if (curQ >= maxQty) {
+                showBmToast('{% trans "На складе всего" %} ' + maxQty + ' {% trans "шт. Больше добавить нельзя!" %}', '⚠️');
+                return;
+            }
             cart[i].quantity = curQ + 1;
             cart[i].qty = cart[i].quantity;
             found = true;
@@ -2247,12 +2264,16 @@ function quickAddToCart(btn, optionalPid) {
             price: price,
             quantity: 1,
             qty: 1,
+            max_qty: maxQty,
+            size: size,
+            color: color,
             image: image,
             store_id: storeId
         });
     }
 
     var json = JSON.stringify(cart);
+    localStorage.setItem(storeKey, json);
     localStorage.setItem('brainmart_cart', json);
     localStorage.setItem('bm_cart', json);
     localStorage.setItem('tg_cart', json);

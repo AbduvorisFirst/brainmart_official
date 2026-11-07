@@ -33,50 +33,144 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+COLOR_SYNONYMS = {
+    "black": ["черн", "чёрн", "black", "qora", "кора", "dark", "темн", "тёмн"],
+    "white": ["бел", "white", "oq", "ок", "светл", "milk", "молоч"],
+    "red": ["красн", "red", "qizil", "кизил", "борд", "burgundy", "алый"],
+    "blue": ["син", "голуб", "blue", "ko'k", "kok", "кок", "navy", "джинс"],
+    "green": ["зелен", "зелён", "green", "yashil", "яшил", "хаки", "khaki", "оливк", "olive"],
+    "yellow": ["желт", "жёлт", "yellow", "sariq", "сарик", "gold", "золот"],
+    "pink": ["розов", "pink", "pushti", "пушти", "пудр"],
+    "purple": ["фиолет", "сирен", "purple", "violet", "binafsha", "лаванд"],
+    "grey": ["сер", "grey", "gray", "kulrang", "кулранг", "графит", "меланж"],
+    "brown": ["коричн", "беж", "brown", "beige", "jigarrang", "кэмел", "camel", "кофе", "шоколад"],
+    "orange": ["оранж", "orange", "apelsin", "коралл", "персик"],
+}
+
+
+def _extract_query_colors(text: str) -> set:
+    text_low = (text or "").lower()
+    matched_groups = set()
+    for group, stems in COLOR_SYNONYMS.items():
+        if any(stem in text_low for stem in stems):
+            matched_groups.add(group)
+    return matched_groups
+
+
+def _variant_matches_color_group(variant, color_groups: set) -> bool:
+    if not color_groups:
+        return False
+    v_text = f"{variant.color or ''} {variant.product.name or ''}".lower()
+    for grp in color_groups:
+        if any(stem in v_text for stem in COLOR_SYNONYMS.get(grp, [])):
+            return True
+    try:
+        for img in variant.product.images.all():
+            img_col = (img.color or "").lower()
+            for grp in color_groups:
+                if any(stem in img_col for stem in COLOR_SYNONYMS.get(grp, [])):
+                    return True
+    except Exception:
+        pass
+    return False
+
+
+def get_best_variant_photo(variant, query_text: str = ""):
+    """Подбирает идеальное фото варианта с учётом цвета варианта или запрошенного клиентом цвета."""
+    if getattr(variant, "image", None):
+        return variant.image
+    product = variant.product
+    try:
+        p_images = list(product.images.all())
+    except Exception:
+        p_images = []
+
+    v_color = (variant.color or "").strip().lower()
+    if v_color and p_images:
+        for img in p_images:
+            if (img.color or "").strip().lower() == v_color and img.image:
+                return img.image
+
+    q_colors = _extract_query_colors(query_text or v_color)
+    if q_colors and p_images:
+        for img in p_images:
+            ic = (img.color or "").lower()
+            for grp in q_colors:
+                if any(stem in ic for stem in COLOR_SYNONYMS.get(grp, [])) and img.image:
+                    return img.image
+
+    if p_images and p_images[0].image:
+        return p_images[0].image
+    return product.main_image
+
+
 def find_matching_variants(store: Store, query_text: str):
-    """Простой текстовый поиск товара по названию/цвету/размеру."""
-    query_text = query_text.lower()
-    variants = ProductVariant.objects.filter(
-        product__store=store, product__is_active=True
-    ).select_related("product")
+    """Умный поиск товара по названию, категории, цвету (RU/UZ/EN синонимы и корни слов) и размеру."""
+    if not query_text:
+        return []
+    query_low = query_text.lower()
+    stop_words = {
+        "мне", "нужна", "нужен", "нужно", "хочу", "есть", "ли", "у", "вас", "покажи", "покажите",
+        "какие", "какая", "какой", "для", "на", "в", "и", "или", "купить", "заказать", "одежда", "одежду",
+        "вещь", "вещи", "товар", "товары", "kiyim", "bor", "menga", "kerak", "qanday", "bormi"
+    }
+    raw_words = [w.strip(".,!?()[]{}\"'") for w in query_low.split()]
+    words = [w for w in raw_words if len(w) >= 2 and w not in stop_words]
+    stems = [w[:4] if len(w) >= 5 else w for w in words]
+    query_colors = _extract_query_colors(query_low)
 
-    matches = []
+    variants = list(
+        ProductVariant.objects.filter(
+            product__store=store, product__is_active=True, stock_quantity__gt=0
+        ).select_related("product", "product__category").prefetch_related("product__images")
+    )
+
+    scored = []
     for variant in variants:
-        haystack = f"{variant.product.name} {variant.color} {variant.size}".lower()
-        if any(word in haystack for word in query_text.split()):
-            matches.append(variant)
+        score = 0
+        cat_name = variant.product.category.name if variant.product.category else ""
+        haystack = f"{variant.product.name} {cat_name} {variant.color or ''} {variant.size or ''} {variant.product.description or ''}".lower()
 
-    return matches
+        if query_colors and _variant_matches_color_group(variant, query_colors):
+            score += 10
+
+        for w, st in zip(words, stems):
+            if w in haystack:
+                score += 5
+            elif len(st) >= 3 and st in haystack:
+                score += 3
+
+        if score > 0:
+            scored.append((score, variant))
+
+    scored.sort(key=lambda x: (-x[0], -x[1].stock_quantity))
+    return [v for _, v in scored]
 
 
 def build_system_instruction(store: Store) -> str:
     """
-    Системная инструкция — "характер" ИИ-агента. Не зависит от
-    конкретного сообщения клиента, задаётся один раз на весь диалог.
+    Системная инструкция — "характер" ИИ-агента и полная информация о магазине.
     """
+    categories = list(store.categories.values_list("name", flat=True)[:12])
+    cats_str = ", ".join(categories) if categories else "Стильная одежда, обувь и аксессуары"
+    store_desc = getattr(store, "hero_subtitle", "") or getattr(store, "tagline", "") or "Премиальное качество, быстрая доставка и удобный заказ в 1 клик."
+
     instruction = (
-        f"Ты — вежливый ИИ-консультант интернет-магазина '{store.name}' в Instagram Direct.\n\n"
+        f"Ты — умный, живой и экспертный ИИ-консультант официального интернет-магазина «{store.name}» в Instagram Direct.\n\n"
+        f"О НАШЕМ МАГАЗИНЕ «{store.name}»:\n"
+        f"- Название магазина: «{store.name}»\n"
+        f"- Описание и позиционирование: {store_desc}\n"
+        f"- Категории товаров: {cats_str}\n"
+        f"- Доставка и оплата: быстрая доставка прямо до двери (Яндекс Доставка / курьер) или самовывоз. Оформление заказа прямо в чате в 1 клик или через удобную витрину магазина.\n"
+        f"- Если клиент спрашивает о самом магазине («расскажи о магазине», «что за магазин», «какие условия доставки», «чем вы занимаетесь») — тепло, с гордостью и подробно расскажи о магазине «{store.name}», его категориях ({cats_str}), гарантии качества и быстрой доставке! НЕ спамь случайными фотографиями товаров, если клиент просто здоровается или спрашивает о магазине.\n\n"
         f"ПРАВИЛО ЯЗЫКА (самое важное): определи, на каком языке пишет клиент "
         f"(узбекский, русский, английский или любой другой) и отвечай СТРОГО на "
-        f"этом же языке. Если клиент пишет смесью языков (например, узбекский "
-        f"латиницей вперемешку с русскими словами — так часто бывает в Ташкенте), "
-        f"отвечай в том же стиле, каким писал клиент. Никогда не переключай язык "
-        f"сам по себе и не спрашивай клиента, на каком языке ему отвечать.\n\n"
-        f"ПРАВИЛА ОБЩЕНИЯ:\n"
-        f"- Ты ведёшь клиента ПОСЛЕДОВАТЕЛЬНО к покупке, а не просто отвечаешь на "
-        f"разрозненные вопросы. Помни, о каком товаре шла речь раньше в этом же "
-        f"разговоре, и не переспрашивай то, что клиент уже сказал.\n"
-        f"- Отвечай коротко (2-4 предложения), дружелюбно, без излишней формальности.\n"
-        f"- Если товар есть в наличии — сообщи цену и параметры. НЕ пиши сама никакую ссылку и "
-        f"не выдумывай текст вроде '[ссылка]' — ссылку на оформление заказа мы "
-        f"подставим автоматически после твоего ответа.\n"
-        f"- Если товара НЕТ в наличии или клиент спрашивает о товаре, которого пока нет в магазине — вежливо объясни на его языке, "
-        f"что сейчас этот товар отсутствует или ожидается новая партия, и что мы внесли клиента в лист ожидания (waitlist), "
-        f"и как только товар поступит в магазин, мы сразу пришлем ему персональное уведомление и ссылку на покупку! "
-        f"(на узбекском: 'Kechirasiz, hozircha bu tovar sotuvda yo‘q yoki yangi partiya kutilmoqda. Sizni kutish ro‘yxatiga (waitlist) qo‘shib qo‘ydik! Tovar do‘konga kelishi bilanoq sizga birinchi bo‘lib xabar va xarid havolasini yuboramiz! ✨'). "
-        f"Если есть похожие товары в списке остатков ниже — также вежливо предложи взглянуть на них.\n"
-        f"- Никогда не выдумывай остатки, цвета, размеры или цены, которых нет в списке ниже.\n"
-        f"- Если не уверен, что понял вопрос клиента — переспроси, не придумывай ответ."
+        f"этом же языке. Никогда не переключай язык сам по себе.\n\n"
+        f"ПРАВИЛА ПОДБОРА ТОВАРА И ФОТО:\n"
+        f"- Когда клиент просит конкретную вещь или цвет (например: «нужна черная одежда», «покажи худи», «qora kiyim kerak»), выбери ОДИН самый лучший подходящий товар из списка наличия ниже, красиво презентуй его (название, цвет, размеры, цена) и ОБЯЗАТЕЛЬНО укажи в конце ответа один тег [MATCH_ID: <id>], чтобы бот отправил 1 красивую фотографию этого товара с кнопкой «⚡ Заказать в 1 клик».\n"
+        f"- Отвечай лаконично (2-4 предложения), дружелюбно и по делу.\n"
+        f"- Если товара НЕТ в наличии — вежливо объясни, что мы внесли клиента в лист ожидания (waitlist) и сразу уведомим при поступлении.\n"
+        f"- Никогда не выдумывай остатки, цвета, размеры или цены, которых нет в списке ниже."
     )
     active_branches = list(store.branches.filter(is_active=True))
     if active_branches:
@@ -111,13 +205,13 @@ def build_system_instruction(store: Store) -> str:
 
 
 def build_stock_context(matches: list) -> str:
-    """Отдельным блоком собираем данные склада, которые реально есть в базе."""
+    """Отдельным блоком собираем данные склада, которые реально есть в базе (с ID для MATCH_ID)."""
     if not matches:
-        return "Совпадений на складе не найдено."
+        return "Точных совпадений по фильтру не найдено (см. общий каталог магазина ниже)."
 
     lines = []
-    for v in matches[:5]:
-        desc = f"- {v.product.name}"
+    for v in matches[:6]:
+        desc = f"- [ID:{v.id}] {v.product.name}"
         opts = []
         if v.color:
             opts.append(f"цвет {v.color}")
@@ -125,13 +219,11 @@ def build_stock_context(matches: list) -> str:
             opts.append(f"размер {v.size}")
         if opts:
             desc += f" ({', '.join(opts)})"
-        
-        status = f"в наличии, {v.stock_quantity} шт." if v.in_stock else "нет в наличии"
+        status = f"в наличии {v.stock_quantity} шт." if (v.in_stock and v.stock_quantity > 0) else "нет в наличии"
         desc += f": {status}, цена {int(v.final_price):,} сум"
         lines.append(desc)
-        
-    return "\n".join(lines)
 
+    return "\n".join(lines)
 
 
 def build_full_store_catalog_context(store: Store, max_items: int = 25) -> str:
@@ -529,19 +621,35 @@ def handle_incoming_telegram_message(
     if not store.is_subscription_active:
         return ("Salom! Do'kon vaqtincha xizmat ko'rsatishni to'xtatdi. / Здравствуйте! Магазин временно приостановил онлайн-обслуживание.", [])
 
-    # ── FAST-PATH ROUTER (Мгновенные ответы без нейросети за 10-30 мс) ──
+    # ── FAST-PATH ROUTER (Мгновенные ответы о магазине/приветствии без спама фото) ──
     if not image_b64 and not audio_b64 and message_text:
-        clean_text = message_text.strip().lower()
+        clean_text = message_text.strip().lower().rstrip("!?.,")
         simple_greetings = {"salom", "assalom", "assalomu alaykum", "salomlar", "привет", "здравствуйте", "добрый день", "добрый вечер", "hello", "hi", "hey"}
-        if clean_text in simple_greetings or (len(clean_text) <= 15 and any(clean_text == g for g in simple_greetings)):
+        if clean_text in simple_greetings:
+            cats = list(store.categories.values_list("name", flat=True)[:6])
+            cats_text = ", ".join(cats) if cats else ("kiyim-kechak va aksessuarlar" if cust_lang == "uz" else "одежда, обувь и аксессуары")
             if cust_lang == "uz":
-                reply = f"Assalomu alaykum! «{store.name}» do'konimizga xush kelibsiz! Sizga qanday kiyim yoki mahsulot tanlashda yordam beray?"
+                reply = (
+                    f"Assalomu alaykum! ✨ <b>«{store.name}»</b> rasmiy do'koniga xush kelibsiz!\n\n"
+                    f"🛍 Bizda: <b>{cats_text}</b> mavjud.\n"
+                    f"🚚 Yetkazib berish eshigingizgacha ishlaydi, buyurtmani esa 1-klikda shu yerning o'zida rasmiylashtirishingiz mumkin!\n\n"
+                    f"Sizga qanday kiyim, rang yoki o'lcham kerak? Yozing — eng mos modelni rasmi bilan yuboraman!"
+                )
             elif cust_lang == "en":
-                reply = f"Hello! Welcome to «{store.name}»! How can I help you choose clothing or products today?"
+                reply = (
+                    f"Hello! ✨ Welcome to the official <b>«{store.name}»</b> store!\n\n"
+                    f"🛍 Our categories: <b>{cats_text}</b>.\n"
+                    f"🚚 Fast door-to-door delivery and instant 1-click ordering right in chat!\n\n"
+                    f"Tell me what item, color, or size you're looking for, and I'll send you the best match!"
+                )
             else:
-                reply = f"Здравствуйте! Добро пожаловать в «{store.name}»! Чем могу помочь вам в выборе вещей?"
-            top_variants = list(ProductVariant.objects.filter(product__store=store, product__is_active=True, stock_quantity__gt=0).select_related("product")[:3])
-            return (reply, top_variants)
+                reply = (
+                    f"Здравствуйте! ✨ Добро пожаловать в официальный магазин <b>«{store.name}»</b>!\n\n"
+                    f"🛍 В нашем ассортименте: <b>{cats_text}</b>.\n"
+                    f"🚚 У нас действует быстрая доставка до двери и моментальный заказ прямо в чате в 1 клик!\n\n"
+                    f"Напишите, какую вещь, цвет или размер вы ищете (например: <i>«нужна черная одежда»</i>) — и я сразу подберу лучший вариант с фото!"
+                )
+            return (reply, [])
 
         address_keywords = {"адрес", "где вы", "где находитесь", "манзил", "qayerdasiz", "qayerda joylashgan", "manzil", "локация", "lokatsiya", "qayer"}
         if any(w in clean_text for w in address_keywords) and len(clean_text.split()) <= 4:
@@ -549,31 +657,21 @@ def handle_incoming_telegram_message(
             if branches:
                 branch_lines = "\n".join([f"📍 {b.name}: {b.address}" for b in branches])
             else:
-                branch_lines = f"📍 {store.address or 'Уточняйте у менеджера'}"
+                branch_lines = f"📍 {store.address or 'Быстрая онлайн-доставка по всему городу'}"
             if cust_lang == "uz":
-                reply = f"«{store.name}» do'konlarimiz manzillari:\n\n{branch_lines}\n\nIsh vaqti: har kuni 09:00 dan 21:00 gacha."
+                reply = f"«{store.name}» do'konimiz manzillari:\n\n{branch_lines}\n\nIsh vaqti: har kuni 09:00 dan 21:00 gacha."
             elif cust_lang == "en":
                 reply = f"Store locations of «{store.name}»:\n\n{branch_lines}\n\nWorking hours: daily from 09:00 to 21:00."
             else:
-                reply = f"Адреса наших магазинов «{store.name}»:\n\n{branch_lines}\n\nРежим работы: ежедневно с 09:00 до 21:00."
+                reply = f"Адреса магазина «{store.name}»:\n\n{branch_lines}\n\nРежим работы: ежедневно с 09:00 до 21:00."
             return (reply, [])
 
-    # 3. Поиск товаров на складе магазина
+    # 3. Умный поиск товаров на складе магазина
     query_lower = (message_text or "").lower()
-    clothing_keywords = [
-        "одежд", "вещ", "товар", "каталог", "ассортимент", "новинк", "что есть", "какие есть", "покажи",
-        "худи", "футболк", "куртк", "джинс", "штаны", "брюк", "плать", "кроссовк", "обув", "рубашк", "толстовк", "свитшот", "костюм", "спорт",
-        "kiyim", "nima bor", "nimalar", "katalog", "qanday", "tovar", "futbolka", "kofta", "shim", "koylak", "kurtka", "oyoq kiyim"
-    ]
-    is_clothing_query = any(kw in query_lower for kw in clothing_keywords) or bool(image_b64 or audio_b64)
+    store_info_keywords = ["о магазине", "про магазин", "что за магазин", "кто вы", "доставк", "оплат", "услови", "haqida", "yetkazib", "to'lov", "tolov"]
+    is_asking_store_info = any(kw in query_lower for kw in store_info_keywords)
 
     matches = find_matching_variants(store, message_text)
-    if not matches and is_clothing_query:
-        matches = list(ProductVariant.objects.filter(
-            product__store=store,
-            product__is_active=True,
-            stock_quantity__gt=0
-        ).select_related("product")[:6])
 
     # 4. Диалог и история переписки
     conversation, _ = Conversation.objects.get_or_create(
@@ -604,16 +702,14 @@ def handle_incoming_telegram_message(
     lang_name = "o'zbek" if cust_lang == "uz" else "ingliz" if cust_lang == "en" else "русском"
     system_inst += (
         f"\n\nДОПОЛНИТЕЛЬНО ДЛЯ TELEGRAM:\n"
-        f"- ВАЖНЕЙШЕЕ ПРАВИЛО ЯЗЫКА: Выбранный язык клиента — {cust_lang.upper()} ({lang_name}). ТЫ ОБЯЗАН ОТВЕЧАТЬ ИСКЛЮЧИТЕЛЬНО НА ЭТОМ ЯЗЫКЕ ({lang_name})! Все описания, консультации, ответы на вопросы пиши строго на {lang_name} тилида/языке.\n"
-        f"- Если клиент прислал ФОТО одежды: определи фасон, цвет, стиль. Сравни с каталогом товаров склада ниже. Подбери похожие модели из наличия и порекомендуй их.\n"
-        f"- Если клиент записал ГОЛОСОВОЕ сообщение: внимательно прослушай его аудиозапись, пойми вопрос и ответь по делу.\n"
-        f"- Если клиент спрашивает, какие есть одежды или ты рекомендуешь товары — ОБЯЗАТЕЛЬНО укажи в самом конце ответа тег: [MATCH_ID: <id1>, <id2>], "
-        f"где id1, id2 — это ID подходящих товаров из склада (например: [MATCH_ID: 15]). Наш бот автоматически отправит покупателю фотографии этих вещей и кнопку моментального заказа!\n"
+        f"- ВАЖНЕЙШЕЕ ПРАВИЛО ЯЗЫКА: Выбранный язык клиента — {cust_lang.upper()} ({lang_name}). ТЫ ОБЯЗАН ОТВЕЧАТЬ ИСКЛЮЧИТЕЛЬНО НА ЭТОМ ЯЗЫКЕ ({lang_name})!\n"
+        f"- Если клиент спрашивает о магазине, доставке, оплате или просто общается — расскажи о магазине «{store.name}» и НЕ добавляй тег [MATCH_ID], чтобы не присылать лишние фото.\n"
+        f"- Если клиент ищет конкретный товар, одежду или цвет (или прислал фото/голос для подбора товара) — выбери 1 самый подходящий товар из каталога и ОБЯЗАТЕЛЬНО укажи в самом конце ответа один тег: [MATCH_ID: <id>], где <id> — точный ID этого варианта со склада (например: [MATCH_ID: 15]). Бот отправит клиенту 1 красивую карточку этого товара с фото и кнопкой заказа в 1 клик!\n"
     )
 
     stock_context = build_stock_context(matches)
-    catalog_summary = build_full_store_catalog_context(store, max_items=8)
-    stock_context = f"{stock_context}\n\nПолный каталог магазина в наличии:\n{catalog_summary}"
+    catalog_summary = build_full_store_catalog_context(store, max_items=25)
+    stock_context = f"{stock_context}\n\nПолный каталог магазина «{store.name}» в наличии:\n{catalog_summary}"
 
     ai_reply_text = ask_gemini(
         system_instruction=system_inst,
@@ -636,26 +732,22 @@ def handle_incoming_telegram_message(
     # Удаляем служебный тег перед отправкой клиенту
     ai_reply_text = re.sub(r"\[MATCH_ID:\s*[\d\s,]+\]", "", ai_reply_text, flags=re.IGNORECASE).strip()
 
+    selected_for_photo = []
     if match_ids:
         found_variants = list(ProductVariant.objects.filter(
             id__in=match_ids,
-            product__store=store
+            product__store=store,
+            stock_quantity__gt=0,
         ).select_related("product"))
-        if found_variants:
-            matches = found_variants + [v for v in matches if v.id not in match_ids]
+        found_map = {v.id: v for v in found_variants}
+        for mid in match_ids:
+            if mid in found_map:
+                selected_for_photo.append(found_map[mid])
 
-    # 7. Добавляем ссылку на товар
-    in_stock_matches = [v for v in matches if v.in_stock]
-    if in_stock_matches:
-        best = in_stock_matches[0]
-        site_url = getattr(settings, 'SITE_URL', '')
-        if site_url:
-            link = f"{site_url}/{cust_lang}/product/{best.product.id}/"
-        else:
-            link = build_telegram_deep_link(best.product.id)
-        ai_reply_text = f"{ai_reply_text}\n\n🛒 {link}"
-    else:
-        # Регистрируем в лист ожидания
+    if not selected_for_photo and matches and not is_asking_store_info:
+        selected_for_photo = [v for v in matches if v.in_stock and v.stock_quantity > 0][:1]
+
+    if not selected_for_photo and not is_asking_store_info and not matches:
         register_waitlist_entry(
             store=store,
             customer=customer,
@@ -668,7 +760,8 @@ def handle_incoming_telegram_message(
         conversation=conversation, sender=Message.Sender.AI_AGENT, text=ai_reply_text
     )
 
-    return (ai_reply_text, in_stock_matches[:4])
+    # Возвращаем строго не более 1 лучшего товара для красивой карточки с 1-клик заказом
+    return (ai_reply_text, selected_for_photo[:1])
 
 
 def check_and_notify_waitlist_for_new_product(product: Product) -> int:

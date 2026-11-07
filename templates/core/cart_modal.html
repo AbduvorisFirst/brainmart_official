@@ -647,13 +647,22 @@
         let subtotal = 0;
         let count = 0;
 
+        let cartWasClamped = false;
         cart.forEach((item, index) => {
             const itemPrice = parseInt(item.price || 0, 10);
-            const itemQty = parseInt(item.quantity || item.qty || 1, 10);
+            let itemQty = parseInt(item.quantity || item.qty || 1, 10);
+            const maxAllowed = (item.max_qty !== undefined && item.max_qty !== null) ? parseInt(item.max_qty, 10) : null;
+            if (maxAllowed !== null && !isNaN(maxAllowed) && maxAllowed > 0 && itemQty > maxAllowed) {
+                itemQty = maxAllowed;
+                item.quantity = maxAllowed;
+                item.qty = maxAllowed;
+                cartWasClamped = true;
+            }
             subtotal += itemPrice * itemQty;
             count += itemQty;
-            const isMax = (item.max_qty !== undefined && itemQty >= item.max_qty);
-            const sizeLabel = item.size ? item.size : (item.variant_name ? item.variant_name.replace('Размер:', '').trim() : 'M');
+            const isMax = (maxAllowed !== null && !isNaN(maxAllowed) && itemQty >= maxAllowed);
+            const sizeLabel = item.size ? item.size : (item.variant_name ? item.variant_name.replace('Размер:', '').trim() : 'Standard');
+            const stockHint = (maxAllowed !== null && !isNaN(maxAllowed)) ? ` • <span style="color: #10B981;">макс: ${maxAllowed} шт.</span>` : '';
 
             const imgHtml = item.image 
                 ? `<img src="${item.image}" alt="${item.name || 'Товар'}" style="width: 100%; height: 100%; object-fit: cover;">`
@@ -666,7 +675,7 @@
                     </div>
                     <div style="flex: 1; min-width: 0;">
                         <div style="font-size: 14.5px; font-weight: 800; color: var(--text-main); margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.name || 'Товар'}</div>
-                        <div style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 6px;">Size: ${sizeLabel}</div>
+                        <div style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 6px;">Size: ${sizeLabel}${stockHint}</div>
                         <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
                             <div style="font-size: 15px; font-weight: 800; color: var(--text-main);">${(itemPrice * itemQty).toLocaleString()} ${I18N_CART.sum}</div>
                             <div class="qty-control" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); padding: 3px 8px; border-radius: 20px; border: 1px solid var(--border);">
@@ -683,6 +692,9 @@
             `;
         });
 
+        if (cartWasClamped) {
+            saveCart(cart);
+        }
         container.innerHTML = html;
         if (headerCount) {
             headerCount.innerText = `${count} item${count > 1 ? 's' : ''}`;
@@ -713,13 +725,18 @@
     function changeItemQty(index, delta) {
         const cart = getCart();
         if (!cart[index]) return;
-        if (delta > 0 && cart[index].max_qty !== undefined && cart[index].quantity >= cart[index].max_qty) {
-            alert(`{% filter escapejs %}{% trans "В наличии осталось только" %}{% endfilter %} ${cart[index].max_qty} {% filter escapejs %}{% trans "шт. Больше добавить нельзя." %}{% endfilter %}`);
+        const curQty = parseInt(cart[index].quantity || cart[index].qty || 1, 10);
+        const maxQty = (cart[index].max_qty !== undefined && cart[index].max_qty !== null) ? parseInt(cart[index].max_qty, 10) : null;
+        if (delta > 0 && maxQty !== null && !isNaN(maxQty) && curQty >= maxQty) {
+            alert(`⚠️ {% filter escapejs %}{% trans "На складе всего" %}{% endfilter %} ${maxQty} {% filter escapejs %}{% trans "шт. Больше добавить нельзя!" %}{% endfilter %}`);
             return;
         }
-        cart[index].quantity += delta;
-        if (cart[index].quantity <= 0) {
+        const nextQty = curQty + delta;
+        if (nextQty <= 0) {
             cart.splice(index, 1);
+        } else {
+            cart[index].quantity = nextQty;
+            cart[index].qty = nextQty;
         }
         saveCart(cart);
         renderCartItemsList();

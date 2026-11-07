@@ -289,10 +289,11 @@ def catalog_view(request):
             for col in unique_colors:
                 col_key = col.lower()
                 c_vars = [v for v in all_vars if (v.color or '').strip().lower() == col_key]
+                avail_c_vars = [v for v in c_vars if v.in_stock and v.stock_quantity > 0]
                 # Скрываем карточку цвета, если все его размеры закончились на складе!
-                if c_vars and not any(v.in_stock and v.stock_quantity > 0 for v in c_vars):
+                if c_vars and not avail_c_vars:
                     continue
-                first_c_var = c_vars[0] if c_vars else None
+                first_c_var = avail_c_vars[0] if avail_c_vars else (c_vars[0] if c_vars else None)
                 c_price = first_c_var.final_price if (first_c_var and first_c_var.final_price) else final_p
                 try:
                     c_price_int = int(float(c_price))
@@ -309,6 +310,8 @@ def catalog_view(request):
                 cards.append({
                     "id": p.id,
                     "variant_id": first_c_var.id if first_c_var else p.id,
+                    "stock_quantity": first_c_var.stock_quantity if first_c_var else 1,
+                    "size": first_c_var.size if first_c_var else "",
                     "name": p.name,
                     "color": col,
                     "color_label": col,
@@ -333,7 +336,10 @@ def catalog_view(request):
                     "reviews_count": 140,
                 })
         else:
-            first_variant = all_vars[0] if all_vars else None
+            avail_vars = [v for v in all_vars if v.in_stock and v.stock_quantity > 0]
+            if all_vars and not avail_vars:
+                continue
+            first_variant = avail_vars[0] if avail_vars else (all_vars[0] if all_vars else None)
             single_color = unique_colors[0] if unique_colors else ""
             all_imgs = []
             if single_color and single_color.lower() in color_images:
@@ -346,6 +352,8 @@ def catalog_view(request):
             cards.append({
                 "id": p.id,
                 "variant_id": first_variant.id if first_variant else p.id,
+                "stock_quantity": first_variant.stock_quantity if first_variant else 1,
+                "size": first_variant.size if first_variant else "",
                 "name": p.name,
                 "color": single_color,
                 "color_label": single_color,
