@@ -178,3 +178,73 @@ def notify_superadmin_about_new_store_task(store_id):
     except Exception as e:
         logger.exception("Ошибка при уведомлении супер-админа о новом магазине")
 
+
+
+@shared_task
+def send_abandoned_order_reminder_task(order_id: int):
+    """
+    Авто-напоминание о незавершённом заказе в Telegram (через 20 минут)
+    и авто-очистка старых неоплаченных заказов (> 2 часов без чека).
+    """
+    from datetime import timedelta
+    from django.utils import timezone
+    from django.core.cache import cache
+    from django.conf import settings
+    from core.models import Order
+    from core.working_views.telegram_bot import _send_telegram_message
+
+    try:
+        # 1. Авто-отмена зависших заказов старше 2 часов без прикрепленного чека
+        two_hours_ago = timezone.now() - timedelta(hours=2)
+        Order.objects.filter(
+            status=Order.Status.PENDING_PAYMENT,
+            payment_confirmed_by_customer=False,
+            created_at__lt=two_hours_ago,
+        ).update(status=Order.Status.CANCELLED)
+
+        # 2. Проверяем целевой заказ для вежливого напоминания клиенту
+        order = Order.objects.select_related("store", "customer").filter(id=order_id).first()
+        if not order or order.status != Order.Status.PENDING_PAYMENT or order.payment_confirmed_by_customer:
+            return
+
+        cache_key = f"abandoned_reminded_{order.id}"
+        if cache.get(cache_key):
+            return
+        cache.set(cache_key, True, timeout=86400)
+
+        chat_id = getattr(order.customer, "telegram_chat_id", None)
+        if not chat_id:
+            return
+
+        store = order.store
+        bot_token = store.telegram_bot_token if (store.telegram_bot_token and store.telegram_bot_active) else getattr(settings, "TELEGRAM_BOT_TOKEN", None)
+        site_url = getattr(settings, "SITE_URL", "https://brainmart.uz")
+        cust_lang = getattr(order.customer, "language", "ru") or "ru"
+        order_url = f"{site_url}/{cust_lang}/order/{order.id}/success/"
+
+        if cust_lang == "uz":
+            msg = (
+                f"👋 Assalomu alaykum! Siz <b>«{store.name}»</b> do'konida <b>#{order.id}</b>-sonli buyurtmani boshlagan edingiz.\n\n"
+                f"🛍 Tanlagan mahsulotingiz hali ham siz uchun band qilib turilibdi (Summa: <b>{int(order.total_price):,} so'm</b>).\n"
+                f"📸 Buyurtmani yakunlash uchun to'lov chekini yuboring yoki quyidagi tugmani bosing:"
+            )
+            btn_label = "💳 Buyurtmani yakunlash"
+        elif cust_lang == "en":
+            msg = (
+                f"👋 Hello! You started order <b>#{order.id}</b> at <b>«{store.name}»</b>.\n\n"
+                f"🛍 Your item is still reserved for you (Total: <b>{int(order.total_price):,} UZS</b>).\n"
+                f"📸 Send your payment receipt screenshot or tap the button below to complete your order:"
+            )
+            btn_label = "💳 Complete Order"
+        else:
+            msg = (
+                f"👋 Здравствуйте! Вы оформили заказ <b>#{order.id}</b> в магазине <b>«{store.name}»</b>, но ещё не завершили его.\n\n"
+                f"🛍 Ваш товар всё ещё забронирован за вами (К оплате: <b>{int(order.total_price):,} сум</b>).\n"
+                f"📸 Пришлите скриншот чека перевода прямо сюда в чат или нажмите кнопку ниже:"
+            )
+            btn_label = "💳 Завершить заказ"
+
+        kb = {"inline_keyboard": [[{"text": btn_label, "web_app": {"url": order_url}}]]}
+        _send_telegram_message(chat_id, msg, reply_markup=kb, bot_token=bot_token)
+    except Exception as e:
+        logger.warning("send_abandoned_order_reminder_task error: %s", e)

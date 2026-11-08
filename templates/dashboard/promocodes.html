@@ -1,0 +1,153 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<style>
+    .promo-grid {
+        display: grid;
+        grid-template-columns: 380px 1fr;
+        gap: 20px;
+    }
+    @media (max-width: 900px) {
+        .promo-grid { grid-template-columns: 1fr; }
+    }
+    .promo-badge-active {
+        background: rgba(16, 185, 129, 0.16);
+        color: #34D399;
+        border: 1px solid rgba(16, 185, 129, 0.35);
+        padding: 4px 10px;
+        border-radius: 99px;
+        font-size: 11px;
+        font-weight: 800;
+    }
+    .promo-badge-off {
+        background: rgba(239, 68, 68, 0.14);
+        color: #F87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        padding: 4px 10px;
+        border-radius: 99px;
+        font-size: 11px;
+        font-weight: 800;
+    }
+</style>
+
+<div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+    <div>
+        <h2 style="margin: 0; font-size: 22px; font-weight: 800; color: #FFFFFF;">🎟️ Промокоды и купоны магазина</h2>
+        <p style="margin: 4px 0 0; font-size: 13px; color: var(--text-muted);">
+            Создавайте собственные промокоды на скидку (% или сум) для покупателей вашей витрины
+        </p>
+    </div>
+    <a href="{% url 'seller-broadcasts' %}" class="btn btn-secondary" style="width: auto; padding: 10px 16px; font-size: 13px;">
+        📢 Разослать промокод клиентам →
+    </a>
+</div>
+
+<div class="promo-grid">
+    <!-- Форма создания промокода -->
+    <div class="card">
+        <h3 style="margin: 0 0 14px; font-size: 16px; font-weight: 800; color: #FFFFFF;">➕ Создать промокод</h3>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="create">
+
+            <label>Код промокода (латиница/цифры)</label>
+            <input type="text" name="code" placeholder="Например: OSEN20 или VIP50K" style="text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;" required>
+
+            <label>Тип скидки</label>
+            <select name="discount_type">
+                <option value="percent">Процент от суммы заказа (%)</option>
+                <option value="fixed">Фиксированная сумма (сум)</option>
+            </select>
+
+            <label>Размер скидки (% или сум)</label>
+            <input type="number" name="discount_value" value="10" min="1" step="any" required>
+
+            <label>Минимальная сумма заказа (сум, 0 = любая)</label>
+            <input type="number" name="min_order_amount" value="0" min="0" step="1000">
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <label>Лимит активаций (0 = ∞)</label>
+                    <input type="number" name="max_uses" value="0" min="0">
+                </div>
+                <div>
+                    <label>Срок (дней, 0 = бессрочно)</label>
+                    <input type="number" name="days_valid" value="30" min="0">
+                </div>
+            </div>
+
+            <button type="submit" class="btn" style="margin-top: 8px;">
+                ✨ Сохранить промокод
+            </button>
+        </form>
+    </div>
+
+    <!-- Список промокодов продавца -->
+    <div class="card">
+        <h3 style="margin: 0 0 14px; font-size: 16px; font-weight: 800; color: #FFFFFF;">📋 Ваши промокоды ({{ promos|length }})</h3>
+
+        {% if promos %}
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                {% for p in promos %}
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                <span style="font-size: 16px; font-weight: 900; color: var(--primary); background: rgba(41,151,255,0.12); padding: 4px 12px; border-radius: 8px; border: 1px dashed rgba(41,151,255,0.4);">
+                                    {{ p.code }}
+                                </span>
+                                <span style="font-size: 15px; font-weight: 800; color: #FFFFFF;">
+                                    {% if p.discount_type == 'percent' %}
+                                        -{{ p.discount_value|floatformat:0 }}%
+                                    {% else %}
+                                        -{{ p.discount_value|floatformat:0 }} сум
+                                    {% endif %}
+                                </span>
+                                {% if p.is_active %}
+                                    <span class="promo-badge-active">Активен</span>
+                                {% else %}
+                                    <span class="promo-badge-off">Отключён</span>
+                                {% endif %}
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px; display: flex; gap: 14px; flex-wrap: wrap;">
+                                <span>📊 Использовано: <b>{{ p.used_count }}{% if p.max_uses > 0 %} / {{ p.max_uses }}{% endif %}</b></span>
+                                {% if p.min_order_amount > 0 %}
+                                    <span>💰 От {{ p.min_order_amount|floatformat:0 }} сум</span>
+                                {% endif %}
+                                {% if p.expires_at %}
+                                    <span>⏳ До {{ p.expires_at|date:"d.m.Y" }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <form method="post" style="margin: 0;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="toggle">
+                                <input type="hidden" name="promo_id" value="{{ p.id }}">
+                                <button type="submit" class="btn btn-secondary" style="width: auto; padding: 7px 12px; font-size: 12px;">
+                                    {% if p.is_active %}⏸ Выключить{% else %}▶️ Включить{% endif %}
+                                </button>
+                            </form>
+                            <form method="post" style="margin: 0;" onsubmit="return confirm('Удалить промокод {{ p.code }}?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="promo_id" value="{{ p.id }}">
+                                <button type="submit" class="btn btn-secondary" style="width: auto; padding: 7px 10px; font-size: 12px; color: #F87171;">
+                                    🗑
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 36px 16px; color: var(--text-muted);">
+                <div style="font-size: 42px; margin-bottom: 10px;">🎟️</div>
+                <div style="font-size: 15px; font-weight: 700; color: #FFFFFF; margin-bottom: 4px;">У вас пока нет промокодов</div>
+                <div style="font-size: 12.5px;">Создайте свой первый промокод слева — покупатели смогут вводить его в корзине, и скидка автоматически учтётся в заказе!</div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

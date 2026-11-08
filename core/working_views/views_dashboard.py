@@ -560,17 +560,22 @@ def order_confirm_payment_view(request, order_id):
     order = get_object_or_404(Order, id=order_id, store=store)
 
     if request.method == "POST":
+        stock_warnings = []
         with transaction.atomic():
             order = Order.objects.select_for_update().get(id=order.id, store=store)
             if order.status != Order.Status.PAID:
                 order.status = Order.Status.PAID
                 order.save(update_fields=["status"])
 
-                # Списываем остаток товара на складе в маркетплейсе
-                for item in order.items.select_related("variant").all():
+                # Списываем остаток товара на складе в маркетплейсе с проверкой дефицита
+                for item in order.items.select_related("variant", "variant__product").all():
                     if item.variant_id:
                         variant = ProductVariant.objects.select_for_update().filter(id=item.variant_id).first()
                         if variant:
+                            if variant.stock_quantity < item.quantity:
+                                stock_warnings.append(
+                                    f"{variant.product.name} ({variant.size or ''}): нужно {item.quantity} шт., на складе было {variant.stock_quantity} шт."
+                                )
                             variant.stock_quantity = max(0, variant.stock_quantity - item.quantity)
                             variant.save(update_fields=["stock_quantity"])
 
@@ -581,7 +586,13 @@ def order_confirm_payment_view(request, order_id):
         except Exception as e:
             logger.warning("Не удалось уведомить о подтверждении оплаты заказа: %s", e)
 
-        messages.success(request, f"✅ Оплата заказа #{order.id} подтверждена! Заказ передан менеджерам на сборку и отправку.")
+        if stock_warnings:
+            messages.warning(
+                request,
+                f"⚠️ Оплата заказа #{order.id} подтверждена, но внимание по складу: " + "; ".join(stock_warnings)
+            )
+        else:
+            messages.success(request, f"✅ Оплата заказа #{order.id} подтверждена! Заказ передан менеджерам на сборку и отправку.")
 
     return redirect("seller-orders")
 
@@ -2376,15 +2387,96 @@ def customers_view(request):
 
 @login_required
 def seller_broadcasts_view(request):
-    """CRM — Маркетинговые рассылки через Telegram-бота по базе клиентов магазина."""
+    """CRM — Маркетинговые рассылки и 1-клик рассылка товара со скидкой через Telegram-бота."""
     store = _get_store_or_none(request)
     if store is None:
         return redirect("seller-dashboard")
 
-    from core.models import BroadcastCampaign
-    from core.working_views.telegram_bot import _send_telegram_message
+    from core.models import BroadcastCampaign, PromoCode
+    from core.working_views.telegram_bot import _send_telegram_message, _send_telegram_photo
+
+    store_bot_token = store.telegram_bot_token if (store.telegram_bot_token and store.telegram_bot_active) else None
 
     if request.method == "POST":
+        action = request.POST.get("action", "standard_broadcast")
+        import datetime
+        from django.utils import timezone
+        today = timezone.now().date()
+        thirty_days_ago = today - datetime.timedelta(days=30)
+
+        # Собираем всех клиентов магазина с Telegram (и тех, кто покупал, и тех, кто общался с ботом)
+        base_customers = Customer.objects.filter(
+            Q(orders__store=store) | Q(conversations__store=store) | Q(store=store),
+            telegram_chat_id__isnull=False
+        ).exclude(telegram_chat_id="").distinct()
+
+        if action == "quick_product_promo":
+            product_id = request.POST.get("product_id")
+            promo_id = request.POST.get("promo_id")
+            custom_note = request.POST.get("custom_note", "").strip()
+            prod = Product.objects.filter(id=product_id, store=store).first()
+            if not prod:
+                messages.error(request, "Пожалуйста, выберите товар для рассылки акции.")
+                return redirect("seller-broadcasts")
+
+            promo_obj = PromoCode.objects.filter(id=promo_id, store=store, is_active=True).first() if promo_id else None
+            first_var = prod.variants.filter(stock_quantity__gt=0).first() or prod.variants.first()
+            price_int = int(first_var.final_price if first_var else prod.base_price)
+            photo = (first_var.image if (first_var and first_var.image) else prod.main_image)
+            product_url = f"{settings.SITE_URL}/ru/product/{prod.id}/"
+
+            promo_line = ""
+            if promo_obj:
+                disc_str = f"-{int(promo_obj.discount_value)}%" if promo_obj.discount_type == "percent" else f"-{int(promo_obj.discount_value):,} сум"
+                promo_line = f"\n🎁 Промокод на скидку {disc_str}: <b>{promo_obj.code.upper()}</b>"
+
+            caption = (
+                f"🔥 <b>Акция в магазине «{store.name}»!</b>\n\n"
+                f"✨ <b>{prod.name}</b>\n"
+                f"💰 Цена: <b>{price_int:,} сум</b>"
+                f"{promo_line}"
+            )
+            if custom_note:
+                caption += f"\n\n💬 {custom_note}"
+
+            kb_rows = []
+            if first_var:
+                kb_rows.append([{"text": "⚡ Заказать в 1 клик", "callback_data": f"quick_buy_{first_var.id}"}])
+            kb_rows.append([{"text": f"🛒 Купить ({prod.name[:22]})", "web_app": {"url": product_url}}])
+            reply_markup = {"inline_keyboard": kb_rows}
+
+            target_list = list(base_customers)
+            seen_chats = set()
+            delivered = 0
+            for cust in target_list:
+                cid = str(cust.telegram_chat_id).strip()
+                if not cid or cid in seen_chats:
+                    continue
+                seen_chats.add(cid)
+                try:
+                    if photo:
+                        ok = _send_telegram_photo(cid, photo, caption=caption, reply_markup=reply_markup, bot_token=store_bot_token)
+                    else:
+                        ok = _send_telegram_message(cid, caption, reply_markup=reply_markup, bot_token=store_bot_token)
+                    if ok:
+                        delivered += 1
+                except Exception as e:
+                    logger.warning("Ошибка 1-клик рассылки акции клиенту %s: %s", cid, e)
+
+            BroadcastCampaign.objects.create(
+                store=store,
+                title=f"🔥 Акция: {prod.name}",
+                message_text=caption,
+                target_segment="all",
+                button_text=f"🛒 Купить ({prod.name[:22]})",
+                button_url=product_url,
+                recipients_count=len(seen_chats),
+                delivered_count=delivered,
+                status=BroadcastCampaign.Status.COMPLETED,
+            )
+            messages.success(request, f"🎉 Карточка акции «{prod.name}» с кнопкой заказа в 1 клик отправлена {delivered} клиентам!")
+            return redirect("seller-broadcasts")
+
         title = request.POST.get("title", "").strip()
         message_text = request.POST.get("message_text", "").strip()
         target_segment = request.POST.get("target_segment", "all")
@@ -2394,16 +2486,6 @@ def seller_broadcasts_view(request):
         if not title or not message_text:
             messages.error(request, "Пожалуйста, заполните тему и текст рассылки.")
             return redirect("seller-broadcasts")
-
-        import datetime
-        from django.utils import timezone
-        today = timezone.now().date()
-        thirty_days_ago = today - datetime.timedelta(days=30)
-
-        base_customers = Customer.objects.filter(
-            orders__store=store,
-            telegram_chat_id__isnull=False
-        ).exclude(telegram_chat_id="").distinct()
 
         if target_segment == "vip":
             base_customers = base_customers.annotate(
@@ -2423,7 +2505,15 @@ def seller_broadcasts_view(request):
             ).filter(orders_count=1)
 
         target_list = list(base_customers)
-        recipients_count = len(target_list)
+        seen_chats = set()
+        unique_targets = []
+        for c in target_list:
+            cid = str(c.telegram_chat_id).strip()
+            if cid and cid not in seen_chats:
+                seen_chats.add(cid)
+                unique_targets.append(c)
+
+        recipients_count = len(unique_targets)
 
         campaign = BroadcastCampaign.objects.create(
             store=store,
@@ -2445,16 +2535,15 @@ def seller_broadcasts_view(request):
                 ]]
             }
 
-        full_text = f"📢 {store.name}:\n\n{message_text}"
+        full_text = f"📢 <b>{store.name}</b>:\n\n{message_text}"
 
-        for cust in target_list:
-            if cust.telegram_chat_id:
-                try:
-                    success = _send_telegram_message(cust.telegram_chat_id, full_text, reply_markup=reply_markup)
-                    if success:
-                        delivered += 1
-                except Exception as e:
-                    logger.warning("Ошибка отправки рассылки клиенту %s: %s", cust.telegram_chat_id, e)
+        for cust in unique_targets:
+            try:
+                success = _send_telegram_message(cust.telegram_chat_id, full_text, reply_markup=reply_markup, bot_token=store_bot_token)
+                if success:
+                    delivered += 1
+            except Exception as e:
+                logger.warning("Ошибка отправки рассылки клиенту %s: %s", cust.telegram_chat_id, e)
 
         campaign.delivered_count = delivered
         campaign.status = BroadcastCampaign.Status.COMPLETED
@@ -2464,13 +2553,110 @@ def seller_broadcasts_view(request):
         return redirect("seller-broadcasts")
 
     campaigns = BroadcastCampaign.objects.filter(store=store).order_by("-created_at")[:30]
-    total_subscribers = Customer.objects.filter(orders__store=store, telegram_chat_id__isnull=False).exclude(telegram_chat_id="").distinct().count()
+    total_subscribers = Customer.objects.filter(
+        Q(orders__store=store) | Q(conversations__store=store) | Q(store=store),
+        telegram_chat_id__isnull=False
+    ).exclude(telegram_chat_id="").values("telegram_chat_id").distinct().count()
+    store_products = Product.objects.filter(store=store, is_active=True).order_by("-id")[:50]
+    store_promos = PromoCode.objects.filter(store=store, is_active=True).order_by("-id")
 
     context = {
         "campaigns": campaigns,
         "total_subscribers": total_subscribers,
+        "store_products": store_products,
+        "store_promos": store_promos,
     }
     return render(request, "dashboard/broadcasts.html", context)
+
+
+@login_required
+def seller_promocodes_view(request):
+    """Управление промокодами магазина: создание, включение/выключение и удаление промокодов продавцом."""
+    store = _get_store_or_none(request)
+    if store is None:
+        return redirect("seller-dashboard")
+
+    from core.models import PromoCode
+    from django.utils import timezone
+    from datetime import timedelta
+
+    if request.method == "POST":
+        action = request.POST.get("action", "create")
+        if action == "create":
+            code = (request.POST.get("code") or "").strip().upper().replace(" ", "")
+            discount_type = request.POST.get("discount_type", "percent")
+            discount_value_raw = request.POST.get("discount_value", "10").strip()
+            min_order_raw = request.POST.get("min_order_amount", "0").strip()
+            max_uses_raw = request.POST.get("max_uses", "0").strip()
+            days_valid_raw = request.POST.get("days_valid", "0").strip()
+
+            if not code:
+                messages.error(request, "Укажите код промокода (например, OSEN20 или SALE50K).")
+                return redirect("seller-promocodes")
+
+            try:
+                disc_val = max(1.0, float(discount_value_raw))
+                if discount_type == "percent" and disc_val > 95:
+                    disc_val = 95.0
+            except (ValueError, TypeError):
+                disc_val = 10.0
+
+            try:
+                min_ord = max(0.0, float(min_order_raw or 0))
+            except (ValueError, TypeError):
+                min_ord = 0.0
+
+            try:
+                max_u = max(0, int(max_uses_raw or 0))
+            except (ValueError, TypeError):
+                max_u = 0
+
+            expires_at = None
+            try:
+                days_v = int(days_valid_raw or 0)
+                if days_v > 0:
+                    expires_at = timezone.now() + timedelta(days=days_v)
+            except (ValueError, TypeError):
+                pass
+
+            promo, created = PromoCode.objects.update_or_create(
+                store=store,
+                code=code,
+                defaults={
+                    "discount_type": discount_type if discount_type in ("percent", "fixed") else "percent",
+                    "discount_value": disc_val,
+                    "min_order_amount": min_ord,
+                    "max_uses": max_u,
+                    "is_active": True,
+                    "expires_at": expires_at,
+                }
+            )
+            lbl = f"-{int(disc_val)}%" if promo.discount_type == "percent" else f"-{int(disc_val):,} сум"
+            messages.success(request, f"🎉 Промокод «{promo.code}» ({lbl}) успешно сохранён и активен на вашей витрине!")
+            return redirect("seller-promocodes")
+
+        elif action == "toggle":
+            pid = request.POST.get("promo_id")
+            promo = get_object_or_404(PromoCode, id=pid, store=store)
+            promo.is_active = not promo.is_active
+            promo.save(update_fields=["is_active"])
+            st_lbl = "активирован" if promo.is_active else "отключён"
+            messages.success(request, f"Промокод «{promo.code}» {st_lbl}.")
+            return redirect("seller-promocodes")
+
+        elif action == "delete":
+            pid = request.POST.get("promo_id")
+            promo = get_object_or_404(PromoCode, id=pid, store=store)
+            c_name = promo.code
+            promo.delete()
+            messages.success(request, f"🗑 Промокод «{c_name}» удалён.")
+            return redirect("seller-promocodes")
+
+    promos = PromoCode.objects.filter(store=store).order_by("-created_at")
+    return render(request, "dashboard/promocodes.html", {
+        "store": store,
+        "promos": promos,
+    })
 
 
 

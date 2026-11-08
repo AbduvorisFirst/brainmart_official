@@ -560,7 +560,12 @@
                     </div>
 
                     <div id="size-section">
-                        <div class="variant-label-title">Size</div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                            <div class="variant-label-title" style="margin-bottom: 0;">Size <span id="selected-size-label" style="color: var(--primary); font-weight: 800; margin-left: 4px;"></span></div>
+                            <button type="button" onclick="openSizeFinderModal()" style="background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--text-main); border-radius: 99px; padding: 4px 10px; font-size: 11px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                📏 {% trans "Подобрать размер" %}
+                            </button>
+                        </div>
                         <div class="size-swatches-grid" id="size-container"></div>
                     </div>
                 </div>
@@ -642,6 +647,88 @@
                 </details>
             </div>
 
+        </div>
+    </div>
+
+
+    {% if related_products %}
+    <!-- 🔥 С ЭТИМ ТОВАРОМ ПОКУПАЮТ (Cross-Sell Комплект) -->
+    <div style="margin-top: 24px; background: var(--surface-card, #12131A); border: 1px solid var(--border, rgba(255,255,255,0.08)); border-radius: 20px; padding: 18px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+            <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: var(--text-main);">
+                🔥 {% trans "С этим товаром покупают" %}
+            </h3>
+            <span style="font-size: 11.5px; color: var(--text-muted);">{% trans "Купить комплектом" %}</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 12px;">
+            {% for rp in related_products %}
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 14px; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
+                <a href="/{{ CURRENT_LANG|default:'ru' }}/product/{{ rp.id }}/" style="text-decoration: none; color: inherit;">
+                    <div style="width: 100%; aspect-ratio: 3/4; border-radius: 10px; overflow: hidden; background: #0D0F14; margin-bottom: 8px;">
+                        {% if rp.main_image_url %}
+                            <img src="{{ rp.main_image_url }}" alt="{{ rp.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 26px;">🛍️</div>
+                        {% endif %}
+                    </div>
+                    <div style="font-size: 13px; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ rp.name }}</div>
+                    <div style="font-size: 13px; font-weight: 800; color: var(--primary); margin-top: 2px;">{{ rp.formatted_price }} {% trans "сум" %}</div>
+                </a>
+                <button type="button"
+                        onclick="addCrossSellToCart(this)"
+                        data-id="{{ rp.id }}"
+                        data-variant-id="{{ rp.variant_id }}"
+                        data-max-qty="{{ rp.stock_quantity }}"
+                        data-size="{{ rp.size }}"
+                        data-color="{{ rp.color }}"
+                        data-name="{{ rp.name|escape }}"
+                        data-price="{{ rp.base_price }}"
+                        data-image="{{ rp.main_image_url }}"
+                        data-store-id="{{ rp.store_id }}"
+                        style="width: 100%; background: color-mix(in srgb, var(--primary, #7000FF) 18%, transparent); border: 1px solid var(--primary, #7000FF); color: var(--text-main); border-radius: 10px; padding: 7px 10px; font-size: 12px; font-weight: 700; cursor: pointer;">
+                    + {% trans "В корзину" %}
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 📏 МОДАЛЬНОЕ ОКНО AI ПОДБОРА РАЗМЕРА ПО РОСТУ И ВЕСУ -->
+    <div id="size-finder-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 16px;" onclick="if(event.target===this)closeSizeFinderModal()">
+        <div style="background: var(--surface-card, #14161F); border: 1px solid var(--border, rgba(255,255,255,0.12)); border-radius: 22px; max-width: 380px; width: 100%; padding: 22px; color: var(--text-main); box-shadow: 0 20px 50px rgba(0,0,0,0.6);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+                <h3 style="margin: 0; font-size: 17px; font-weight: 800;">📏 {% trans "Умный подбор размера" %}</h3>
+                <button type="button" onclick="closeSizeFinderModal()" style="background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer;">✕</button>
+            </div>
+            <p style="margin: 0 0 14px; font-size: 12.5px; color: var(--text-muted); line-height: 1.4;">
+                {% trans "Укажите ваш рост и вес — алгоритм подберёт идеальную посадку за 1 секунду:" %}
+            </p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                <div>
+                    <label style="font-size: 11.5px; color: var(--text-muted); display: block; margin-bottom: 4px;">{% trans "Рост (см)" %}</label>
+                    <input type="number" id="sf-height" value="175" min="120" max="220" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: var(--text-main); font-size: 14px; font-weight: 700;">
+                </div>
+                <div>
+                    <label style="font-size: 11.5px; color: var(--text-muted); display: block; margin-bottom: 4px;">{% trans "Вес (кг)" %}</label>
+                    <input type="number" id="sf-weight" value="70" min="30" max="160" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: var(--text-main); font-size: 14px; font-weight: 700;">
+                </div>
+            </div>
+            <div style="margin-bottom: 14px;">
+                <label style="font-size: 11.5px; color: var(--text-muted); display: block; margin-bottom: 4px;">{% trans "Предпочтение по посадке" %}</label>
+                <select id="sf-fit" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: #14161F; color: var(--text-main); font-size: 13px; font-weight: 600;">
+                    <option value="regular">{% trans "Стандартная (по фигуре)" %}</option>
+                    <option value="oversize">{% trans "Свободная / Оверсайз (+1 размер)" %}</option>
+                </select>
+            </div>
+            <div id="sf-result-box" style="display: none; background: color-mix(in srgb, var(--primary, #7000FF) 15%, transparent); border: 1px solid var(--primary, #7000FF); border-radius: 12px; padding: 12px; text-align: center; margin-bottom: 14px;">
+                <div style="font-size: 12px; color: var(--text-muted);">{% trans "Ваш рекомендуемый размер:" %}</div>
+                <div id="sf-result-size" style="font-size: 24px; font-weight: 900; color: var(--text-main); margin-top: 2px;">L</div>
+                <div id="sf-result-note" style="font-size: 11.5px; color: #10B981; margin-top: 4px;"></div>
+            </div>
+            <button type="button" onclick="calculateSmartSize()" style="width: 100%; background: var(--btn-gradient, var(--primary, #7000FF)); color: #FFFFFF; border: none; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 800; cursor: pointer;">
+                ✨ {% trans "Рассчитать и выбрать размер" %}
+            </button>
         </div>
     </div>
 
@@ -1479,6 +1566,111 @@
             }
         } catch(e) {}
     });
+
+
+    function openSizeFinderModal() {
+        var m = document.getElementById('size-finder-modal');
+        if (m) m.style.display = 'flex';
+    }
+    function closeSizeFinderModal() {
+        var m = document.getElementById('size-finder-modal');
+        if (m) m.style.display = 'none';
+    }
+    function calculateSmartSize() {
+        var h = parseInt(document.getElementById('sf-height').value || '175', 10);
+        var w = parseInt(document.getElementById('sf-weight').value || '70', 10);
+        var fit = document.getElementById('sf-fit').value;
+        var sizesOrder = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+        var idx = 2; // M default
+        if (w < 53 && h < 166) idx = 0;
+        else if (w < 64 && h < 173) idx = 1;
+        else if (w < 76 && h < 181) idx = 2;
+        else if (w < 88 && h < 188) idx = 3;
+        else if (w < 102) idx = 4;
+        else idx = 5;
+
+        if (fit === 'oversize' && idx < sizesOrder.length - 1) {
+            idx += 1;
+        }
+        var recSize = sizesOrder[idx];
+        var resBox = document.getElementById('sf-result-box');
+        var resSize = document.getElementById('sf-result-size');
+        var resNote = document.getElementById('sf-result-note');
+        if (resBox && resSize) {
+            resBox.style.display = 'block';
+            resSize.innerText = recSize;
+        }
+
+        // Пытаемся автоматически кликнуть по этому размеру, если он есть в наличии
+        var sizeBtns = document.querySelectorAll('#size-container .size-btn, #default-size-container .size-btn');
+        var matchedBtn = null;
+        sizeBtns.forEach(function(b) {
+            if (b.innerText.trim().toUpperCase() === recSize) {
+                matchedBtn = b;
+            }
+        });
+        if (matchedBtn) {
+            matchedBtn.click();
+            if (resNote) resNote.innerText = '✓ Размер ' + recSize + ' есть в наличии и автоматически выбран!';
+        } else if (resNote) {
+            resNote.innerText = 'ℹ️ Выберите ближайший доступный размер на витрине.';
+        }
+    }
+
+    function addCrossSellToCart(btn) {
+        var pid = btn.getAttribute('data-id');
+        var vid = parseInt(btn.getAttribute('data-variant-id') || pid, 10);
+        var maxQ = parseInt(btn.getAttribute('data-max-qty') || '5', 10);
+        var name = btn.getAttribute('data-name') || 'Товар';
+        var price = parseInt(btn.getAttribute('data-price') || '0', 10);
+        var img = btn.getAttribute('data-image') || '';
+        var sid = btn.getAttribute('data-store-id') || '{{ product.store.id }}';
+        var sz = btn.getAttribute('data-size') || '';
+        var col = btn.getAttribute('data-color') || '';
+
+        var storeKey = 'bm_cart_store_' + sid;
+        var cart = [];
+        try {
+            cart = JSON.parse(localStorage.getItem(storeKey) || localStorage.getItem('bm_cart') || '[]');
+            if (!Array.isArray(cart)) cart = [];
+        } catch(e) { cart = []; }
+
+        var existing = cart.find(function(c) { return c.variant_id == vid || c.id == pid; });
+        if (existing) {
+            if ((existing.quantity || 1) >= maxQ) {
+                btn.innerText = 'Максимум (' + maxQ + ' шт.)';
+                return;
+            }
+            existing.quantity = (existing.quantity || 1) + 1;
+            existing.qty = existing.quantity;
+            existing.max_qty = maxQ;
+        } else {
+            cart.push({
+                id: pid,
+                variant_id: vid,
+                name: name,
+                price: price,
+                quantity: 1,
+                qty: 1,
+                max_qty: maxQ,
+                size: sz,
+                color: col,
+                image: img,
+                store_id: sid
+            });
+        }
+        var j = JSON.stringify(cart);
+        localStorage.setItem(storeKey, j);
+        localStorage.setItem('bm_cart', j);
+        localStorage.setItem('brainmart_cart', j);
+        localStorage.setItem('tg_cart', j);
+        window.dispatchEvent(new Event('cart-updated'));
+        window.dispatchEvent(new Event('cartUpdated'));
+        btn.innerText = '✓ Добавлено';
+        btn.style.background = '#10B981';
+        btn.style.borderColor = '#10B981';
+        btn.style.color = '#FFFFFF';
+    }
 
     function openReviewModal() {
         var m = document.getElementById('review-modal');

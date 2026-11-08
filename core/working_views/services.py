@@ -1714,3 +1714,55 @@ def generate_ai_vision_daily_report(store: Store, target_date=None, trigger_tele
         "gemini_recommendations": gemini_recommendations,
         "telegram_sent": telegram_sent
     }
+
+
+def verify_payment_receipt_with_ai(order) -> str:
+    """
+    Авто-проверка скриншота чека оплаты через Gemini Vision (AI Анти-фрод чеков).
+    Возвращает краткий вердикт для продавца в Telegram.
+    """
+    if not order or not getattr(order, "payment_receipt", None):
+        return ""
+    api_key = getattr(settings, "GEMINI_API_KEY", "")
+    if not api_key:
+        return ""
+    try:
+        import base64
+        order.payment_receipt.open("rb")
+        raw_bytes = order.payment_receipt.read()
+        order.payment_receipt.close()
+        if not raw_bytes or len(raw_bytes) > 10 * 1024 * 1024:
+            return ""
+        b64_img = base64.b64encode(raw_bytes).decode("utf-8")
+        expected_sum = int(order.total_price or 0)
+        card_hint = getattr(order.store, "payout_card", "") or ""
+        prompt = (
+            f"Ты — финансовый ИИ-аудитор платежей BrainMart. "
+            f"Покупатель прислал этот скриншот как чек оплаты заказа #{order.id}. "
+            f"Ожидаемая сумма к оплате: {expected_sum:,} сум. Карта получателя продавца: {card_hint}. "
+            f"Проанализируй изображение и ответь ОДНОЙ короткой строкой (максимум 20 слов) на русском языке: "
+            f"1) Похоже ли это на настоящий чек перевода (Click/Payme/Uzum/банк)? "
+            f"2) Какая сумма видна на чеке и совпадает ли она с {expected_sum:,} сум? "
+            f"Начни ответ со значка ✅ (если чек настоящий и сумма совпадает) или ⚠️ (если сумма другая или это не чек)."
+        )
+        payload = {
+            "contents": [{
+                "role": "user",
+                "parts": [
+                    {"text": prompt},
+                    {"inline_data": {"mime_type": "image/jpeg", "data": b64_img}},
+                ]
+            }],
+            "generationConfig": {"temperature": 0.1, "maxOutputTokens": 120},
+        }
+        resp = _ai_session.post(f"{GEMINI_API_URL}?key={api_key}", json=payload, timeout=10)
+        if resp.status_code == 200:
+            candidates = resp.json().get("candidates") or []
+            if candidates:
+                parts = candidates[0].get("content", {}).get("parts") or []
+                if parts and parts[0].get("text"):
+                    verdict = parts[0]["text"].strip().replace("\n", " ")
+                    return f"🤖 ИИ-проверка чека: {verdict}"
+    except Exception as e:
+        logger.warning("verify_payment_receipt_with_ai error: %s", e)
+    return ""

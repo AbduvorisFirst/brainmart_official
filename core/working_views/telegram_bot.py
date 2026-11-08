@@ -429,7 +429,21 @@ def notify_order_receipt_uploaded(order: Order) -> None:
 
     mgr_display = assigned_mgr.display_contact if assigned_mgr else None
 
-    # 1. ТЕКСТ ДЛЯ ВЛАДЕЛЬЦА (с фото чека и кнопками подтверждения)
+    # 0. AI-проверка чека через Gemini Vision + информация о промокоде
+    ai_receipt_note = ""
+    try:
+        from core.working_views.services import verify_payment_receipt_with_ai
+        ai_receipt_note = verify_payment_receipt_with_ai(order)
+    except Exception:
+        ai_receipt_note = ""
+
+    promo_note = ""
+    if getattr(order, "promo_code", "") and getattr(order, "discount_amount", 0) > 0:
+        promo_note = f"\n🎟 Промокод: {order.promo_code} (Скидка: -{int(order.discount_amount):,} сум)"
+
+    extra_audit_block = f"{promo_note}\n{ai_receipt_note}".strip()
+
+    # 1. ТЕКСТ ДЛЯ ВЛАДЕЛЬЦА (с фото чека, AI-проверкой и кнопками подтверждения)
     if owner_chat_id:
         owner_lang = _get_store_lang(store)
         owner_items = _build_items_text(order, owner_lang)
@@ -442,6 +456,8 @@ def notify_order_receipt_uploaded(order: Order) -> None:
             phone=customer.phone_number,
             delivery=owner_delivery, items=owner_items,
         )
+        if extra_audit_block:
+            owner_text = f"{owner_text}\n\n{extra_audit_block}"
         owner_reply_markup = {
             "inline_keyboard": [
                 [
@@ -1683,6 +1699,11 @@ class TelegramWebhookView(APIView):
 
                 if is_location_needed:
                     cache.set(f"tg_state_{chat_id}", {"state": "WAITING_LOCATION", "order_id": order.id}, timeout=3600)
+                    try:
+                        from core.tasks import send_abandoned_order_reminder_task
+                        send_abandoned_order_reminder_task.apply_async((order.id,), countdown=1200)
+                    except Exception:
+                        pass
                     payload = {
                         "chat_id": chat_id,
                         "text": (
@@ -2623,15 +2644,20 @@ class TelegramWebhookView(APIView):
                             )
                         return
 
+                    stock_warnings = []
                     if order.status != Order.Status.PAID:
                         order.status = Order.Status.PAID
                         order.save(update_fields=["status"])
 
                         # СПИСЫВАЕМ ТОВАР В МАРКЕТПЛЕЙСЕ ТОЛЬКО ПОСЛЕ ПОДТВЕРЖДЕНИЯ ПРОДАВЦОМ В БОТЕ
-                        for item in order.items.select_related("variant").all():
+                        for item in order.items.select_related("variant", "variant__product").all():
                             if item.variant_id:
                                 locked_variant = ProductVariant.objects.select_for_update().filter(id=item.variant_id).first()
                                 if locked_variant:
+                                    if locked_variant.stock_quantity < item.quantity:
+                                        stock_warnings.append(
+                                            f"⚠️ Внимание: по товару «{locked_variant.product.name}» ({locked_variant.color}/{locked_variant.size}) на складе было {locked_variant.stock_quantity} шт., а в заказе {item.quantity} шт."
+                                        )
                                     locked_variant.stock_quantity = max(0, locked_variant.stock_quantity - item.quantity)
                                     locked_variant.save(update_fields=["stock_quantity"])
 
@@ -2645,7 +2671,7 @@ class TelegramWebhookView(APIView):
                     )
                 _send_telegram_message(
                     chat_id,
-                    _nt(caller_lang, 'pay_confirmed_seller_msg', order_id=order_id),
+                    _nt(caller_lang, 'pay_confirmed_seller_msg', order_id=order_id) + ('\n\n' + '\n'.join(stock_warnings) if stock_warnings else ''),
                     bot_token=curr_token
                 )
 

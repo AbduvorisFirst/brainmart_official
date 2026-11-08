@@ -563,6 +563,44 @@ def product_detail_view(request, product_id):
         except Exception:
             pass
 
+    from core.models import PromoCode
+    related_qs = (
+        Product.objects.filter(store=product.store, is_active=True)
+        .exclude(id=product.id)
+        .prefetch_related("variants", "images")
+        .order_by("-id")[:6]
+    )
+    related_products = []
+    for rp in related_qs:
+        rp_vars = [v for v in rp.variants.all() if v.in_stock and v.stock_quantity > 0]
+        if rp.variants.exists() and not rp_vars:
+            continue
+        fv = rp_vars[0] if rp_vars else None
+        img_u = _safe_img_url(fv.image) if (fv and fv.image) else _safe_img_url(rp.main_image)
+        if not img_u:
+            first_pi = rp.images.first()
+            if first_pi:
+                img_u = _safe_img_url(first_pi.image)
+        related_products.append({
+            "id": rp.id,
+            "variant_id": fv.id if fv else rp.id,
+            "stock_quantity": fv.stock_quantity if fv else 5,
+            "size": fv.size if fv else "",
+            "color": fv.color if fv else "",
+            "name": rp.name,
+            "base_price": int(fv.final_price if fv else rp.base_price),
+            "formatted_price": f"{int(fv.final_price if fv else rp.base_price):,}".replace(",", " "),
+            "main_image_url": img_u,
+            "store_id": rp.store_id,
+        })
+        if len(related_products) >= 4:
+            break
+
+    store_promo_codes = [
+        p for p in PromoCode.objects.filter(store=product.store, is_active=True).order_by("-id")[:3]
+        if p.is_valid_now(0)[0] or p.min_order_amount > 0
+    ]
+
     context = {
         "product": product,
         "active_store": active_store or product.store,
@@ -576,6 +614,8 @@ def product_detail_view(request, product_id):
         "average_rating": product.average_rating,
         "bot_username": effective_bot,
         "global_market_url": f"https://{base_domain}/{current_lang}/",
+        "related_products": related_products,
+        "store_promo_codes": store_promo_codes,
     }
     return render(request, "core/product_detail.html", context)
 
@@ -687,7 +727,7 @@ def _resolve_cart_variant(item):
                 product=p,
                 defaults={
                     "sku": f"{p.store.id}-{p.id}-{secrets.token_hex(3)}",
-                    "stock_quantity": 99,
+                    "stock_quantity": 10,
                     "price_override": p.base_price,
                     "color": color,
                     "size": size,
@@ -778,61 +818,89 @@ def create_telegram_order(request):
             transaction.set_rollback(True)
             return JsonResponse({"success": False, "error": "Магазин временно не принимает заказы."})
 
-        valid_items = []
+        # Группируем товары по магазинам (поддержка мульти-корзины на глобальном маркете)
+        store_Select = req_store_id
+        items_by_store = {}
         for item in cart_items:
             v = _resolve_cart_variant(item)
-            if not v:
+            if not v or not v.product or not v.product.store:
                 continue
-            if v.product.store_id != target_store.id:
+            if store_Select and v.product.store_id != target_store.id:
                 continue
-            valid_items.append((item, v))
+            items_by_store.setdefault(v.product.store, []).append((item, v))
 
-        if not valid_items:
+        if not items_by_store:
             transaction.set_rollback(True)
             return JsonResponse({"success": False, "error": "В корзине нет доступных товаров для данного магазина."})
 
-        aggregated_quantities = {}
-        for item, variant in valid_items:
-            try:
-                raw_q = item.get("quantity") if isinstance(item, dict) else 1
-                item_qty = max(1, min(999, int(raw_q or 1)))
-            except (ValueError, TypeError):
-                item_qty = 1
-            aggregated_quantities[variant.id] = aggregated_quantities.get(variant.id, 0) + item_qty
-
+        promo_code_raw = (data.get("promo_code") or "").strip().upper()
+        from core.models import PromoCode
         from core.working_views.views_branches import find_nearest_branch, _parse_coord
-        initial_branch, _dist_km = find_nearest_branch(target_store)
 
-        order = Order.objects.create(
-            store=target_store,
-            branch=initial_branch,
-            customer=customer,
-            status=Order.Status.PENDING_PAYMENT,
-            payment_method="click",
-            delivery_address="Уточняется в Telegram боте"
-        )
+        created_orders = []
+        for st_obj, valid_items in items_by_store.items():
+            aggregated_quantities = {}
+            for item, variant in valid_items:
+                try:
+                    raw_q = item.get("quantity") if isinstance(item, dict) else 1
+                    item_qty = max(1, min(999, int(raw_q or 1)))
+                except (ValueError, TypeError):
+                    item_qty = 1
+                aggregated_quantities[variant.id] = aggregated_quantities.get(variant.id, 0) + item_qty
 
-        for item, variant in valid_items:
-            try:
-                raw_q = item.get("quantity") if isinstance(item, dict) else 1
-                qty = max(1, min(999, int(raw_q or 1)))
-            except (ValueError, TypeError):
-                qty = 1
-            total_variant_qty = aggregated_quantities.get(variant.id, qty)
-            if qty > variant.stock_quantity or total_variant_qty > variant.stock_quantity:
-                transaction.set_rollback(True)
-                return JsonResponse({
-                    "success": False,
-                    "error": f"К сожалению, товара «{variant.product.name}» ({variant.color or '—'}/{variant.size or '—'}) осталось всего {variant.stock_quantity} шт. Пожалуйста, уменьшите количество."
-                })
-
-            OrderItem.objects.create(
-                order=order,
-                variant=variant,
-                quantity=qty,
-                price_at_purchase=variant.final_price
+            initial_branch, _dist_km = find_nearest_branch(st_obj)
+            st_order = Order.objects.create(
+                store=st_obj,
+                branch=initial_branch,
+                customer=customer,
+                status=Order.Status.PENDING_PAYMENT,
+                payment_method="click",
+                delivery_address="Уточняется в Telegram боте"
             )
-        order.recalculate_total()
+
+            for item, variant in valid_items:
+                try:
+                    raw_q = item.get("quantity") if isinstance(item, dict) else 1
+                    qty = max(1, min(999, int(raw_q or 1)))
+                except (ValueError, TypeError):
+                    qty = 1
+                total_variant_qty = aggregated_quantities.get(variant.id, qty)
+                if qty > variant.stock_quantity or total_variant_qty > variant.stock_quantity:
+                    transaction.set_rollback(True)
+                    return JsonResponse({
+                        "success": False,
+                        "error": f"К сожалению, товара «{variant.product.name}» ({variant.color or '—'}/{variant.size or '—'}) осталось всего {variant.stock_quantity} шт. Пожалуйста, уменьшите количество."
+                    })
+
+                OrderItem.objects.create(
+                    order=st_order,
+                    variant=variant,
+                    quantity=qty,
+                    price_at_purchase=variant.final_price
+                )
+
+            subtotal_val = sum(it.subtotal for it in st_order.items.all())
+            if promo_code_raw:
+                promo_obj = PromoCode.objects.select_for_update().filter(store=st_obj, code__iexact=promo_code_raw).first()
+                if promo_obj:
+                    ok_p, _ = promo_obj.is_valid_now(subtotal_val)
+                    if ok_p:
+                        disc_val = promo_obj.calculate_discount(subtotal_val)
+                        st_order.promo_code = promo_obj.code.upper()
+                        st_order.discount_amount = disc_val
+                        promo_obj.used_count += 1
+                        promo_obj.save(update_fields=["used_count"])
+
+            st_order.recalculate_total()
+            created_orders.append(st_order)
+
+        order = created_orders[0]
+        try:
+            from core.tasks import send_abandoned_order_reminder_task
+            for co in created_orders:
+                send_abandoned_order_reminder_task.apply_async((co.id,), countdown=1200)
+        except Exception:
+            pass
 
 
     # Запоминаем шаг и даем боту команду запросить локацию на выбранном клиентом языке
@@ -976,75 +1044,107 @@ def create_web_order(request):
                 transaction.set_rollback(True)
                 return JsonResponse({"success": False, "error": _("Магазин временно не принимает заказы.")})
 
-            # Фильтруем товары: включаем ТОЛЬКО позиции, принадлежащие целевому магазину!
-            valid_items = []
+            # Группируем товары по магазинам (если витрина конкретного магазина — только его товары; если глобальный маркет — создаём под-заказ для каждого магазина в корзине)
+            items_by_store = {}
             for item in cart_items:
                 v = _resolve_cart_variant(item)
-                if not v:
+                if not v or not v.product or not v.product.store:
                     continue
-                if v.product.store_id != target_store.id:
-                    # Чужой товар другого продавца из старой сессии корзины — изолируем!
+                if req_store_id and v.product.store_id != target_store.id:
                     continue
-                valid_items.append((item, v))
+                items_by_store.setdefault(v.product.store, []).append((item, v))
 
-            if not valid_items:
+            if not items_by_store:
                 transaction.set_rollback(True)
                 return JsonResponse({"success": False, "error": _("В корзине нет доступных товаров для данного магазина.")})
 
-            aggregated_quantities = {}
-            for item, variant in valid_items:
-                try:
-                    raw_q = item.get("quantity", 1) if isinstance(item, dict) else 1
-                    item_qty = max(1, min(999, int(raw_q or 1)))
-                except (ValueError, TypeError):
-                    item_qty = 1
-                aggregated_quantities[variant.id] = aggregated_quantities.get(variant.id, 0) + item_qty
-
+            promo_code_raw = (data.get("promo_code") or "").strip().upper()
+            from core.models import PromoCode
             from core.working_views.views_branches import find_nearest_branch
-            nearest_branch, _dist_km = find_nearest_branch(
-                target_store,
-                delivery_latitude=latitude,
-                delivery_longitude=longitude,
-                delivery_address=delivery_address
-            )
 
-            order = Order.objects.create(
-                store=target_store,
-                branch=nearest_branch,
-                customer=customer,
-                status=Order.Status.PENDING_PAYMENT,
-                delivery_address=delivery_address or "Локация по GPS",
-                delivery_latitude=_parse_coord(latitude),
-                delivery_longitude=_parse_coord(longitude),
-                delivery_landmark=delivery_landmark,
-                payment_method=payment_method,
-            )
+            created_orders = []
+            for st_obj, valid_items in items_by_store.items():
+                if not st_obj.is_active or st_obj.is_frozen_by_admin:
+                    continue
+                aggregated_quantities = {}
+                for item, variant in valid_items:
+                    try:
+                        raw_q = item.get("quantity", 1) if isinstance(item, dict) else 1
+                        item_qty = max(1, min(999, int(raw_q or 1)))
+                    except (ValueError, TypeError):
+                        item_qty = 1
+                    aggregated_quantities[variant.id] = aggregated_quantities.get(variant.id, 0) + item_qty
 
-            for item, variant in valid_items:
-                try:
-                    raw_q = item.get("quantity", 1) if isinstance(item, dict) else 1
-                    qty = max(1, min(999, int(raw_q or 1)))
-                except (ValueError, TypeError):
-                    qty = 1
-                total_variant_qty = aggregated_quantities.get(variant.id, qty)
-                if qty > variant.stock_quantity or total_variant_qty > variant.stock_quantity:
-                    transaction.set_rollback(True)
-                    return JsonResponse({
-                        "success": False,
-                        "error": _("К сожалению, товара «%(name)s» осталось только %(stock)d шт. Пожалуйста, измените количество в корзине.") % {
-                            "name": f"{variant.product.name} ({variant.color or '—'}/{variant.size or '—'})",
-                            "stock": variant.stock_quantity
-                        }
-                    })
-
-                OrderItem.objects.create(
-                    order=order,
-                    variant=variant,
-                    quantity=qty,
-                    price_at_purchase=variant.final_price
+                nearest_branch, _dist_km = find_nearest_branch(
+                    st_obj,
+                    delivery_latitude=latitude,
+                    delivery_longitude=longitude,
+                    delivery_address=delivery_address
                 )
 
-            order.recalculate_total()
+                st_order = Order.objects.create(
+                    store=st_obj,
+                    branch=nearest_branch,
+                    customer=customer,
+                    status=Order.Status.PENDING_PAYMENT,
+                    delivery_address=delivery_address or "Локация по GPS",
+                    delivery_latitude=_parse_coord(latitude),
+                    delivery_longitude=_parse_coord(longitude),
+                    delivery_landmark=delivery_landmark,
+                    payment_method=payment_method,
+                )
+
+                for item, variant in valid_items:
+                    try:
+                        raw_q = item.get("quantity", 1) if isinstance(item, dict) else 1
+                        qty = max(1, min(999, int(raw_q or 1)))
+                    except (ValueError, TypeError):
+                        qty = 1
+                    total_variant_qty = aggregated_quantities.get(variant.id, qty)
+                    if qty > variant.stock_quantity or total_variant_qty > variant.stock_quantity:
+                        transaction.set_rollback(True)
+                        return JsonResponse({
+                            "success": False,
+                            "error": _("К сожалению, товара «%(name)s» осталось только %(stock)d шт. Пожалуйста, измените количество в корзине.") % {
+                                "name": f"{variant.product.name} ({variant.color or '—'}/{variant.size or '—'})",
+                                "stock": variant.stock_quantity
+                            }
+                        })
+
+                    OrderItem.objects.create(
+                        order=st_order,
+                        variant=variant,
+                        quantity=qty,
+                        price_at_purchase=variant.final_price
+                    )
+
+                subtotal_val = sum(it.subtotal for it in st_order.items.all())
+                if promo_code_raw:
+                    promo_obj = PromoCode.objects.select_for_update().filter(store=st_obj, code__iexact=promo_code_raw).first()
+                    if promo_obj:
+                        ok_p, _ = promo_obj.is_valid_now(subtotal_val)
+                        if ok_p:
+                            disc_val = promo_obj.calculate_discount(subtotal_val)
+                            st_order.promo_code = promo_obj.code.upper()
+                            st_order.discount_amount = disc_val
+                            promo_obj.used_count += 1
+                            promo_obj.save(update_fields=["used_count"])
+
+                st_order.recalculate_total()
+                created_orders.append(st_order)
+
+            if not created_orders:
+                transaction.set_rollback(True)
+                return JsonResponse({"success": False, "error": _("Магазин временно не принимает заказы.")})
+
+            order = created_orders[0]
+            target_store = order.store
+            try:
+                from core.tasks import send_abandoned_order_reminder_task
+                for co in created_orders:
+                    send_abandoned_order_reminder_task.apply_async((co.id,), countdown=1200)
+            except Exception:
+                pass
 
         # Магазин не беспокоим, пока покупатель не перевел деньги и не прикрепил фото чека!
         if target_store and target_store.telegram_bot_username and target_store.telegram_bot_active:
@@ -1288,3 +1388,53 @@ def web_ai_chat_view(request):
     )
 
     return JsonResponse(result)
+
+
+
+@csrf_exempt
+def validate_promo_code_api(request):
+    """Проверяет промокод продавца для корзины и возвращает точную сумму скидки."""
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "Only POST allowed"}, status=405)
+    try:
+        data = json.loads(request.body) if request.body else {}
+    except Exception:
+        return JsonResponse({"success": False, "error": "Неверный формат запроса"}, status=400)
+
+    code = (data.get("code") or "").strip().upper()
+    subtotal = data.get("subtotal") or 0
+    store_id = data.get("store_id")
+    if not code:
+        return JsonResponse({"success": False, "error": "Введите промокод"})
+
+    from core.models import PromoCode
+    qs = PromoCode.objects.filter(code__iexact=code, is_active=True)
+    if store_id:
+        try:
+            qs = qs.filter(store_id=int(store_id))
+        except (ValueError, TypeError):
+            pass
+    else:
+        st = resolve_store_from_request(request)
+        if st:
+            qs = qs.filter(store=st)
+
+    promo = qs.first()
+    if not promo:
+        return JsonResponse({"success": False, "error": "Промокод не найден или не действует в этом магазине"})
+
+    is_ok, err_msg = promo.is_valid_now(subtotal)
+    if not is_ok:
+        return JsonResponse({"success": False, "error": err_msg})
+
+    discount_amount = promo.calculate_discount(subtotal)
+    label = f"-{int(promo.discount_value)}%" if promo.discount_type == PromoCode.DiscountType.PERCENT else f"-{int(promo.discount_value):,} сум"
+    return JsonResponse({
+        "success": True,
+        "code": promo.code.upper(),
+        "discount_type": promo.discount_type,
+        "discount_value": float(promo.discount_value),
+        "discount_amount": int(discount_amount),
+        "label": label,
+        "message": f"Промокод {promo.code.upper()} ({label}) применён!"
+    })

@@ -1071,6 +1071,8 @@ class Order(models.Model):
     delivery_longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     delivery_landmark = models.CharField(max_length=300, blank=True, default="", verbose_name="Ориентир для такси/курьера")
     total_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    promo_code = models.CharField(max_length=50, blank=True, default="", verbose_name="Применённый промокод")
+    discount_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0, verbose_name="Сумма скидки по промокоду")
     payment_method = models.CharField(
         max_length=20, blank=True, help_text="click / payme"
     )
@@ -1133,14 +1135,21 @@ class Order(models.Model):
     def __str__(self):
         return f"Заказ #{self.id} — {self.store.name}"
     def recalculate_total(self):
-        """Пересчитывает total_price. Продавец получает 100% напрямую на карту (0% комиссии)."""
+        """Пересчитывает total_price с учётом скидки промокода продавца. Продавец получает 100% напрямую на карту."""
         from decimal import Decimal
-        total = Decimal(str(sum(item.subtotal for item in self.items.all())))
+        subtotal = Decimal(str(sum(item.subtotal for item in self.items.all())))
+        disc = Decimal(str(self.discount_amount or 0))
+        if disc < 0:
+            disc = Decimal("0.00")
+        if disc > subtotal:
+            disc = subtotal
+        total = max(Decimal("0.00"), subtotal - disc)
+        self.discount_amount = disc
         self.total_price = total
         self.processing_percent = Decimal("0.00")
         self.processing_amount = Decimal("0.00")
         self.seller_amount = total
-        self.save(update_fields=["total_price", "processing_percent", "processing_amount", "seller_amount"])
+        self.save(update_fields=["total_price", "discount_amount", "processing_percent", "processing_amount", "seller_amount"])
 
 
     @property
@@ -1818,3 +1827,66 @@ def auto_delete_old_store_logo(sender, instance, **kwargs):
             old_obj.logo.storage.delete(old_obj.logo.name)
     except Exception:
         pass
+
+
+class PromoCode(models.Model):
+    """Промокод, который создаёт сам продавец в своём Dashboard для своего магазина."""
+    class DiscountType(models.TextChoices):
+        PERCENT = "percent", "Процент (%)"
+        FIXED = "fixed", "Фиксированная сумма (сум)"
+
+    store = models.ForeignKey(
+        Store, on_delete=models.CASCADE, related_name="promo_codes", verbose_name="Магазин"
+    )
+    code = models.CharField(max_length=50, db_index=True, verbose_name="Код промокода (напр. OSEN20)")
+    discount_type = models.CharField(
+        max_length=15, choices=DiscountType.choices, default=DiscountType.PERCENT, verbose_name="Тип скидки"
+    )
+    discount_value = models.DecimalField(
+        max_digits=12, decimal_places=2, default=10, verbose_name="Размер скидки (% или сум)"
+    )
+    min_order_amount = models.DecimalField(
+        max_digits=12, decimal_places=2, default=0, verbose_name="Мин. сумма заказа (сум)"
+    )
+    max_uses = models.PositiveIntegerField(
+        default=0, verbose_name="Лимит активаций (0 = без лимита)"
+    )
+    used_count = models.PositiveIntegerField(default=0, verbose_name="Использовано раз")
+    is_active = models.BooleanField(default=True, verbose_name="Активен")
+    expires_at = models.DateTimeField(null=True, blank=True, verbose_name="Действует до")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+
+    class Meta:
+        verbose_name = "Промокод продавца"
+        verbose_name_plural = "Промокоды продавцов"
+        unique_together = ("store", "code")
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        val = f"{int(self.discount_value)}%" if self.discount_type == self.DiscountType.PERCENT else f"{int(self.discount_value):,} сум"
+        return f"{self.code} (-{val}) [{self.store.name}]"
+
+    def is_valid_now(self, subtotal=0) -> tuple[bool, str]:
+        from django.utils import timezone
+        from decimal import Decimal
+        if not self.is_active:
+            return False, "Промокод отключён продавцом."
+        if self.expires_at and timezone.now() > self.expires_at:
+            return False, "Срок действия промокода истёк."
+        if self.max_uses > 0 and self.used_count >= self.max_uses:
+            return False, "Лимит активаций этого промокода исчерпан."
+        if Decimal(str(subtotal or 0)) < self.min_order_amount:
+            return False, f"Промокод действует при заказе от {int(self.min_order_amount):,} сум."
+        return True, ""
+
+    def calculate_discount(self, subtotal) -> int:
+        from decimal import Decimal
+        sub = Decimal(str(subtotal or 0))
+        if sub <= 0:
+            return 0
+        if self.discount_type == self.DiscountType.PERCENT:
+            pct = min(Decimal("95"), max(Decimal("0"), self.discount_value))
+            disc = (sub * pct) / Decimal("100")
+        else:
+            disc = self.discount_value
+        return int(min(sub, max(Decimal("0"), disc)))

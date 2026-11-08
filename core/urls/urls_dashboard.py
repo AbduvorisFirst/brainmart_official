@@ -67,6 +67,7 @@ urlpatterns = [
     path('customers/', views_dashboard.customers_view, name='seller-customers'),
     path('waitlist/', views_dashboard.seller_waitlist_view, name='seller-waitlist'),
     path('broadcasts/', views_dashboard.seller_broadcasts_view, name='seller-broadcasts'),
+    path('promocodes/', views_dashboard.seller_promocodes_view, name='seller-promocodes'),
     path('api/ai-generate-broadcast/', views_dashboard.ai_generate_broadcast_view, name='api-ai-generate-broadcast'),
     path('api/ai-generate-description/', views_dashboard.ai_generate_description_view, name='api-ai-generate-description'),
     path('api/set-theme/', views_dashboard.set_store_theme_view, name='api-set-store-theme'),

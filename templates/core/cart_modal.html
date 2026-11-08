@@ -408,18 +408,26 @@
                 <span id="btn-submit-order-text">{% trans "Перейти к оформлению" %} ➔</span>
             </button>
 
-            <!-- Промокод блок (Image 2 Promo / Voucher Style) -->
-            <div class="cart-promo-card" style="background: var(--input-bg, rgba(255,255,255,0.04)); border: 1px solid var(--border, rgba(255,255,255,0.1)); border-radius: 16px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; margin-top: 14px; gap: 10px;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <span style="font-size: 26px;">🎁</span>
-                    <div>
-                        <div style="font-size: 13.5px; font-weight: 800; color: var(--text-main);">{% trans "Скидка 10%" %}</div>
-                        <div style="font-size: 11.5px; color: var(--text-muted);">{% trans "Промокод:" %} <b style="color: var(--primary);">WELCOME10</b></div>
-                    </div>
+            <!-- Промокод продавца (проверяется на сервере и сохраняется в заказе) -->
+            <div class="cart-promo-card" style="background: var(--input-bg, rgba(255,255,255,0.04)); border: 1px solid var(--border, rgba(255,255,255,0.1)); border-radius: 16px; padding: 12px 14px; margin-top: 14px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 20px;">🎟️</span>
+                    <input type="text" id="cart-promo-input" placeholder="{% trans 'Промокод продавца' %}" style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border, rgba(255,255,255,0.12)); color: var(--text-main, #FFF); border-radius: 10px; padding: 8px 12px; font-size: 13px; font-weight: 700; text-transform: uppercase; outline: none; margin: 0;">
+                    <button type="button" id="btn-apply-promo" onclick="applyPromoCode()" style="background: var(--primary, #7000FF); color: #FFFFFF; border: none; padding: 9px 16px; border-radius: 10px; font-size: 12.5px; font-weight: 700; cursor: pointer; white-space: nowrap;">
+                        {% trans "Применить" %}
+                    </button>
                 </div>
-                <button type="button" id="btn-apply-promo" onclick="applyPromoCode()" style="background: var(--primary); color: #FFFFFF; border: none; padding: 8px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">
-                    {% trans "Применить" %}
-                </button>
+                <div id="cart-promo-status-msg" style="font-size: 11.5px; margin-top: 6px; display: none;"></div>
+                {% if store_promo_codes %}
+                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 8px;">
+                    <span style="font-size: 11px; color: var(--text-muted);">🎁 {% trans "Купоны магазина:" %}</span>
+                    {% for sp in store_promo_codes %}
+                        <button type="button" onclick="document.getElementById('cart-promo-input').value='{{ sp.code }}'; applyPromoCode();" style="background: color-mix(in srgb, var(--primary, #7000FF) 15%, transparent); border: 1px dashed var(--primary, #7000FF); color: var(--text-main, #FFF); border-radius: 8px; padding: 2px 8px; font-size: 11px; font-weight: 800; cursor: pointer;">
+                            {{ sp.code }} ({% if sp.discount_type == 'percent' %}-{{ sp.discount_value|floatformat:0 }}%{% else %}-{{ sp.discount_value|floatformat:0 }} сум{% endif %})
+                        </button>
+                    {% endfor %}
+                </div>
+                {% endif %}
             </div>
             
             <p style="text-align: center; margin: 12px 0 0; font-size: 11px; color: var(--text-muted);">
@@ -589,18 +597,71 @@
     }
 
     
-    let cartPromoDiscountPercent = 0;
+    let appliedPromoCode = "";
+    let appliedPromoType = "";
+    let appliedPromoValue = 0;
+    let appliedPromoDiscountAmount = 0;
 
     function applyPromoCode() {
-        if (cartPromoDiscountPercent > 0) return;
-        cartPromoDiscountPercent = 10;
+        const inp = document.getElementById('cart-promo-input');
+        const msgEl = document.getElementById('cart-promo-status-msg');
         const btn = document.getElementById('btn-apply-promo');
-        if (btn) {
-            btn.innerText = '✓ {% filter escapejs %}{% trans "Применен" %}{% endfilter %}';
-            btn.style.background = '#10B981';
-            btn.style.cursor = 'default';
-        }
-        renderCartItemsList();
+        const code = inp ? inp.value.trim().toUpperCase() : '';
+        if (!code) return;
+
+        const cart = getCart();
+        let subtotal = 0;
+        cart.forEach(item => {
+            subtotal += parseInt(item.price || 0, 10) * parseInt(item.quantity || item.qty || 1, 10);
+        });
+
+        let targetStoreId = window.CURRENT_STORE_ID || (cart[0] ? cart[0].store_id : null);
+        if (btn) btn.innerText = '⏳';
+
+        fetch("{% url 'validate-promo-code' %}", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                code: code,
+                subtotal: subtotal,
+                store_id: targetStoreId
+            })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                appliedPromoCode = data.code;
+                appliedPromoType = data.discount_type;
+                appliedPromoValue = data.discount_value;
+                appliedPromoDiscountAmount = data.discount_amount;
+                if (btn) {
+                    btn.innerText = '✓ ' + data.code;
+                    btn.style.background = '#10B981';
+                }
+                if (msgEl) {
+                    msgEl.style.display = 'block';
+                    msgEl.style.color = '#10B981';
+                    msgEl.innerText = '✅ ' + data.message;
+                }
+                renderCartItemsList();
+            } else {
+                appliedPromoCode = "";
+                appliedPromoDiscountAmount = 0;
+                if (btn) {
+                    btn.innerText = '{% filter escapejs %}{% trans "Применить" %}{% endfilter %}';
+                    btn.style.background = 'var(--primary, #7000FF)';
+                }
+                if (msgEl) {
+                    msgEl.style.display = 'block';
+                    msgEl.style.color = '#EF4444';
+                    msgEl.innerText = '❌ ' + (data.error || 'Промокод недействителен');
+                }
+                renderCartItemsList();
+            }
+        })
+        .catch(() => {
+            if (btn) btn.innerText = '{% filter escapejs %}{% trans "Применить" %}{% endfilter %}';
+        });
     }
 
     function proceedOrSubmitOrder() {
@@ -707,11 +768,16 @@
         const discountRow = document.getElementById('cart-discount-row');
         const discountValEl = document.getElementById('cart-summary-discount');
 
-        if (cartPromoDiscountPercent > 0) {
-            const discountAmt = Math.round(subtotal * (cartPromoDiscountPercent / 100));
+        if (appliedPromoCode && appliedPromoValue > 0) {
+            let discountAmt = appliedPromoDiscountAmount;
+            if (appliedPromoType === 'percent') {
+                discountAmt = Math.round(subtotal * (appliedPromoValue / 100));
+            } else {
+                discountAmt = Math.min(subtotal, Math.round(appliedPromoValue));
+            }
             finalTotal = Math.max(0, subtotal - discountAmt);
             if (discountRow) discountRow.style.display = 'flex';
-            if (discountValEl) discountValEl.innerText = `-${discountAmt.toLocaleString()} ${I18N_CART.sum}`;
+            if (discountValEl) discountValEl.innerText = `-${discountAmt.toLocaleString()} ${I18N_CART.sum} (${appliedPromoCode})`;
         } else {
             if (discountRow) discountRow.style.display = 'none';
         }
@@ -846,6 +912,7 @@
             body: JSON.stringify({
                 store_id: window.CURRENT_STORE_ID || null,
                 cart: cart,
+                promo_code: appliedPromoCode || "",
                 full_name: name || "Покупатель",
                 phone_number: phone,
                 delivery_address: address,
@@ -919,6 +986,7 @@
                 body: JSON.stringify({
                     store_id: window.CURRENT_STORE_ID || null,
                     cart: cart,
+                    promo_code: appliedPromoCode || "",
                     chat_id: user.id,
                     username: user.username || "",
                     first_name: user.first_name || "",
