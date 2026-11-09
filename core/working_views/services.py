@@ -22,7 +22,7 @@ from .telegram_bot import build_telegram_deep_link
 
 GEMINI_API_URL = (
     "https://generativelanguage.googleapis.com/v1beta/models/"
-    "gemini-flash-latest:generateContent"
+    "gemini-flash-lite-latest:generateContent"
 )
 
 _ai_session = requests.Session()
@@ -143,6 +143,8 @@ def find_matching_variants(store: Store, query_text: str):
         if score > 0:
             scored.append((score, variant))
 
+    if not scored and any(k in query_low for k in ("одежд", "вещ", "товар", "kiyim", "покаж", "купить", "заказ", "хит", "новинк", "модел", "кроссов", "худи", "куртк", "футболк")):
+        return variants[:4]
     scored.sort(key=lambda x: (-x[0], -x[1].stock_quantity))
     return [v for _, v in scored]
 
@@ -151,7 +153,7 @@ def build_system_instruction(store: Store) -> str:
     """
     Системная инструкция — "характер" ИИ-агента и полная информация о магазине.
     """
-    categories = list(store.categories.values_list("name", flat=True)[:12])
+    categories = list(store.custom_categories.values_list("name", flat=True)[:12])
     cats_str = ", ".join(categories) if categories else "Стильная одежда, обувь и аксессуары"
     store_desc = getattr(store, "hero_subtitle", "") or getattr(store, "tagline", "") or "Премиальное качество, быстрая доставка и удобный заказ в 1 клик."
 
@@ -338,9 +340,10 @@ def ask_gemini(
     contents = (history or []) + [{"role": "user", "parts": user_parts}]
 
     models_to_try = [
-        "gemini-2.5-flash",
-        "gemini-2.0-flash",
-        "gemini-flash-latest",
+        "gemini-flash-lite-latest",
+        "gemini-3.5-flash-lite",
+        "gemini-3-flash-preview",
+        "gemini-3.1-flash-lite",
     ]
 
     for model_name in models_to_try:
@@ -546,6 +549,11 @@ def handle_incoming_telegram_message(
         )
 
     cust_lang = getattr(customer, "language", "uz") or "uz"
+    if message_text:
+        if re.search(r"[а-яА-ЯёЁ]", message_text):
+            cust_lang = "ru"
+        elif any(uz_w in message_text.lower() for uz_w in ("salom", "kerak", "qora", "kiyim", "qancha", "bormi", "razmer")):
+            cust_lang = "uz"
 
     # Загружаем фото для Gemini Vision, если клиент прислал картинку
     image_b64 = None
@@ -626,7 +634,7 @@ def handle_incoming_telegram_message(
         clean_text = message_text.strip().lower().rstrip("!?.,")
         simple_greetings = {"salom", "assalom", "assalomu alaykum", "salomlar", "привет", "здравствуйте", "добрый день", "добрый вечер", "hello", "hi", "hey"}
         if clean_text in simple_greetings:
-            cats = list(store.categories.values_list("name", flat=True)[:6])
+            cats = list(store.custom_categories.values_list("name", flat=True)[:6])
             cats_text = ", ".join(cats) if cats else ("kiyim-kechak va aksessuarlar" if cust_lang == "uz" else "одежда, обувь и аксессуары")
             if cust_lang == "uz":
                 reply = (
@@ -723,14 +731,14 @@ def handle_incoming_telegram_message(
 
     # 6. Парсинг тегов [MATCH_ID: ...] из ответа Gemini
     match_ids = []
-    tags = re.findall(r"\[MATCH_ID:\s*([\d\s,]+)\]", ai_reply_text, re.IGNORECASE)
+    tags = re.findall(r"\[(?:MATCH_)?ID:\s*([\d\s,]+)\]", ai_reply_text, re.IGNORECASE)
     for t in tags:
         for part in re.split(r"[,\s]+", t):
             if part.isdigit():
                 match_ids.append(int(part))
 
     # Удаляем служебный тег перед отправкой клиенту
-    ai_reply_text = re.sub(r"\[MATCH_ID:\s*[\d\s,]+\]", "", ai_reply_text, flags=re.IGNORECASE).strip()
+    ai_reply_text = re.sub(r"\[(?:MATCH_)?ID:\s*[\d\s,]+\]", "", ai_reply_text, flags=re.IGNORECASE).strip()
 
     selected_for_photo = []
     if match_ids:
@@ -1192,7 +1200,7 @@ def semantic_ai_catalog_search(query_text: str, store: Store | None = None) -> d
     user_prompt = f"Запрос покупателя: '{query_text}'\nКаталог товаров:\n{json.dumps(catalog_summary, ensure_ascii=False)}"
 
     try:
-        model_name = "gemini-2.5-flash"
+        model_name = "gemini-flash-lite-latest"
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent"
         res = _ai_session.post(
             url,
@@ -1273,7 +1281,7 @@ def generate_ai_broadcast_copy(prompt: str, tone: str = "hype", store_name: str 
     )
 
     try:
-        model_name = "gemini-2.5-flash"
+        model_name = "gemini-flash-lite-latest"
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent"
         res = _ai_session.post(
             url,
@@ -1322,7 +1330,7 @@ def generate_ai_product_description(name: str, category: str = "", features: str
     user_prompt = f"Товар: '{name}', Категория: '{category}', Особенности/детали: '{features}'"
 
     try:
-        model_name = "gemini-2.5-flash"
+        model_name = "gemini-flash-lite-latest"
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent"
         res = _ai_session.post(
             url,
@@ -1468,15 +1476,22 @@ def handle_web_ai_chat(
         f"{product_context}"
     )
 
-    matching_variants = list(ProductVariant.objects.filter(
-        product__store=store, product__is_active=True, stock_quantity__gt=0
-    ).select_related("product")[:6])
+    user_query = message_text.strip() if message_text else "Здравствуйте! Расскажите об этом товаре и с чем его сочетать."
+
+    matching_variants = find_matching_variants(store, user_query)
+    if not matching_variants:
+        matching_variants = list(ProductVariant.objects.filter(
+            product__store=store, product__is_active=True, stock_quantity__gt=0
+        ).select_related("product", "product__category").prefetch_related("product__images")[:6])
+    # Если в текущем магазине нет товаров (например, глобальный маркет), ищем по всем активным магазинам
+    if not matching_variants:
+        matching_variants = list(ProductVariant.objects.filter(
+            product__is_active=True, product__store__is_active=True, stock_quantity__gt=0
+        ).select_related("product", "product__store", "product__category").prefetch_related("product__images")[:8])
 
     stock_context = build_stock_context(matching_variants)
-    catalog_summary = build_full_store_catalog_context(store, max_items=8)
+    catalog_summary = build_full_store_catalog_context(store, max_items=12)
     stock_context = f"{stock_context}\n\nАссортимент магазина:\n{catalog_summary}"
-
-    user_query = message_text.strip() if message_text else "Здравствуйте! Расскажите об этом товаре и с чем его сочетать."
 
     ai_reply = ask_gemini(
         system_instruction=system_inst,
@@ -1487,36 +1502,44 @@ def handle_web_ai_chat(
     )
 
     match_ids = []
-    tags = re.findall(r"\[MATCH_ID:\s*([\d\s,]+)\]", ai_reply, re.IGNORECASE)
+    tags = re.findall(r"\[(?:MATCH_)?ID:\s*([\d\s,]+)\]", ai_reply, re.IGNORECASE)
     for t in tags:
         for part in re.split(r"[,\s]+", t):
             if part.isdigit():
                 match_ids.append(int(part))
 
-    clean_reply = re.sub(r"\[MATCH_ID:\s*[\d\s,]+\]", "", ai_reply, flags=re.IGNORECASE).strip()
+    clean_reply = re.sub(r"\[(?:MATCH_)?ID:\s*[\d\s,]+\]", "", ai_reply, flags=re.IGNORECASE).strip()
 
     matched_products_data = []
-    recommended_variants = ProductVariant.objects.filter(
-        id__in=match_ids, product__store=store
-    ).select_related("product")[:4] if match_ids else matching_variants[:2]
+    if match_ids:
+        recommended_variants = list(ProductVariant.objects.filter(
+            id__in=match_ids, product__is_active=True, stock_quantity__gt=0
+        ).select_related("product", "product__store").prefetch_related("product__images")[:2])
+    else:
+        direct_matches = find_matching_variants(store, user_query)
+        recommended_variants = direct_matches[:1] if direct_matches else []
 
     for v in recommended_variants:
+        best_photo = get_best_variant_photo(v, user_query)
         img_url = ""
-        if v.image:
-            img_url = v.image.url
-        elif v.product.main_image:
-            img_url = v.product.main_image.url
+        if best_photo:
+            try:
+                img_url = best_photo.url
+            except Exception:
+                img_url = ""
 
         matched_products_data.append({
             "variant_id": v.id,
             "product_id": v.product.id,
+            "store_id": v.product.store_id,
+            "stock_quantity": v.stock_quantity,
             "name": v.product.name,
             "color": v.color or "",
             "size": v.size or "",
             "price": int(v.final_price),
             "formatted_price": f"{int(v.final_price):,} сум".replace(",", " "),
             "image_url": img_url,
-            "product_url": f"/{lang}/product/{v.product.id}/"
+            "product_url": f"/{lang}/product/{v.product.id}/" + (f"?color={v.color}" if v.color else "")
         })
 
     return {
@@ -1617,9 +1640,10 @@ def generate_ai_vision_daily_report(store: Store, target_date=None, trigger_tele
     api_key = getattr(settings, "GEMINI_API_KEY", os.environ.get("GEMINI_API_KEY"))
 
     models_to_try = [
-        "gemini-2.5-flash",
-        "gemini-2.0-flash",
-        "gemini-flash-latest",
+        "gemini-flash-lite-latest",
+        "gemini-3.5-flash-lite",
+        "gemini-3-flash-preview",
+        "gemini-3.1-flash-lite",
     ]
 
     for model_name in models_to_try:

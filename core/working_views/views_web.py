@@ -188,7 +188,30 @@ def catalog_view(request):
         products_qs = products_qs.filter(store=current_store)
 
     if category_id and str(category_id).isdigit():
-        products_qs = products_qs.filter(category_id=int(category_id))
+        cat_id_int = int(category_id)
+        sel_cat = Category.objects.filter(id=cat_id_int).first()
+        if sel_cat and sel_cat.store_id is None and not current_store:
+            cname = (sel_cat.name or "").lower()
+            niche_q = Q(category_id=cat_id_int) | Q(store__category_id=cat_id_int)
+            if "авто" in cname:
+                niche_q |= Q(store__niche="auto")
+            elif "одежд" in cname or "обув" in cname:
+                niche_q |= Q(store__niche="clothes")
+            elif "продукт" in cname or "питан" in cname:
+                niche_q |= Q(store__niche="food")
+            elif "электрон" in cname or "техник" in cname:
+                niche_q |= Q(store__niche="electronics")
+            elif "мебел" in cname or "дом" in cname:
+                niche_q |= Q(store__niche="home")
+            elif "красот" in cname or "здоров" in cname:
+                niche_q |= Q(store__niche="beauty")
+            elif "детск" in cname or "мальчик" in cname or "девоч" in cname:
+                niche_q |= Q(store__niche="kids")
+            elif "спорт" in cname:
+                niche_q |= Q(store__niche="sport")
+            products_qs = products_qs.filter(niche_q)
+        else:
+            products_qs = products_qs.filter(category_id=cat_id_int)
 
     if search_query:
         import re
@@ -201,8 +224,15 @@ def catalog_view(request):
             Q(store__name__icontains=q_clean) |
             Q(variants__color__icontains=q_clean)
         )
+        from core.working_views.services import _extract_query_colors, COLOR_SYNONYMS
+        matched_color_groups = _extract_query_colors(q_clean)
+        for grp in matched_color_groups:
+            for syn in COLOR_SYNONYMS.get(grp, []):
+                q_filter |= Q(variants__color__icontains=syn) | Q(images__color__icontains=syn) | Q(name__icontains=syn)
         for w in words:
-            q_filter |= Q(name__icontains=w) | Q(description__icontains=w) | Q(variants__color__icontains=w)
+            if w.lower() not in {"одежда", "одежду", "вещь", "вещи", "товар", "товары", "нужна", "нужен", "купить", "kiyim"}:
+                st = w[:4] if len(w) >= 5 else w
+                q_filter |= Q(name__icontains=st) | Q(description__icontains=st) | Q(variants__color__icontains=st) | Q(category__name__icontains=st)
         products_qs = products_qs.filter(q_filter).distinct()
         if is_ai_search:
             try:
@@ -387,20 +417,22 @@ def catalog_view(request):
         "Аксессуары": "/static/img/categories/accessories.jpg",
     }
     for cat in categories:
-        img_url = getattr(cat, "effective_image_url", "")
-        if not img_url and cat.name in cat_fallbacks:
-            img_url = cat_fallbacks[cat.name]
-        if not img_url:
-            cat_prod = Product.objects.filter(category=cat, is_active=True)
-            if current_store:
-                cat_prod = cat_prod.filter(store=current_store)
-            sample = cat_prod.exclude(main_image="").exclude(main_image__isnull=True).first()
+        img_url = ""
+        if cat.image:
+            try:
+                img_url = cat.image.url
+            except Exception:
+                pass
+        if not img_url and current_store:
+            sample = Product.objects.filter(category=cat, store=current_store, is_active=True).exclude(main_image="").exclude(main_image__isnull=True).first()
             if sample and sample.main_image:
                 try:
                     img_url = sample.main_image.url
                 except Exception:
                     pass
-        cat.sample_image = img_url or cat_fallbacks.get(cat.name, "/static/img/categories/boys.jpg")
+        if not img_url:
+            img_url = getattr(cat, "effective_image_url", "") or cat_fallbacks.get(cat.name, "/static/img/categories/boys.jpg")
+        cat.sample_image = img_url
         category_list.append(cat)
 
     effective_bot = current_store.telegram_bot_username if (current_store and current_store.telegram_bot_username and current_store.telegram_bot_active) else settings.TELEGRAM_BOT_USERNAME

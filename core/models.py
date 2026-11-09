@@ -791,7 +791,51 @@ class Category(models.Model):
                 pass
         if self.image_url_fallback:
             return self.image_url_fallback
-        return ""
+
+        name_low = (self.name or "").lower()
+        keyword_fallbacks = [
+            (["авто", "шин", "диск", "мотор", "масл", "auto", "car", "avto"], "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80"),
+            (["одежд", "мода", "стил", "костюм", "мужск", "kiyim", "fashion", "clothes"], "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=800&q=80"),
+            (["мальчик", "o'g'il", "ogil", "boys"], "/static/img/categories/boys.jpg"),
+            (["девоч", "qiz", "girls"], "/static/img/categories/girls.jpg"),
+            (["обув", "кроссов", "туфл", "ботин", "кед", "oyoq", "shoes", "sneaker"], "/static/img/categories/shoes.jpg"),
+            (["аксессуар", "сумк", "часы", "очки", "ремн", "украш", "aksessuar", "bag", "watch"], "/static/img/categories/accessories.jpg"),
+            (["продукт", "питан", "еда", "напит", "сладост", "кофе", "чай", "food", "oziq"], "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80"),
+            (["электрон", "техник", "гаджет", "телефон", "смартфон", "ноутбук", "компьютер", "наушник", "apple", "tech", "elektron"], "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=800&q=80"),
+            (["мебел", "дом", "интерьер", "декор", "посуд", "текстил", "home", "mebel", "uy"], "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80"),
+            (["красот", "здоров", "косметик", "парфюм", "уход", "макияж", "beauty", "go'zallik"], "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80"),
+            (["детск", "ребен", "малыш", "игруш", "kids", "baby", "bolalar"], "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?auto=format&fit=crop&w=800&q=80"),
+            (["спорт", "отдых", "фитнес", "тренаж", "туризм", "sport"], "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=800&q=80"),
+            (["худи", "толстов", "свитшот", "hoodie", "sweatshirt"], "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=800&q=80"),
+            (["куртк", "пальто", "пуховик", "ветровк", "верхн", "jacket", "coat"], "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&q=80"),
+            (["плать", "юбк", "блуз", "женск", "dress", "ayol"], "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=800&q=80"),
+            (["брюк", "джинс", "штан", "шорт", "pants", "jeans", "shim"], "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=800&q=80"),
+            (["футболк", "поло", "рубаш", "t-shirt", "shirt", "futbolka"], "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=800&q=80"),
+            (["одежд", "мода", "стил", "костюм", "мужск", "kiyim", "fashion", "clothes"], "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=800&q=80"),
+        ]
+
+        # Если это категория конкретного магазина, сначала пробуем взять реальное фото товара из этой категории
+        if self.pk and self.store_id:
+            try:
+                prod_with_img = self.products.filter(is_active=True).exclude(main_image="").exclude(main_image__isnull=True).first()
+                if prod_with_img and prod_with_img.main_image:
+                    return prod_with_img.main_image.url
+            except Exception:
+                pass
+
+        for keywords, url in keyword_fallbacks:
+            if any(k in name_low for k in keywords):
+                return url
+
+        if self.pk:
+            try:
+                prod_with_img = self.products.filter(is_active=True).exclude(main_image="").exclude(main_image__isnull=True).first()
+                if prod_with_img and prod_with_img.main_image:
+                    return prod_with_img.main_image.url
+            except Exception:
+                pass
+
+        return "/static/img/categories/boys.jpg"
 
 
 class Product(models.Model):

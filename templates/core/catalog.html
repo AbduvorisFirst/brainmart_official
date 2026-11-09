@@ -1667,12 +1667,14 @@ body {
                 {% for cat in categories %}
                     <a href="?{% if current_store_id %}store_id={{ current_store_id }}&{% endif %}category={{ cat.id }}{% if search_query %}&q={{ search_query }}{% endif %}" class="bm-cat-card {% if selected_category_id == cat.id %}active{% endif %}">
                         <div class="bm-cat-thumb">
-                            {% if cat.effective_image_url %}
-                                <img src="{{ cat.effective_image_url }}" alt="{{ cat.display_name }}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            {% with cat_img=cat.sample_image|default:cat.effective_image_url %}
+                            {% if cat_img %}
+                                <img src="{{ cat_img }}" alt="{{ cat.display_name }}" loading="lazy" onerror="this.onerror=null; this.src='/static/img/categories/boys.jpg';">
                                 <span class="bm-cat-thumb-placeholder" style="display: none;">{{ cat.icon|default:'✦' }}</span>
                             {% else %}
-                                <span class="bm-cat-thumb-placeholder">{{ cat.icon|default:'✦' }}</span>
+                                <img src="/static/img/categories/boys.jpg" alt="{{ cat.display_name }}" loading="lazy">
                             {% endif %}
+                            {% endwith %}
                         </div>
                         <div class="bm-cat-meta">
                             <span class="bm-cat-name">{{ cat.display_name }}</span>

@@ -37,6 +37,7 @@ router.register("orders", OrderViewSet, basename="order")
 
 urlpatterns = [
     path('ai/chat/', views_web.web_ai_chat_view, name='api-ai-chat'),
+    path('promo/validate/', views_web.validate_promo_code_api, name='api-validate-promo-code'),
     path("", include(router.urls)),
     # Глобальный вебхук платформы
     path(

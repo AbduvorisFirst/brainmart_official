@@ -531,12 +531,31 @@
                 const safeUrl = escapeHtml(prod.product_url || '#');
                 const card = document.createElement('div');
                 card.className = 'bm-ai-rec-card';
+                const safeColor = escapeHtml(prod.color || '');
+                const safeSize = escapeHtml(prod.size || '');
+                const maxQty = prod.stock_quantity || 5;
+                card.style.width = '175px';
                 card.innerHTML = `
-                    <img src="${safeImg}" class="bm-ai-rec-img" alt="${safeName}">
+                    <a href="${safeUrl}" style="display:block;">
+                        <img src="${safeImg}" class="bm-ai-rec-img" alt="${safeName}" onerror="this.src='/static/img/categories/boys.jpg';" style="height:125px;">
+                    </a>
                     <div class="bm-ai-rec-info">
-                        <div class="bm-ai-rec-name">${safeName}</div>
+                        <div class="bm-ai-rec-name">${safeName}${safeColor ? ' (' + safeColor + ')' : ''}</div>
                         <div class="bm-ai-rec-price">${safePrice}</div>
-                        <a href="${safeUrl}" class="bm-ai-rec-btn">{% trans "Смотреть" %}</a>
+                        <button type="button" class="bm-ai-rec-btn" style="width:100%; border:none; cursor:pointer; background:linear-gradient(135deg,#10b981,#059669);"
+                            data-id="${prod.product_id}"
+                            data-variant-id="${prod.variant_id}"
+                            data-max-qty="${maxQty}"
+                            data-size="${safeSize}"
+                            data-color="${safeColor}"
+                            data-name="${safeName}"
+                            data-price="${prod.price || 0}"
+                            data-image="${safeImg}"
+                            data-store-id="${prod.store_id || window.CURRENT_STORE_ID || ''}"
+                            onclick="if(typeof quickAddToCart==='function'){quickAddToCart(this); if(typeof openCartModal==='function') setTimeout(openCartModal, 350);} else {window.location.href='${safeUrl}';}">
+                            ⚡ {% trans "Купить в 1 клик" %}
+                        </button>
+                        <a href="${safeUrl}" class="bm-ai-rec-btn" style="background:rgba(255,255,255,0.08); margin-top:4px;">{% trans "Открыть" %}</a>
                     </div>
                 `;
                 recBox.appendChild(card);
