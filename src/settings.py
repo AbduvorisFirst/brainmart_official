@@ -246,6 +246,18 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 # По умолчанию выполняем задачи сразу, чтобы система работала стабильно без отдельного Celery воркера
 CELERY_TASK_ALWAYS_EAGER = os.environ.get('CELERY_TASK_ALWAYS_EAGER', 'True') == 'True'
+CELERY_TIMEZONE = 'Asia/Tashkent'
+
+try:
+    from celery.schedules import crontab as _celery_crontab
+    CELERY_BEAT_SCHEDULE = {
+        'check-store-subscriptions-daily': {
+            'task': 'core.tasks.check_subscriptions_task',
+            'schedule': _celery_crontab(hour=9, minute=0),
+        },
+    }
+except Exception:
+    CELERY_BEAT_SCHEDULE = {}
 
 
 # ===========================================================================

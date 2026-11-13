@@ -314,21 +314,60 @@ class Store(models.Model):
         max_length=255, blank=True, default="",
         verbose_name="Причина блокировки магазина"
     )
-    @property
-    def current_tier_fee(self):
-        """Возвращает стоимость текущего тарифа (вычисляется из количества точек)."""
+    def get_subscription_fee_breakdown(self):
+        """
+        Возвращает детальную разбивку стоимости подписки магазина:
+        400 000 сум (база, включает 1-ю точку) + 150 000 сум за каждую доп. точку.
+        """
         branches_count = getattr(self, "branches_count_cached", None)
         if branches_count is None:
             branches_count = self.branches.count() if self.pk else 0
-        
-        base_fee = 400000.00
-        extra_branch_fee = 150000.00
-        
-        # 1-я точка входит в базовый тариф
-        if branches_count <= 1:
-            return base_fee
-        
-        return base_fee + (branches_count - 1) * extra_branch_fee
+
+        base_fee = 400000
+        extra_branch_fee = 150000
+        effective_branches = max(1, int(branches_count or 0))
+        extra_branches_count = max(0, effective_branches - 1)
+        extra_fee = extra_branches_count * extra_branch_fee
+        total_fee = base_fee + extra_fee
+
+        fmt_base = f"{base_fee:,}".replace(",", " ")
+        fmt_extra_unit = f"{extra_branch_fee:,}".replace(",", " ")
+        fmt_extra_total = f"{extra_fee:,}".replace(",", " ")
+        fmt_total = f"{total_fee:,}".replace(",", " ")
+
+        if extra_branches_count > 0:
+            breakdown_text = (
+                f"База (1-я точка): {fmt_base} сум + "
+                f"{extra_branches_count} доп. точка(и) × {fmt_extra_unit} сум "
+                f"({fmt_extra_total} сум) = {fmt_total} сум"
+            )
+            short_breakdown = (
+                f"1 точка ({fmt_base}) + {extra_branches_count} доп. × {fmt_extra_unit} = {fmt_total} сум"
+            )
+        else:
+            breakdown_text = f"Базовый тариф (1-я точка): {fmt_base} сум"
+            short_breakdown = f"1 точка = {fmt_base} сум"
+
+        return {
+            "base_fee": base_fee,
+            "extra_branch_fee": extra_branch_fee,
+            "branches_count": int(branches_count or 0),
+            "effective_branches": effective_branches,
+            "extra_branches_count": extra_branches_count,
+            "extra_fee": extra_fee,
+            "total_fee": total_fee,
+            "fmt_base": fmt_base,
+            "fmt_extra_unit": fmt_extra_unit,
+            "fmt_extra_total": fmt_extra_total,
+            "fmt_total": fmt_total,
+            "breakdown_text": breakdown_text,
+            "short_breakdown": short_breakdown,
+        }
+
+    @property
+    def current_tier_fee(self):
+        """Возвращает стоимость текущего тарифа (вычисляется из количества точек)."""
+        return float(self.get_subscription_fee_breakdown()["total_fee"])
 
     @property
     def can_use_broadcasts(self):

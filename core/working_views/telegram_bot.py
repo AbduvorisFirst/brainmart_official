@@ -747,6 +747,7 @@ def notify_superadmin_about_new_store(store: Store) -> None:
     ig_link = f"https://instagram.com/{store.instagram_username}"
     tg_user = f"@{store.owner_telegram_username.lstrip('@')}" if store.owner_telegram_username else "Не указан"
 
+    bd = store.get_subscription_fee_breakdown()
     text = (
         f"🔔 НОВАЯ ЗАЯВКА НА ОТКРЫТИЕ МАГАЗИНА!\n\n"
         f"🏬 Магазин: «{store.name}»\n"
@@ -755,7 +756,7 @@ def notify_superadmin_about_new_store(store: Store) -> None:
         f"📸 Instagram: @{store.instagram_username}\n"
         f"💬 Telegram владельца: {tg_user}\n"
         f"📦 Ниша: {store.get_niche_display()}\n"
-        f"💳 Модель: SaaS Подписка ({int(store.current_tier_fee):,} сум/мес, 0% комиссии)\n\n"
+        f"💳 Модель: SaaS Подписка ({bd['fmt_total']} сум/мес — {bd['short_breakdown']}, 0% комиссии)\n\n"
         f"👇 Изучите анкету продавца и подтвердите создание:"
     )
 
@@ -1195,6 +1196,12 @@ class TelegramWebhookView(APIView):
             if not incoming_secret or not secrets.compare_digest(str(incoming_secret or ""), str(webhook_secret)):
                 logger.warning("Telegram webhook: неверный secret_token — запрос отклонён")
                 return Response(status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            from core.working_views.subscription_service import trigger_subscription_check_if_due
+            trigger_subscription_check_if_due()
+        except Exception:
+            pass
 
         try:
             self._handle(request)
@@ -2575,9 +2582,11 @@ class TelegramWebhookView(APIView):
                         json={"callback_query_id": callback_query_id, "text": f"✅ Подписка '{store.name}' продлена до {new_date.strftime('%d.%m.%Y')}!"},
                         timeout=5,
                     )
+                    bd = store.get_subscription_fee_breakdown()
                     _send_telegram_message(
                         chat_id,
                         f"✅ Оплата подписки магазина «{store.name}» ПОДТВЕРЖДЕНА!\n"
+                        f"Расчёт тарифа: {bd['breakdown_text']}\n"
                         f"Сумма: {int(payment.amount):,} сум ({payment.months} мес.)\n"
                         f"Новая дата окончания: {new_date.strftime('%d.%m.%Y')} г. 🎉"
                     )
@@ -2587,6 +2596,7 @@ class TelegramWebhookView(APIView):
                         _send_telegram_message(
                             store.telegram_chat_id,
                             f"🎉 Отличная новость! Ваш перевод за подписку BrainMart ({int(payment.amount):,} сум) успешно подтверждён администратором!\n\n"
+                            f"💳 Тариф магазина: {bd['breakdown_text']}\n"
                             f"🗓 Подписка активна до: {new_date.strftime('%d.%m.%Y')} г.\n"
                             f"✅ Магазин, витрина товаров и ИИ-ассистент работают в штатном режиме 24/7."
                         )

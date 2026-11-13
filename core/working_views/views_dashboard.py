@@ -55,6 +55,12 @@ def _get_store_or_none(request):
     if not request.user.is_authenticated:
         return None
 
+    try:
+        from core.working_views.subscription_service import trigger_subscription_check_if_due
+        trigger_subscription_check_if_due()
+    except Exception:
+        pass
+
     store = getattr(request.user, "store", None)
 
     if not store and (request.user.is_superuser or request.user.is_staff):
@@ -2711,13 +2717,14 @@ def seller_finance_view(request):
                 admin_chat = ps.superadmin_telegram_chat_id or "1821219115"
 
                 current_until = store.subscription_paid_until.strftime("%d.%m.%Y") if store.subscription_paid_until else "—"
+                bd = store.get_subscription_fee_breakdown()
 
                 admin_text = (
                     f"💳 ЗАЯВКА НА ПОДПИСКУ BRAINMART!\n\n"
                     f"🏪 Магазин: «{store.name}» (ID: {store.id})\n"
                     f"👤 Владелец: @{store.owner.username} ({store.phone_number})\n"
-                    f"🏢 Филиалов: {store.branches.count()} точек\n"
-                    f"👑 Тариф: SaaS ({int(store.current_tier_fee):,} сум/мес)\n"
+                    f"🏢 Точек (филиалов): {bd['effective_branches']} ({bd['breakdown_text']})\n"
+                    f"👑 Тариф: SaaS ({bd['fmt_total']} сум/мес)\n"
                     f"💰 Сумма перевода: {int(fee):,} сум ({months} мес.)\n"
                     f"🧾 Чек/Реквизиты: {transaction_id or 'Без комментария'}\n"
                     f"📅 Оплачено до: {current_until}\n\n"

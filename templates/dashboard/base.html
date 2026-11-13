@@ -791,18 +791,20 @@
 
         <main>
             {% if user.is_authenticated and user.store %}
-                {% with sub_info=user.store.get_subscription_status_info %}
+                {% with sub_info=user.store.get_subscription_status_info bd=user.store.get_subscription_fee_breakdown %}
                     {% if sub_info.status == 'suspended' %}
                         <div style="background: rgba(255, 69, 58, 0.12); border: 1px solid rgba(255, 69, 58, 0.4); color: white; padding: 16px 20px; border-radius: 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; box-shadow: 0 4px 20px rgba(255, 69, 58, 0.2);">
                             <div style="display: flex; align-items: center; gap: 12px;">
                                 <span style="font-size: 26px;">🛑</span>
                                 <div>
                                     <div style="font-weight: 800; font-size: 14.5px; letter-spacing: -0.01em;">{% trans "Магазин и ИИ-продавец временно приостановлены" %}</div>
-                                    <div style="font-size: 12.5px; color: #FF9B9B;">{% trans "Просрочка подписки превысила 5 дней. Пополните подписку для возобновления приёма заказов." %}</div>
+                                    <div style="font-size: 12.5px; color: #FF9B9B;">
+                                        {% trans "Просрочка подписки превысила 6 дней. Расчёт тарифа:" %} {{ bd.breakdown_text }}.
+                                    </div>
                                 </div>
                             </div>
                             <a href="{% url 'seller-finance' %}" style="background: #FF453A; color: white; padding: 10px 18px; border-radius: 10px; font-weight: 800; text-decoration: none; font-size: 13px;">
-                                💳 {% trans "Оплатить" %} {{ request.user.store.current_tier_fee|floatformat:"0" }} {% trans "сум" %}
+                                💳 {% trans "Оплатить" %} {{ bd.fmt_total }} {% trans "сум" %}
                             </a>
                         </div>
                     {% elif sub_info.status == 'grace_period' %}
@@ -813,21 +815,27 @@
                                     <div style="font-weight: 800; font-size: 13.5px;">
                                         {% trans "Действует льготный период:" %} {{ sub_info.overdue }}-{% trans "й день (осталось" %} {{ sub_info.remaining_grace }} {% trans "дн. до блокировки)" %}
                                     </div>
-                                    <div style="font-size: 12px; color: #FFE399;">{% trans "Срок подписки истёк" %} {{ user.store.subscription_paid_until|date:"d.m.Y" }}.</div>
+                                    <div style="font-size: 12px; color: #FFE399;">
+                                        {% trans "Срок подписки истёк" %} {{ user.store.subscription_paid_until|date:"d.m.Y" }} • {{ bd.breakdown_text }}.
+                                    </div>
                                 </div>
                             </div>
                             <a href="{% url 'seller-finance' %}" style="background: #FF9F0A; color: #000; padding: 8px 16px; border-radius: 10px; font-weight: 800; text-decoration: none; font-size: 12px;">
-                                💳 {% trans "Оплатить" %}
+                                💳 {% trans "Оплатить" %} {{ bd.fmt_total }} {% trans "сум" %}
                             </a>
                         </div>
                     {% elif sub_info.status == 'expiring' %}
                         <div style="background: rgba(41, 151, 255, 0.1); border: 1px solid rgba(41, 151, 255, 0.3); color: white; padding: 12px 16px; border-radius: 14px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
                             <div style="display: flex; align-items: center; gap: 10px; font-size: 13px;">
                                 <span>📅</span>
-                                <span>{% trans "Подписка заканчивается через" %} <strong>{{ sub_info.days }} {% trans "дн." %}</strong> ({{ user.store.subscription_paid_until|date:"d.m.Y" }}).</span>
+                                <span>
+                                    {% trans "Подписка заканчивается через" %} <strong>{{ sub_info.days }} {% trans "дн." %}</strong> ({{ user.store.subscription_paid_until|date:"d.m.Y" }}) —
+                                    <strong>{{ bd.fmt_total }} {% trans "сум/мес" %}</strong>
+                                    <span style="opacity: 0.85;">({{ bd.short_breakdown }})</span>.
+                                </span>
                             </div>
                             <a href="{% url 'seller-finance' %}" style="background: var(--primary); color: white; padding: 6px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 12px;">
-                                {% trans "Продлить" %}
+                                {% trans "Продлить" %} {{ bd.fmt_total }} {% trans "сум" %}
                             </a>
                         </div>
                     {% endif %}

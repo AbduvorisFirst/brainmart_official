@@ -248,3 +248,14 @@ def send_abandoned_order_reminder_task(order_id: int):
         _send_telegram_message(chat_id, msg, reply_markup=kb, bot_token=bot_token)
     except Exception as e:
         logger.warning("send_abandoned_order_reminder_task error: %s", e)
+
+
+@shared_task
+def check_subscriptions_task():
+    """
+    Ежедневная проверка подписок всех магазинов:
+    расчёт тарифа с учётом всех точек, отправка напоминаний в Telegram и авто-заморозка.
+    """
+    from core.working_views.subscription_service import check_and_notify_all_subscriptions
+
+    return check_and_notify_all_subscriptions()
